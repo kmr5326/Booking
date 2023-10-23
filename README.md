@@ -1,5 +1,33 @@
 ## Branch strategy
-1. 
+
+### Git Flow
+
+```bash
+# Branch명
+master : 운영 서버로 배포하기 위한 branch
+develop : 안정되고 배포 가능한 branch
+FE/develop : frontend develop
+BE/develop : backend develop
+{포지션}/feat/{기능}#{이슈 번호} : 기능 개발을 위한 branch
+{포지션}/refactor/{기능}#{이슈 번호} : 리팩토링 branch
+{포지션}/hotfix : dev 브랜치에서 발생한 버그를 수정하는 branch
+
+// 예시
+BE/feat/user#1
+
+# Pull Request명
+브랜치명
+# Pull Request 내용
+템플릿
+```
+
+- **New Issues**
+    - Title : `[BE] 회원 도메인 생성`
+    - Description : 템플릿 사용
+    - Assignee : 담당자 지정
+    - **Create Issues**
+    - 생기는 이슈 번호를 이용해서 브랜치 생성
+
 ## Commit convention
 - feat: 새로운 기능 추가 또는 기능 관련
 
