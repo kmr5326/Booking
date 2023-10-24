@@ -7,6 +7,9 @@ spring:
       host: localhost
       port: 27017
       database: chat
+  mongodb:
+    embedded:
+      version: latest
 
 # -- Eureka client
 eureka:
