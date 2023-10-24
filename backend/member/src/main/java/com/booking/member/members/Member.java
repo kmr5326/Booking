@@ -48,5 +48,5 @@ public class Member {
 
     private String provider;
 
-    private String providerId;
+//    private String providerId;
 }

@@ -4,5 +4,8 @@ public record SignUpRequestDto(String email,
                                Integer age,
                                String gender,
                                String nickname,
-                               String) {
+                               String fullName,
+                               String address,
+                               String profileImg,
+                               String provider) {
 }

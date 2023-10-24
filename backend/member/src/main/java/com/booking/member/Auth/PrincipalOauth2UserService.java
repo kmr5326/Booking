@@ -5,6 +5,7 @@ import com.booking.member.members.MemberRepository;
 import com.booking.member.members.UserRole;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -33,21 +34,23 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
         String loginId = provider + "_" +providerId;
         String profileImg=oAuth2User.getAttribute("picture").toString();
         String fullName=oAuth2User.getAttribute("family_name").toString()+oAuth2User.getAttribute("given_name").toString();
+        log.debug("loadUser {}, {}, {}, {}, {}",provider,providerId,loginId,profileImg,fullName);
 
         Member memberData = memberRepository.findByEmail(loginId);
         Member member;
 
         if(memberData==null) {
-            member = Member.builder()
-                    .email(loginId)
-                    .nickname(oAuth2User.getAttribute("name"))
-                    .provider(provider)
-                    .providerId(providerId)
-                    .role(UserRole.USER)
-                    .profileImage(profileImg)
-                    .fullName(fullName)
-                    .build();
-            memberRepository.save(member);
+//            member = Member.builder()
+//                    .email(loginId)
+//                    .nickname(oAuth2User.getAttribute("name"))
+//                    .provider(provider)
+//                    .providerId(providerId)
+//                    .role(UserRole.USER)
+//                    .profileImage(profileImg)
+//                    .fullName(fullName)
+//                    .build();
+//            memberRepository.save(member);
+            throw new UsernameNotFoundException("사용자를 찾을 수 없습니다");
         } else {
             member=memberData;
         }

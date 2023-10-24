@@ -1,9 +1,8 @@
 package com.booking.member.global.config;
 
 import com.booking.member.Auth.PrincipalOauth2UserService;
-import com.booking.member.global.config.handler.MyAccessDeniedHandler;
-import com.booking.member.global.config.handler.MyAuthenticationEntryPoint;
-import com.booking.member.members.UserRole;
+import com.booking.member.global.handler.MyAccessDeniedHandler;
+import com.booking.member.global.handler.MyAuthenticationEntryPoint;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -24,14 +23,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 //.antMatchers("").authenticated()
                 //.antMatchers("").hasAuthority(UserRole.ADMIN.name())
                 .anyRequest().permitAll()
-                .and()
-                .formLogin()
-                .usernameParameter("email")
-                .passwordParameter("password")
-                //.loginPage("")
-                .loginProcessingUrl("/api/auth/login")
-                .defaultSuccessUrl("/") // 수정 필요
-                .failureUrl("/error") // 수정 필요
+//                .and()
+//                .formLogin()
+//                .usernameParameter("email")
+//                .passwordParameter("password")
+//                .loginPage("")
+//                .loginProcessingUrl("/api/auth/login")
+//                .defaultSuccessUrl("/") // 수정 필요
+//                .failureUrl("/error") // 수정 필요
                 .and()
                 .logout()
                 .logoutUrl("/api/auth/logout")
@@ -41,7 +40,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .oauth2Login()
 //                .loginPage("/security-login/login")
                 .loginProcessingUrl("/api/auth/login")
-                .defaultSuccessUrl("/security-login")
+                .defaultSuccessUrl("/") // 수정 필요
                 .userInfoEndpoint()
                 .userService(principalOauth2UserService);
         http

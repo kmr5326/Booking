@@ -14,9 +14,13 @@ import reactor.core.publisher.Mono;
 @RequestMapping("/api/members")
 public class MemberController {
 
-    @PostMapping("/signup")
-    Mono<ResponseEntity<?>> signup(@RequestBody Mono<SignUpRequestDto> reqMono){
+    private MemberService memberService;
 
-        return Mono.just(ResponseEntity.noContent().build());
+    @PostMapping("/signup")
+    Mono<ResponseEntity<String>> signup(@RequestBody Mono<SignUpRequestDto> reqMono) {
+        return reqMono.flatMap(req -> {
+            memberService.signup(req);
+            return Mono.just(ResponseEntity.ok().body("signup success"));
+        }).onErrorResume(e -> Mono.just(ResponseEntity.badRequest().body(e.getMessage())));
     }
 }

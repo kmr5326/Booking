@@ -1,4 +1,4 @@
-package com.booking.member.global.config.handler;
+package com.booking.member.global.handler;
 
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
