@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.helloworld"
+    namespace = "com.ssafy.booking"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.helloworld"
+        applicationId = "com.ssafy.booking"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
