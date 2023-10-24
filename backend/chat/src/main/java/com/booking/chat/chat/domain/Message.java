@@ -24,7 +24,7 @@ public class Message {
     private String content;
 
     @CreatedDate
-    private Date createdAt;
+    private Date timestamp;
 
 
 }

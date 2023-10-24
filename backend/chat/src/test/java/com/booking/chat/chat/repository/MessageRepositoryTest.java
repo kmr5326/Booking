@@ -16,11 +16,11 @@ import org.springframework.test.context.ActiveProfiles;
 class MessageRepositoryTest {
 
     @Autowired
-    ChatRepository chatRepository;
+    MessageRepository messageRepository;
 
     @BeforeEach
     void tearDown() throws Exception {
-        chatRepository.deleteAll();
+        messageRepository.deleteAll();
     }
 
     @Test
@@ -28,15 +28,15 @@ class MessageRepositoryTest {
     void t1() throws Exception {
 
         Message testMessage = Message.builder()
-                                     .id(1L)
-                                     .author("sangwon")
+                                     .message_id(1L)
+                                     .member_id(1L)
                                      .chatroom_id(1L)
                                      .content("하이")
                                      .build();
 
-        chatRepository.save(testMessage);
+        messageRepository.save(testMessage);
 
-        List<Message> messageList = chatRepository.findAll();
+        List<Message> messageList = messageRepository.findAll();
 
         assertThat(messageList.size()).isEqualTo(1L);
     }
