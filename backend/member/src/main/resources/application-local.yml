@@ -10,6 +10,16 @@ spring:
     url: jdbc:mariadb://localhost:3306/booking-member
     username: root
     password: 53265326
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: 137073411864-kuvh0b00kv1unku8626puk166qbuq3qd.apps.googleusercontent.com
+            client-secret: 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
+            scope:
+              - email
+              - profile
 
 # -- Eureka client
 eureka:

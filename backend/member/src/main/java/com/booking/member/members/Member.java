@@ -1,6 +1,7 @@
 package com.booking.member.members;
 
 import com.booking.member.follows.Follow;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,7 @@ import java.util.List;
 @Getter
 @RequiredArgsConstructor
 @Table(name = "members")
+@Builder
 public class Member {
     @Id
     @GeneratedValue
@@ -43,4 +45,8 @@ public class Member {
 
     @OneToMany(mappedBy = "follower")
     private List<Follow> followerMembers;
+
+    private String provider;
+
+    private String providerId;
 }
