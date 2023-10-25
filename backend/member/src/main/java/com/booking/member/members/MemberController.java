@@ -7,10 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 import java.security.Principal;
@@ -31,9 +28,16 @@ public class MemberController {
         }).onErrorResume(e -> Mono.just(ResponseEntity.badRequest().body(e.getMessage())));
     }
 
-    @GetMapping("/checkJwt")
-    Mono<ResponseEntity<String>> checkJwt(@AuthenticationPrincipal UserDetails user){
-      log.info("user={}",user);
+    @GetMapping("/checkJwt/{token}")
+    Mono<ResponseEntity<String>> checkJwt(@PathVariable String token){
+      log.info("token={}",token);
+
       return Mono.just(ResponseEntity.ok().build());
+    }
+
+    @GetMapping("/test")
+    Mono<ResponseEntity<String>> check(){
+
+        return Mono.just(ResponseEntity.ok().body("hello flux"));
     }
 }

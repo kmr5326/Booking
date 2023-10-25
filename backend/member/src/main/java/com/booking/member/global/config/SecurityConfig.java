@@ -5,6 +5,7 @@ import com.booking.member.Auth.PrincipalOauth2UserService;
 import com.booking.member.Auth.TokenProvider;
 import com.booking.member.global.handler.CustomAccessDeniedHandler;
 import com.booking.member.global.handler.CustomAuthenticationEntryPoint;
+import com.booking.member.global.handler.CustomOAuth2LoginSuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,6 +24,7 @@ public class SecurityConfig {
     private final TokenProvider tokenProvider;
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+    private final CustomOAuth2LoginSuccessHandler customOAuth2LoginSuccessHandler;
 
     @Bean
     public DefaultSecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -43,7 +45,9 @@ public class SecurityConfig {
                 .and()
                 .oauth2Login()
                 .userInfoEndpoint()
-                .userService(principalOauth2UserService);
+                .userService(principalOauth2UserService)
+                .and()
+                .successHandler(customOAuth2LoginSuccessHandler);
         http
                 .exceptionHandling()
                 .authenticationEntryPoint(customAuthenticationEntryPoint)
