@@ -23,7 +23,7 @@ public class ChatController {
         KafkaMessage kafkaMessage = KafkaMessage.builder().message(message).build();
 
         try {
-            kafkaTemplate.send("chat - " + chatRoomId, kafkaMessage);
+            kafkaTemplate.send("chat" + chatRoomId, kafkaMessage);
             return ResponseEntity.ok("success");
         } catch (Exception e) {
             log.error("error");
