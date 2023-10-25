@@ -9,52 +9,76 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
+public class PrincipalOauth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
 
     private final MemberRepository memberRepository;
     private final BCryptPasswordEncoder encoder;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
-        OAuth2User oAuth2User = super.loadUser(userRequest);
-        log.info("getAttributes : {}", oAuth2User.getAttributes());
+        OAuth2UserService<OAuth2UserRequest, OAuth2User> delegate = new DefaultOAuth2UserService();
+        OAuth2User oAuth2User = delegate.loadUser(userRequest);
 
-        //getAttributes : {sub=103058387739722400130, name=안창범, given_name=창범, family_name=안,
-        // picture=https://lh3.googleusercontent.com/a/AEdFTp5SiCyTaOLog9sDPN6QhWwsUj7xPbfj4HQF0fdC=s96-c,
-        // email=chb20050@gmail.com, email_verified=true, locale=ko}
         String provider = userRequest.getClientRegistration().getRegistrationId();
-        String providerId = oAuth2User.getAttribute("sub");
-        String loginId = provider + "_" +providerId;
-        String profileImg=oAuth2User.getAttribute("picture").toString();
-        String fullName=oAuth2User.getAttribute("family_name").toString()+oAuth2User.getAttribute("given_name").toString();
-        log.debug("loadUser {}, {}, {}, {}, {}",provider,providerId,loginId,profileImg,fullName);
+        log.info("provider={}",provider);
+        String userNameAttributeName = userRequest.getClientRegistration().getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName();
+        log.info("userNameAttributeName={}",userNameAttributeName);
 
-        Member memberData = memberRepository.findByEmail(loginId);
+        OAuthAttributes oauthAttributes = OAuthAttributes.of(provider, oAuth2User.getAttributes());
+        log.info("attributes={}",oauthAttributes.toString());
+//        OAuth2User oAuth2User = super.loadUser(userRequest);
+//        log.info("getAttributes : {}", oAuth2User.getAttributes());
+        Map<String,Object> attribute=oauthAttributes.getAttributes();
+        String email = provider+"_"+oauthAttributes.getId();
+        log.info("loadUser {}, {}",provider,email);
+
+        Member memberData = memberRepository.findByEmail(email);
         Member member;
 
         if(memberData==null) {
-//            member = Member.builder()
-//                    .email(loginId)
-//                    .nickname(oAuth2User.getAttribute("name"))
-//                    .provider(provider)
-//                    .providerId(providerId)
-//                    .role(UserRole.USER)
-//                    .profileImage(profileImg)
-//                    .fullName(fullName)
-//                    .build();
-//            memberRepository.save(member);
-            throw new UsernameNotFoundException("사용자를 찾을 수 없습니다");
+            member=createMember(oauthAttributes,provider,email);
+            memberRepository.save(member);
+//            throw new UsernameNotFoundException("사용자를 찾을 수 없습니다");
         } else {
             member=memberData;
         }
 
         return new PrincipalDetails(member, oAuth2User.getAttributes());
     }
+
+    private Member createMember(OAuthAttributes oAuthAttributes,String provider,String email){
+        Map<String,Object> attributes=oAuthAttributes.getAttributes();
+        if(provider.equals("google")){
+            String fullName=(String) attributes.get("family_name")+(String) attributes.get("given_name");
+            return Member.builder()
+                    .email(email)
+                    .nickname((String) attributes.get("name"))
+                    .provider(provider)
+                    .role(UserRole.USER)
+                    .profileImage((String) attributes.get("picture"))
+                    .fullName(fullName)
+                    .build();
+        }
+        else{
+            Map<String,Object> profile= (Map<String, Object>) attributes.get("profile");
+            return Member.builder()
+                    .email(email)
+                    .nickname((String) profile.get("nickname"))
+                    .provider(provider)
+                    .role(UserRole.USER)
+                    .profileImage((String) profile.get("profile_image_url"))
+                    .build();
+        }
+    }
+
 }

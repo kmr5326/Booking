@@ -1,10 +1,7 @@
 package com.booking.member.members;
 
 import com.booking.member.follows.Follow;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.List;
@@ -13,6 +10,7 @@ import java.util.List;
 @Getter
 @RequiredArgsConstructor
 @Table(name = "members")
+@AllArgsConstructor
 @Builder
 public class Member {
     @Id
