@@ -18,7 +18,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class Message {
 
     @Id private Long message_id;
+
     private Long chatroom_id;
+
     private Long member_id;
 
     private String content;
