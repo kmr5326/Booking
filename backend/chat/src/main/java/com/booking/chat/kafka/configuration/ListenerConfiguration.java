@@ -32,7 +32,7 @@ public class ListenerConfiguration {
 
         Map<String, Object> consumerConfiguration = ImmutableMap.<String, Object>builder()
                                                                 .put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092")
-                                                                .put(ConsumerConfig.GROUP_ID_CONFIG, "adopt")
+                                                                .put(ConsumerConfig.GROUP_ID_CONFIG, "chat")
                                                                 .put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class)
                                                                 .put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, deserializer)
                                                                 .put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest")
