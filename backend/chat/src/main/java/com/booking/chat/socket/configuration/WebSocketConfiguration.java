@@ -15,8 +15,11 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
         // '/chat/queue/room/{room_id}
-        registry.enableSimpleBroker("/chat/queue", "chat/topic");
-        registry.setApplicationDestinationPrefixes("/chat/pub");
+//        registry.enableSimpleBroker("/chat/queue", "chat/topic");
+//        registry.setApplicationDestinationPrefixes("/chat/pub");
+
+        registry.enableSimpleBroker("/subscribe"); // /subscribe/{chatNo}로 주제 구독 가능
+        registry.setApplicationDestinationPrefixes("/publish"); // /publish/message로 메시지 전송 컨트롤러 라우팅 가능
     }
 
     @Override
