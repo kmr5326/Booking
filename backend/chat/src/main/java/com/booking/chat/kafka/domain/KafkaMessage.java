@@ -1,4 +1,4 @@
-package com.booking.chat.chat.domain;
+package com.booking.chat.kafka.domain;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
