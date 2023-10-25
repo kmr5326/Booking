@@ -31,7 +31,7 @@ public class ListenerConfiguration {
         deserializer.addTrustedPackages("*");
 
         Map<String, Object> consumerConfiguration = ImmutableMap.<String, Object>builder()
-                                                                .put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092")
+                                                                .put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "192.168.45.98:9092")
                                                                 .put(ConsumerConfig.GROUP_ID_CONFIG, "chat")
                                                                 .put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class)
                                                                 .put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, deserializer)

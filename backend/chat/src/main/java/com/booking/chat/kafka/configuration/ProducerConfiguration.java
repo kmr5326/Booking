@@ -25,7 +25,7 @@ public class ProducerConfiguration {
     @Bean
     public Map<String, Object> producerConfigurations() {
         return ImmutableMap.<String, Object>builder()
-                           .put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092")
+                           .put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "192.168.45.98:9092")
                            .put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class)
                            .put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class)
                            .build();
