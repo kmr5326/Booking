@@ -1,9 +1,7 @@
 package com.booking.member.members;
 
 import com.booking.member.follows.Follow;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.List;
@@ -12,30 +10,42 @@ import java.util.List;
 @Getter
 @RequiredArgsConstructor
 @Table(name = "members")
+@AllArgsConstructor
+@Builder
 public class Member {
     @Id
     @GeneratedValue
     @Column(name = "members_id")
     private Integer id;
 
+    private String loginId;
+
+    @Setter
     private String email;
 
+    @Setter
     private Integer age;
 
+    @Setter
     private Gender gender;
 
+    @Setter
     @Column(length = 255)
     private String nickname;
 
+    @Setter
     @Column(length = 255)
     private String fullName;
 
     //@Column(columnDefinition = "TEXT")
+    @Setter
     @Column(length = 255)
     private String address;
 
+    @Setter
     private UserRole role;
 
+    @Setter
     private String profileImage;
 
     @OneToMany(mappedBy = "following")
@@ -43,4 +53,8 @@ public class Member {
 
     @OneToMany(mappedBy = "follower")
     private List<Follow> followerMembers;
+
+    private String provider;
+
+//    private String providerId;
 }
