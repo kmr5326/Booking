@@ -61,6 +61,11 @@ public class MemberServiceImpl implements MemberService {
         memberRepository.save(member);
     }
 
+    @Override
+    public void deleteMember(String loginId) {
+        memberRepository.delete(memberRepository.findByLoginId(loginId));
+    }
+
     public boolean checkEmailDuplicate(String email) {
         return memberRepository.existsByEmail(email);
     }

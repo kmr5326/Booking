@@ -1,5 +1,6 @@
 package com.booking.member.members.controller;
 
+import com.booking.member.members.dto.DeleteMemberRequestDto;
 import com.booking.member.members.dto.MemberInfoResponseDto;
 import com.booking.member.members.dto.ModifyRequestDto;
 import com.booking.member.members.dto.SignUpRequestDto;
@@ -58,5 +59,13 @@ public class MemberController {
         return Mono.just(ResponseEntity.ok().body("유저 정보 수정 완료"))
                 .onErrorResume(e -> Mono.just(ResponseEntity.badRequest().body(e.getMessage())));
 
+    }
+
+    @DeleteMapping("/deletion")
+    Mono<ResponseEntity<String>> deleteMember(@RequestBody DeleteMemberRequestDto req){
+        log.info("회원 탈퇴 {}",req);
+        memberService.deleteMember(req.loginId());
+        return Mono.just(ResponseEntity.ok().body("회원 탈퇴 성공"))
+                .onErrorResume(e -> Mono.just(ResponseEntity.badRequest().body(e.getMessage())));
     }
 }
