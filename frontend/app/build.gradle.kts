@@ -101,6 +101,10 @@ dependencies {
     // navigation
     implementation(NavComponent.NAVIGATION_COMPOSE)
     androidTestImplementation(NavComponent.NAVIGATION_TESTING)
+
+    // coil
+    implementation(Coil.COIL)
+    implementation(Coil.COIL_COMPOSE)
 }
 
 // Allow references to generated code
