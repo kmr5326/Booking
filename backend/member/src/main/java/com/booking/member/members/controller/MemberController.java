@@ -1,5 +1,6 @@
 package com.booking.member.members.controller;
 
+import com.booking.member.members.dto.MemberInfoResponseDto;
 import com.booking.member.members.dto.ModifyRequestDto;
 import com.booking.member.members.dto.SignUpRequestDto;
 import com.booking.member.members.service.MemberService;
@@ -26,27 +27,19 @@ public class MemberController {
                 .onErrorResume(e -> Mono.just(ResponseEntity.badRequest().body(e.getMessage())));
     }
 
-//    @GetMapping("/memberInfo/{loginId}")
-//    Mono<ResponseEntity<MemberInfoResponseDto>> loadMember(@PathVariable String loginId){
-//        log.info("유저 정보 조회 loginId={}",loginId);
-//        try{
-//            MemberInfoResponseDto memberInfo=memberService.loadMemberInfo(loginId);
-//            return Mono.just(ResponseEntity.ok().body(memberInfo));
-//        }
-//        catch (Exception e){
-////            return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).build());
-//            return Mono.;
-//        }
-////        return loginIdMono.flatMap(loginId -> {
-////            log.info("유저 정보 조회 loginId={}",loginId);
-////            MemberInfoResponseDto memberInfo=memberService.loadMemberInfo(loginId);
-////            return Mono.just(ResponseEntity.ok().body(memberInfo));
-////        }).onErrorResume(e -> {
-////            log.error("유저 정보 조회 중 에러 발생", e);
-//////            return Mono.error(ResponseEntity.status(HttpStatus.BAD_REQUEST).build());
-////            return Mono.error(e);
-////        });
-//    }
+    @GetMapping("/memberInfo/{loginId}")
+    Mono<ResponseEntity<MemberInfoResponseDto>> loadMember(@PathVariable String loginId){
+        log.info("유저 정보 조회 loginId={}",loginId);
+        try{
+            MemberInfoResponseDto memberInfo=memberService.loadMemberInfo(loginId);
+            return Mono.just(ResponseEntity.ok().body(memberInfo));
+        }
+        catch (Exception e){
+//            return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).build());
+            return Mono.error(e);
+            // 에러 메세지 어떻게 보내지?
+        }
+    }
 
     @GetMapping("/afterLogin/{token}")
     Mono<ResponseEntity<String>> loadMemberAfterLogin(@PathVariable String token) {
