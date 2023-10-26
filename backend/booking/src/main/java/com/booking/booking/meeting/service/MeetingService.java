@@ -1,6 +1,8 @@
 package com.booking.booking.meeting.service;
 
+import com.booking.booking.global.exception.ErrorCode;
 import com.booking.booking.meeting.dto.response.MemberInfoResponse;
+import com.booking.booking.meeting.exception.MeetingException;
 import com.booking.booking.meeting.repository.MeetingRepository;
 import java.net.URI;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +21,6 @@ public class MeetingService {
     private static final String GATEWAY_URL = "http://localhost:8999";
 
     public void arrangeMeeting(String userEmail) {
-        log.info("start arrageMettings");
         getMemberInfoByEmail(userEmail)
             .flatMap(memberInfo -> {
                 log.info(memberInfo.toString());
@@ -30,11 +31,18 @@ public class MeetingService {
                 result -> {
                     // onNext 이벤트 처리
                     // 데이터 처리가 성공적으로 완료되면 이 부분이 호출됩니다.
+                    // 모임 방 생성, 채팅 방 생성, 채팅 서버로 이 내역을 전송
+                    // 모임을 만들고
+                    // chatRoomService 에서 채팅 방
+                    // 참가자 목록에 방장 넣어주고
+                    // 채팅 서버로 이 내역을 전송해 준다.
                 },
                 error -> {
                     // onError 이벤트 처리
                     // 에러가 발생하면 이 부분이 호출됩니다.
-                    log.error("Error occurred: ", error);
+                    // throw new RuntimeException();
+                    throw new MeetingException(ErrorCode.CREATED_MEETING_FAILURE);
+                    //log.error("Error occurred: ", error);
                 },
                 () -> {
                     // onComplete 이벤트 처리
@@ -42,7 +50,6 @@ public class MeetingService {
                     log.info("Completed arrangeMeetings");
                 }
             );
-        log.info("hello"); // 이 로그 메시지는 구독이 시작되자마자 출력될 것입니다.
     }
 
     private Mono<MemberInfoResponse> getMemberInfoByEmail(String userEmail) {

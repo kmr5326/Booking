@@ -1,7 +1,7 @@
 package com.booking.booking.meeting.controller;
 
 import com.booking.booking.meeting.service.MeetingService;
-import com.booking.booking.util.jwt.JwtUtil;
+import com.booking.booking.global.jwt.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +26,7 @@ public class MeetingController {
 
         String userEmail = JwtUtil.getLoginEmailByToken(token);
         meetingService.arrangeMeeting(userEmail);
+
 
         return Mono.just(ResponseEntity.noContent().build());
     }

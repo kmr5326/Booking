@@ -1,4 +1,4 @@
-package com.booking.booking.util.jwt;
+package com.booking.booking.global.jwt;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
