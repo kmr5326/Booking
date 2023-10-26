@@ -44,6 +44,17 @@ public class Meeting {
 
     private String bookIsbn;
 
+    @Column(length = 32)
+    private String meetingTitle;
+
+    private String description;
+
+    @Size(min = 2, max = 6)
+    private Integer maxParticipants;
+
+    @Enumerated(EnumType.STRING)
+    private MeetingState meetingState;
+
     @OneToMany(fetch = FetchType.LAZY)
     private List<MeetingInfo> meetingInfoList;
 
@@ -62,14 +73,4 @@ public class Meeting {
     @OneToMany(fetch = FetchType.LAZY)
     private List<Hashtag> hashTagList;
 
-    @Column(length = 32)
-    private String meetingTitle;
-
-    private String description;
-
-    @Size(min = 2, max = 6)
-    private Integer maxParticipants;
-
-    @Enumerated(EnumType.STRING)
-    private MeetingState meetingState;
 }
