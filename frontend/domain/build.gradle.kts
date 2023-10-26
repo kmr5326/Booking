@@ -31,33 +31,28 @@ android {
     }
     kotlinOptions {
         jvmTarget = "17"
-
     }
 }
 
 dependencies {
 
-    implementation("androidx.core:core-ktx:1.12.0")
+    implementation("androidx.core:core-ktx:1.9.0")
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.10.0")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
 
-    implementation("com.squareup.retrofit2:retrofit:2.9.0")
-    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    // Retrofit
+    implementation (Retrofit.RETROFIT)
+    implementation (Retrofit.CONVERTER_GSON)
+    implementation (Retrofit.CONVERTER_JAXB)
 
-    implementation("com.google.dagger:hilt-android:2.48.1")
-    kapt("com.google.dagger:hilt-compiler:2.48.1")
+    //okHttp
+    implementation (OkHttp.OKHTTP)
+    implementation (OkHttp.LOGGING_INTERCEPTOR)
 
-    androidTestImplementation("com.google.dagger:hilt-android-testing:2.48.1")
-    kaptAndroidTest("com.google.dagger:hilt-compiler:2.48.1")
-
-    testImplementation("com.google.dagger:hilt-android-testing:2.48.1")
-    kaptTest("com.google.dagger:hilt-compiler:2.48.1")
-}
-
-// Allow references to generated code
-kapt {
-    correctErrorTypes = true
+    // dager hilt
+    implementation (DaggerHilt.DAGGER_HILT)
+    kapt (DaggerHilt.DAGGER_HILT_COMPILER)
 }

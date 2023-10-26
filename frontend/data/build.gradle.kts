@@ -35,7 +35,6 @@ android {
 }
 
 dependencies {
-    implementation(project(mapOf("path" to ":domain")))
 
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.appcompat:appcompat:1.6.1")
@@ -44,17 +43,19 @@ dependencies {
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
 
-    implementation("com.google.dagger:hilt-android:2.48.1")
-    kapt("com.google.dagger:hilt-compiler:2.48.1")
+    // Retrofit
+    implementation (Retrofit.RETROFIT)
+    implementation (Retrofit.CONVERTER_GSON)
+    implementation (Retrofit.CONVERTER_JAXB)
 
-    androidTestImplementation("com.google.dagger:hilt-android-testing:2.48.1")
-    kaptAndroidTest("com.google.dagger:hilt-compiler:2.48.1")
+    //okHttp
+    implementation (OkHttp.OKHTTP)
+    implementation (OkHttp.LOGGING_INTERCEPTOR)
 
-    testImplementation("com.google.dagger:hilt-android-testing:2.48.1")
-    kaptTest("com.google.dagger:hilt-compiler:2.48.1")
-}
+    //coroutines
+    implementation (Coroutines.COROUTINES)
 
-// Allow references to generated code
-kapt {
-    correctErrorTypes = true
+    // dager hilt
+    implementation (DaggerHilt.DAGGER_HILT)
+    kapt (DaggerHilt.DAGGER_HILT_COMPILER)
 }

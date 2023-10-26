@@ -55,7 +55,6 @@ android {
 dependencies {
     implementation(project(mapOf("path" to ":domain")))
     implementation(project(mapOf("path" to ":data")))
-    implementation(project(mapOf("path" to ":di")))
 
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
@@ -73,20 +72,35 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 
-    implementation("com.squareup.retrofit2:retrofit:2.9.0")
-    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    // Retrofit + Gson
+    implementation(Retrofit.RETROFIT)
+    implementation(Retrofit.CONVERTER_GSON)
+    implementation(Retrofit.CONVERTER_JAXB)
 
-    implementation("com.google.dagger:hilt-android:2.48.1")
-    kapt("com.google.dagger:hilt-compiler:2.48.1")
+    // okHttp
+    implementation(OkHttp.OKHTTP)
+    implementation(OkHttp.LOGGING_INTERCEPTOR)
 
-    androidTestImplementation("com.google.dagger:hilt-android-testing:2.48.1")
-    kaptAndroidTest("com.google.dagger:hilt-compiler:2.48.1")
+    //coroutines
+    implementation(Coroutines.COROUTINES)
 
-    testImplementation("com.google.dagger:hilt-android-testing:2.48.1")
-    kaptTest("com.google.dagger:hilt-compiler:2.48.1")
+    //by viewModel
+    implementation(AndroidX.ACTIVITY)
+    implementation(AndroidX.FRAGMENT)
 
-    implementation("androidx.navigation:navigation-compose:2.5.3")
-    androidTestImplementation("androidx.navigation:navigation-testing:2.5.3")
+    // hilt
+    implementation(DaggerHilt.DAGGER_HILT)
+    kapt(DaggerHilt.DAGGER_HILT_COMPILER)
+
+//    androidTestImplementation("com.google.dagger:hilt-android-testing:2.48.1")
+//    kaptAndroidTest("com.google.dagger:hilt-compiler:2.48.1")
+//
+//    testImplementation("com.google.dagger:hilt-android-testing:2.48.1")
+//    kaptTest("com.google.dagger:hilt-compiler:2.48.1")
+
+    // navigation
+    implementation(NavComponent.NAVIGATION_COMPOSE)
+    androidTestImplementation(NavComponent.NAVIGATION_TESTING)
 }
 
 // Allow references to generated code
