@@ -76,3 +76,8 @@ object NavComponent {
     const val NAVIGATION_TESTING = "androidx.navigation:navigation-testing:$NAV_VERSION"
     const val NAVIGATION_COMPOSE = "androidx.navigation:navigation-compose:$NAV_VERSION"
 }
+
+object Coil {
+    const val COIL = "io.coil-kt:coil:2.2.2"
+    const val COIL_COMPOSE = "io.coil-kt:coil-compose:2.2.2"
+}
