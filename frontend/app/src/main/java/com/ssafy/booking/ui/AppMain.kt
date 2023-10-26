@@ -14,6 +14,7 @@ import androidx.navigation.compose.rememberNavController
 import com.ssafy.booking.ui.book.BookHome
 import com.ssafy.booking.ui.chat.ChatHome
 import com.ssafy.booking.ui.history.HistoryHome
+import com.ssafy.booking.ui.login.Greeting
 import com.ssafy.booking.ui.theme.BookingTheme
 import com.ssafy.booking.viewmodel.AppViewModel
 import com.ssafy.booking.ui.main.Main
@@ -27,6 +28,7 @@ sealed class AppNavItem(
     object Main: AppNavItem("main")
     object Chat: AppNavItem("chat")
     object Profile: AppNavItem("profile")
+    object Login: AppNavItem("login")
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -49,7 +51,10 @@ fun AppBar() {
     val navController = rememberNavController()
     val appViewModel = viewModel<AppViewModel>()
 
-    NavHost(navController = navController, startDestination = AppNavItem.Main.route) {
+    NavHost(navController = navController, startDestination = AppNavItem.Login.route) {
+        composable("login") {
+            Greeting(navController, appViewModel)
+        }
         composable("book") {
             BookHome(navController, appViewModel)
         }
