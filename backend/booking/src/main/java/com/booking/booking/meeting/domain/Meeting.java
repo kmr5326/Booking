@@ -7,6 +7,8 @@ import com.booking.booking.meetinginfo.domain.MeetingInfo;
 import com.booking.booking.participant.domain.Participant;
 import com.booking.booking.post.domain.Post;
 import com.booking.booking.waitlist.domain.Waitlist;
+import javax.persistence.EnumType;
+import javax.persistence.FetchType;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -42,22 +44,22 @@ public class Meeting {
 
     private String bookIsbn;
 
-    @OneToMany
+    @OneToMany(fetch = FetchType.LAZY)
     private List<MeetingInfo> meetingInfoList;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     private Chatroom chatroom;
 
-    @OneToMany
+    @OneToMany(fetch = FetchType.LAZY)
     private List<Waitlist> waitList;
 
-    @OneToMany
+    @OneToMany(fetch = FetchType.LAZY)
     private List<Participant> participantsList;
 
-    @OneToMany
+    @OneToMany(fetch = FetchType.LAZY)
     private List<Post> postList;
 
-    @OneToMany
+    @OneToMany(fetch = FetchType.LAZY)
     private List<Hashtag> hashTagList;
 
     @Column(length = 32)
@@ -68,6 +70,6 @@ public class Meeting {
     @Size(min = 2, max = 6)
     private Integer maxParticipants;
 
-    @Enumerated
+    @Enumerated(EnumType.STRING)
     private MeetingState meetingState;
 }
