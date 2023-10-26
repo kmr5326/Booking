@@ -84,6 +84,9 @@ dependencies {
 
     testImplementation("com.google.dagger:hilt-android-testing:2.48.1")
     kaptTest("com.google.dagger:hilt-compiler:2.48.1")
+
+    implementation("androidx.navigation:navigation-compose:2.5.3")
+    androidTestImplementation("androidx.navigation:navigation-testing:2.5.3")
 }
 
 // Allow references to generated code
