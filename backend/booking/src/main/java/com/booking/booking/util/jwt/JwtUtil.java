@@ -13,6 +13,9 @@ public class JwtUtil {
     private static String secret;
     public static String getLoginEmailByToken(String token) {
 
+        //bearer
+        token = token.substring(7);
+
         byte[] keyBytes = secret.getBytes(StandardCharsets.UTF_8);
 
         var key = Keys.hmacShaKeyFor(keyBytes);
