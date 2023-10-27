@@ -6,7 +6,7 @@ volumes:
       name: booking_member_maria
 
 networks:
-  member_maria_network: # 이 섹션은 외부 네트워크에 연결을 정의합니다.
+  booking_member_service_network: # 이 섹션은 외부 네트워크에 연결을 정의합니다.
     driver: bridge
 
 
@@ -23,7 +23,7 @@ services:
       MYSQL_PASSWORD: booking123!  # 새 사용자의 비밀번호입니다.
       TZ: Asia/Seoul
     networks:
-      - member_maria_network
+      - booking_member_service_network
     volumes:
       - 'booking_member_maria:/var/lib/mysql'
     command:
@@ -47,4 +47,4 @@ services:
     ports:
       - '9001:9001'
     networks:
-      - member_maria_network
+      - booking_member_service_network
