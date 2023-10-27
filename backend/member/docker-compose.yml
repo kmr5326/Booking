@@ -33,10 +33,12 @@ services:
       - booking_member_maria
     image: 'member-image:latest'
     container_name: 'member-container'
-#    environment:
+    environment:
+      CONFIG_URL: 'http://localhost:8123'
 #      SPRING_DATASOURCE_URL: 'jdbc:mariadb://booking_member_maria:3306/booking-member'
 #      SPRING_DATASOURCE_USERNAME: root
 #      SPRING_DATASOURCE_PASSWORD: booking123!
+
     ports:
       - '9001:9001'
     networks:
