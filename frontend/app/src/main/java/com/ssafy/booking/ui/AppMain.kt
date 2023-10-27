@@ -12,6 +12,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.ssafy.booking.ui.book.BookHome
+import com.ssafy.booking.ui.chat.ChatDetail
 import com.ssafy.booking.ui.chat.ChatHome
 import com.ssafy.booking.ui.history.HistoryHome
 import com.ssafy.booking.ui.login.Greeting
@@ -27,6 +28,7 @@ sealed class AppNavItem(
     object History: AppNavItem("history")
     object Main: AppNavItem("main")
     object Chat: AppNavItem("chat")
+    object ChatDetail: AppNavItem("chatDetail/{chatId}")
     object Profile: AppNavItem("profile")
     object Login: AppNavItem("login")
 }
@@ -66,6 +68,9 @@ fun AppBar() {
         }
         composable("chat") {
             ChatHome(navController, appViewModel)
+        }
+        composable("chatDetail/{chatId}") {
+            ChatDetail(navController, appViewModel)
         }
         composable("profile") {
             ProfileHome(navController, appViewModel)
