@@ -25,6 +25,6 @@ public class Chatroom {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long chatroom_id;
 
-    @OneToOne(mappedBy = "meeting")
-    private Meeting meeting;
+//    @OneToOne(mappedBy = "meeting")
+//    private Meeting meeting;
 }

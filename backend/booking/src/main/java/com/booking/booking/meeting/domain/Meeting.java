@@ -7,6 +7,8 @@ import com.booking.booking.meetinginfo.domain.MeetingInfo;
 import com.booking.booking.participant.domain.Participant;
 import com.booking.booking.post.domain.Post;
 import com.booking.booking.waitlist.domain.Waitlist;
+import javax.persistence.EnumType;
+import javax.persistence.FetchType;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -42,24 +44,6 @@ public class Meeting {
 
     private String bookIsbn;
 
-    @OneToMany
-    private List<MeetingInfo> meetingInfoList;
-
-    @OneToOne
-    private Chatroom chatroom;
-
-    @OneToMany
-    private List<Waitlist> waitList;
-
-    @OneToMany
-    private List<Participant> participantsList;
-
-    @OneToMany
-    private List<Post> postList;
-
-    @OneToMany
-    private List<Hashtag> hashTagList;
-
     @Column(length = 32)
     private String meetingTitle;
 
@@ -68,6 +52,25 @@ public class Meeting {
     @Size(min = 2, max = 6)
     private Integer maxParticipants;
 
-    @Enumerated
+    @Enumerated(EnumType.STRING)
     private MeetingState meetingState;
+
+    @OneToMany(fetch = FetchType.LAZY)
+    private List<MeetingInfo> meetingInfoList;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    private Chatroom chatroom;
+
+    @OneToMany(fetch = FetchType.LAZY)
+    private List<Waitlist> waitList;
+
+    @OneToMany(fetch = FetchType.LAZY)
+    private List<Participant> participantsList;
+
+    @OneToMany(fetch = FetchType.LAZY)
+    private List<Post> postList;
+
+    @OneToMany(fetch = FetchType.LAZY)
+    private List<Hashtag> hashTagList;
+
 }
