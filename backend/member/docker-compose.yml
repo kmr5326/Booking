@@ -30,7 +30,7 @@ services:
   booking_member_server:
     restart: on-failure
     depends_on:
-      - member-db-container
+      - booking_member_maria
     image: 'member-image:latest'
     container_name: 'member-container'
     environment:
