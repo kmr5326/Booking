@@ -16,7 +16,7 @@ services:
     container_name: 'member-db-container'
     environment:
       MYSQL_ROOT_PASSWORD: booking123!  # root 사용자의 비밀번호입니다.
-      MYSQL_DATABASE: booking-member  # 생성될 데이터베이스의 이름입니다.
+      MYSQL_DATABASE: booking_member  # 생성될 데이터베이스의 이름입니다.
       # Optional: 다음 환경 변수를 사용하여 특정 사용자를 만들고 해당 데이터베이스에 모든 권한을 부여할 수 있습니다.
       MYSQL_USER: booking  # 새 사용자의 이름입니다.
       MYSQL_PASSWORD: booking123!  # 새 사용자의 비밀번호입니다.
