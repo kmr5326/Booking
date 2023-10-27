@@ -13,7 +13,7 @@ public class ExceptionControllerHandler {
 
     @ExceptionHandler(BaseException.class)
     public Mono<ResponseEntity<ErrorResponse>> test(BaseException e) {
-        log.error("sdfasdf");
+        log.error(" '{}' ", e.errorCode.getMessage());
         ErrorResponse errorResponse = new ErrorResponse(e.getErrorCode());
         return Mono.just(ResponseEntity.status(errorResponse.httpStatus()).body(errorResponse));
     }

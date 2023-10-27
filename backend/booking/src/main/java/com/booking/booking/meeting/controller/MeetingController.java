@@ -27,7 +27,6 @@ public class MeetingController {
         String userEmail = JwtUtil.getLoginEmailByToken(token);
         meetingService.arrangeMeeting(userEmail);
 
-
         return Mono.just(ResponseEntity.noContent().build());
     }
 
