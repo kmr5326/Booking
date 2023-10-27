@@ -5,9 +5,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -42,38 +45,66 @@ fun BookingApp() {
     BookingTheme {
         Scaffold {
             Box(Modifier.padding(it)) {
-                AppBar()
+                Route()
             }
         }
     }
 }
 
-@Composable
-fun AppBar() {
-    val navController = rememberNavController()
-    val appViewModel = viewModel<AppViewModel>()
+val LocalNavigation = staticCompositionLocalOf<NavHostController> { error("Not provided") }
 
-    NavHost(navController = navController, startDestination = AppNavItem.Login.route) {
-        composable("login") {
-            Greeting(navController, appViewModel)
-        }
-        composable("book") {
-            BookHome(navController, appViewModel)
-        }
-        composable("history") {
-            HistoryHome(navController, appViewModel)
-        }
-        composable("main") {
-            Main(navController, appViewModel)
-        }
-        composable("chat") {
-            ChatHome(navController, appViewModel)
-        }
-        composable("chatDetail/{chatId}") {
-            ChatDetail(navController, appViewModel)
-        }
-        composable("profile") {
-            ProfileHome(navController, appViewModel)
-        }
+@Composable
+fun Route() {
+    val appViewModel = viewModel<AppViewModel>()
+    val navController = rememberNavController()
+    CompositionLocalProvider(
+        LocalNavigation provides navController,
+    ) {
+        NavHost(navController = navController, startDestination = AppNavItem.Login.route) {
+            composable("login") {
+                Greeting(navController, appViewModel)
+            }
+            composable("book") {
+                BookHome(navController, appViewModel)
+            }
+            composable("history") {
+                HistoryHome(navController, appViewModel)
+            }
+            composable("main") {
+                Main(navController, appViewModel)
+            }
+            composable("chat") {
+                ChatHome(navController, appViewModel)
+            }
+            composable("chatDetail/{chatId}") {
+                ChatDetail(navController, appViewModel)
+            }
+            composable("profile") {
+                ProfileHome(navController, appViewModel)
+            }
+    }
+
+//    NavHost(navController = navController, startDestination = AppNavItem.Login.route) {
+//        composable("login") {
+//            Greeting(navController, appViewModel)
+//        }
+//        composable("book") {
+//            BookHome(navController, appViewModel)
+//        }
+//        composable("history") {
+//            HistoryHome(navController, appViewModel)
+//        }
+//        composable("main") {
+//            Main(navController, appViewModel)
+//        }
+//        composable("chat") {
+//            ChatHome(navController, appViewModel)
+//        }
+//        composable("chatDetail/{chatId}") {
+//            ChatDetail(navController, appViewModel)
+//        }
+//        composable("profile") {
+//            ProfileHome(navController, appViewModel)
+//        }
     }
 }

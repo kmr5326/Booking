@@ -38,6 +38,7 @@ import com.ssafy.booking.ui.common.BottomNav
 import com.ssafy.booking.ui.common.TopBar
 import com.ssafy.booking.viewmodel.AppViewModel
 import com.ssafy.booking.viewmodel.DummyAppViewModel
+import com.ssafy.booking.ui.LocalNavigation
 
 @Preview(showBackground = true)
 @Composable
@@ -54,7 +55,6 @@ fun ChatHome(
     appViewModel: AppViewModel
 ) {
 
-//    val navController = navController
     Column {
         TopBar(title = "채팅방")
 
@@ -77,17 +77,17 @@ fun ChatList(navController: NavController) {
             .padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
         items(chatItemList) { chat ->
-            ChatItem(chat, navController) {}
+            ChatItem(chat) {}
         }
     }
 }
 
 @Composable
 fun ChatItem(
-    chat: Chat,
-    navController: NavController,
-    onRowClick: (Chat) -> Unit
+    chat: ChatData,
+    onRowClick: (ChatData) -> Unit
 ) {
+    val navController = LocalNavigation.current
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -170,7 +170,7 @@ fun ChatItem(
 }
 
 // ########################## 객체
-data class Chat(
+data class ChatData(
     val chatId : Int,
     val chatType : String,
     val imageResId: Int,
@@ -180,8 +180,8 @@ data class Chat(
 )
 // ########################## 데이터
 val chatItemList = listOf(
-    Chat(1,"Notification", R.drawable.chat1, "알림", "인간실격 독서토론에 참여했습니다!",1),
-    Chat(2,"Person",R.drawable.chat2, "박희창", "저 가입신청 좀 받아주세요 12312@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$%$$$$$$$$$$$$$$$$$$$@@@@@@@@@@@@@@", 1),
-    Chat(3,"Booking",R.drawable.chat3, "인간실격 독서토론", "주말로 변경할 수 있나요?",3),
-    Chat(4,"Booking",R.drawable.chat4, "남이야 잡화점", "안녕하세요!!",4)
+    ChatData(1,"Notification", R.drawable.chat1, "알림", "인간실격 독서토론에 참여했습니다!",1),
+    ChatData(2,"Person",R.drawable.chat2, "박희창", "저 가입신청 좀 받아주세요 12312@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$%$$$$$$$$$$$$$$$$$$$@@@@@@@@@@@@@@", 1),
+    ChatData(3,"Booking",R.drawable.chat3, "인간실격 독서토론", "주말로 변경할 수 있나요?",3),
+    ChatData(4,"Booking",R.drawable.chat4, "남이야 잡화점", "안녕하세요!!",4)
 )
