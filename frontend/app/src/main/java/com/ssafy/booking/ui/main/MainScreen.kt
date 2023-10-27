@@ -74,7 +74,6 @@ fun BookList() {
         }
     }
 }
-
 @Composable
 fun BookItem(book: Book) {
     Row(
