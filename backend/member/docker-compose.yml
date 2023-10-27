@@ -13,7 +13,7 @@ networks:
 services:
   booking_member_maria:
     restart: on-failure
-    image: 'mariadb:10.4'
+    image: mariadb:10.8.2
     container_name: 'member-db-container'
     environment:
       MYSQL_ROOT_PASSWORD: booking123!  # root 사용자의 비밀번호입니다.
