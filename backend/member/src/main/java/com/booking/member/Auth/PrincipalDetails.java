@@ -2,7 +2,6 @@ package com.booking.member.Auth;
 
 import com.booking.member.members.Member;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
@@ -45,7 +44,7 @@ public class PrincipalDetails implements UserDetails, OAuth2User {
     // get Username 메서드 (생성한 User은 loginId 사용)
     @Override
     public String getUsername() {
-        return member.getEmail();
+        return member.getLoginId();
     }
 
     // 계정이 만료 되었는지 (true: 만료X)

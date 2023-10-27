@@ -1,11 +1,10 @@
 package com.booking.member.Auth;
 
 import com.booking.member.members.Member;
-import com.booking.member.members.MemberRepository;
+import com.booking.member.members.repository.MemberRepository;
 import com.booking.member.members.UserRole;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -30,23 +29,22 @@ public class PrincipalOauth2UserService implements OAuth2UserService<OAuth2UserR
         OAuth2User oAuth2User = delegate.loadUser(userRequest);
 
         String provider = userRequest.getClientRegistration().getRegistrationId();
-        log.info("provider={}",provider);
-        String userNameAttributeName = userRequest.getClientRegistration().getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName();
-        log.info("userNameAttributeName={}",userNameAttributeName);
+//        log.info("provider={}",provider);
+//        String userNameAttributeName = userRequest.getClientRegistration().getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName();
+//        log.info("userNameAttributeName={}",userNameAttributeName);
 
         OAuthAttributes oauthAttributes = OAuthAttributes.of(provider, oAuth2User.getAttributes());
-        log.info("attributes={}",oauthAttributes.toString());
-//        OAuth2User oAuth2User = super.loadUser(userRequest);
-//        log.info("getAttributes : {}", oAuth2User.getAttributes());
-        Map<String,Object> attribute=oauthAttributes.getAttributes();
-        String email = provider+"_"+oauthAttributes.getId();
-        log.info("loadUser {}, {}",provider,email);
+//        log.info("attributes={}",oauthAttributes.toString());
 
-        Member memberData = memberRepository.findByEmail(email);
+        Map<String,Object> attribute=oauthAttributes.getAttributes();
+        String loginId = provider+"_"+oauthAttributes.getId();
+        log.info("loadUser {}, {}",provider,loginId);
+
+        Member memberData = memberRepository.findByLoginId(loginId);
         Member member;
 
         if(memberData==null) {
-            member=createMember(oauthAttributes,provider,email);
+            member=createMember(oauthAttributes,provider,loginId);
             memberRepository.save(member);
 //            throw new UsernameNotFoundException("사용자를 찾을 수 없습니다");
         } else {
@@ -56,12 +54,12 @@ public class PrincipalOauth2UserService implements OAuth2UserService<OAuth2UserR
         return new PrincipalDetails(member, oAuth2User.getAttributes());
     }
 
-    private Member createMember(OAuthAttributes oAuthAttributes,String provider,String email){
+    private Member createMember(OAuthAttributes oAuthAttributes,String provider,String loginId){
         Map<String,Object> attributes=oAuthAttributes.getAttributes();
         if(provider.equals("google")){
             String fullName=(String) attributes.get("family_name")+(String) attributes.get("given_name");
             return Member.builder()
-                    .email(email)
+                    .loginId(loginId)
                     .nickname((String) attributes.get("name"))
                     .provider(provider)
                     .role(UserRole.USER)
@@ -72,7 +70,7 @@ public class PrincipalOauth2UserService implements OAuth2UserService<OAuth2UserR
         else{
             Map<String,Object> profile= (Map<String, Object>) attributes.get("profile");
             return Member.builder()
-                    .email(email)
+                    .loginId(loginId)
                     .nickname((String) profile.get("nickname"))
                     .provider(provider)
                     .role(UserRole.USER)
