@@ -17,7 +17,6 @@ import org.springframework.stereotype.Component;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
 @Component
@@ -51,6 +50,6 @@ public class CustomOAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSucc
         response.addHeader("RefreshToken","RefreshToken : "+ tokenDto.getRefreshToken());
         log.info("AccessToken={}",tokenDto.getAccessToken());
         // 원하는 URL로 리다이렉트
-        redirectStrategy.sendRedirect(request, response, "/api/members/checkJwt/"+tokenDto.getAccessToken());
+        redirectStrategy.sendRedirect(request, response, "/api/members/afterLogin/"+tokenDto.getAccessToken());
     }
 }
