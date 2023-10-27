@@ -6,7 +6,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class AppViewModel(application: Application) : AndroidViewModel(application) {
+open class AppViewModel(application: Application) : AndroidViewModel(application) {
 
     // 메인화면 진입시 초기화
     fun init() {
@@ -16,3 +16,6 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     }
 
 }
+
+
+class DummyAppViewModel : AppViewModel(Application())
