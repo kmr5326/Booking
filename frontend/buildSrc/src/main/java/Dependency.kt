@@ -1,7 +1,9 @@
 import Versions.NAV_VERSION
+import Versions.ROOM_VERSION
 
 object Versions {
     const val NAV_VERSION = "2.5.3"
+    const val ROOM_VERSION = "2.5.0"
 }
 
 object Kotlin {
@@ -80,4 +82,12 @@ object NavComponent {
 object Coil {
     const val COIL = "io.coil-kt:coil:2.2.2"
     const val COIL_COMPOSE = "io.coil-kt:coil-compose:2.2.2"
+}
+
+object Room {
+    const val ROOM_RUNTIME = "androidx.room:room-runtime:$ROOM_VERSION"
+    const val ROOM_COMPILER = "androidx.room:room-compiler:$ROOM_VERSION"
+    const val ROOM_KAPT = "androidx.room:room-compiler:$ROOM_VERSION"
+    const val ROOM_KSP = "androidx.room:room-compiler:$ROOM_VERSION"
+    const val ROOM_KTX = "androidx.room:room-ktx:$ROOM_VERSION"
 }
