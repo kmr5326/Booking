@@ -1,0 +1,43 @@
+version: '3'
+
+volumes:
+  booking_member_maria:
+    external:
+      name: booking_member_maria
+
+networks:
+  member_maria_network:
+    driver: bridge
+
+services:
+  booking_member_maria:
+    restart: on-failure
+    image: 'mariadb:latest'
+    container_name: 'member-db-container'
+    environment:
+      MARIADB_DATABASE: booking-member
+      # MARIADB_USER: booking
+      MARIADB_PASSWORD: booking123!
+      TZ: Asia/Seoul
+    networks:
+      - member_maria_network
+    volumes:
+      - 'booking_member_maria:/var/lib/mysql'
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+
+  booking_member_server:
+    restart: on-failure
+    depends_on:
+      - booking_member_maria
+    image: 'member-image:latest'
+    container_name: 'member-container'
+#    environment:
+#      SPRING_DATASOURCE_URL: 'jdbc:mariadb://booking_member_maria:3306/booking-member'
+#      SPRING_DATASOURCE_USERNAME: root
+#      SPRING_DATASOURCE_PASSWORD: booking123!
+    ports:
+      - '9001:9001'
+    networks:
+      - member_maria_network
