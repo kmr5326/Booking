@@ -1,3 +1,5 @@
+
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -105,6 +107,14 @@ dependencies {
     // coil
     implementation(Coil.COIL)
     implementation(Coil.COIL_COMPOSE)
+
+    // Room
+    implementation(Room.ROOM_RUNTIME)
+    implementation(Room.ROOM_COMPILER)
+    implementation(Room.ROOM_KAPT)
+    implementation(Room.ROOM_KSP)
+    implementation(Room.ROOM_KTX)
+
 }
 
 // Allow references to generated code

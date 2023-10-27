@@ -55,4 +55,11 @@ dependencies {
     // dager hilt
     implementation (DaggerHilt.DAGGER_HILT)
     kapt (DaggerHilt.DAGGER_HILT_COMPILER)
+
+    // Room
+    implementation(Room.ROOM_RUNTIME)
+    implementation(Room.ROOM_COMPILER)
+    implementation(Room.ROOM_KAPT)
+    implementation(Room.ROOM_KSP)
+    implementation(Room.ROOM_KTX)
 }
