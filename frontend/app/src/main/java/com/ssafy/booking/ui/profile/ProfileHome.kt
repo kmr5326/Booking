@@ -42,7 +42,8 @@ import coil.compose.AsyncImage
 import com.ssafy.booking.ui.common.BottomNav
 import com.ssafy.booking.ui.common.TopBar
 import com.ssafy.booking.viewmodel.AppViewModel
-
+// TabBar Import
+import com.ssafy.booking.ui.common.TabBar
 
 @Composable
 fun ProfileHome(
@@ -133,7 +134,21 @@ fun Temp(
     Column {
         TopBar("프로필")
         MyProfile(profileData=profileData)
+        // 인자로 첫번째는 title 리스트, 두번째는 각 탭에 해당하는 @composable
+        // 현재는 테스트용으로 하드코딩 해뒀음.
+        TabBar(
+                tabTitles = listOf("내 서재", "북킹"),
+            contentForTab = { index ->
+                // 인덱스 마다 @composable 함수 넣으면 됨.
+                when (index) {
+                    0 -> Text("여기다가 내 서재 @Composable 넣으세요.")
+                    1 -> Text("여기다가 북킹 @Composable 넣으세요.")
+                }
+            }
+        )
     }
+
+
     BottomNav(navController, appViewModel)
 }
 
