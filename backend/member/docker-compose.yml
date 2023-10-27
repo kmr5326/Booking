@@ -6,8 +6,10 @@ volumes:
       name: booking_member_maria
 
 networks:
-  member_maria_network:
-    driver: bridge
+  member_maria_network: # 이 섹션은 외부 네트워크에 연결을 정의합니다.
+    external:
+      name: member_member_maria_network # 실제 생성된 Docker 네트워크의 이름을 여기에 지정합니다.
+
 
 services:
   booking_member_maria:
