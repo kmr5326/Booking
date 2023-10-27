@@ -36,7 +36,7 @@ services:
     image: 'member-image:latest'
     container_name: 'member-container'
     environment:
-      CONFIG_URL: 'http://k9c206.p.ssafy.io:8123'
+      CONFIG_URL: 'http://host.docker.internal:8123'
     #      SPRING_DATASOURCE_URL: 'jdbc:mariadb://booking_member_maria:3306/booking-member'
     #      SPRING_DATASOURCE_USERNAME: root
     #      SPRING_DATASOURCE_PASSWORD: booking123!
