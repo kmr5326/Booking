@@ -23,7 +23,7 @@ services:
       MYSQL_PASSWORD: booking123!  # 새 사용자의 비밀번호입니다.
       TZ: Asia/Seoul
     networks:
-      - booking_member_service_network
+      - member_booking_member_service_network
     volumes:
       - 'booking_member_maria:/var/lib/mysql'
     command:
@@ -47,4 +47,4 @@ services:
     ports:
       - '9001:9001'
     networks:
-      - booking_member_service_network
+      - member_booking_member_service_network
