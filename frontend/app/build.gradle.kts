@@ -109,11 +109,9 @@ dependencies {
     implementation(Coil.COIL_COMPOSE)
 
     // Room
-    implementation(Room.ROOM_RUNTIME)
-    implementation(Room.ROOM_COMPILER)
-    implementation(Room.ROOM_KAPT)
-    implementation(Room.ROOM_KSP)
-    implementation(Room.ROOM_KTX)
+//    implementation(Room.ROOM_RUNTIME)
+//    implementation(Room.ROOM_COMPILER)
+//    implementation(Room.ROOM_KTX)
 
 }
 

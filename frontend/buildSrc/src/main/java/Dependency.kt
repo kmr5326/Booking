@@ -84,10 +84,8 @@ object Coil {
     const val COIL_COMPOSE = "io.coil-kt:coil-compose:2.2.2"
 }
 
-object Room {
-    const val ROOM_RUNTIME = "androidx.room:room-runtime:$ROOM_VERSION"
-    const val ROOM_COMPILER = "androidx.room:room-compiler:$ROOM_VERSION"
-    const val ROOM_KAPT = "androidx.room:room-compiler:$ROOM_VERSION"
-    const val ROOM_KSP = "androidx.room:room-compiler:$ROOM_VERSION"
-    const val ROOM_KTX = "androidx.room:room-ktx:$ROOM_VERSION"
-}
+//object Room {
+//    const val ROOM_RUNTIME = "androidx.room:room-runtime:$ROOM_VERSION"
+//    const val ROOM_COMPILER = "androidx.room:room-compiler:$ROOM_VERSION"
+//    const val ROOM_KTX = "androidx.room:room-ktx:$ROOM_VERSION"
+//}
