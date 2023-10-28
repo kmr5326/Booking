@@ -9,6 +9,10 @@ networks:
   booking_member_service_network:
     name: booking_member_service_network
     driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: "172.21.0.0/16"
 
 
 services:
