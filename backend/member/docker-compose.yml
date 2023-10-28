@@ -16,10 +16,10 @@ services:
     image: 'mariadb:10.3'
     container_name: 'member-db-container'
     environment:
-      MYSQL_ROOT_PASSWORD: booking123!
       MYSQL_DATABASE: booking_member
       MYSQL_USER: booking  
       MYSQL_PASSWORD: booking123!
+      MYSQL_ROOT_PASSWORD: booking123!
       TZ: Asia/Seoul
     networks:
       - booking_member_service_network
