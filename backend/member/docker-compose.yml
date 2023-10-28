@@ -40,7 +40,7 @@ services:
     container_name: 'member-container'
     environment:
       CONFIG_URL: 'http://172.26.14.101:8123'
-      SPRING_DATASOURCE_URL: 'jdbc:mariadb://booking_member_maria:3306/booking-member'
+      SPRING_DATASOURCE_URL: 'jdbc:mariadb://booking_member_maria:3306/booking_member'
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: booking123!
 
