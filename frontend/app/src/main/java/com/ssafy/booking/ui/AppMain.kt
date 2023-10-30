@@ -87,29 +87,6 @@ fun Route() {
             composable("profile") {
                 ProfileHome(navController, appViewModel)
             }
-    }
-
-//    NavHost(navController = navController, startDestination = AppNavItem.Login.route) {
-//        composable("login") {
-//            Greeting(navController, appViewModel)
-//        }
-//        composable("book") {
-//            BookHome(navController, appViewModel)
-//        }
-//        composable("history") {
-//            HistoryHome(navController, appViewModel)
-//        }
-//        composable("main") {
-//            Main(navController, appViewModel)
-//        }
-//        composable("chat") {
-//            ChatHome(navController, appViewModel)
-//        }
-//        composable("chatDetail/{chatId}") {
-//            ChatDetail(navController, appViewModel)
-//        }
-//        composable("profile") {
-//            ProfileHome(navController, appViewModel)
-//        }
+        }
     }
 }
