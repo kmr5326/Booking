@@ -7,25 +7,25 @@ import com.booking.booking.meetinginfo.domain.MeetingInfo;
 import com.booking.booking.participant.domain.Participant;
 import com.booking.booking.post.domain.Post;
 import com.booking.booking.waitlist.domain.Waitlist;
-import javax.persistence.EnumType;
-import javax.persistence.FetchType;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import javax.validation.constraints.Size;
-import java.util.List;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
@@ -38,7 +38,7 @@ public class Meeting {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long meetingId;
 
-    private long leaderId;
+    private String leaderId;
 
     private String address;
 
@@ -49,7 +49,8 @@ public class Meeting {
 
     private String description;
 
-    @Size(min = 2, max = 6)
+    @Min(2)
+    @Max(6)
     private Integer maxParticipants;
 
     @Enumerated(EnumType.STRING)
