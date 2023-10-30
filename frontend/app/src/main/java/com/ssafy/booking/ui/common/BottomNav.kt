@@ -102,6 +102,7 @@ fun Btn(
                         onClick = {
                             navController.navigate(AppNavItem.Main.route) {
                                 launchSingleTop = true
+                                popUpTo(AppNavItem.Main.route)
                             }
                         }
                     )
