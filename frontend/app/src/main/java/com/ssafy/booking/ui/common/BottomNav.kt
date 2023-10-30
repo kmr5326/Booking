@@ -58,7 +58,10 @@ fun Btn(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null,
                         onClick = {
-                            navController.navigate(AppNavItem.Book.route)
+                            navController.navigate(AppNavItem.Book.route) {
+                                launchSingleTop = true
+                                popUpTo(AppNavItem.Main.route)
+                            }
                         }
                     )
                     .width(50.dp)
@@ -76,7 +79,10 @@ fun Btn(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null,
                         onClick = {
-                            navController.navigate(AppNavItem.History.route)
+                            navController.navigate(AppNavItem.History.route) {
+                                launchSingleTop = true
+                                popUpTo(AppNavItem.Main.route)
+                            }
                         }
                     )
                     .width(50.dp)
@@ -94,7 +100,10 @@ fun Btn(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null,
                         onClick = {
-                            navController.navigate(AppNavItem.Main.route)
+                            navController.navigate(AppNavItem.Main.route) {
+                                launchSingleTop = true
+                                popUpTo(AppNavItem.Main.route)
+                            }
                         }
                     )
                     .width(50.dp)
@@ -112,7 +121,10 @@ fun Btn(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null,
                         onClick = {
-                            navController.navigate(AppNavItem.Chat.route)
+                            navController.navigate(AppNavItem.Chat.route) {
+                                launchSingleTop = true
+                                popUpTo(AppNavItem.Main.route)
+                            }
                         }
                     )
                     .width(50.dp)
@@ -130,7 +142,10 @@ fun Btn(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null,
                         onClick = {
-                            navController.navigate(AppNavItem.Profile.route)
+                            navController.navigate(AppNavItem.Profile.route) {
+                                launchSingleTop = true
+                                popUpTo(AppNavItem.Main.route)
+                            }
                         }
                     )
                     .width(50.dp)

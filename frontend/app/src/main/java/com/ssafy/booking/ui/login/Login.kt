@@ -63,7 +63,9 @@ fun Greeting(navController: NavController,
 fun KakaoLoginButton(navController: NavController) {
     Button(
         onClick = {
-            navController.navigate(AppNavItem.Main.route)
+            navController.navigate(AppNavItem.Main.route) {
+                popUpTo("login") {inclusive = true}
+            }
         },
         colors = ButtonDefaults.buttonColors(
             containerColor = Color(0xFFfae100),
