@@ -25,6 +25,7 @@ android {
         }
     }
 
+
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -111,9 +112,10 @@ dependencies {
     implementation(Coil.COIL_COMPOSE)
 
     // Room
-//    implementation(Room.ROOM_RUNTIME)
-//    implementation(Room.ROOM_COMPILER)
-//    implementation(Room.ROOM_KTX)
+    implementation(Room.ROOM_RUNTIME)
+    annotationProcessor(Room.ROOM_COMPILER)
+    kapt(Room.ROOM_COMPILER)
+    implementation(Room.ROOM_KTX)
 
 }
 
