@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.MvcResult;
+import reactor.core.publisher.Mono;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
@@ -33,12 +34,13 @@ public class MemberControllerTest extends ControllerTest {
     void t1() throws Exception {
 
         SignUpRequestDto signUpRequestDto = new SignUpRequestDto("loginId", "email", 20, "MALE", "nickname", "fullName", "address");
-        doNothing().when(memberService).signup(signUpRequestDto);
+        when(memberService.signup(any(SignUpRequestDto.class)))
+                .thenReturn(Mono.empty());
 
-        mockMvc.perform(post(baseUrl + "/signup") // 요청 HTTP METHOD, 주소
-                        .contentType(MediaType.APPLICATION_JSON) // JSON
-                        .content(objectMapper.writeValueAsBytes(signUpRequestDto)) // Jackson
-                ).andExpect(status().isOk()) // 200 반환
+        mockMvc.perform(post(baseUrl + "/signup")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(signUpRequestDto)))// 요청 HTTP METHOD, 주소
+                .andExpect(status().isOk()) // 200 반환
                 .andDo(
                         document("/member/signup", // restdocs 선언,
                                 preprocessRequest(prettyPrint()), // json을 이쁘게 표시해라
@@ -62,7 +64,7 @@ public class MemberControllerTest extends ControllerTest {
         MemberInfoResponseDto responseDto = new MemberInfoResponseDto("1234", "email", 10, "MALE",
                 "mono", "monono", "addr", "img", "google");
 
-        when(memberService.loadMemberInfo(any())).thenReturn(responseDto);
+        when(memberService.loadMemberInfo(any())).thenReturn(Mono.just(responseDto));
 
         MvcResult mvcResult = mockMvc.perform(get(baseUrl + "/memberInfo/{loginId}", loginId)
                         .contentType(MediaType.APPLICATION_JSON))
@@ -95,7 +97,7 @@ public class MemberControllerTest extends ControllerTest {
     @DisplayName("회원 정보 수정")
     void t3() throws Exception {
         ModifyRequestDto modifyRequestDto = new ModifyRequestDto("123", "mono", "addr", "img");
-        doNothing().when(memberService).modifyMemberInfo(modifyRequestDto);
+        when(memberService.modifyMemberInfo(any(ModifyRequestDto.class))).thenReturn(Mono.empty());
 
         mockMvc.perform(patch(baseUrl + "/modification")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -119,12 +121,12 @@ public class MemberControllerTest extends ControllerTest {
     @Test
     @DisplayName("회원 탈퇴")
     void t4() throws Exception {
-        DeleteMemberRequestDto deleteMemberRequestDto=new DeleteMemberRequestDto("1234");
-        doNothing().when(memberService).deleteMember(deleteMemberRequestDto.loginId());
+        DeleteMemberRequestDto deleteMemberRequestDto = new DeleteMemberRequestDto("1234");
+        when(memberService.deleteMember(deleteMemberRequestDto.loginId())).thenReturn(Mono.empty());
 
-        mockMvc.perform(delete(baseUrl+"/deletion")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsBytes(deleteMemberRequestDto)))
+        mockMvc.perform(delete(baseUrl + "/deletion")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(deleteMemberRequestDto)))
                 .andExpect(status().isOk())
                 .andDo(
                         document("/member/delete",
