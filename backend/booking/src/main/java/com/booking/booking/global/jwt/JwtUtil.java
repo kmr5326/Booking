@@ -4,10 +4,11 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-import java.util.Base64;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
+import java.util.Base64;
 
 @Slf4j
 @Component
@@ -28,15 +29,13 @@ public class JwtUtil {
 
         var key = Keys.hmacShaKeyFor(keyBytes);
 
-            // 파싱 과정에서 catch
+        // 파싱 과정에서 catch
         Jws<Claims> claims = Jwts.parserBuilder()
                                      .setSigningKey(key) // 여기에 서명 확인을 위한 키 설정
                                      .build()
                                      .parseClaimsJws(token);
 
-
         // Subject 가져오기
         return claims.getBody().getSubject();
     }
-
 }

@@ -3,21 +3,22 @@ package com.booking.booking.meeting.domain;
 
 import com.booking.booking.chatroom.domain.Chatroom;
 import com.booking.booking.hashtag.domain.Hashtag;
+import com.booking.booking.meeting.dto.request.MeetingRequest;
+import com.booking.booking.meeting.dto.response.MemberInfoResponse;
 import com.booking.booking.meetinginfo.domain.MeetingInfo;
 import com.booking.booking.participant.domain.Participant;
 import com.booking.booking.post.domain.Post;
 import com.booking.booking.waitlist.domain.Waitlist;
-import javax.persistence.EnumType;
-import javax.persistence.FetchType;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -38,13 +39,13 @@ public class Meeting {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long meetingId;
 
-    private long leaderId;
+    private String leaderId;
 
     private String address;
 
     private String bookIsbn;
 
-    @Column(length = 32)
+//    @Column(length = 127)
     private String meetingTitle;
 
     private String description;
@@ -73,4 +74,15 @@ public class Meeting {
     @OneToMany(fetch = FetchType.LAZY)
     private List<Hashtag> hashTagList;
 
+    public static Meeting makeMeeting(MemberInfoResponse memberInfoResponse, MeetingRequest meetingRequest) {
+        return Meeting.builder()
+                .leaderId(memberInfoResponse.loginId())
+                .address(memberInfoResponse.address())
+                .bookIsbn(meetingRequest.bookIsbn())
+                .meetingTitle(meetingRequest.meetingTitle())
+                .description(meetingRequest.description())
+                .maxParticipants(meetingRequest.maxParticipants())
+                .meetingState(MeetingState.PREPARING)
+                .build();
+    }
 }
