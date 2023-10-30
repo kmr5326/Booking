@@ -25,10 +25,11 @@ public class MeetingController {
 
     @PostMapping("/")
     public Mono<ResponseEntity<Void>> createMeeting(@RequestHeader(AUTHORIZATION) String token, @RequestBody MeetingRequest meetingRequest) {
-        log.info("모임 생성 = {}", meetingRequest);
-        String userEmail = JwtUtil.getLoginEmailByToken(token);
-        meetingService.arrangeMeeting(userEmail, meetingRequest);
 
-        return Mono.just(ResponseEntity.noContent().build());
+        String userEmail = JwtUtil.getLoginEmailByToken(token);
+
+        return meetingService.arrangeMeeting(userEmail, meetingRequest)
+                             .thenReturn(ResponseEntity.noContent().build());
     }
+
 }
