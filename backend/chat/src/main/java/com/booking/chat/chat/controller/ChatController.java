@@ -12,12 +12,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RequiredArgsConstructor
-@RestController
+@RestController("/api/chat")
 public class ChatController {
 
     private final KafkaTemplate<String, KafkaMessage> kafkaTemplate;
 
-    @PostMapping("/chat/{chatRoomId}")
+    @PostMapping("/{chatRoomId}")
     public ResponseEntity<String> sendMessage(@PathVariable String chatRoomId, @RequestBody String message) {
 
         KafkaMessage kafkaMessage = KafkaMessage.builder().message(message).build();
