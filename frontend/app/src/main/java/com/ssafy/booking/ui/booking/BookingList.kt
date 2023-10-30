@@ -1,17 +1,13 @@
-package com.ssafy.booking.ui.main
+package com.ssafy.booking.ui.booking
 
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.ssafy.booking.ui.common.BottomNav
-import com.ssafy.booking.ui.theme.BookingTheme
 import com.ssafy.booking.viewmodel.AppViewModel
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
@@ -26,13 +22,17 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Divider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import com.ssafy.booking.R
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import com.ssafy.booking.ui.AppNavItem
 
 @Composable
 fun Main(
@@ -48,30 +48,34 @@ fun Main(
                     .size(120.dp, 120.dp)
                     .padding(start = 16.dp)
             )
-            BookList()
+            BookList(navController, appViewModel)
         }
 
     }
     // 책 목록 부분
 
     BottomNav(
-        navController, appViewModel
-    )  // You might want to adjust the positioning of BottomNav as per your design.
+        navController, appViewModel)
+
+
 }
 
 
 ////
 
 @Composable
-fun BookList() {
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-    ) {
-        items(bookItemsList) { book ->
-            BookItem(book)
+fun BookList(navController: NavController, appViewModel: AppViewModel) {
+    Box {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+        ) {
+            items(bookItemsList) { book ->
+                BookItem(book)
+            }
         }
+        MyFloatingActionButton(navController, appViewModel) // 여기에 추가
     }
 }
 @Composable
@@ -100,6 +104,31 @@ fun BookItem(book: Book) {
         }
     }
 }
+
+// 모임 생성 버튼
+@Composable
+fun MyFloatingActionButton(navController: NavController, appViewModel: AppViewModel) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(bottom = 96.dp) // 네비게이션 바 높이에 따라 조정
+    ) {
+        FloatingActionButton(
+            onClick = {navController.navigate(AppNavItem.CreateBooking.route)},
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(end = 16.dp, bottom = 10.dp)
+                .size(80.dp)
+        ) {
+            Icon(
+                Icons.Filled.Add,
+                contentDescription = "Localized description",
+                modifier = Modifier.size(40.dp)
+            )
+        }
+    }
+}
+
 
 data class Book(val imageResId: Int, val bookName: String, val title: String, val content:String )
 

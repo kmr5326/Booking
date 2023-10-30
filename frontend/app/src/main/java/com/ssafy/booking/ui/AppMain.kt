@@ -1,5 +1,6 @@
 package com.ssafy.booking.ui
 
+import BookingCreate
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -22,10 +23,11 @@ import com.ssafy.booking.ui.history.HistoryHome
 import com.ssafy.booking.ui.login.Greeting
 import com.ssafy.booking.ui.theme.BookingTheme
 import com.ssafy.booking.viewmodel.AppViewModel
-import com.ssafy.booking.ui.main.Main
+import com.ssafy.booking.ui.booking.Main
 import com.ssafy.booking.ui.profile.ProfileHome
 import com.ssafy.booking.viewmodel.MainViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import com.ssafy.booking.ui.booking.MyFloatingActionButton
 
 sealed class AppNavItem(
     val route: String
@@ -37,6 +39,7 @@ sealed class AppNavItem(
     object ChatDetail: AppNavItem("chatDetail/{chatId}")
     object Profile: AppNavItem("profile")
     object Login: AppNavItem("login")
+    object CreateBooking : AppNavItem("create/booking")
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -86,6 +89,9 @@ fun Route() {
             }
             composable("profile") {
                 ProfileHome(navController, appViewModel)
+            }
+            composable("create/booking") {
+                BookingCreate(navController, appViewModel)
             }
         }
     }
