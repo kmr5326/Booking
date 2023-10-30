@@ -11,7 +11,6 @@ android {
 
     defaultConfig {
         minSdk = 28
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
     }
@@ -59,7 +58,9 @@ dependencies {
     implementation(DaggerHilt.DAGGER_HILT_VIEW_MODEL)
 
     // Room
-//    implementation(Room.ROOM_RUNTIME)
-//    implementation(Room.ROOM_COMPILER)
-//    implementation(Room.ROOM_KTX)
+    implementation(Room.ROOM_RUNTIME)
+    annotationProcessor(Room.ROOM_COMPILER)
+    kapt(Room.ROOM_COMPILER)
+    implementation(Room.ROOM_KTX)
+
 }
