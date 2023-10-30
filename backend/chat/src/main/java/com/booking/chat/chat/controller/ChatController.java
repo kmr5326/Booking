@@ -1,5 +1,6 @@
 package com.booking.chat.chat.controller;
 
+import com.booking.chat.chat.service.MessageService;
 import com.booking.chat.kafka.domain.KafkaMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,10 +19,15 @@ import org.springframework.web.bind.annotation.RestController;
 public class ChatController {
 
     private final KafkaTemplate<String, KafkaMessage> kafkaTemplate;
+    private final MessageService messageService;
 
     // 클라이언트에서 /publish/message 로 메시지를 전송
     @MessageMapping("/message")
     public void sendMessage(@Payload KafkaMessage message, @Payload String chatroomId) {
+
+        //MongoDB에 저장
+        messageService.save(message, chatroomId);
+
         kafkaTemplate.send("Chatroom_" + chatroomId, message); // Kafka로 메세지 전달
     }
 
