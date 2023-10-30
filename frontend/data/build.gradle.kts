@@ -39,6 +39,7 @@ dependencies {
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.10.0")
+    implementation(project(mapOf("path" to ":domain")))
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
@@ -49,6 +50,7 @@ dependencies {
     implementation (Retrofit.CONVERTER_JAXB)
 
     //okHttp
+//    implementation(platform("com.squareup.okhttp3:okhttp-bom:4.11.0"))
     implementation (OkHttp.OKHTTP)
     implementation (OkHttp.LOGGING_INTERCEPTOR)
 
@@ -58,6 +60,7 @@ dependencies {
     // dager hilt
     implementation (DaggerHilt.DAGGER_HILT)
     kapt (DaggerHilt.DAGGER_HILT_COMPILER)
+    implementation(DaggerHilt.DAGGER_HILT_VIEW_MODEL)
 
     // Room
 //    implementation(Room.ROOM_RUNTIME)

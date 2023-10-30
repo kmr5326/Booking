@@ -44,7 +44,8 @@ object AndroidTest {
 object DaggerHilt {
     const val DAGGER_HILT = "com.google.dagger:hilt-android:2.48.1"
     const val DAGGER_HILT_COMPILER = "com.google.dagger:hilt-android-compiler:2.48.1"
-    const val DAGGER_HILT_VIEW_MODEL = "androidx.hilt:hilt-lifecycle-viewmodel:1.0.0-alpha03"
+//    const val DAGGER_HILT_VIEW_MODEL = "androidx.hilt:hilt-lifecycle-viewmodel:1.0.0-alpha03"
+    const val DAGGER_HILT_VIEW_MODEL = "androidx.hilt:hilt-navigation-compose:1.0.0"
     const val DAGGER_HILT_ANDROIDX_COMPILER = "androidx.hilt:hilt-compiler:1.0.0"
 }
 
@@ -55,8 +56,8 @@ object Retrofit {
 }
 
 object OkHttp {
-    const val OKHTTP = "com.squareup.okhttp3:okhttp:4.9.1"
-    const val LOGGING_INTERCEPTOR = "com.squareup.okhttp3:logging-interceptor:4.9.1"
+    const val OKHTTP = "com.squareup.okhttp3:okhttp:4.12.0"
+    const val LOGGING_INTERCEPTOR = "com.squareup.okhttp3:logging-interceptor:4.12.0"
 }
 
 object Coroutines {
@@ -84,8 +85,8 @@ object Coil {
     const val COIL_COMPOSE = "io.coil-kt:coil-compose:2.2.2"
 }
 
-//object Room {
-//    const val ROOM_RUNTIME = "androidx.room:room-runtime:$ROOM_VERSION"
-//    const val ROOM_COMPILER = "androidx.room:room-compiler:$ROOM_VERSION"
-//    const val ROOM_KTX = "androidx.room:room-ktx:$ROOM_VERSION"
-//}
+object Room {
+    const val ROOM_RUNTIME = "androidx.room:room-runtime:$ROOM_VERSION"
+    const val ROOM_COMPILER = "androidx.room:room-compiler:$ROOM_VERSION"
+    const val ROOM_KTX = "androidx.room:room-ktx:$ROOM_VERSION"
+}
