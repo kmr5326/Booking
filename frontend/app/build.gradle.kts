@@ -80,6 +80,7 @@ dependencies {
     implementation(Retrofit.CONVERTER_JAXB)
 
     // okHttp
+//    implementation(platform("com.squareup.okhttp3:okhttp-bom:4.11.0"))
     implementation(OkHttp.OKHTTP)
     implementation(OkHttp.LOGGING_INTERCEPTOR)
 
@@ -93,6 +94,7 @@ dependencies {
     // hilt
     implementation(DaggerHilt.DAGGER_HILT)
     kapt(DaggerHilt.DAGGER_HILT_COMPILER)
+    implementation(DaggerHilt.DAGGER_HILT_VIEW_MODEL)
 
 //    androidTestImplementation("com.google.dagger:hilt-android-testing:2.48.1")
 //    kaptAndroidTest("com.google.dagger:hilt-compiler:2.48.1")

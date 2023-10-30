@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -23,6 +24,8 @@ import com.ssafy.booking.ui.theme.BookingTheme
 import com.ssafy.booking.viewmodel.AppViewModel
 import com.ssafy.booking.ui.main.Main
 import com.ssafy.booking.ui.profile.ProfileHome
+import com.ssafy.booking.viewmodel.MainViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
 
 sealed class AppNavItem(
     val route: String
@@ -57,12 +60,14 @@ val LocalNavigation = staticCompositionLocalOf<NavHostController> { error("Not p
 fun Route() {
     val appViewModel = viewModel<AppViewModel>()
     val navController = rememberNavController()
+    val mainViewModel = hiltViewModel<MainViewModel>()
+
     CompositionLocalProvider(
         LocalNavigation provides navController,
     ) {
         NavHost(navController = navController, startDestination = AppNavItem.Login.route) {
             composable("login") {
-                Greeting(navController, appViewModel)
+                Greeting(navController, mainViewModel, appViewModel)
             }
             composable("book") {
                 BookHome(navController, appViewModel)
