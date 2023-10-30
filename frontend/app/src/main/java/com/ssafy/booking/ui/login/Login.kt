@@ -27,10 +27,12 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.ssafy.booking.ui.AppNavItem
 import com.ssafy.booking.viewmodel.AppViewModel
+import com.ssafy.booking.viewmodel.MainViewModel
 
 
 @Composable
 fun Greeting(navController: NavController,
+             mainViewModel: MainViewModel,
              appViewModel: AppViewModel,
              modifier: Modifier = Modifier)
 {
@@ -50,8 +52,7 @@ fun Greeting(navController: NavController,
                 style = TextStyle(fontSize = 40.sp),
             )
             KakaoLoginButton(navController)
-            GoogleLoginButton {
-            }
+            GoogleLoginButton(mainViewModel)
             TempLoginButton {
             }
         }
@@ -75,9 +76,9 @@ fun KakaoLoginButton(navController: NavController) {
 }
 
 @Composable
-fun GoogleLoginButton(onClick: () -> Unit) {
+fun GoogleLoginButton(mainViewModel: MainViewModel) {
     Button(
-        onClick = onClick,
+        onClick = { mainViewModel.getUserRepo() },
         colors = ButtonDefaults.buttonColors(
             containerColor = Color(0xFFffffff),
             contentColor = Color(0xFF258fff)
