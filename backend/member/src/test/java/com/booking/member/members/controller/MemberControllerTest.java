@@ -25,7 +25,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-
 public class MemberControllerTest extends ControllerTest {
 
     private final String baseUrl = "/api/members";
@@ -47,7 +46,7 @@ public class MemberControllerTest extends ControllerTest {
                                 preprocessRequest(prettyPrint()), // json을 이쁘게 표시해라
                                 preprocessResponse(prettyPrint()),
                                 requestFields(
-                                        fieldWithPath("loginId").type(JsonFieldType.STRING).description("닉네임"),
+                                        fieldWithPath("loginId").type(JsonFieldType.STRING).description("로그인id"),
                                         fieldWithPath("email").description("이메일"),
                                         fieldWithPath("age").description("나이"),
                                         fieldWithPath("gender").description("성별, 남자 : MALE, 여자 : FEMALE"),
