@@ -91,7 +91,6 @@ fun MyProfile(profileData : ProfileData) {
                 modifier = Modifier.align(Alignment.Top)
             )
         }
-
     }
 }
 
@@ -123,13 +122,6 @@ fun Temp(
         followers = 390,
         followings = 255
     )
-//    Text(
-//        text = "프로필 페이지",
-//        textAlign = TextAlign.Center,
-//        fontSize = 20.sp,
-//        fontWeight = FontWeight.Bold,
-//        color = Color.Black
-//    )
 
     Column {
         TopBar("프로필")
