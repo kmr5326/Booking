@@ -25,7 +25,7 @@ public class MemberController {
         log.info("회원 가입 요청={}", req);
         memberService.signup(req);
         return Mono.just(ResponseEntity.ok().body("signup success"))
-                .onErrorResume(e -> Mono.just(ResponseEntity.badRequest().body(e.getMessage())));
+                   .onErrorResume(e -> Mono.just(ResponseEntity.badRequest().body(e.getMessage())));
     }
 
     @GetMapping("/memberInfo/{loginId}")
