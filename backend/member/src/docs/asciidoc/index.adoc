@@ -1,0 +1,3 @@
+==== MEMBER SERVICE API
+
+include::member/member.adoc[]

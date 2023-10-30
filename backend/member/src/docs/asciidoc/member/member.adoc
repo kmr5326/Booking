@@ -1,0 +1,32 @@
+=== 회원 가입
+==== HTTP Requesst
+include::{snippets}/member/signup/http-request.adoc[]
+include::{snippets}/member/signup/request-fields.adoc[]
+
+===== HTTP Response
+include::{snippets}/member/signup/http-response.adoc[]
+
+=== 회원 수정
+==== HTTP Request
+include::{snippets}/member/modify/http-request.adoc[]
+include::{snippets}/member/modify/request-fields.adoc[]
+==== HTTP Response
+include::{snippets}/member/modify/http-response.adoc[]
+
+=== 회원 정보 조회
+==== HTTP Request
+include::{snippets}/member/info/http-request.adoc[]
+include::{snippets}/member/info/path-parameters.adoc[]
+==== HTTP Response
+include::{snippets}/member/info/http-response.adoc[]
+
+=== 회원 탈퇴
+
+==== HTTP Request
+include::{snippets}/member/delete/http-request.adoc[]
+include::{snippets}/member/delete/request-fields.adoc[]
+
+==== HTTP Response
+include::{snippets}/member/delete/http-response.adoc[]
+
+
