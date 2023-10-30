@@ -4,43 +4,45 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 import com.booking.chat.kafka.domain.KafkaMessage;
 import java.time.LocalDateTime;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.kafka.test.context.EmbeddedKafka;
-import org.springframework.kafka.test.utils.KafkaTestUtils;
-import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest
-@DirtiesContext
-@EmbeddedKafka(partitions = 1, brokerProperties = {"listeners=PLAINTEXT://localhost:9092", "port=9092"})
+@ActiveProfiles("local")
 public class SimpleKafkaTest {
 
     @Autowired
     private KafkaTemplate<String, KafkaMessage> kafkaTemplate;
-
-    @Autowired
-    private KafkaTestUtils kafkaTestUtils;
+    private CountDownLatch latch = new CountDownLatch(1);
+    private KafkaMessage consumedMessage;
 
     @Test
     @DisplayName("Kafka test 수행된다")
-    public void testSendingAndReceivingMessage() {
-        KafkaMessage messageToSend = KafkaMessage.builder()
-                                                 .message("test message")
-                                                 .sender("test sender")
-                                                 .sendTime(LocalDateTime.now())
-                                                 .build();
+    public void t1() throws Exception {
 
-        final String TOPIC = "chatroom_1";
-        // 메시지 보내기
-        kafkaTemplate.send(TOPIC, messageToSend);
+        KafkaMessage message = KafkaMessage.builder()
+                                           .message("Test Message")
+                                           .sender("TestSender")
+                                           .sendTime(LocalDateTime.now())
+                                           .build();
 
-        // 메시지 받기
-        KafkaMessage receivedMessage = (KafkaMessage) KafkaTestUtils.getSingleRecord(kafkaTestUtils.consumerFactory(), TOPIC).value();
+        kafkaTemplate.send("test-topic", message);
 
-        assertThat(receivedMessage).isEqualToComparingFieldByField(messageToSend);
+        latch.await(60, TimeUnit.SECONDS); // 여기에서 특정 시간 동안 메시지 수신을 기다립니다.
+        assertThat(consumedMessage).isEqualToComparingFieldByField(message);
+    }
+
+    @KafkaListener(topics = "test-topic")
+    public void listen(KafkaMessage message) {
+        consumedMessage = message;
+        latch.countDown();
     }
 
 }
