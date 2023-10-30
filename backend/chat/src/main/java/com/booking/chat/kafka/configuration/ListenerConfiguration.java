@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
@@ -17,6 +18,9 @@ import org.springframework.kafka.support.serializer.JsonDeserializer;
 @Configuration
 @EnableKafka
 public class ListenerConfiguration {
+
+    @Value("${kafka.server.port}")
+    private String KAFKA_PORT;
 
     @Bean
     ConcurrentKafkaListenerContainerFactory<String, KafkaMessage> kafkaListenerContainerFactory() {
@@ -31,7 +35,7 @@ public class ListenerConfiguration {
         deserializer.addTrustedPackages("*");
 
         Map<String, Object> consumerConfiguration = ImmutableMap.<String, Object>builder()
-                                                                .put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "192.168.45.98:9092")
+                                                                .put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, KAFKA_PORT)
                                                                 .put(ConsumerConfig.GROUP_ID_CONFIG, "chat")
                                                                 .put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class)
                                                                 .put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, deserializer)
