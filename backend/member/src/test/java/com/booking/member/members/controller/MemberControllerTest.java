@@ -1,6 +1,8 @@
 package com.booking.member.members.controller;
 
+import com.booking.member.members.dto.DeleteMemberRequestDto;
 import com.booking.member.members.dto.MemberInfoResponseDto;
+import com.booking.member.members.dto.ModifyRequestDto;
 import com.booking.member.members.dto.SignUpRequestDto;
 import com.booking.member.util.ControllerTest;
 import org.junit.jupiter.api.DisplayName;
@@ -13,13 +15,13 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
-import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
-import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.asyncDispatch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class MemberControllerTest extends ControllerTest {
@@ -86,6 +88,51 @@ public class MemberControllerTest extends ControllerTest {
                                         fieldWithPath("provider").description("google,kakao")
                                 ))
 
+                );
+    }
+
+    @Test
+    @DisplayName("회원 정보 수정")
+    void t3() throws Exception {
+        ModifyRequestDto modifyRequestDto = new ModifyRequestDto("123", "mono", "addr", "img");
+        doNothing().when(memberService).modifyMemberInfo(modifyRequestDto);
+
+        mockMvc.perform(patch(baseUrl + "/modification")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(modifyRequestDto)))
+                .andExpect(status().isOk())
+                .andDo(
+                        document("/member/modify",
+                                preprocessRequest(prettyPrint()),
+                                preprocessResponse(prettyPrint()),
+                                requestFields(
+                                        fieldWithPath("loginId").description("로그인 id"),
+                                        fieldWithPath("nickname").description("닉네임"),
+                                        fieldWithPath("address").description("주소"),
+                                        fieldWithPath("profileImage").description("프로필 이미지")
+                                )
+                        )
+
+                );
+    }
+
+    @Test
+    @DisplayName("회원 탈퇴")
+    void t4() throws Exception {
+        DeleteMemberRequestDto deleteMemberRequestDto=new DeleteMemberRequestDto("1234");
+        doNothing().when(memberService).deleteMember(deleteMemberRequestDto.loginId());
+
+        mockMvc.perform(delete(baseUrl+"/deletion")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsBytes(deleteMemberRequestDto)))
+                .andExpect(status().isOk())
+                .andDo(
+                        document("/member/delete",
+                                preprocessRequest(prettyPrint()),
+                                preprocessResponse(prettyPrint()),
+                                requestFields(
+                                        fieldWithPath("loginId").description("로그인id")
+                                ))
                 );
     }
 
