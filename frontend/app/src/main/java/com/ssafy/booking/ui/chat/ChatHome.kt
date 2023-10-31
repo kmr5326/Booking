@@ -29,6 +29,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -59,11 +60,12 @@ fun ChatHome(
             Column {
                 ChatList(navController)
             }
+
             Row (
                 modifier = Modifier
                     .fillMaxWidth()
                     .fillMaxHeight()
-                    .padding(bottom = 100.dp),
+                    .padding(bottom = 200.dp),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.Bottom
             ) {
@@ -76,6 +78,7 @@ fun ChatHome(
                     Text("Test:소켓 연결")
                 }
             }
+
             BottomNav(navController, appViewModel)
         }
 
@@ -135,12 +138,26 @@ fun ChatItem(
         Column(
             modifier = Modifier.width(200.dp),
         ) {
-            Text(
-                text = chat.chatTitle, maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                fontWeight = FontWeight.ExtraBold,
-                fontSize = 16.sp
-            )
+            Row (verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = chat.chatTitle, maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    fontWeight = FontWeight.ExtraBold,
+                    fontSize = 16.sp
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+
+                if(chat.chatHeadCount > 1) {
+                    Text(
+                        text = "${chat.chatHeadCount}",
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                        fontWeight = FontWeight.Medium,
+                        fontSize = 16.sp,
+                        color = Color.Gray
+                    )
+                }
+            }
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = chat.chatContent,
@@ -150,36 +167,6 @@ fun ChatItem(
                 fontSize=12.sp
             )
             Spacer(modifier = Modifier.height(4.dp))
-        }
-
-        Column(
-            modifier = Modifier.weight(1f),
-            horizontalAlignment = Alignment.CenterHorizontally // 좌우 정렬
-        ) {
-            if(chat.chatHeadCount > 1) {
-                Text(
-                    text = "${chat.chatHeadCount} 명",
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                    fontWeight = FontWeight.Medium,
-                    fontSize=12.sp,
-                )
-            }
-
-            // 나가기
-            if(chat.chatType != "Notification") {
-                IconButton(
-                    onClick = {}
-                ) {
-                    Icon(
-                        Icons.Filled.ExitToApp , contentDescription = "chatExit"
-                    )
-                    Spacer(
-                        modifier = Modifier.size(ButtonDefaults.IconSpacing)
-                    )
-                }
-            }
-
         }
     }
 }
@@ -195,8 +182,6 @@ data class ChatData(
 )
 // ########################## 데이터
 val chatItemList = listOf(
-    ChatData(1,"Notification", R.drawable.chat1, "알림", "인간실격 독서토론에 참여했습니다!",1),
-//    ChatData(2,"Person",R.drawable.chat2, "박희창", "@@@@@@@@@@@@@", 1),
-    ChatData(3,"Booking",R.drawable.chat3, "인간실격 독서토론", "주말로 변경할 수 있나요?",3),
-//    ChatData(4,"Booking",R.drawable.chat4, "남이야 잡화점", "안녕하세요!!",4)
+    ChatData(1,"Notification", R.drawable.chat1, "알림", "자율프로젝트에 참여했습니다!",1),
+    ChatData(3,"Booking",R.drawable.chat3, "자율프로젝트", "굳굳",6),
 )
