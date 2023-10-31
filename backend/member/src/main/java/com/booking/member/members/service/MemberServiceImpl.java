@@ -1,5 +1,7 @@
 package com.booking.member.members.service;
 
+import com.booking.member.Auth.TokenDto;
+import com.booking.member.Auth.TokenProvider;
 import com.booking.member.members.Gender;
 import com.booking.member.members.Member;
 import com.booking.member.members.dto.MemberInfoResponseDto;
@@ -20,10 +22,11 @@ import reactor.core.scheduler.Schedulers;
 public class MemberServiceImpl implements MemberService {
 
     private final MemberRepository memberRepository;
+    private final TokenProvider tokenProvider;
 
     @Override
     @Transactional
-    public Mono<Void> signup(SignUpRequestDto req) {
+    public Mono<String> signup(SignUpRequestDto req) {
 
         return Mono.justOrEmpty(memberRepository.findByLoginId(req.loginId()))
                 .defaultIfEmpty(new Member())
@@ -40,9 +43,13 @@ public class MemberServiceImpl implements MemberService {
 
                     return Mono.fromRunnable(() -> memberRepository.save(member))
                             .subscribeOn(Schedulers.boundedElastic())
-                            .then();
+                            .then(Mono.just(req.loginId()));
 
                 })
+                .flatMap(loginId ->
+                        Mono.fromCallable(()-> tokenProvider.createToken(loginId))
+                                .subscribeOn(Schedulers.boundedElastic())
+                                .map(TokenDto::getAccessToken))
                 .onErrorResume(e -> {
                     log.error("회원 가입 에러: {}", e.getMessage());
                     return Mono.error(e);
@@ -103,6 +110,18 @@ public class MemberServiceImpl implements MemberService {
                 .onErrorResume(e -> {
                     log.error("회원 탈퇴 에러: {}", e.getMessage());
                     return Mono.error(e);
+                });
+    }
+
+    @Override
+    public Mono<String> login(String loginId) {
+        return Mono.fromCallable(() -> memberRepository.findByLoginId(loginId))
+                .flatMap(member -> {
+                    if (member == null) {
+                        return Mono.error(new UsernameNotFoundException("회원 가입이 필요합니다."));
+                    }
+                    return Mono.fromCallable(() -> tokenProvider.createToken(loginId))
+                            .map(TokenDto::getAccessToken);
                 });
     }
 
