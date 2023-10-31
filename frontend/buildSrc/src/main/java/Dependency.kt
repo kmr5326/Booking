@@ -28,6 +28,7 @@ object KTX {
 
 object Google {
     const val MATERIAL = "com.google.android.material:material:1.4.0"
+    const val GOOGLE_AUTH = "com.google.android.gms:play-services-auth:20.7.0"
 }
 
 object Test {
