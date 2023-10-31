@@ -13,12 +13,14 @@ import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 import org.springframework.messaging.simp.stomp.StompSession;
 import org.springframework.messaging.simp.stomp.StompSessionHandlerAdapter;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
 import org.springframework.web.socket.sockjs.client.SockJsClient;
 import org.springframework.web.socket.sockjs.client.Transport;
 import org.springframework.web.socket.sockjs.client.WebSocketTransport;
 
+@ActiveProfiles("local")
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 public class StompTest {
 
