@@ -34,4 +34,8 @@ public class Message {
     private Date timestamp;
 
 
+    public void setAutoIncrementId(Long id) {
+        this._id = id;
+    }
+
 }
