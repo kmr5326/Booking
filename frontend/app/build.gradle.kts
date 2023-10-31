@@ -1,11 +1,12 @@
-
-
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("org.jlleitschuh.gradle.ktlint") version "11.6.1"
     kotlin("kapt")
     id("com.google.dagger.hilt.android")
+    id("com.google.devtools.ksp")
+    // Add the Google services Gradle plugin
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -67,6 +68,8 @@ dependencies {
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
+    implementation("com.google.android.gms:play-services-auth:20.7.0")
+    implementation("com.google.firebase:firebase-auth-ktx:22.2.0")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
@@ -111,15 +114,33 @@ dependencies {
     implementation(Coil.COIL)
     implementation(Coil.COIL_COMPOSE)
 
+    // google
+    implementation(Google.GOOGLE_AUTH)
+
+    implementation ("androidx.compose.runtime:runtime:1.3.3")
+    implementation ("androidx.compose.runtime:runtime-livedata:1.3.3")
+    implementation ("androidx.compose.runtime:runtime-rxjava2:1.3.3")
+
     // Room
     implementation(Room.ROOM_RUNTIME)
     annotationProcessor(Room.ROOM_COMPILER)
     kapt(Room.ROOM_COMPILER)
     implementation(Room.ROOM_KTX)
 
+    // Moshi
+    implementation("com.squareup.moshi:moshi:1.15.0")
+    ksp("com.squareup.moshi:moshi-kotlin-codegen:1.15.0")
+    implementation(platform("com.google.firebase:firebase-bom:32.4.1"))
+    implementation("com.google.firebase:firebase-analytics-ktx")
+    implementation("com.google.firebase:firebase-auth-ktx")
+
 }
 
 // Allow references to generated code
 kapt {
     correctErrorTypes = true
+}
+
+ksp {
+    arg("moshi.kotlin.codegen.metadata", "true")
 }

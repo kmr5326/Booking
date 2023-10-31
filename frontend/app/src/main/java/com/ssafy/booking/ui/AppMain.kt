@@ -16,6 +16,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.ssafy.booking.ui.book.BookHome
 import com.ssafy.booking.ui.chat.ChatDetail
 import com.ssafy.booking.ui.chat.ChatHome
@@ -45,7 +46,7 @@ sealed class AppNavItem(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BookingApp() {
+fun BookingApp(googleSignInClient: GoogleSignInClient) {
     val viewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current)
     val appViewModel = viewModel<AppViewModel>(viewModelStoreOwner)
     val chatViewModel = hiltViewModel<ChatViewModel>(viewModelStoreOwner)
@@ -53,7 +54,7 @@ fun BookingApp() {
     BookingTheme {
         Scaffold {
             Box(Modifier.padding(it)) {
-                Route()
+                Route(googleSignInClient)
             }
         }
     }
@@ -62,7 +63,7 @@ fun BookingApp() {
 val LocalNavigation = staticCompositionLocalOf<NavHostController> { error("Not provided") }
 
 @Composable
-fun Route() {
+fun Route(googleSignInClient: GoogleSignInClient) {
     val navController = rememberNavController()
     val viewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current)
     val appViewModel = viewModel<AppViewModel>(viewModelStoreOwner)
@@ -74,7 +75,7 @@ fun Route() {
     ) {
         NavHost(navController = navController, startDestination = AppNavItem.Login.route) {
             composable("login") {
-                Greeting(navController, mainViewModel, appViewModel)
+                Greeting(navController, mainViewModel, appViewModel, googleSignInClient)
             }
             composable("book") {
                 BookHome(navController, appViewModel)
