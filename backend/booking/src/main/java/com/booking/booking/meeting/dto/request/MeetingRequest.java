@@ -1,7 +1,5 @@
 package com.booking.booking.meeting.dto.request;
 
-import com.booking.booking.hashtag.domain.Hashtag;
-
 import java.util.List;
 
 public record MeetingRequest(
@@ -13,7 +11,7 @@ public record MeetingRequest(
 
     Integer maxParticipants,
 
-    List<Hashtag> hashtagList
+    List<String> hashtagList
 ) {
 
 }

@@ -7,7 +7,13 @@ import com.booking.booking.meetinginfo.domain.MeetingInfo;
 import com.booking.booking.participant.domain.Participant;
 import com.booking.booking.post.domain.Post;
 import com.booking.booking.waitlist.domain.Waitlist;
-import java.util.List;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.DynamicUpdate;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -21,11 +27,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import java.util.List;
 
 @Entity
 @Getter
@@ -59,7 +61,7 @@ public class Meeting {
     @OneToMany(fetch = FetchType.LAZY)
     private List<MeetingInfo> meetingInfoList;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY, mappedBy = "meeting")
     private Chatroom chatroom;
 
     @OneToMany(fetch = FetchType.LAZY)
@@ -73,5 +75,4 @@ public class Meeting {
 
     @OneToMany(fetch = FetchType.LAZY)
     private List<Hashtag> hashTagList;
-
 }

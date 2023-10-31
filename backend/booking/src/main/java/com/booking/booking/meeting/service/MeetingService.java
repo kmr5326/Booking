@@ -1,5 +1,6 @@
 package com.booking.booking.meeting.service;
 
+import com.booking.booking.chatroom.service.ChatroomService;
 import com.booking.booking.global.exception.ErrorCode;
 import com.booking.booking.meeting.domain.Meeting;
 import com.booking.booking.meeting.domain.MeetingState;
@@ -7,7 +8,7 @@ import com.booking.booking.meeting.dto.request.MeetingRequest;
 import com.booking.booking.meeting.dto.response.MemberInfoResponse;
 import com.booking.booking.meeting.exception.MeetingException;
 import com.booking.booking.meeting.repository.MeetingRepository;
-import java.net.URI;
+import com.booking.booking.participant.service.ParticipantService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -16,30 +17,26 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import java.net.URI;
+
 @Slf4j
 @RequiredArgsConstructor
 @Service
 public class MeetingService {
 
     private final MeetingRepository meetingRepository;
+    private final ChatroomService chatroomService;
+    private final ParticipantService participantService;
     private static final String GATEWAY_URL = "http://localhost:8999";
 
     public Mono<Void> arrangeMeeting(String userEmail, MeetingRequest meetingRequest) {
         return getMemberInfoByEmail(userEmail)
             .flatMap(memberInfo -> {
                 log.info("hello web-flux");
-                Meeting meeting = Meeting.builder()
-                                         .leaderId(memberInfo.loginId())
-                                         .address(memberInfo.address())
-                                         .bookIsbn(meetingRequest.bookIsbn())
-                                         .meetingTitle(meetingRequest.meetingTitle())
-                                         .description(meetingRequest.description())
-                                         .maxParticipants(meetingRequest.maxParticipants())
-                                         .meetingState(MeetingState.PREPARING)
-                                         .build();
+                Meeting meeting = buildMeeting(memberInfo, meetingRequest);
                 log.info("meeting name : {}", meeting.getMeetingTitle());
-                // 별도의 스레드 풀에서 블로킹 작업 실행
-                return Mono.fromRunnable(() -> meetingRepository.save(meeting))
+
+                return Mono.fromRunnable(() -> handleBlockingTasks(meeting))
                            .subscribeOn(Schedulers.boundedElastic())
                            .then();
             })
@@ -71,5 +68,23 @@ public class MeetingService {
 
         log.info("end inter-server comm");
         return memberInfoResponse;
+    }
+
+    private Meeting buildMeeting(MemberInfoResponse memberInfo, MeetingRequest meetingRequest) {
+        return Meeting.builder()
+                .leaderId(memberInfo.loginId())
+                .address(memberInfo.address())
+                .bookIsbn(meetingRequest.bookIsbn())
+                .meetingTitle(meetingRequest.meetingTitle())
+                .description(meetingRequest.description())
+                .maxParticipants(meetingRequest.maxParticipants())
+                .meetingState(MeetingState.PREPARING)
+                .build();
+    }
+
+    private void handleBlockingTasks(Meeting meeting) {
+        meetingRepository.save(meeting);
+        chatroomService.createChatroom(meeting).subscribe();
+        participantService.addParticipant(meeting).subscribe();
     }
 }

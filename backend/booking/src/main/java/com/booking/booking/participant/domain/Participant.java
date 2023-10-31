@@ -1,5 +1,6 @@
 package com.booking.booking.participant.domain;
 
+import com.booking.booking.meeting.domain.Meeting;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,6 +11,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Entity
@@ -22,4 +25,14 @@ public class Participant {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long participantId;
+
+    private String memberId;
+
+    @ManyToOne
+    @JoinColumn(name = "meetingId")
+    private Meeting meeting;
+
+    private Boolean attendanceStatus;
+
+    private Boolean paymentStatus;
 }
