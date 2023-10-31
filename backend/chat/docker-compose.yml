@@ -46,7 +46,7 @@ services:
     depends_on:
       - chat_kafka
     volumes:
-      - ./data/mongodb:/data/db
+      - booking_chat_service:/data/db
   booking_chat_server:
     restart: on-failure
     depends_on:
@@ -54,7 +54,7 @@ services:
     image: 'chat-image:latest'
     container_name: 'chat-container'
     environment:
-      CONFIG_URL: 'http://172.26.14.101:8123'
+      CONFIG_URL: 'http://localhost:8123'
     networks:
       - booking_chat_network
     ports:
