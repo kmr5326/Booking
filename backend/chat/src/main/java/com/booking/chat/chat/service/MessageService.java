@@ -29,6 +29,6 @@ public class MessageService {
 
     public Flux<Message> findAllByRoomId(Long roomId) {
 
-        return null;
+        return messageRepository.findByChatRoomId(roomId);
     }
 }

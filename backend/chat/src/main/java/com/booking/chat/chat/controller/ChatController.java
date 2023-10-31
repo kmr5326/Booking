@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
-import reactor.core.scheduler.Schedulers;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -36,7 +35,7 @@ public class ChatController {
     @GetMapping(value = "/{chatroomId}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<Message> findAllByRoomId(@PathVariable Long chatroomId) {
 
-        return messageService.findAllByRoomId(chatroomId).subscribeOn(Schedulers.boundedElastic());
+        return messageService.findAllByRoomId(chatroomId);
     }
 
 //    @PostMapping("/{chatRoomId}")
