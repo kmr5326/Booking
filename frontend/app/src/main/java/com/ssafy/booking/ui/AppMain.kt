@@ -89,7 +89,7 @@ fun Route() {
                 ChatHome(navController, appViewModel, chatViewModel)
             }
             composable("chatDetail/{chatId}") {
-                ChatDetail(navController, appViewModel, chatViewModel)
+                ChatDetail(navController, chatViewModel)
             }
             composable("profile") {
                 ProfileHome(navController, appViewModel)
