@@ -8,6 +8,7 @@ import com.booking.booking.meeting.dto.request.MeetingRequest;
 import com.booking.booking.meeting.dto.response.MemberInfoResponse;
 import com.booking.booking.meeting.exception.MeetingException;
 import com.booking.booking.meeting.repository.MeetingRepository;
+import com.booking.booking.meetinghashtag.service.MeetingHashtagService;
 import com.booking.booking.participant.service.ParticipantService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +19,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.net.URI;
+import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -25,6 +27,7 @@ import java.net.URI;
 public class MeetingService {
 
     private final MeetingRepository meetingRepository;
+    private final MeetingHashtagService meetingHashtagService;
     private final ChatroomService chatroomService;
     private final ParticipantService participantService;
     private static final String GATEWAY_URL = "http://localhost:8999";
@@ -35,8 +38,7 @@ public class MeetingService {
                 log.info("hello web-flux");
                 Meeting meeting = buildMeeting(memberInfo, meetingRequest);
                 log.info("meeting name : {}", meeting.getMeetingTitle());
-
-                return Mono.fromRunnable(() -> handleBlockingTasks(meeting))
+                return Mono.fromRunnable(() -> handleBlockingTasks(meeting, meetingRequest.hashtagList()))
                            .subscribeOn(Schedulers.boundedElastic())
                            .then();
             })
@@ -48,23 +50,15 @@ public class MeetingService {
 
     private Mono<MemberInfoResponse> getMemberInfoByEmail(String userEmail) {
         log.info("start inter-server comm");
-        WebClient webClient = WebClient.builder()
-                                       .build();
+        WebClient webClient = WebClient.builder().build();
         URI uri = URI.create(GATEWAY_URL + "/api/members/memberInfo/" + userEmail);
 
         Mono<MemberInfoResponse> memberInfoResponse = webClient.get()
-                                                               .uri(uri)
-                                                               .retrieve()
-                                                               .onStatus(
-                                                                   HttpStatus::is4xxClientError,
-                                                                   response -> Mono.error(
-                                                                       RuntimeException::new))
-                                                               .onStatus(
-                                                                   HttpStatus::is5xxServerError,
-                                                                   response -> Mono.error(
-                                                                       RuntimeException::new))
-                                                               .bodyToMono(
-                                                                   MemberInfoResponse.class);
+                .uri(uri)
+                .retrieve()
+                .onStatus(HttpStatus::is4xxClientError, response -> Mono.error(RuntimeException::new))
+                .onStatus(HttpStatus::is5xxServerError, response -> Mono.error(RuntimeException::new))
+                .bodyToMono(MemberInfoResponse.class);
 
         log.info("end inter-server comm");
         return memberInfoResponse;
@@ -82,8 +76,9 @@ public class MeetingService {
                 .build();
     }
 
-    private void handleBlockingTasks(Meeting meeting) {
+    private void handleBlockingTasks(Meeting meeting, List<String> hashtagList) {
         meetingRepository.save(meeting);
+        meetingHashtagService.saveHashtags(meeting, hashtagList);
         chatroomService.createChatroom(meeting).subscribe();
         participantService.addParticipant(meeting).subscribe();
     }

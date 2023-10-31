@@ -16,14 +16,12 @@ public class ChatroomService {
     private final ChatroomRepository chatroomRepository;
 
     public Mono<Void> createChatroom(Meeting meeting) {
-        return Mono.fromRunnable(() -> chatroomRepository.save(buildChatroom(meeting)))
+        return Mono
+                .fromRunnable(() -> chatroomRepository.save(
+                        Chatroom.builder()
+                            .meeting(meeting)
+                            .build()))
                 .subscribeOn(Schedulers.boundedElastic())
                 .then();
-    }
-
-    private Chatroom buildChatroom(Meeting meeting) {
-        return Chatroom.builder()
-                .meeting(meeting)
-                .build();
     }
 }

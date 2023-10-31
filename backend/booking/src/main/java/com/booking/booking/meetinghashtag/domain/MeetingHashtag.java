@@ -1,6 +1,7 @@
-package com.booking.booking.hashtag.domain;
+package com.booking.booking.meetinghashtag.domain;
 
-import com.booking.booking.meetinghashtag.domain.MeetingHashtag;
+import com.booking.booking.hashtag.domain.Hashtag;
+import com.booking.booking.meeting.domain.Meeting;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,27 +9,26 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import java.util.List;
 
 @Entity
 @Getter
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-@Table(name = "hashtags")
-public class Hashtag {
+@Table(name = "meeting_hashtags")
+public class MeetingHashtag {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long hashtagId;
+    private long meetingHashtagId;
 
-    private String content;
+    @ManyToOne
+    private Meeting meeting;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "hashtag")
-    private List<MeetingHashtag> meetingHashtag;
+    @ManyToOne
+    private Hashtag hashtag;
 }

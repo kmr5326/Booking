@@ -2,7 +2,7 @@ package com.booking.booking.meeting.domain;
 
 
 import com.booking.booking.chatroom.domain.Chatroom;
-import com.booking.booking.hashtag.domain.Hashtag;
+import com.booking.booking.meetinghashtag.domain.MeetingHashtag;
 import com.booking.booking.meetinginfo.domain.MeetingInfo;
 import com.booking.booking.participant.domain.Participant;
 import com.booking.booking.post.domain.Post;
@@ -12,7 +12,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -74,5 +73,5 @@ public class Meeting {
     private List<Post> postList;
 
     @OneToMany(fetch = FetchType.LAZY)
-    private List<Hashtag> hashTagList;
+    private List<MeetingHashtag> hashTagList;
 }
