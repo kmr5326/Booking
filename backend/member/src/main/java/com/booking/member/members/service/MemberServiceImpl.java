@@ -4,6 +4,7 @@ import com.booking.member.Auth.TokenDto;
 import com.booking.member.Auth.TokenProvider;
 import com.booking.member.members.Gender;
 import com.booking.member.members.Member;
+import com.booking.member.members.UserRole;
 import com.booking.member.members.dto.MemberInfoResponseDto;
 import com.booking.member.members.dto.ModifyRequestDto;
 import com.booking.member.members.dto.SignUpRequestDto;
@@ -31,17 +32,23 @@ public class MemberServiceImpl implements MemberService {
         return Mono.justOrEmpty(memberRepository.findByLoginId(req.loginId()))
                 .defaultIfEmpty(new Member())
                 .flatMap(member -> {
-                    if (checkEmailDuplicate(req.email())) {
-                        return Mono.error(new RuntimeException("이미 가입된 이메일입니다."));
+                    if (checkMemberDuplicate(req.loginId())) {
+                        return Mono.error(new RuntimeException("이미 가입된 회원입니다."));
                     }
-                    member.setEmail(req.email());
-                    member.setAge(req.age());
-                    member.setGender(Gender.valueOf(req.gender()));
-                    member.setNickname(req.nickname());
-                    member.setFullName(req.fullName());
-                    member.setAddress(req.address());
+                    Member mem=Member.builder()
+                            .age(req.age())
+                            .email(req.email())
+                            .gender(Gender.valueOf(req.gender()))
+                            .loginId(req.loginId())
+                            .nickname(req.nickname())
+                            .fullName(req.fullName())
+                            .address(req.address())
+                            .role(UserRole.USER)
+                            .profileImage(req.profileImage())
+                            .provider(req.provider())
+                            .build();
 
-                    return Mono.fromRunnable(() -> memberRepository.save(member))
+                    return Mono.fromRunnable(() -> memberRepository.save(mem))
                             .subscribeOn(Schedulers.boundedElastic())
                             .then(Mono.just(req.loginId()));
 
@@ -115,17 +122,15 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public Mono<String> login(String loginId) {
-        return Mono.fromCallable(() -> memberRepository.findByLoginId(loginId))
-                .flatMap(member -> {
-                    if (member == null) {
-                        return Mono.error(new UsernameNotFoundException("회원 가입이 필요합니다."));
-                    }
-                    return Mono.fromCallable(() -> tokenProvider.createToken(loginId))
-                            .map(TokenDto::getAccessToken);
-                });
+        Member member=memberRepository.findByLoginId(loginId);
+        if (member == null) {
+            return Mono.error(new UsernameNotFoundException("회원 가입이 필요합니다."));
+        }
+        return Mono.fromCallable(() -> tokenProvider.createToken(loginId))
+                .map(TokenDto::getAccessToken);
     }
 
-    public boolean checkEmailDuplicate(String email) {
-        return memberRepository.existsByEmail(email);
+    public boolean checkMemberDuplicate(String loginId) {
+        return memberRepository.existsByLoginId(loginId);
     }
 }
