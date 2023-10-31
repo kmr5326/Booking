@@ -1,9 +1,6 @@
 package com.booking.member.members.controller;
 
-import com.booking.member.members.dto.DeleteMemberRequestDto;
-import com.booking.member.members.dto.MemberInfoResponseDto;
-import com.booking.member.members.dto.ModifyRequestDto;
-import com.booking.member.members.dto.SignUpRequestDto;
+import com.booking.member.members.dto.*;
 import com.booking.member.members.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,8 +21,11 @@ public class MemberController {
     Mono<ResponseEntity<String>> signup(@RequestBody SignUpRequestDto req) {
         log.info("회원 가입 요청={}", req);
         return memberService.signup(req)
-                .then(Mono.just(ResponseEntity.ok().body("회원가입 성공")))
-                .onErrorResume(e->Mono.just(ResponseEntity.badRequest().build()));
+                .map(token -> ResponseEntity.ok().body(token))
+                .onErrorResume(e -> {
+                    log.error("회원 가입 에러: {}", e.getMessage());
+                    return Mono.just(ResponseEntity.badRequest().body(e.getMessage()));
+                });
     }
 
     @GetMapping("/memberInfo/{loginId}")
@@ -61,5 +61,16 @@ public class MemberController {
         memberService.deleteMember(req.loginId());
         return Mono.just(ResponseEntity.ok().body("회원 탈퇴 성공"))
                 .onErrorResume(e -> Mono.just(ResponseEntity.badRequest().body(e.getMessage())));
+    }
+
+    @PostMapping("/login")
+    Mono<ResponseEntity<String>> login(@RequestBody LoginRequestDto reqDto) {
+        log.info("로그인 요청 id: {}", reqDto.loginId());
+        return memberService.login(reqDto.loginId())
+                .map(token -> ResponseEntity.ok().body(token))
+                .onErrorResume(e -> {
+                    log.info("로그인 에러: {}", e.getMessage());
+                    return Mono.just(ResponseEntity.badRequest().body(e.getMessage()));
+                });
     }
 }
