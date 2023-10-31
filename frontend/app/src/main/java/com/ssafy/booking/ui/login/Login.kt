@@ -146,8 +146,6 @@ fun GoogleLoginButton(viewModel: MainViewModel, googleSignInClient: GoogleSignIn
                 fontWeight = FontWeight.Bold)
         }
     }
-    
-    Text(text = "값 : ${accountInfo?.name} ??")
 }
 
 private fun handleSignInResult(context: Context, accountTask: Task<GoogleSignInAccount>, viewModel: MainViewModel, firebaseAuth: FirebaseAuth) {
@@ -157,10 +155,8 @@ private fun handleSignInResult(context: Context, accountTask: Task<GoogleSignInA
         firebaseAuth.signInWithCredential(credential)
             .addOnCompleteListener(context as Activity) {task ->
                 if(task.isSuccessful) {
-                    Log.d("google","성공 | handleSignInResult: $task")
                     viewModel.signInGoogle(AccountInfo(account.idToken.orEmpty(), account.displayName.orEmpty(), AccountInfo.Type.GOOGLE))
                 } else {
-                    Log.d("google","실패 | handleSignInResult: $task")
                     viewModel.signOutGoogle()
                     firebaseAuth.signOut()
                 }

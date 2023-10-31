@@ -21,7 +21,7 @@ class AppModule {
     fun provideGoogleSignInOptions(@ApplicationContext context: Context): GoogleSignInClient {
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestEmail()
-            .requestIdToken(context.getString(R.string.google_cloud_server_client_id))
+            .requestIdToken(context.getString(R.string.default_web_client_id))
             .requestId()
             .requestProfile()
             .build()
