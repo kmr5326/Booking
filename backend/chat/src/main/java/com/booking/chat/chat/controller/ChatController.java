@@ -1,17 +1,19 @@
 package com.booking.chat.chat.controller;
 
+import com.booking.chat.chat.domain.Message;
 import com.booking.chat.chat.service.MessageService;
 import com.booking.chat.kafka.domain.KafkaMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.MediaType;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Flux;
+import reactor.core.scheduler.Schedulers;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -31,17 +33,23 @@ public class ChatController {
         kafkaTemplate.send("Chatroom-" + chatroomId, message); // Kafka로 메세지 전달
     }
 
-    @PostMapping("/{chatRoomId}")
-    public ResponseEntity<String> sendMessage(@PathVariable String chatRoomId, @RequestBody String message) {
+    @GetMapping(value = "/{chatroomId}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<Message> findAllByRoomId(@PathVariable Long chatroomId) {
 
-        KafkaMessage kafkaMessage = KafkaMessage.builder().message(message).build();
-
-        try {
-            kafkaTemplate.send("chat" + chatRoomId, kafkaMessage);
-            return ResponseEntity.ok("success");
-        } catch (Exception e) {
-            log.error("error");
-            return ResponseEntity.badRequest().body("fail");
-        }
+        return messageService.findAllByRoomId(chatroomId).subscribeOn(Schedulers.boundedElastic());
     }
+
+//    @PostMapping("/{chatRoomId}")
+//    public ResponseEntity<String> sendMessage(@PathVariable String chatRoomId, @RequestBody String message) {
+//
+//        KafkaMessage kafkaMessage = KafkaMessage.builder().message(message).build();
+//
+//        try {
+//            kafkaTemplate.send("chat" + chatRoomId, kafkaMessage);
+//            return ResponseEntity.ok("success");
+//        } catch (Exception e) {
+//            log.error("error");
+//            return ResponseEntity.badRequest().body("fail");
+//        }
+//    }
 }

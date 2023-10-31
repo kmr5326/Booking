@@ -7,6 +7,7 @@ import com.booking.chat.kafka.domain.KafkaMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -18,11 +19,16 @@ public class MessageService {
     public void save(KafkaMessage message, String chatroomId) {
 
         Message saveMessage = Message.builder()
-                                     .chatroom_id(Long.valueOf(chatroomId))
-                                     .member_id(Long.valueOf(message.getSender())) // sender가 member_id라고 가정
+                                     .chatroomId(Long.valueOf(chatroomId))
+                                     .memberId(Long.valueOf(message.getSender())) // sender가 member_id라고 가정
                                      .content(message.getMessage())
                                      .build();
 
         messageRepository.save(saveMessage);
+    }
+
+    public Flux<Message> findAllByRoomId(Long roomId) {
+
+        return null;
     }
 }
