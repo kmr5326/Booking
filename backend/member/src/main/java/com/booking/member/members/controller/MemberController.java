@@ -1,9 +1,6 @@
 package com.booking.member.members.controller;
 
-import com.booking.member.members.dto.DeleteMemberRequestDto;
-import com.booking.member.members.dto.MemberInfoResponseDto;
-import com.booking.member.members.dto.ModifyRequestDto;
-import com.booking.member.members.dto.SignUpRequestDto;
+import com.booking.member.members.dto.*;
 import com.booking.member.members.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,23 +20,21 @@ public class MemberController {
     @PostMapping("/signup")
     Mono<ResponseEntity<String>> signup(@RequestBody SignUpRequestDto req) {
         log.info("회원 가입 요청={}", req);
-        memberService.signup(req);
-        return Mono.just(ResponseEntity.ok().body("signup success"))
-                .onErrorResume(e -> Mono.just(ResponseEntity.badRequest().body(e.getMessage())));
+        return memberService.signup(req)
+                .map(token -> ResponseEntity.ok().body(token))
+                .onErrorResume(e -> {
+                    log.error("회원 가입 에러: {}", e.getMessage());
+                    return Mono.just(ResponseEntity.badRequest().body(e.getMessage()));
+                });
     }
 
     @GetMapping("/memberInfo/{loginId}")
-    Mono<ResponseEntity<MemberInfoResponseDto>> loadMember(@PathVariable String loginId){
-        log.info("유저 정보 조회 loginId={}",loginId);
-        try{
-            MemberInfoResponseDto memberInfo=memberService.loadMemberInfo(loginId);
-            return Mono.just(ResponseEntity.ok().body(memberInfo));
-        }
-        catch (Exception e){
-//            return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).build());
-            return Mono.error(e);
-            // 에러 메세지 어떻게 보내지?
-        }
+    Mono<ResponseEntity<MemberInfoResponseDto>> loadMember(@PathVariable String loginId) {
+        log.info("유저 정보 조회 loginId={}", loginId);
+
+        return memberService.loadMemberInfo(loginId)
+                .map(response -> ResponseEntity.ok().body(response))
+                .switchIfEmpty(Mono.just(ResponseEntity.notFound().build()));
     }
 
     @GetMapping("/afterLogin/{token}")
@@ -55,17 +50,27 @@ public class MemberController {
     @PatchMapping("/modification")
     Mono<ResponseEntity<String>> modifyMemberInfo(@RequestBody ModifyRequestDto req) {
         log.info("회원 정보 수정 요청={}", req);
-        memberService.modifyMemberInfo(req);
-        return Mono.just(ResponseEntity.ok().body("유저 정보 수정 완료"))
+        return memberService.modifyMemberInfo(req)
+                .then(Mono.just(ResponseEntity.ok().body("유저 정보 수정 완료")))
                 .onErrorResume(e -> Mono.just(ResponseEntity.badRequest().body(e.getMessage())));
-
     }
 
     @DeleteMapping("/deletion")
-    Mono<ResponseEntity<String>> deleteMember(@RequestBody DeleteMemberRequestDto req){
-        log.info("회원 탈퇴 {}",req);
+    Mono<ResponseEntity<String>> deleteMember(@RequestBody DeleteMemberRequestDto req) {
+        log.info("회원 탈퇴 {}", req);
         memberService.deleteMember(req.loginId());
         return Mono.just(ResponseEntity.ok().body("회원 탈퇴 성공"))
                 .onErrorResume(e -> Mono.just(ResponseEntity.badRequest().body(e.getMessage())));
+    }
+
+    @PostMapping("/login")
+    Mono<ResponseEntity<String>> login(@RequestBody LoginRequestDto reqDto) {
+        log.info("로그인 요청 id: {}", reqDto.loginId());
+        return memberService.login(reqDto.loginId())
+                .map(token -> ResponseEntity.ok().body(token))
+                .onErrorResume(e -> {
+                    log.info("로그인 에러: {}", e.getMessage());
+                    return Mono.just(ResponseEntity.badRequest().body(e.getMessage()));
+                });
     }
 }
