@@ -53,12 +53,52 @@ import retrofit2.Response
 //import retrofit2.http.GET
 //import okhttp3.ResponseBody
 import com.kakao.sdk.common.util.Utility
-
-
-
+import com.ssafy.booking.utils.Utils.BASE_URL
+import retrofit2.http.Body
+import retrofit2.http.POST
 
 
 val TAG1 ="KakaoLogin"
+
+// 로그인 인터페이스
+interface LoginService {
+    @POST("/api/members/login")
+    fun login(@Body loginInfo: LoginInfo): Call<ResponseBody>
+}
+
+data class LoginInfo(val loginId: String)
+
+// Retrofit 인스턴스 생성
+val retrofit = Retrofit.Builder()
+    .baseUrl("https://k9c206.p.ssafy.io:9999") // 실제 서버 URL로 변경해야 함
+    .addConverterFactory(GsonConverterFactory.create())
+    .build()
+
+val loginService = retrofit.create(LoginService::class.java)
+
+// 로그인 API 호출
+
+private fun onLoginSuccess() {
+    val loginInfo = LoginInfo(loginId = "3141620464") // 실제 로그인 ID로 변경해야 함
+    val call = loginService.login(loginInfo)
+    call.enqueue(object : Callback<ResponseBody> {
+        override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+            if (response.isSuccessful) {
+                // 성공적으로 API 호출 완료, JWT 토큰 처리
+                val token = response.body()?.string()
+                Log.d("API", "API 호출 성공: $token")
+            } else {
+                // 오류 처리
+                Log.d("api", "API 호출 실패~~~: ${response.errorBody()?.string()}")
+            }
+        }
+
+        override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+            // 네트워크 오류 등의 이유로 호출 실패
+            Log.d(TAG, "API 호출 실패2: ${t.message}")
+        }
+    })
+}
 
 
 
@@ -171,6 +211,20 @@ private fun loginCallback(navController: NavController): (OAuthToken?, Throwable
     } else if (token != null) {
         Log.e(TAG1, "로그인 성공 ${token.accessToken}")
         navController.navigate(AppNavItem.Main.route)
+        // 사용자 정보 요청 (기본)
+        UserApiClient.instance.me { user, error ->
+            if (error != null) {
+                Log.e("asdf", "사용자 정보 요청 실패", error)
+            }
+            else if (user != null) {
+                onLoginSuccess()
+                Log.i("asdf", "사용자 정보 요청 성공" +
+                                        "\n회원번호: ${user.id}" +
+                                        "\n이메일: ${user.kakaoAccount?.email}" +
+                        "\n닉네임: ${user.kakaoAccount?.profile?.nickname}"+
+                                        "\n프로필사진: ${user.kakaoAccount?.profile?.thumbnailImageUrl}")
+            }
+        }
     }
 }
 
@@ -212,6 +266,8 @@ fun NewButton(context: Context,navController: NavController) {
 //                                        "\n이메일: ${user.kakaoAccount?.email}" +
                                         "\n닉네임: ${user.kakaoAccount?.profile?.nickname}")
 //                                        "\n프로필사진: ${user.kakaoAccount?.profile?.thumbnailImageUrl}")
+                                onLoginSuccess()
+
                             }
                         }
 
