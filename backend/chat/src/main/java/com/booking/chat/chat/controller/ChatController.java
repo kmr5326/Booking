@@ -28,7 +28,7 @@ public class ChatController {
         //MongoDB에 저장
         messageService.save(message, chatroomId);
 
-        kafkaTemplate.send("Chatroom_" + chatroomId, message); // Kafka로 메세지 전달
+        kafkaTemplate.send("Chatroom-" + chatroomId, message); // Kafka로 메세지 전달
     }
 
     @PostMapping("/{chatRoomId}")
