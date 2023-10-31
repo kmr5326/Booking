@@ -1,11 +1,13 @@
 package com.ssafy.booking.google
 
-import com.google.gson.annotations.SerializedName
+import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
+@JsonClass(generateAdapter = true)
 data class GoogleUserModel(
 
-    @SerializedName("name")
+    @Json(name="name")
     val name: String?,
-    @SerializedName("email")
+    @Json(name="email")
     val email: String?
 )
