@@ -59,6 +59,9 @@ import com.kakao.sdk.common.util.Utility
 
 
 val TAG1 ="KakaoLogin"
+
+
+
 @Composable
 fun Greeting(navController: NavController,
              mainViewModel: MainViewModel,
@@ -66,6 +69,10 @@ fun Greeting(navController: NavController,
              context: Context,
              modifier: Modifier = Modifier)
 {
+    fun getHash (context: Context) {
+        Log.d(TAG1, "keyHash: $keyHash")
+        Log.d(TAG1, "keyHash2: ${Utility.getKeyHash(context)}")
+    }
     val navController = navController
     Box(
         modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center
@@ -84,6 +91,7 @@ fun Greeting(navController: NavController,
             KakaoLoginButton(navController)
             GoogleLoginButton(mainViewModel)
             TempLoginButton {
+                getHash(context)
             }
             NewButton(context,navController)
         }
@@ -122,10 +130,10 @@ fun GoogleLoginButton(mainViewModel: MainViewModel) {
     }
 }
 @Composable
-fun TempLoginButton(onClick: () -> Unit) {
+fun TempLoginButton(getHash: () -> Unit) {
     Button(
         onClick = {
-            Log.d("재주","keyHash: $keyHash") },
+            getHash() },
         colors = ButtonDefaults.buttonColors(
             containerColor = Color(0xFF00C68E),
             contentColor = Color(0xFFffffff)
@@ -157,11 +165,12 @@ fun TestButton(onClick: () -> Unit) {
 ///////
 
 
-private val mCallback: (OAuthToken?, Throwable?) -> Unit = { token, error ->
+private fun loginCallback(navController: NavController): (OAuthToken?, Throwable?) -> Unit = { token, error ->
     if (error != null) {
         Log.e(TAG1, "로그인 실패 $error")
     } else if (token != null) {
         Log.e(TAG1, "로그인 성공 ${token.accessToken}")
+        navController.navigate(AppNavItem.Main.route)
     }
 }
 
@@ -183,7 +192,8 @@ fun NewButton(context: Context,navController: NavController) {
                         }
                         // 다른 오류
                         else {
-                            UserApiClient.instance.loginWithKakaoAccount(context, callback = mCallback) // 카카오 이메일 로그인
+                            // 카카오계정으로 로그인
+                            UserApiClient.instance.loginWithKakaoAccount(context, callback = loginCallback(navController))
                         }
                     }
                     // 로그인 성공 부분
@@ -191,10 +201,25 @@ fun NewButton(context: Context,navController: NavController) {
                         Log.e(TAG1, "로그인 성공 ${token.accessToken}")
                         navController.navigate(AppNavItem.Main.route)
 
+                        // 사용자 정보 요청 (기본)
+                        UserApiClient.instance.me { user, error ->
+                            if (error != null) {
+                                Log.e(TAG, "사용자 정보 요청 실패", error)
+                            }
+                            else if (user != null) {
+                                Log.i(TAG, "사용자 정보 요청 성공" +
+//                                        "\n회원번호: ${user.id}" +
+//                                        "\n이메일: ${user.kakaoAccount?.email}" +
+                                        "\n닉네임: ${user.kakaoAccount?.profile?.nickname}")
+//                                        "\n프로필사진: ${user.kakaoAccount?.profile?.thumbnailImageUrl}")
+                            }
+                        }
+
                     }
                 }
             } else {
-                UserApiClient.instance.loginWithKakaoAccount(context, callback = mCallback) // 카카오 이메일 로그인
+                // 카카오계정으로 로그인
+                UserApiClient.instance.loginWithKakaoAccount(context, callback = loginCallback(navController))
             }
         },
         colors = ButtonDefaults.buttonColors(

@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <!-- 인터넷 permission 추가 -->
+    <!--        android:name=".di.App"-->
     <uses-permission android:name="android.permission.INTERNET" />
-    <!--        android:name=".MyApplication"-->
     <application
         android:name=".di.App"
         android:allowBackup="true"
@@ -36,7 +36,7 @@
 
                 <!-- Redirect URI: "kakaoc983af9ff87c243a4acecc793d087699://oauth" -->
                 <data android:host="oauth"
-                    android:scheme="kakaoc983af9ff87c243a4acecc793d087699" />
+                    android:scheme="kakao3e6cef2682dd6c48c4d563071d71388c" />
             </intent-filter>
         </activity>
 

@@ -16,15 +16,18 @@ import com.ssafy.booking.R
 import com.ssafy.booking.ui.BookingApp
 import dagger.hilt.android.AndroidEntryPoint
 
-
+val TAG1 = "getHashKey"
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         /** KakaoSDK init */
-        KakaoSdk.init(this, "c983af9ff87c243a4acecc793d087699")
+//        KakaoSdk.init(this, "c983af9ff87c243a4acecc793d087699")
+        KakaoSdk.init(this, "3e6cef2682dd6c48c4d563071d71388c")
 
+        var keyHash = Utility.getKeyHash(this)
+        Log.v(TAG1, keyHash)
         setContent {
             BookingApp()
         }
