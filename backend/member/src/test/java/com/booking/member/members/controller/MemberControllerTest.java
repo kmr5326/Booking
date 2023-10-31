@@ -31,7 +31,7 @@ public class MemberControllerTest extends ControllerTest {
     @DisplayName("회원 가입 요청 성공한다")
     void t1() throws Exception {
 
-        SignUpRequestDto signUpRequestDto = new SignUpRequestDto("loginId", "email", 20, "MALE", "nickname", "fullName", "address");
+        SignUpRequestDto signUpRequestDto = new SignUpRequestDto("loginId", "email", 20, "MALE", "nickname", "fullName", "address","profileImage","provider");
         when(memberService.signup(any(SignUpRequestDto.class)))
                 .thenReturn(Mono.just("token:JWT 토큰"));
 
@@ -54,7 +54,9 @@ public class MemberControllerTest extends ControllerTest {
                                         fieldWithPath("gender").description("성별, 남자 : MALE, 여자 : FEMALE"),
                                         fieldWithPath("nickname").description("닉네임"),
                                         fieldWithPath("fullName").description("풀네임"),
-                                        fieldWithPath("address").description("주소")
+                                        fieldWithPath("address").description("주소"),
+                                        fieldWithPath("profileImage").description("프로필 이미지"),
+                                        fieldWithPath("provider").description("google | kakao")
                                 ))
                 );
     }

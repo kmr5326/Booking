@@ -612,7 +612,7 @@ token: JWT 토큰</code></pre>
 <div class="content">
 <pre class="CodeRay highlight nowrap"><code data-lang="http">POST /api/members/signup HTTP/1.1
 Content-Type: application/json;charset=UTF-8
-Content-Length: 170
+Content-Length: 234
 Host: localhost:8080
 
 {
@@ -622,7 +622,9 @@ Host: localhost:8080
   &quot;gender&quot; : &quot;MALE&quot;,
   &quot;nickname&quot; : &quot;nickname&quot;,
   &quot;fullName&quot; : &quot;fullName&quot;,
-  &quot;address&quot; : &quot;address&quot;
+  &quot;address&quot; : &quot;address&quot;,
+  &quot;profileImage&quot; : &quot;profileImage&quot;,
+  &quot;provider&quot; : &quot;provider&quot;
 }</code></pre>
 </div>
 </div>
@@ -674,6 +676,16 @@ Host: localhost:8080
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>address</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">주소</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>profileImage</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">프로필 이미지</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>provider</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">google | kakao</p></td>
 </tr>
 </tbody>
 </table>
@@ -860,7 +872,7 @@ Host: localhost:8080
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2023-10-31 11:25:20 +0900
+Last updated 2023-10-31 21:37:57 +0900
 </div>
 </div>
 <script>
