@@ -54,7 +54,7 @@ services:
     image: 'chat-image:latest'
     container_name: 'chat-container'
     environment:
-      CONFIG_URL: 'http://localhost:8123'
+      CONFIG_URL: 'http://172.17.0.4:8123'
     networks:
       - booking_chat_network
     ports:
