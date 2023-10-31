@@ -12,7 +12,8 @@ object Mapper {
     fun List<GoogleResponse>.toDomain() : List<com.ssafy.domain.model.GoogleResponse> {
         return this.map {
             com.ssafy.domain.model.GoogleResponse(
-                it.token,
+                it.name,
+                it.email
             )
         }
     }

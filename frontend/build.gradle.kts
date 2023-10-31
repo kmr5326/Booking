@@ -6,6 +6,7 @@ buildscript {
     dependencies {
         // 기존에 있던 의존성들
         classpath("com.google.dagger:hilt-android-gradle-plugin:2.48.1")
+        classpath("com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin:1.5.31-1.0.0")
     }
 }
 
@@ -15,4 +16,6 @@ plugins {
     id("org.jetbrains.kotlin.android") version "1.8.10" apply false
     id("com.android.library") version "8.1.2" apply false
     id("com.google.dagger.hilt.android") version "2.48.1" apply false
+    id("com.google.gms.google-services") version "4.4.0" apply false
+
 }
