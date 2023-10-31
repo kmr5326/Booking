@@ -56,6 +56,7 @@ services:
     container_name: 'chat-container'
     environment:
       CONFIG_URL: 'http://k9c206.p.ssafy.io:8123/'
+      KAFKA_SERVER_PORT: 'chat_kafka:9092'
     networks:
       - booking_chat_network
     ports:
