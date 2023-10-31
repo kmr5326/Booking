@@ -24,7 +24,7 @@ class NetworkModule {
     fun provideHttpClient() : OkHttpClient {
         val hostname = "k9c206.p.ssafy.io" // 변경해야 합니다. 서버의 호스트 이름을 사용하세요.
         val certificatePinner = CertificatePinner.Builder()
-            .add(hostname, "sha256/47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=") // 앞서 얻은 해시 값을 여기에 넣으세요.
+            .add(hostname, "sha256/IDF9aOeOleD2EgHReEz2+dm0In+48lIxbdCiESFCRSo=") // 앞서 얻은 해시 값을 여기에 넣으세요.
             .build()
 
         return OkHttpClient.Builder()
@@ -45,7 +45,6 @@ class NetworkModule {
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
             .client(okHttpClient)
-            .client(provideHttpClient())
             .addConverterFactory(gsonConverterFactory)
             .build()
     }

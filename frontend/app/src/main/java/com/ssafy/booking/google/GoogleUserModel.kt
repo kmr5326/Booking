@@ -1,9 +1,8 @@
-package com.ssafy.data.remote.model
+package com.ssafy.booking.google
 
 import com.google.gson.annotations.SerializedName
-import java.util.jar.Attributes.Name
 
-data class GoogleResponse (
+data class GoogleUserModel(
 
     @SerializedName("name")
     val name: String?,
