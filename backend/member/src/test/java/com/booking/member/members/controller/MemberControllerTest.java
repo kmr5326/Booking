@@ -1,9 +1,6 @@
 package com.booking.member.members.controller;
 
-import com.booking.member.members.dto.DeleteMemberRequestDto;
-import com.booking.member.members.dto.MemberInfoResponseDto;
-import com.booking.member.members.dto.ModifyRequestDto;
-import com.booking.member.members.dto.SignUpRequestDto;
+import com.booking.member.members.dto.*;
 import com.booking.member.util.ControllerTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -13,7 +10,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import reactor.core.publisher.Mono;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
@@ -23,6 +20,7 @@ import static org.springframework.restdocs.request.RequestDocumentation.paramete
 import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.asyncDispatch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class MemberControllerTest extends ControllerTest {
@@ -35,12 +33,16 @@ public class MemberControllerTest extends ControllerTest {
 
         SignUpRequestDto signUpRequestDto = new SignUpRequestDto("loginId", "email", 20, "MALE", "nickname", "fullName", "address");
         when(memberService.signup(any(SignUpRequestDto.class)))
-                .thenReturn(Mono.empty());
+                .thenReturn(Mono.just("token:JWT 토큰"));
 
-        mockMvc.perform(post(baseUrl + "/signup")
+        MvcResult mvcResult = mockMvc.perform(post(baseUrl + "/signup")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsBytes(signUpRequestDto)))// 요청 HTTP METHOD, 주소
+                        .content(objectMapper.writeValueAsBytes(signUpRequestDto)))
+                .andReturn();
+
+        mockMvc.perform(asyncDispatch(mvcResult))
                 .andExpect(status().isOk()) // 200 반환
+                .andExpect(content().string("token:JWT 토큰"))
                 .andDo(
                         document("/member/signup", // restdocs 선언,
                                 preprocessRequest(prettyPrint()), // json을 이쁘게 표시해라
@@ -134,6 +136,30 @@ public class MemberControllerTest extends ControllerTest {
                                 preprocessResponse(prettyPrint()),
                                 requestFields(
                                         fieldWithPath("loginId").description("로그인id")
+                                ))
+                );
+    }
+
+    @Test
+    @DisplayName("로그인 JWT")
+    void t5() throws Exception {
+        LoginRequestDto loginRequestDto = new LoginRequestDto("1234");
+        when(memberService.login(anyString())).thenReturn(Mono.just("token: JWT 토큰"));
+
+        MvcResult mvcResult = mockMvc.perform(post(baseUrl + "/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsBytes(loginRequestDto))
+                ).andReturn();
+
+        mockMvc.perform(asyncDispatch(mvcResult))
+                .andExpect(status().isOk())
+                .andExpect(content().string("token: JWT 토큰"))
+                .andDo(
+                        document("/member/login", // restdocs 선언,
+                                preprocessRequest(prettyPrint()), // json을 이쁘게 표시해라
+                                preprocessResponse(prettyPrint()),
+                                requestFields(
+                                        fieldWithPath("loginId").type(JsonFieldType.STRING).description("로그인id")
                                 ))
                 );
     }

@@ -1,3 +1,10 @@
+=== 로그인
+==== HTTP Request
+include::{snippets}/member/login/http-request.adoc[]
+include::{snippets}/member/login/request-fields.adoc[]
+==== HTTP Response
+include::{snippets}/member/login/http-response.adoc[]
+
 === 회원 가입
 ==== HTTP Requesst
 include::{snippets}/member/signup/http-request.adoc[]
