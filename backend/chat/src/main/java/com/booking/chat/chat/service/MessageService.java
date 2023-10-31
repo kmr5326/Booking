@@ -24,7 +24,7 @@ public class MessageService {
                                      .content(message.getMessage())
                                      .build();
 
-        messageRepository.save(saveMessage);
+        messageRepository.save(saveMessage).subscribe();
     }
 
     public Flux<Message> findAllByRoomId(Long roomId) {
