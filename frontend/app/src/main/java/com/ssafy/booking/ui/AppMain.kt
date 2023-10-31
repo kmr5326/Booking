@@ -29,6 +29,7 @@ import com.ssafy.booking.ui.profile.ProfileHome
 import com.ssafy.booking.viewmodel.MainViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import com.ssafy.booking.ui.booking.MyFloatingActionButton
+import com.ssafy.booking.viewmodel.ChatViewModel
 
 sealed class AppNavItem(
     val route: String
@@ -48,6 +49,7 @@ sealed class AppNavItem(
 fun BookingApp(googleSignInClient: GoogleSignInClient) {
     val viewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current)
     val appViewModel = viewModel<AppViewModel>(viewModelStoreOwner)
+    val chatViewModel = hiltViewModel<ChatViewModel>(viewModelStoreOwner)
 
     BookingTheme {
         Scaffold {
@@ -62,9 +64,11 @@ val LocalNavigation = staticCompositionLocalOf<NavHostController> { error("Not p
 
 @Composable
 fun Route(googleSignInClient: GoogleSignInClient) {
-    val appViewModel = viewModel<AppViewModel>()
     val navController = rememberNavController()
-    val mainViewModel = hiltViewModel<MainViewModel>()
+    val viewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current)
+    val appViewModel = viewModel<AppViewModel>(viewModelStoreOwner)
+    val mainViewModel = hiltViewModel<MainViewModel>(viewModelStoreOwner)
+    val chatViewModel = hiltViewModel<ChatViewModel>(viewModelStoreOwner)
 
     CompositionLocalProvider(
         LocalNavigation provides navController,
@@ -83,10 +87,10 @@ fun Route(googleSignInClient: GoogleSignInClient) {
                 Main(navController, appViewModel)
             }
             composable("chat") {
-                ChatHome(navController, appViewModel)
+                ChatHome(navController, appViewModel, chatViewModel)
             }
             composable("chatDetail/{chatId}") {
-                ChatDetail(navController, appViewModel)
+                ChatDetail(navController, appViewModel, chatViewModel)
             }
             composable("profile") {
                 ProfileHome(navController, appViewModel)
@@ -97,3 +101,5 @@ fun Route(googleSignInClient: GoogleSignInClient) {
         }
     }
 }
+
+
