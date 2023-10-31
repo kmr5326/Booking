@@ -1,8 +1,8 @@
 package com.booking.chat.chat.repository;
 
 import com.booking.chat.chat.domain.Message;
-import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 
-public interface MessageRepository extends MongoRepository<Message, Long> {
+public interface MessageRepository extends ReactiveMongoRepository<Message, Long> {
 
 }

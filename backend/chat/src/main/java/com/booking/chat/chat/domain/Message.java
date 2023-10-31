@@ -17,14 +17,10 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection = "chats")
 public class Message {
 
-    @Id private Long message_id;
-
-    private Long chatroom_id;
-
-    private Long member_id;
-
+    @Id private Long messageId;
+    private Long chatroomId;
+    private Long memberId;
     private String content;
-
     @CreatedDate
     private Date timestamp;
 
