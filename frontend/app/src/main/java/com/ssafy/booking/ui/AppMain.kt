@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -70,7 +71,8 @@ fun Route() {
     ) {
         NavHost(navController = navController, startDestination = AppNavItem.Login.route) {
             composable("login") {
-                Greeting(navController, mainViewModel, appViewModel)
+                val context = LocalContext.current
+                Greeting(navController, mainViewModel, appViewModel,context)
             }
             composable("book") {
                 BookHome(navController, appViewModel)

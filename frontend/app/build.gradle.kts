@@ -117,6 +117,9 @@ dependencies {
     kapt(Room.ROOM_COMPILER)
     implementation(Room.ROOM_KTX)
 
+    // 카카오 로그인
+    implementation ("com.kakao.sdk:v2-user:2.17.0") // 카카오 로그인
+
 }
 
 // Allow references to generated code
