@@ -132,7 +132,9 @@ fun GoogleLoginButton(viewModel: MainViewModel, googleSignInClient: GoogleSignIn
 
     if(accountInfo != null) {
         navController.navigate(AppNavItem.Main.route) {
-            popUpTo("login") {inclusive = true}
+            popUpTo("login")
+            {inclusive = true}
+            launchSingleTop = true
         }
     } else {
         Button(
