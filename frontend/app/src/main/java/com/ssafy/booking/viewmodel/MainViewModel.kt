@@ -8,7 +8,9 @@ import androidx.lifecycle.viewModelScope
 import com.ssafy.booking.utils.ScreenState
 import com.ssafy.booking.utils.SingleLiveEvent
 import com.ssafy.domain.model.GoogleResponse
+import com.ssafy.domain.model.google.AccountInfo
 import com.ssafy.domain.usecase.GetTokenRepoUseCase
+import com.ssafy.domain.usecase.google.AccountUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -16,23 +18,19 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val getTokenRepoUseCase: GetTokenRepoUseCase
+    private val accountUseCase: AccountUseCase
 ) : ViewModel() {
 
-    val eventUserRepo: MutableLiveData<List<GoogleResponse>?> get() = _eventUserRepo
-    private val _eventUserRepo = MutableLiveData<List<GoogleResponse>?>()
+    val accountInfo = accountUseCase.getAccountInfo()
 
-    fun getUserRepo() = viewModelScope.launch {
-        try {
-            val response = getTokenRepoUseCase.execute()
-            if (response == null) {
-                Log.e("getUserRepo", "Response is null")
-            } else {
-                // 필요한 로직 처리
-                _eventUserRepo.postValue(response)
-            }
-        } catch (e: Exception) {
-            Log.e("getUserRepo", "Error occurred: ${e.message}", e)
+    fun signInGoogle(accountInfo: AccountInfo) {
+        viewModelScope.launch {
+            accountUseCase.signInGoogle(accountInfo)
+        }
+    }
+    fun signOutGoogle() {
+        viewModelScope.launch {
+            accountUseCase.signOutGoogle()
         }
     }
 

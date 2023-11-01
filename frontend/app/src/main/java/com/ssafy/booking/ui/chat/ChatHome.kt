@@ -1,11 +1,14 @@
 package com.ssafy.booking.ui.chat
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -17,6 +20,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExitToApp
+import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -25,6 +29,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -39,35 +44,48 @@ import com.ssafy.booking.ui.common.TopBar
 import com.ssafy.booking.viewmodel.AppViewModel
 import com.ssafy.booking.viewmodel.DummyAppViewModel
 import com.ssafy.booking.ui.LocalNavigation
-
-@Preview(showBackground = true)
-@Composable
-fun ChatHomePreview(){
-    ChatHome(
-        navController = rememberNavController(),
-        appViewModel = DummyAppViewModel() // DummyViewModel 사용
-    )
-}
+import com.ssafy.booking.viewmodel.ChatViewModel
 
 @Composable
 fun ChatHome(
     navController: NavController,
-    appViewModel: AppViewModel
+    appViewModel: AppViewModel,
+    chatViewModel: ChatViewModel,
 ) {
 
-    Column {
+    Column (){
         TopBar(title = "채팅방")
 
-        Box(modifier = Modifier.fillMaxSize()) {
+        Box {
             Column {
                 ChatList(navController)
             }
+
+            Row (
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight()
+                    .padding(bottom = 200.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.Bottom
+            ) {
+                Button(
+                    onClick = {
+//                        chatViewModel.connectSocket()
+                        chatViewModel.handShakingService()
+                    }
+                ) {
+                    Text("Test:소켓 연결")
+                }
+            }
+
+            BottomNav(navController, appViewModel)
         }
+
     }
 
-    BottomNav(navController, appViewModel)
-}
 
+}
 
 @Composable
 fun ChatList(navController: NavController) {
@@ -120,12 +138,26 @@ fun ChatItem(
         Column(
             modifier = Modifier.width(200.dp),
         ) {
-            Text(
-                text = chat.chatTitle, maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                fontWeight = FontWeight.ExtraBold,
-                fontSize = 16.sp
-            )
+            Row (verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = chat.chatTitle, maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    fontWeight = FontWeight.ExtraBold,
+                    fontSize = 16.sp
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+
+                if(chat.chatHeadCount > 1) {
+                    Text(
+                        text = "${chat.chatHeadCount}",
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                        fontWeight = FontWeight.Medium,
+                        fontSize = 16.sp,
+                        color = Color.Gray
+                    )
+                }
+            }
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = chat.chatContent,
@@ -135,36 +167,6 @@ fun ChatItem(
                 fontSize=12.sp
             )
             Spacer(modifier = Modifier.height(4.dp))
-        }
-
-        Column(
-            modifier = Modifier.weight(1f),
-            horizontalAlignment = Alignment.CenterHorizontally // 좌우 정렬
-        ) {
-            if(chat.chatHeadCount > 1) {
-                Text(
-                    text = "${chat.chatHeadCount} 명",
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                    fontWeight = FontWeight.Medium,
-                    fontSize=12.sp,
-                )
-            }
-
-            // 나가기
-            if(chat.chatType != "Notification") {
-                IconButton(
-                    onClick = {}
-                ) {
-                    Icon(
-                        Icons.Filled.ExitToApp , contentDescription = "chatExit"
-                    )
-                    Spacer(
-                        modifier = Modifier.size(ButtonDefaults.IconSpacing)
-                    )
-                }
-            }
-
         }
     }
 }
@@ -180,8 +182,6 @@ data class ChatData(
 )
 // ########################## 데이터
 val chatItemList = listOf(
-    ChatData(1,"Notification", R.drawable.chat1, "알림", "인간실격 독서토론에 참여했습니다!",1),
-    ChatData(2,"Person",R.drawable.chat2, "박희창", "저 가입신청 좀 받아주세요 12312@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$%$$$$$$$$$$$$$$$$$$$@@@@@@@@@@@@@@", 1),
-    ChatData(3,"Booking",R.drawable.chat3, "인간실격 독서토론", "주말로 변경할 수 있나요?",3),
-    ChatData(4,"Booking",R.drawable.chat4, "남이야 잡화점", "안녕하세요!!",4)
+    ChatData(1,"Notification", R.drawable.chat1, "알림", "자율프로젝트에 참여했습니다!",1),
+    ChatData(3,"Booking",R.drawable.chat3, "자율프로젝트", "굳굳",6),
 )

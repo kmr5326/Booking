@@ -10,15 +10,20 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.kakao.sdk.common.KakaoSdk
 import com.kakao.sdk.common.util.Utility
 import com.ssafy.booking.R
 import com.ssafy.booking.ui.BookingApp
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 val TAG1 = "getHashKey"
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    @Inject
+    lateinit var googleSignInClient: GoogleSignInClient
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,7 +34,7 @@ class MainActivity : ComponentActivity() {
         var keyHash = Utility.getKeyHash(this)
         Log.v(TAG1, keyHash)
         setContent {
-            BookingApp()
+            BookingApp(googleSignInClient)
         }
     }
 }

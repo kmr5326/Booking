@@ -17,6 +17,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.ssafy.booking.ui.book.BookHome
 import com.ssafy.booking.ui.chat.ChatDetail
 import com.ssafy.booking.ui.chat.ChatHome
@@ -29,6 +30,7 @@ import com.ssafy.booking.ui.profile.ProfileHome
 import com.ssafy.booking.viewmodel.MainViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import com.ssafy.booking.ui.booking.MyFloatingActionButton
+import com.ssafy.booking.viewmodel.ChatViewModel
 
 sealed class AppNavItem(
     val route: String
@@ -45,14 +47,15 @@ sealed class AppNavItem(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BookingApp() {
+fun BookingApp(googleSignInClient: GoogleSignInClient) {
     val viewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current)
     val appViewModel = viewModel<AppViewModel>(viewModelStoreOwner)
+    val chatViewModel = hiltViewModel<ChatViewModel>(viewModelStoreOwner)
 
     BookingTheme {
         Scaffold {
             Box(Modifier.padding(it)) {
-                Route()
+                Route(googleSignInClient)
             }
         }
     }
@@ -61,10 +64,12 @@ fun BookingApp() {
 val LocalNavigation = staticCompositionLocalOf<NavHostController> { error("Not provided") }
 
 @Composable
-fun Route() {
-    val appViewModel = viewModel<AppViewModel>()
+fun Route(googleSignInClient: GoogleSignInClient) {
     val navController = rememberNavController()
-    val mainViewModel = hiltViewModel<MainViewModel>()
+    val viewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current)
+    val appViewModel = viewModel<AppViewModel>(viewModelStoreOwner)
+    val mainViewModel = hiltViewModel<MainViewModel>(viewModelStoreOwner)
+    val chatViewModel = hiltViewModel<ChatViewModel>(viewModelStoreOwner)
 
     CompositionLocalProvider(
         LocalNavigation provides navController,
@@ -72,7 +77,7 @@ fun Route() {
         NavHost(navController = navController, startDestination = AppNavItem.Login.route) {
             composable("login") {
                 val context = LocalContext.current
-                Greeting(navController, mainViewModel, appViewModel,context)
+                Greeting(navController, mainViewModel, appViewModel,context,googleSignInClient)
             }
             composable("book") {
                 BookHome(navController, appViewModel)
@@ -84,10 +89,10 @@ fun Route() {
                 Main(navController, appViewModel)
             }
             composable("chat") {
-                ChatHome(navController, appViewModel)
+                ChatHome(navController, appViewModel, chatViewModel)
             }
             composable("chatDetail/{chatId}") {
-                ChatDetail(navController, appViewModel)
+                ChatDetail(navController, chatViewModel)
             }
             composable("profile") {
                 ProfileHome(navController, appViewModel)
@@ -98,3 +103,5 @@ fun Route() {
         }
     }
 }
+
+
