@@ -1,6 +1,7 @@
-package com.booking.chat.chat.domain;
+package com.booking.chat.chatroom.domain;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,34 +9,20 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Getter
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-@Document(collection = "chats")
-public class Message {
-
-    @Transient
-    public static final String SEQUENCE_NAME = "message_sequence";
+@Document(collection = "chatroom")
+public class Chatroom {
 
     @Id
     private Long _id;
 
-    private Long chatroomId;
-
-    private Long memberId;
-
-    private String content;
+    private List<Long> memberList;
 
     @CreatedDate
-    private LocalDateTime timestamp;
-
-
-    public void setAutoIncrementId(Long id) {
-        this._id = id;
-    }
-
+    private LocalDateTime createdAt;
 }
