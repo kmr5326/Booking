@@ -11,6 +11,7 @@ import static org.springframework.restdocs.webtestclient.WebTestClientRestDocume
 
 import com.booking.chat.chatroom.domain.Chatroom;
 import com.booking.chat.chatroom.dto.request.InitChatroomRequest;
+import com.booking.chat.chatroom.dto.request.JoinChatroomRequest;
 import com.booking.chat.util.ControllerTest;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -57,6 +58,31 @@ class ChatroomControllerTest extends ControllerTest {
                                                        .description("모임 PK"),
                              fieldWithPath("leaderId").type(JsonFieldType.NUMBER)
                                                       .description("모임장 PK")
+                         )
+                     ));
+    }
+
+    @DisplayName("회원 채팅방 가입한다")
+    @Test
+    void joinChatroomTest() throws Exception {
+
+        JoinChatroomRequest joinChatroomRequest = new JoinChatroomRequest(1L, 1L);
+        when(chatroomService.joinChatroom(any())).thenReturn(Mono.empty());
+
+        webTestClient.post()
+                     .uri(BASE_URL + "/join")
+                     .contentType(MediaType.APPLICATION_JSON)
+                     .bodyValue(objectMapper.writeValueAsString(joinChatroomRequest))
+                     .exchange()
+                     .expectStatus().isNoContent()
+                     .expectBody()
+                     .consumeWith(document("chatroom/join",
+                         preprocessRequest(prettyPrint()),
+                         requestFields(
+                             fieldWithPath("meetingId").type(JsonFieldType.NUMBER)
+                                                       .description("모임 PK"),
+                             fieldWithPath("memberId").type(JsonFieldType.NUMBER)
+                                                      .description("멤버 PK")
                          )
                      ));
     }
