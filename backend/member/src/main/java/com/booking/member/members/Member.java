@@ -2,6 +2,7 @@ package com.booking.member.members;
 
 import com.booking.member.follows.Follow;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
 import java.util.List;
@@ -58,4 +59,6 @@ public class Member {
 
 //    private String providerId;
 
+    @ColumnDefault("0")
+    private Integer point;
 }
