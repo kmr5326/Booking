@@ -16,11 +16,11 @@ public class MessageService {
 
     private final MessageRepository messageRepository;
 
-    public void save(KafkaMessage message, String chatroomId) {
+    public void save(KafkaMessage message, Long chatroomId) {
 
         Message saveMessage = Message.builder()
-                                     .chatroomId(Long.valueOf(chatroomId))
-                                     .memberId(Long.valueOf(message.getSender())) // sender가 member_id라고 가정
+                                     .chatroomId(chatroomId)
+                                     .memberId(message.getSenderId()) // sender가 member_id라고 가정
                                      .content(message.getMessage())
                                      .build();
 

@@ -21,7 +21,7 @@ import lombok.ToString;
 public class KafkaMessage implements Serializable {
 
     private String message;
-    private String sender;
+    private Long senderId;
 
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
