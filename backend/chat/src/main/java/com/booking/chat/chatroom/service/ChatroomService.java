@@ -1,6 +1,7 @@
 package com.booking.chat.chatroom.service;
 
 import com.booking.chat.chatroom.domain.Chatroom;
+import com.booking.chat.chatroom.dto.request.ExitChatroomRequest;
 import com.booking.chat.chatroom.dto.request.InitChatroomRequest;
 import com.booking.chat.chatroom.dto.request.JoinChatroomRequest;
 import com.booking.chat.chatroom.dto.response.ChatroomListResponse;
@@ -41,6 +42,17 @@ public class ChatroomService {
             .then();
     }
 
+    public Mono<Void> exitChatroom(ExitChatroomRequest exitChatroomRequest) {
+        return chatroomRepository.findById(exitChatroomRequest.meetingId())
+            .switchIfEmpty(Mono.error(new ChatroomException(ErrorCode.CHATROOM_NOT_FOUND)))
+            .flatMap(chatroom -> {
+                List<Long> members = chatroom.getMemberList();
+                if(!chatroom.getMemberList().remove(exitChatroomRequest.memberId())) {
+                    return Mono.error(new ChatroomException(ErrorCode.MEMBER_NOT_PART_OF_CHATROOM));
+                }
+                return chatroomRepository.save(chatroom);
+            }).then();
+    }
     public Flux<ChatroomListResponse> getChatroomListByMemberId(Long memberId) {
         return chatroomRepository.findByMemberListContains(memberId)
                                  .map(ChatroomListResponse::from);

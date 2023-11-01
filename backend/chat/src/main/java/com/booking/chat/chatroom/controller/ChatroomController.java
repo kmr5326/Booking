@@ -1,5 +1,6 @@
 package com.booking.chat.chatroom.controller;
 
+import com.booking.chat.chatroom.dto.request.ExitChatroomRequest;
 import com.booking.chat.chatroom.dto.request.InitChatroomRequest;
 import com.booking.chat.chatroom.dto.request.JoinChatroomRequest;
 import com.booking.chat.chatroom.dto.response.ChatroomListResponse;
@@ -43,8 +44,16 @@ public class ChatroomController {
 
     @PostMapping("/join")
     public Mono<ResponseEntity<Void>> joinChatroom(@RequestBody JoinChatroomRequest joinChatroomRequest) {
-
+        log.info(" {} member request join chatroom : {} ", joinChatroomRequest.memberId(), joinChatroomRequest.meetingId());
         return chatroomService.joinChatroom(joinChatroomRequest)
+                              .then(Mono.just(ResponseEntity.noContent()
+                                                            .build()));
+    }
+
+    @PostMapping("/exit")
+    public Mono<ResponseEntity<Void>> exitChatroom(@RequestBody ExitChatroomRequest exitChatroomRequest) {
+        log.info(" {} member request exit chatroom : {} ", exitChatroomRequest.memberId(), exitChatroomRequest.meetingId());
+        return chatroomService.exitChatroom(exitChatroomRequest)
                               .then(Mono.just(ResponseEntity.noContent()
                                                             .build()));
     }
@@ -52,8 +61,8 @@ public class ChatroomController {
 
     @GetMapping("/list")
     public Flux<ChatroomListResponse> getChatroomListByMemberId(@RequestHeader(AUTHORIZATION) String token) {
-
         Long memberId = JwtUtil.getMemberIdByToken(token);
+        log.info(" {} member request chatroomList ", memberId);
         return chatroomService.getChatroomListByMemberId(memberId);
     }
 
