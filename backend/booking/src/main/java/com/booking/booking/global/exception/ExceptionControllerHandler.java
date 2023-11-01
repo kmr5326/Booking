@@ -17,5 +17,4 @@ public class ExceptionControllerHandler {
         ErrorResponse errorResponse = new ErrorResponse(e.getErrorCode());
         return Mono.just(ResponseEntity.status(errorResponse.httpStatus()).body(errorResponse));
     }
-
 }

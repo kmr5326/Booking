@@ -7,12 +7,10 @@ public record ErrorResponse(
     HttpStatus httpStatus,
     String message
 ) {
-
     public ErrorResponse(ErrorCode errorCode) {
         this (
             errorCode.getHttpStatus(),
             errorCode.getMessage()
         );
     }
-
 }

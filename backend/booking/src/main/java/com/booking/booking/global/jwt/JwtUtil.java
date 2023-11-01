@@ -13,13 +13,13 @@ import java.util.Base64;
 @Slf4j
 @Component
 public class JwtUtil {
-
     private static String secret;
 
     @Value("${jwt.secret}")
     public void setSecret(String secret) {
         JwtUtil.secret = secret;
     }
+
     public static String getLoginEmailByToken(String token) {
         //bearer
         token = token.substring(7);
