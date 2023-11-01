@@ -12,7 +12,6 @@ public record ReadyPaymentResponseDto(
         String next_redirect_pc_url,
         String android_app_scheme,
         String ios_app_scheme,
-        LocalDateTime created_at,
-        String errorCode
+        LocalDateTime created_at
 ) {
 }
