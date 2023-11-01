@@ -10,6 +10,7 @@ import static org.springframework.restdocs.webtestclient.WebTestClientRestDocume
 import static org.springframework.restdocs.webtestclient.WebTestClientRestDocumentation.documentationConfiguration;
 
 import com.booking.chat.chatroom.domain.Chatroom;
+import com.booking.chat.chatroom.dto.request.ExitChatroomRequest;
 import com.booking.chat.chatroom.dto.request.InitChatroomRequest;
 import com.booking.chat.chatroom.dto.request.JoinChatroomRequest;
 import com.booking.chat.util.ControllerTest;
@@ -77,6 +78,31 @@ class ChatroomControllerTest extends ControllerTest {
                      .expectStatus().isNoContent()
                      .expectBody()
                      .consumeWith(document("chatroom/join",
+                         preprocessRequest(prettyPrint()),
+                         requestFields(
+                             fieldWithPath("meetingId").type(JsonFieldType.NUMBER)
+                                                       .description("모임 PK"),
+                             fieldWithPath("memberId").type(JsonFieldType.NUMBER)
+                                                      .description("멤버 PK")
+                         )
+                     ));
+    }
+
+    @DisplayName("회원 채팅방 탈퇴한다")
+    @Test
+    void exitChatroomTest() throws Exception {
+
+        ExitChatroomRequest exitChatroomRequest = new ExitChatroomRequest(1L, 1L);
+        when(chatroomService.exitChatroom(any())).thenReturn(Mono.empty());
+
+        webTestClient.post()
+                     .uri(BASE_URL + "/exit")
+                     .contentType(MediaType.APPLICATION_JSON)
+                     .bodyValue(objectMapper.writeValueAsString(exitChatroomRequest))
+                     .exchange()
+                     .expectStatus().isNoContent()
+                     .expectBody()
+                     .consumeWith(document("chatroom/exit",
                          preprocessRequest(prettyPrint()),
                          requestFields(
                              fieldWithPath("meetingId").type(JsonFieldType.NUMBER)
