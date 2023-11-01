@@ -4,7 +4,6 @@ import com.booking.chat.chatroom.dto.request.InitChatroomRequest;
 import com.booking.chat.chatroom.dto.response.ChatroomListResponse;
 import com.booking.chat.chatroom.service.ChatroomService;
 import com.booking.chat.global.jwt.JwtUtil;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -15,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Slf4j
@@ -41,12 +41,10 @@ public class ChatroomController {
     }
 
     @GetMapping("/list")
-    public Mono<ResponseEntity<List<ChatroomListResponse>>> getChatroomListByMemberId(@RequestHeader(AUTHORIZATION) String token) {
+    public Flux<ChatroomListResponse> getChatroomListByMemberId(@RequestHeader(AUTHORIZATION) String token) {
 
         Long memberId = JwtUtil.getMemberIdByToken(token);
-
-        return chatroomService.getChatroomListByMemberId(memberId)
-                              .map(ResponseEntity::ok);
+        return chatroomService.getChatroomListByMemberId(memberId);
     }
 
 
