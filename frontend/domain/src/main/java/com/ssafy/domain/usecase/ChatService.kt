@@ -7,15 +7,11 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.Response
 import javax.inject.Inject
-import okhttp3.WebSocket
-import okhttp3.WebSocketListener
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
-class HandShakingService @Inject constructor() {
+class OkhttpService @Inject constructor() {
 
     @Module
     @InstallIn(SingletonComponent::class)
@@ -24,22 +20,10 @@ class HandShakingService @Inject constructor() {
         @Singleton
         fun provideOkHttpClient() : OkHttpClient =
             OkHttpClient.Builder()
-                .readTimeout(30, TimeUnit.SECONDS)
-                .writeTimeout(30, TimeUnit.SECONDS)
-                .pingInterval(30, TimeUnit.SECONDS)
+                .readTimeout(10, TimeUnit.SECONDS)
+                .writeTimeout(10, TimeUnit.SECONDS)
+                .connectTimeout(10, TimeUnit.SECONDS)
                 .build()
-    }
-
-}
-
-class ConnectSocketService @Inject constructor() {
-    fun execute() {
-
-    }
-}
-class SendMessageService @Inject constructor() {
-    fun execute(message: TextFieldValue) {
-        Log.d("CHAT", message.text)
     }
 }
 

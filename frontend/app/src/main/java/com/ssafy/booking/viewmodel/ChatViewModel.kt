@@ -1,94 +1,85 @@
 package com.ssafy.booking.viewmodel
 
 import android.util.Log
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.ssafy.data.remote.model.ChatRequest
+import com.gmail.bishoybasily.stomp.lib.Event
+import com.gmail.bishoybasily.stomp.lib.StompClient
+import com.google.gson.GsonBuilder
 import com.ssafy.data.remote.model.KafkaMessage
-import com.ssafy.domain.usecase.ConnectSocketService
-import com.ssafy.domain.usecase.HandShakingService
-import com.ssafy.domain.usecase.SendMessageService
+import com.ssafy.data.utils.LocalDateTimeDeserializer
+import com.ssafy.data.utils.LocalDateTimeSerializer
+import com.ssafy.domain.usecase.OkhttpService
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.launch
-import okhttp3.Request
-import okhttp3.Response
-import okhttp3.WebSocket
-import okhttp3.WebSocketListener
-import org.json.JSONObject
-import java.time.LocalDateTime.now
+import io.reactivex.disposables.Disposable
+import java.time.LocalDateTime
+import java.util.Scanner
+import java.util.logging.Logger
 import javax.inject.Inject
-
 @HiltViewModel
-class ChatViewModel @Inject constructor(
-    private val handShakingService: HandShakingService,
-    private val connectSocketService: ConnectSocketService,
-    private val sendMessageService: SendMessageService,
-) : ViewModel() {
+class ChatViewModel @Inject constructor() : ViewModel() {
+    val logger = Logger.getLogger("CHAT")
 
-    private val handShakeRequest = Request.Builder()
-        .url("wss://k9c206.p.ssafy.io:10001/booking/chat")
-        .build()
+    var stompConnection: Disposable
+    lateinit var topic: Disposable
 
-    private val handShakeListener = object : WebSocketListener() {
-        override fun onOpen(webSocket: WebSocket, response: Response) {
-            Log.d("CHAT", "HandShake Success $response $webSocket")
-            val test: ChatRequest = ChatRequest(KafkaMessage("test", "1", now()), "1")
-            webSocket.send(test.toString())
-            Log.d("CHAT", "${test.toString()} send")
-        }
-        override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
-            Log.d("CHAT", "HandShake Fail $webSocket $t $response")
-        }
-        override fun onMessage(webSocket: WebSocket, text: String) {
-            Log.d("CHAT", "Received message: $text")
-            val jsonResponse = JSONObject(text)
-            if (jsonResponse.optString("status") == "success") {
-                Log.d("CHAT", "Message sent successfully!")
+    private val url2 = "wss://k9c206.p.ssafy.io:10001/booking/chat"
+    private val intervalMillis = 1000L
+    private val client = OkhttpService.OkHttpClientSingleton.provideOkHttpClient()
+
+    val stomp = StompClient(client, intervalMillis).apply { this@apply.url = url2 }
+
+    fun sendMessage(message: KafkaMessage) {
+        val gson = GsonBuilder()
+            .registerTypeAdapter(LocalDateTime::class.java, LocalDateTimeSerializer())
+            .registerTypeAdapter(LocalDateTime::class.java, LocalDateTimeDeserializer())
+            .create()
+        val jsonMessage = gson.toJson(message)
+
+        stomp.send("/publish/message/1", jsonMessage)
+            .subscribe { success ->
+                if (success) {
+                    Log.d("CHAT", "chatting send is successful")
+                } else {
+                    Log.d("CHAT", "failed to send message")
+                }
+            }
+    }
+
+    init {
+        stompConnection = stomp.connect().subscribe {
+            when (it.type) {
+                Event.Type.OPENED -> {
+
+                    // subscribe
+                    topic = stomp.join("/subscribe/1")
+                        .subscribe { Log.d("CHAT", it) }
+
+                    // unsubscribe
+//                topic.dispose()
+
+//                val test = KafkaMessage("Hello 희창", 1, now())
+
+                }
+
+                Event.Type.CLOSED -> {
+
+                }
+
+                Event.Type.ERROR -> {
+
+                }
+
+                else -> {
+                    Log.d("CHAT", "else")
+                }
+
             }
         }
+
+        val scanner = Scanner(System.`in`)
+//        scanner.nextLine()
+
+//    // disconnect
+//    stompConnection.dispose()
     }
-
-    fun handShakingService() {
-        val client = HandShakingService.OkHttpClientSingleton.provideOkHttpClient()
-        val webSocket = client.newWebSocket(handShakeRequest, handShakeListener)
-        Log.d("CHAT", "client ${client.toString()}")
-        Log.d("CHAT", "webSocket ${webSocket.toString()}")
-    }
-
-    private val subscribeRequest = Request.Builder()
-        .url("wss://k9c206.p.ssafy.io:10001/subscribe/1")
-        .header("Upgrade", "websocket")
-        .build()
-
-    private val subscribeListener = object : WebSocketListener() {
-        override fun onOpen(webSocket: WebSocket, response: Response) {
-            Log.d("CHAT", "onOpen $response $webSocket")
-
-        }
-        override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
-            Log.d("CHAT", "onFailure $webSocket $t $response")
-        }
-    }
-
-    fun SubscribeService() {
-        val client = HandShakingService.OkHttpClientSingleton.provideOkHttpClient()
-        val webSocket = client.newWebSocket(subscribeRequest, subscribeListener)
-        Log.d("CHAT", "client ${client.toString()}")
-        Log.d("CHAT", "webSocket ${webSocket.toString()}")
-    }
-
-
-    fun connectSocket() {
-        viewModelScope.launch {
-            connectSocketService.execute()
-        }
-    }
-
-    fun sendMessage(text: TextFieldValue) {
-        viewModelScope.launch {
-            sendMessageService.execute(text)
-        }
-    }
-
 }

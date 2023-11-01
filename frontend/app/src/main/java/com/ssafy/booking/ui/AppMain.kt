@@ -28,8 +28,6 @@ import com.ssafy.booking.viewmodel.AppViewModel
 import com.ssafy.booking.ui.booking.Main
 import com.ssafy.booking.ui.profile.ProfileHome
 import com.ssafy.booking.viewmodel.MainViewModel
-import dagger.hilt.android.lifecycle.HiltViewModel
-import com.ssafy.booking.ui.booking.MyFloatingActionButton
 import com.ssafy.booking.viewmodel.ChatViewModel
 
 sealed class AppNavItem(
