@@ -27,6 +27,8 @@ public class ApprovalResponseDto {
 
     @Data
     @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class Amount {
         private int total;
         private int tax_free;
@@ -38,6 +40,8 @@ public class ApprovalResponseDto {
 
     @Data
     @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class CardInfo {
         private String interest_free_install;
         private String bin;
