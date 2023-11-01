@@ -3,10 +3,8 @@ package com.booking.chat.chat.controller;
 import com.booking.chat.chat.domain.Message;
 import com.booking.chat.chat.service.MessageService;
 import com.booking.chat.kafka.domain.KafkaMessage;
-import java.nio.charset.StandardCharsets;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.http.MediaType;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
@@ -29,13 +27,8 @@ public class ChatController {
     @MessageMapping("/message/{chatroomId}")
     public void sendMessage(@Payload KafkaMessage kafkaMessage, @DestinationVariable("chatroomId") Long chatroomId) {
         log.info(" {} user request send message to {} chatroom", kafkaMessage.getSenderId(), chatroomId);
-        //MongoDB에 저장
-        messageService.save(kafkaMessage, chatroomId);
 
-        // Kafka로 메세지와 함께 채팅방 ID를 헤더에 추가하여 전달
-        ProducerRecord<String, KafkaMessage> record = new ProducerRecord<>("Chatroom-" + chatroomId, null, null, kafkaMessage);
-        record.headers().add("chatroomId", chatroomId.toString().getBytes(StandardCharsets.UTF_8));
-        kafkaTemplate.send(record);
+        messageService.processAndSend(kafkaMessage, chatroomId);
     }
 
     @GetMapping(value = "/{chatroomId}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
