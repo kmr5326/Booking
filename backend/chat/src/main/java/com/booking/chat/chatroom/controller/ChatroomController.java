@@ -3,6 +3,7 @@ package com.booking.chat.chatroom.controller;
 import com.booking.chat.chatroom.dto.request.InitChatroomRequest;
 import com.booking.chat.chatroom.dto.response.ChatroomListResponse;
 import com.booking.chat.chatroom.service.ChatroomService;
+import com.booking.chat.global.jwt.JwtUtil;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,17 +29,24 @@ public class ChatroomController {
     @PostMapping("/")
     public Mono<ResponseEntity<Void>> initializeChatroom(@RequestBody InitChatroomRequest initChatroomRequest) {
         return chatroomService.initializeChatroom(initChatroomRequest)
-            .flatMap(chatroom -> {
-                log.info(" Request to create room number : {} , the LeaderId is : {} ", initChatroomRequest.meetingId(), initChatroomRequest.leaderId());
-                return Mono.just(new ResponseEntity<Void>(HttpStatus.CREATED));
-            })
-            .defaultIfEmpty(ResponseEntity.badRequest().build());
+                              .flatMap(chatroom -> {
+                                  log.info(
+                                      " Request to create room number : {} , the LeaderId is : {} ",
+                                      initChatroomRequest.meetingId(),
+                                      initChatroomRequest.leaderId());
+                                  return Mono.just(new ResponseEntity<Void>(HttpStatus.CREATED));
+                              })
+                              .defaultIfEmpty(ResponseEntity.badRequest()
+                                                            .build());
     }
 
     @GetMapping("/list")
     public Mono<ResponseEntity<List<ChatroomListResponse>>> getChatroomListByMemberId(@RequestHeader(AUTHORIZATION) String token) {
 
+        Long memberId = JwtUtil.getMemberIdByToken(token);
 
+        return chatroomService.getChatroomListByMemberId(memberId)
+                              .map(ResponseEntity::ok);
     }
 
 
