@@ -44,7 +44,9 @@ public class ChatroomController {
     @PostMapping("/join")
     public Mono<ResponseEntity<Void>> joinChatroom(@RequestBody JoinChatroomRequest joinChatroomRequest) {
 
-        return Mono.empty();
+        return chatroomService.joinChatroom(joinChatroomRequest)
+                              .then(Mono.just(ResponseEntity.noContent()
+                                                            .build()));
     }
 
 
