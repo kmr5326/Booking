@@ -14,13 +14,13 @@ import reactor.core.publisher.Mono;
 
 @Slf4j
 @RequiredArgsConstructor
-@RequestMapping("/api/chat")
+@RequestMapping("/api/chat/room")
 @RestController
 public class ChatroomController {
 
     private final ChatroomService chatroomService;
 
-    @PostMapping("/room")
+    @PostMapping("/")
     public Mono<ResponseEntity<Void>> initializeChatroom(@RequestBody InitChatroomRequest initChatroomRequest) {
         return chatroomService.initializeChatroom(initChatroomRequest)
             .flatMap(chatroom -> {

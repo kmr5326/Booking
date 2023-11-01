@@ -17,7 +17,6 @@ public class ChatroomService {
     public Mono<Chatroom> initializeChatroom(InitChatroomRequest initChatroomRequest) {
 
         Chatroom chatroom = Chatroom.createWithLeader(initChatroomRequest);
-
         return chatroomRepository.save(chatroom);
     }
 }
