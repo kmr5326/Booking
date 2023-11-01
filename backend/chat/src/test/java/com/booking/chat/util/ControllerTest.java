@@ -6,6 +6,7 @@ import com.booking.chat.chat.service.MessageService;
 import com.booking.chat.chatroom.controller.ChatroomController;
 import com.booking.chat.chatroom.repository.ChatroomRepository;
 import com.booking.chat.chatroom.service.ChatroomService;
+import com.booking.chat.global.jwt.JwtUtil;
 import com.booking.chat.kafka.domain.KafkaMessage;
 import com.booking.chat.kafka.service.ChatListenerService;
 import com.booking.chat.mongo.service.SequenceGeneratorService;
@@ -53,5 +54,6 @@ public class ControllerTest {
     //util
     @MockBean protected KafkaTemplate<String, KafkaMessage> kafkaTemplate;
     @MockBean private MappingMongoConverter mappingMongoConverter;
+    @MockBean protected JwtUtil jwtUtil;
 
 }

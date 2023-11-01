@@ -3,9 +3,11 @@ package com.booking.chat.chatroom.controller;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessRequest;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
+import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
 import static org.springframework.restdocs.webtestclient.WebTestClientRestDocumentation.document;
 import static org.springframework.restdocs.webtestclient.WebTestClientRestDocumentation.documentationConfiguration;
 
@@ -13,6 +15,7 @@ import com.booking.chat.chatroom.domain.Chatroom;
 import com.booking.chat.chatroom.dto.request.ExitChatroomRequest;
 import com.booking.chat.chatroom.dto.request.InitChatroomRequest;
 import com.booking.chat.chatroom.dto.request.JoinChatroomRequest;
+import com.booking.chat.chatroom.dto.response.ChatroomListResponse;
 import com.booking.chat.util.ControllerTest;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -22,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 class ChatroomControllerTest extends ControllerTest {
@@ -109,6 +113,30 @@ class ChatroomControllerTest extends ControllerTest {
                                                        .description("모임 PK"),
                              fieldWithPath("memberId").type(JsonFieldType.NUMBER)
                                                       .description("멤버 PK")
+                         )
+                     ));
+    }
+
+    @DisplayName("회원 채팅방 조회된다")
+    @Test
+    void getChatroomListTest() throws Exception {
+
+        ChatroomListResponse chatroomListResponse = new ChatroomListResponse(1L, List.of(1L, 2L, 3L));
+        when(chatroomService.getChatroomListByMemberId(any())).thenReturn(Flux.just(chatroomListResponse));
+
+        webTestClient.get()
+                     .uri(BASE_URL + "/list")
+                     .header("Authorization" , "Token")
+                     .exchange()
+                     .expectStatus().isOk()
+                     .expectBody()
+                     .consumeWith(document("chatroom/list",
+                         preprocessResponse(prettyPrint()),
+                         responseFields(
+                             fieldWithPath("[].chatroomId").type(JsonFieldType.NUMBER)
+                                                       .description("모임 PK"),
+                             fieldWithPath("[].memberList[]").type(JsonFieldType.ARRAY)
+                                                      .description("채팅방 멤버들 PK")
                          )
                      ));
     }
