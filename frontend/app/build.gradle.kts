@@ -134,6 +134,9 @@ dependencies {
     implementation("com.google.firebase:firebase-analytics-ktx")
     implementation("com.google.firebase:firebase-auth-ktx")
 
+    // 카카오 로그인
+    implementation ("com.kakao.sdk:v2-user:2.17.0") // 카카오 로그인
+
 }
 
 // Allow references to generated code
