@@ -32,6 +32,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.rememberNavController
 import com.ssafy.booking.ui.AppNavItem
 
 @Composable
@@ -46,7 +48,7 @@ fun Main(
                 modifier = Modifier
 //                    .align(Alignment.TopStart)  // Align to top-left
                     .size(120.dp, 120.dp)
-                    .padding(start = 16.dp)
+                    .padding(start = 10.dp)
             )
             BookList(navController, appViewModel)
         }
@@ -59,9 +61,6 @@ fun Main(
 
 
 }
-
-
-////
 
 @Composable
 fun BookList(navController: NavController, appViewModel: AppViewModel) {
@@ -133,6 +132,14 @@ fun MyFloatingActionButton(navController: NavController, appViewModel: AppViewMo
 data class Book(val imageResId: Int, val bookName: String, val title: String, val content:String )
 
 val bookItemsList = listOf(
+    Book(R.drawable.book1, "데미안", "데미안에 대해 읽고 같이 토론하실 분","이번 주말까지 읽고, 카페에서 자유롭게 이야기 나누실 분"),
+    Book(R.drawable.book2, "인간 실격", "인간 실격 인상 깊게 읽으신 분 이야기 나눠요","세미나식으로 각자 발표 후, Q&A로 하겠습니다."),
+    Book(R.drawable.book4, "나미야 잡화점의 기적", "나미야 잡화점에 대해 이야기 나누실 분","자유 토론으로 각자의 의견을 제시하면 됩니다."),
+    Book(R.drawable.book7, "불편한 편의점", "불편한 편의점에 대해 이야기 나누실 분","자유 토론으로 각자의 의견을 제시하면 됩니다."),
+    Book(R.drawable.book1, "데미안", "데미안에 대해 읽고 같이 토론하실 분","이번 주말까지 읽고, 카페에서 자유롭게 이야기 나누실 분"),
+    Book(R.drawable.book2, "인간 실격", "인간 실격 인상 깊게 읽으신 분 이야기 나눠요","세미나식으로 각자 발표 후, Q&A로 하겠습니다."),
+    Book(R.drawable.book4, "나미야 잡화점의 기적", "나미야 잡화점에 대해 이야기 나누실 분","자유 토론으로 각자의 의견을 제시하면 됩니다."),
+    Book(R.drawable.book7, "불편한 편의점", "불편한 편의점에 대해 이야기 나누실 분","자유 토론으로 각자의 의견을 제시하면 됩니다."),
     Book(R.drawable.book1, "데미안", "데미안에 대해 읽고 같이 토론하실 분","이번 주말까지 읽고, 카페에서 자유롭게 이야기 나누실 분"),
     Book(R.drawable.book2, "인간 실격", "인간 실격 인상 깊게 읽으신 분 이야기 나눠요","세미나식으로 각자 발표 후, Q&A로 하겠습니다."),
     Book(R.drawable.book4, "나미야 잡화점의 기적", "나미야 잡화점에 대해 이야기 나누실 분","자유 토론으로 각자의 의견을 제시하면 됩니다."),
