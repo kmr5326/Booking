@@ -1,6 +1,7 @@
 package com.booking.chat.chatroom.controller;
 
 import com.booking.chat.chatroom.dto.request.InitChatroomRequest;
+import com.booking.chat.chatroom.dto.request.JoinChatroomRequest;
 import com.booking.chat.chatroom.dto.response.ChatroomListResponse;
 import com.booking.chat.chatroom.service.ChatroomService;
 import com.booking.chat.global.jwt.JwtUtil;
@@ -39,6 +40,13 @@ public class ChatroomController {
                               .defaultIfEmpty(ResponseEntity.badRequest()
                                                             .build());
     }
+
+    @PostMapping("/join")
+    public Mono<ResponseEntity<Void>> joinChatroom(@RequestBody JoinChatroomRequest joinChatroomRequest) {
+
+        return Mono.empty();
+    }
+
 
     @GetMapping("/list")
     public Flux<ChatroomListResponse> getChatroomListByMemberId(@RequestHeader(AUTHORIZATION) String token) {
