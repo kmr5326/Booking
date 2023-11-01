@@ -37,4 +37,8 @@ public class JwtUtil {
         // Subject 가져오기
         return claims.getBody().getSubject();
     }
+    //TODO : 구현해야함
+    public static Long getMemberIdByToken(String token) {
+        return 1L;
+    }
 }

@@ -2,7 +2,9 @@ package com.booking.chat.chatroom.service;
 
 import com.booking.chat.chatroom.domain.Chatroom;
 import com.booking.chat.chatroom.dto.request.InitChatroomRequest;
+import com.booking.chat.chatroom.dto.response.ChatroomListResponse;
 import com.booking.chat.chatroom.repository.ChatroomRepository;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,5 +20,9 @@ public class ChatroomService {
 
         Chatroom chatroom = Chatroom.createWithLeader(initChatroomRequest);
         return chatroomRepository.save(chatroom);
+    }
+
+    public Mono<List<ChatroomListResponse>> getChatroomListByMemberId(Long memberId) {
+
     }
 }
