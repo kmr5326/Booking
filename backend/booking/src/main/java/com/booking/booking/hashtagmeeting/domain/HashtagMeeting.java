@@ -1,4 +1,4 @@
-package com.booking.booking.meetinghashtag.domain;
+package com.booking.booking.hashtagmeeting.domain;
 
 import com.booking.booking.hashtag.domain.Hashtag;
 import com.booking.booking.meeting.domain.Meeting;
@@ -20,8 +20,8 @@ import javax.persistence.Table;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-@Table(name = "meeting_hashtags")
-public class MeetingHashtag {
+@Table(name = "hashtag_meeting")
+public class HashtagMeeting {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long meetingHashtagId;

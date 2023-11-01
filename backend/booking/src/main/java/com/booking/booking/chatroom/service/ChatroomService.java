@@ -16,6 +16,7 @@ public class ChatroomService {
     private final ChatroomRepository chatroomRepository;
 
     public Mono<Void> createChatroom(Meeting meeting) {
+        log.info("Booking Server - '{}' request createChatroom", meeting.getMeetingTitle());
         return Mono
                 .fromRunnable(() -> chatroomRepository.save(
                         Chatroom.builder()

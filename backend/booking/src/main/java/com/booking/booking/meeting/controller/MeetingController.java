@@ -1,18 +1,19 @@
 package com.booking.booking.meeting.controller;
 
+import com.booking.booking.global.jwt.JwtUtil;
 import com.booking.booking.meeting.dto.request.MeetingRequest;
 import com.booking.booking.meeting.service.MeetingService;
-import com.booking.booking.global.jwt.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
-
 
 @Slf4j
 @RequiredArgsConstructor
@@ -29,7 +30,15 @@ public class MeetingController {
         String userEmail = JwtUtil.getLoginEmailByToken(token);
 
         return meetingService.arrangeMeeting(userEmail, meetingRequest)
-                             .thenReturn(ResponseEntity.noContent().build());
+                .thenReturn(ResponseEntity.noContent().build());
+    }
+
+    @GetMapping("/enroll/{meetingId}")
+    public Mono<ResponseEntity<Void>> enrollMeeting(@RequestHeader(AUTHORIZATION) String token, @PathVariable("meetingId") Long meetingId) {
+        String userEmail = JwtUtil.getLoginEmailByToken(token);
+
+        return meetingService.enrollMeeting(userEmail, meetingId)
+                .thenReturn(ResponseEntity.ok().build());
     }
 
 }

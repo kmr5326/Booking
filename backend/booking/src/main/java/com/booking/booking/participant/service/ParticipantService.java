@@ -3,11 +3,13 @@ package com.booking.booking.participant.service;
 import com.booking.booking.global.exception.ErrorCode;
 import com.booking.booking.meeting.domain.Meeting;
 import com.booking.booking.meeting.exception.MeetingException;
+import com.booking.booking.meeting.service.MeetingService;
 import com.booking.booking.participant.domain.Participant;
 import com.booking.booking.participant.repository.ParticipantRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
@@ -16,18 +18,17 @@ import reactor.core.scheduler.Schedulers;
 @Service
 public class ParticipantService {
     private final ParticipantRepository participantRepository;
-
+    private final MeetingService meetingService;
     public Mono<Void> addParticipant(Meeting meeting) {
-        return Mono.just(meeting)
-                .flatMap(data -> {
-                    Participant participant = buildParticipant(data);
-                    return Mono.fromRunnable(() -> participantRepository.save(participant))
+        return Mono
+                .fromCallable(() -> buildParticipant(meeting))
+                        .flatMap(participant -> Mono.fromRunnable(() -> participantRepository.save(participant))
                             .subscribeOn(Schedulers.boundedElastic())
-                            .then();
-                })
+                            .then()
+                        )
                 .doOnError(error -> {
-                    log.error("Error during arrangeMeeting : {}", error.toString());
-                    throw new MeetingException(ErrorCode.CREATED_MEETING_FAILURE);
+                    log.error("Error during addParticipant : {}", error.toString());
+                    throw new MeetingException(ErrorCode.ADD_PARTICIPANT_FAILURE);
                 });
     }
 
@@ -39,4 +40,19 @@ public class ParticipantService {
                 .paymentStatus(false)
                 .build();
     }
+
+    public Flux<Participant> findAllMemberByMeeting(Meeting meeting) {
+        return Mono
+                .fromCallable(() -> participantRepository.findAllByMeeting(meeting))
+                .subscribeOn(Schedulers.boundedElastic())
+                .flatMapMany(Flux::fromIterable);
+    }
+
+    public Mono<Boolean> existsParticipantByMeetingAndMemberId(Meeting meeting, String memberId) {
+        return Mono
+                .fromCallable(() -> participantRepository.existsParticipantByMeetingAndMemberId(meeting, memberId))
+                .subscribeOn(Schedulers.boundedElastic());
+    }
+
+
 }

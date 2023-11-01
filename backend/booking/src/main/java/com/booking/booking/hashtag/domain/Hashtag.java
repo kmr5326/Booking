@@ -1,6 +1,6 @@
 package com.booking.booking.hashtag.domain;
 
-import com.booking.booking.meetinghashtag.domain.MeetingHashtag;
+import com.booking.booking.hashtagmeeting.domain.HashtagMeeting;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -30,5 +30,5 @@ public class Hashtag {
     private String content;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "hashtag")
-    private List<MeetingHashtag> meetingHashtag;
+    private List<HashtagMeeting> hashtagMeetingList;
 }

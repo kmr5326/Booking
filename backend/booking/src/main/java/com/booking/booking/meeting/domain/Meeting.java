@@ -2,7 +2,7 @@ package com.booking.booking.meeting.domain;
 
 
 import com.booking.booking.chatroom.domain.Chatroom;
-import com.booking.booking.meetinghashtag.domain.MeetingHashtag;
+import com.booking.booking.hashtagmeeting.domain.HashtagMeeting;
 import com.booking.booking.meetinginfo.domain.MeetingInfo;
 import com.booking.booking.participant.domain.Participant;
 import com.booking.booking.post.domain.Post;
@@ -57,21 +57,21 @@ public class Meeting {
     @Enumerated(EnumType.STRING)
     private MeetingState meetingState;
 
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "meeting")
     private List<MeetingInfo> meetingInfoList;
 
     @OneToOne(fetch = FetchType.LAZY, mappedBy = "meeting")
     private Chatroom chatroom;
 
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "meeting")
     private List<Waitlist> waitList;
 
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "meeting")
     private List<Participant> participantsList;
 
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "meeting")
     private List<Post> postList;
 
-    @OneToMany(fetch = FetchType.LAZY)
-    private List<MeetingHashtag> hashTagList;
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "meeting")
+    private List<HashtagMeeting> hashtagMeetingList;
 }
