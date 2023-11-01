@@ -1,10 +1,12 @@
 package com.booking.member.payments.dto;
 
+import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDateTime;
 
 @Data
+@Builder
 public class ApprovalResponseDto {
     private String cid;
     private String aid;
@@ -20,6 +22,7 @@ public class ApprovalResponseDto {
     private LocalDateTime approved_at;
 
     @Data
+    @Builder
     public static class Amount {
         private int total;
         private int tax_free;
@@ -30,6 +33,7 @@ public class ApprovalResponseDto {
     }
 
     @Data
+    @Builder
     public static class CardInfo {
         private String interest_free_install;
         private String bin;
