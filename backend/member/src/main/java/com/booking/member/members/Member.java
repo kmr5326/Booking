@@ -1,10 +1,12 @@
 package com.booking.member.members;
 
 import com.booking.member.follows.Follow;
+import com.booking.member.payments.domain.Payment;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -50,15 +52,22 @@ public class Member {
     private String profileImage;
 
     @OneToMany(mappedBy = "following")
-    private List<Follow> followingMembers; // Members this user is following
+    private List<Follow> followingMembers=new ArrayList<>(); // Members this user is following
 
     @OneToMany(mappedBy = "follower")
-    private List<Follow> followerMembers;
+    private List<Follow> followerMembers=new ArrayList<>();
 
     private String provider;
 
 //    private String providerId;
 
     @ColumnDefault("0")
+    @Setter
     private Integer point;
+
+    @OneToMany(mappedBy = "payer")
+    private List<Payment> payments=new ArrayList<>();
+
+    @OneToMany(mappedBy = "receiver")
+    private List<Payment> receivers=new ArrayList<>();
 }

@@ -12,6 +12,7 @@ import reactor.core.publisher.Mono;
 import java.time.LocalDateTime;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
@@ -40,7 +41,7 @@ public class PaymentControllerTest extends ControllerTest {
 
         ReadyPaymentRequestDto readyPaymentRequestDto = new ReadyPaymentRequestDto("1000");
 
-        when(paymentService.readyPayment(any()))
+        when(paymentService.readyPayment(any(),anyString()))
                 .thenReturn(Mono.just(responseDto));
 
         MvcResult mvcResult = mockMvc.perform(post(baseUrl + "/ready")
