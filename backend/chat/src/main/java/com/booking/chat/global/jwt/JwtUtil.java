@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 public class JwtUtil {
+
     private static String secret;
 
     @Value("${jwt.secret}")
@@ -35,10 +36,28 @@ public class JwtUtil {
                                  .parseClaimsJws(token);
 
         // Subject 가져오기
-        return claims.getBody().getSubject();
+        return claims.getBody()
+                     .getSubject();
     }
+
     //TODO : 구현해야함
     public static Long getMemberIdByToken(String token) {
-        return 1L;
+
+        //bearer
+        token = token.substring(7);
+
+        Base64.Decoder decoder = Base64.getDecoder();
+        byte[] keyBytes = decoder.decode(secret);
+
+        var key = Keys.hmacShaKeyFor(keyBytes);
+
+        Integer id = Jwts.parserBuilder()
+                         .setSigningKey(key)
+                         .build()
+                         .parseClaimsJws(token)
+                         .getBody()
+                         .get("id", Integer.class);
+
+        return id.longValue();
     }
 }
