@@ -58,7 +58,7 @@ public class ChatroomService {
                                  .map(ChatroomListResponse::from);
     }
 
-    public Flux<ChatroomListResponse> getChatroomListByMemberIdOrderByDest(Long memberId) {
+    public Flux<ChatroomListResponse> getChatroomListByMemberIdOrderByDesc(Long memberId) {
         return chatroomRepository.findByMemberListContainsOrderByLastMessageReceivedTimeDesc(memberId)
             .map(ChatroomListResponse::from);
     }
