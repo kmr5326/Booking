@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder
 import com.ssafy.booking.utils.Utils.BASE_URL
 import com.ssafy.data.remote.api.ChatListApi
 import com.ssafy.data.remote.api.GoogleApi
+import com.ssafy.data.remote.api.MemberApi
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -25,17 +26,11 @@ class NetworkModule {
 //    @Provides
 //    @Singleton
 //    fun provideHttpClient() : OkHttpClient {
-//        val hostname = "k9c206.p.ssafy.io" // 변경해야 합니다. 서버의 호스트 이름을 사용하세요.
-//        val certificatePinner = CertificatePinner.Builder()
-//            .add(hostname, "sha256/IDF9aOeOleD2EgHReEz2+dm0In+48lIxbdCiESFCRSo=") // 앞서 얻은 해시 값을 여기에 넣으세요.
-//            .build()
-//
 //        return OkHttpClient.Builder()
 //            .readTimeout(10, TimeUnit.SECONDS)
 //            .connectTimeout(10, TimeUnit.SECONDS)
 //            .writeTimeout(15, TimeUnit.SECONDS)
 //            .addInterceptor(getLoggingInterceptor())
-//            .certificatePinner(certificatePinner)
 //            .build()
 //    }
 
@@ -75,6 +70,13 @@ class NetworkModule {
     fun provideChatListApi(retrofit: Retrofit): ChatListApi {
         return retrofit.create(ChatListApi::class.java)
     }
+
+    @Provides
+    @Singleton
+    fun provideMemberApi(retrofit: Retrofit): MemberApi {
+        return retrofit.create(MemberApi::class.java)
+    }
+
 
     private fun getLoggingInterceptor(): HttpLoggingInterceptor =
         HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BODY }
