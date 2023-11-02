@@ -21,14 +21,19 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSizeIn
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -37,6 +42,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -49,6 +55,8 @@ import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.ssafy.booking.ui.common.TopBar
 
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignInScreen(
     // 회원 정보 가져오기
@@ -86,9 +94,10 @@ fun SignInScreen(
         }
     }
 
-    val (email, setEmail) = remember { mutableStateOf(null) }
-    val (nickName, setNickName) = remember { mutableStateOf(null) }
-    val (name, setName) = remember { mutableStateOf(null) }
+    var email :String by remember { mutableStateOf("") }
+    var nickName :String by remember { mutableStateOf("") }
+    var name :String by remember { mutableStateOf("") }
+    var isError by remember { mutableStateOf(true) }
 
     val years = (2013 downTo 1900).map {it.toString()}
     val months = (1..12).map {it.toString()}
@@ -117,6 +126,44 @@ fun SignInScreen(
     ) {
         Text(text = "회원가입")
         Text(text = "회원이 되어 다양한 혜택을 경험해 보세요.")
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        OutlinedTextField(
+            value = email,
+            label = {
+                Text("이메일")
+            },
+            onValueChange = {email = it},
+            maxLines = 1,
+            singleLine = true
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+
+        OutlinedTextField(
+            value = nickName,
+            label = {
+                Text("*닉네임")
+            },
+            onValueChange = {
+                nickName = it
+                isError = it.isEmpty()
+                            },
+            maxLines = 1,
+            singleLine = true,
+            isError = isError
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+
+        OutlinedTextField(
+            value = name,
+            label = {
+                Text("이름")
+            },
+            onValueChange = {name = it},
+            maxLines = 1,
+            singleLine = true
+        )
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -264,8 +311,10 @@ fun SignInScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Button(onClick = { /*TODO: handle click event*/ }) {
-                    Text(text = "확인")
+                if (!isError) {
+                    Button(onClick = { /*TODO: handle click event*/ }) {
+                        Text(text = "확인")
+                    }
                 }
             }
         } else {
@@ -280,8 +329,6 @@ fun SignInScreen(
                 Text(text = "위치 인증 체크")
             }
         }
-
-        Text("위치 $myLocation $flag")
     }
 }
 
