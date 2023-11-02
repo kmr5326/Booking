@@ -13,13 +13,13 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 @Document
-public class book {
+public class Book {
 
     @Id private String isbn;
     private String title;
     private String author;
     private String coverImage;
-
+    private String genre;
 
 
 }
