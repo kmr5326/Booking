@@ -66,7 +66,7 @@ public class MemberControllerTest extends ControllerTest {
     void t2() throws Exception {
         String loginId = "1234";
         MemberInfoResponseDto responseDto = new MemberInfoResponseDto("1234", "email", 10, "MALE",
-                "mono", "monono", "addr", "img", "google");
+                "mono", "monono", 1.1, 1.1, "profileImg","google");
 
         when(memberService.loadMemberInfo(any())).thenReturn(Mono.just(responseDto));
 
@@ -89,7 +89,8 @@ public class MemberControllerTest extends ControllerTest {
                                         fieldWithPath("gender").description("성별"),
                                         fieldWithPath("nickname").description("닉네임"),
                                         fieldWithPath("fullname").description("이름"),
-                                        fieldWithPath("address").description("주소"),
+                                        fieldWithPath("lat").description("위도"),
+                                        fieldWithPath("lgt").description("경도"),
                                         fieldWithPath("profileImage").description("프로필 이미지"),
                                         fieldWithPath("provider").description("google,kakao")
                                 ))

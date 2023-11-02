@@ -7,7 +7,8 @@ public record MemberInfoResponseDto(
         String gender,
         String nickname,
         String fullname,
-        String address,
+        Double lat,
+        Double lgt,
         String profileImage,
         String provider
 ) {
