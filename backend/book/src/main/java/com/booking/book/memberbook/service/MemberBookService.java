@@ -2,6 +2,8 @@ package com.booking.book.memberbook.service;
 
 import com.booking.book.book.service.BookService;
 import com.booking.book.global.exception.ErrorCode;
+import com.booking.book.memberbook.domain.MemberBook;
+import com.booking.book.memberbook.dto.request.MemberBookRegistRequest;
 import com.booking.book.memberbook.dto.response.MemberBookListResponse;
 import com.booking.book.memberbook.dto.response.MemberBookResponse;
 import com.booking.book.memberbook.exception.MemberBookException;
@@ -31,5 +33,11 @@ public class MemberBookService {
                                    .switchIfEmpty(
                                        Mono.error(new MemberBookException(ErrorCode.MEMBER_NOT_READ)))
                                    .map(MemberBookResponse::new);
+    }
+
+    public Mono<MemberBook> registMemberBook(MemberBookRegistRequest memberBookRegistRequest) {
+
+        MemberBook memberBook = MemberBook.from(memberBookRegistRequest);
+        return memberBookRepository.save(memberBook);
     }
 }
