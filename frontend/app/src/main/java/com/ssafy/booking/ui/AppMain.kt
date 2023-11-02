@@ -97,7 +97,7 @@ fun Route(googleSignInClient: GoogleSignInClient) {
                 Main(navController, appViewModel)
             }
             composable("chat") {
-                ChatHome(navController, appViewModel, socketViewModel, chatViewModel)
+                ChatHome(navController, appViewModel)
             }
             composable("chatDetail/{chatId}") {
                 ChatDetail(navController, socketViewModel)
