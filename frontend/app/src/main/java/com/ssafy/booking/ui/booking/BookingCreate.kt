@@ -43,14 +43,13 @@ fun preview() {
         appViewModel = DummyAppViewModel()
     )
 }
-
 @Composable
 fun BookingCreate(navController: NavController, appViewModel: AppViewModel) {
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
 //            horizontalAlignment = Alignment.CenterHorizontally,
 //            verticalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier.fillMaxSize().padding(16.dp)
+            modifier = Modifier.fillMaxSize().padding(24.dp)
         ) {
             TopBar()
             BookSearch()
@@ -123,28 +122,34 @@ fun BookSearch() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TextFieldsSection() {
-    var text by rememberSaveable(stateSaver = TextFieldValue.Saver) {
-        mutableStateOf(TextFieldValue("", TextRange(0, 7)))
+    var title by rememberSaveable(stateSaver = TextFieldValue.Saver) {
+        mutableStateOf(TextFieldValue(""))
+    }
+    var description by rememberSaveable(stateSaver = TextFieldValue.Saver) {
+        mutableStateOf(TextFieldValue(""))
+    }
+    var hashTag by rememberSaveable(stateSaver = TextFieldValue.Saver) {
+        mutableStateOf(TextFieldValue(""))
     }
 
     Text(text = "모임 제목")
     OutlinedTextField(
-        value = text,
-        onValueChange = { text = it },
+        value = title,
+        onValueChange = { title = it },
         label = { Text("모임 제목") }
     )
     Text(text = "모임 소개")
 
     OutlinedTextField(
-        value = text,
-        onValueChange = { text = it },
+        value = description,
+        onValueChange = { description = it },
         label = { Text("모임 소개") }
     )
     Text(text = "해시 태그")
 
     OutlinedTextField(
-        value = text,
-        onValueChange = { text = it },
+        value = hashTag,
+        onValueChange = { hashTag = it },
         label = { Text("해시태그") }
     )
 }
@@ -155,7 +160,6 @@ fun CreateBookingButton() {
         modifier = Modifier.fillMaxWidth().height(50.dp)
             .offset(y=30.dp)
         ,
-
         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00C68E))
     ) {
         Text(text = "생성하기")
