@@ -26,6 +26,8 @@ public class Chatroom {
 
     private List<Long> memberList;
 
+    private String meetingTitle;
+
     @CreatedDate
     private LocalDateTime createdAt;
 
@@ -36,6 +38,7 @@ public class Chatroom {
                        ._id(initChatroomRequest.meetingId())
                        .leaderId(initChatroomRequest.leaderId())
                        .memberList(List.of(initChatroomRequest.leaderId()))
+                       .meetingTitle(initChatroomRequest.meetingTitle())
                        .lastMessageReceivedTime(LocalDateTime.now())
                        .build();
     }

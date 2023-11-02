@@ -17,7 +17,6 @@ import com.booking.chat.chatroom.dto.request.InitChatroomRequest;
 import com.booking.chat.chatroom.dto.request.JoinChatroomRequest;
 import com.booking.chat.chatroom.dto.response.ChatroomListResponse;
 import com.booking.chat.util.ControllerTest;
-import java.time.LocalDateTime;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -45,8 +44,8 @@ class ChatroomControllerTest extends ControllerTest {
     @Test
     void initializeChatroomTest() throws Exception {
 
-        InitChatroomRequest initChatroomRequest = new InitChatroomRequest(1L, 1L);
-        Chatroom chatroom = new Chatroom(1L, 1L, List.of(1L), LocalDateTime.now());
+        InitChatroomRequest initChatroomRequest = new InitChatroomRequest(1L, 1L, "미팅 이름");
+        Chatroom chatroom = Chatroom.createWithLeader(initChatroomRequest);
         when(chatroomService.initializeChatroom(any())).thenReturn(Mono.just(chatroom));
 
         webTestClient.post()
@@ -54,7 +53,8 @@ class ChatroomControllerTest extends ControllerTest {
                      .contentType(MediaType.APPLICATION_JSON)
                      .bodyValue(objectMapper.writeValueAsString(initChatroomRequest))
                      .exchange()
-                     .expectStatus().isCreated()
+                     .expectStatus()
+                     .isCreated()
                      .expectBody()
                      .consumeWith(document("chatroom/init",
                          preprocessRequest(prettyPrint()),
@@ -62,7 +62,9 @@ class ChatroomControllerTest extends ControllerTest {
                              fieldWithPath("meetingId").type(JsonFieldType.NUMBER)
                                                        .description("모임 PK"),
                              fieldWithPath("leaderId").type(JsonFieldType.NUMBER)
-                                                      .description("모임장 PK")
+                                                      .description("모임장 PK"),
+                             fieldWithPath("meetingTitle").type(JsonFieldType.STRING)
+                                                          .description("모임 제목")
                          )
                      ));
     }
@@ -79,7 +81,8 @@ class ChatroomControllerTest extends ControllerTest {
                      .contentType(MediaType.APPLICATION_JSON)
                      .bodyValue(objectMapper.writeValueAsString(joinChatroomRequest))
                      .exchange()
-                     .expectStatus().isNoContent()
+                     .expectStatus()
+                     .isNoContent()
                      .expectBody()
                      .consumeWith(document("chatroom/join",
                          preprocessRequest(prettyPrint()),
@@ -104,7 +107,8 @@ class ChatroomControllerTest extends ControllerTest {
                      .contentType(MediaType.APPLICATION_JSON)
                      .bodyValue(objectMapper.writeValueAsString(exitChatroomRequest))
                      .exchange()
-                     .expectStatus().isNoContent()
+                     .expectStatus()
+                     .isNoContent()
                      .expectBody()
                      .consumeWith(document("chatroom/exit",
                          preprocessRequest(prettyPrint()),
@@ -121,22 +125,32 @@ class ChatroomControllerTest extends ControllerTest {
     @Test
     void getChatroomListTest() throws Exception {
 
-        ChatroomListResponse chatroomListResponse = new ChatroomListResponse(1L, List.of(1L, 2L, 3L));
-        when(chatroomService.getChatroomListByMemberId(any())).thenReturn(Flux.just(chatroomListResponse));
+        ChatroomListResponse chatroomListResponse = new ChatroomListResponse(1L, "미팅 이름",
+            List.of(1L, 2L, 3L));
+
+        ChatroomListResponse chatroomListResponse2 = new ChatroomListResponse(2L, "미팅 이름2",
+            List.of(1L, 2L, 3L));
+
+        when(chatroomService.getChatroomListByMemberIdOrderByDesc(any())).thenReturn(
+            Flux.just(chatroomListResponse, chatroomListResponse2));
 
         webTestClient.get()
                      .uri(BASE_URL + "/list")
-                     .header("Authorization" , "Token")
+                     .header("Authorization", "Bearer: token")
                      .exchange()
-                     .expectStatus().isOk()
+                     .expectStatus()
+                     .isOk()
                      .expectBody()
                      .consumeWith(document("chatroom/list",
                          preprocessResponse(prettyPrint()),
                          responseFields(
+                             fieldWithPath("[]").description("속한 채팅방 목록 dto"),
                              fieldWithPath("[].chatroomId").type(JsonFieldType.NUMBER)
-                                                       .description("모임 PK"),
+                                                           .description("모임 PK"),
+                             fieldWithPath("[].meetingTitle").type(JsonFieldType.STRING)
+                                                             .description("미팅방 이름"),
                              fieldWithPath("[].memberList[]").type(JsonFieldType.ARRAY)
-                                                      .description("채팅방 멤버들 PK")
+                                                             .description("채팅방 멤버들 PK 배열")
                          )
                      ));
     }
