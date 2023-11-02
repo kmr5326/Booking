@@ -46,6 +46,7 @@ public class MemberServiceImpl implements MemberService {
                             .role(UserRole.USER)
                             .profileImage(req.profileImage())
                             .provider(req.provider())
+                            .point(0)
                             .build();
 
                     return Mono.fromRunnable(() ->  memberRepository.save(mem))
