@@ -27,8 +27,11 @@ import com.ssafy.booking.ui.theme.BookingTheme
 import com.ssafy.booking.viewmodel.AppViewModel
 import com.ssafy.booking.ui.booking.Main
 import com.ssafy.booking.ui.profile.ProfileHome
-import com.ssafy.booking.viewmodel.ChatViewModel
 import com.ssafy.booking.viewmodel.MainViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
+import com.ssafy.booking.ui.booking.MyFloatingActionButton
+import com.ssafy.booking.ui.login.SignInScreen
+import com.ssafy.booking.viewmodel.ChatViewModel
 import com.ssafy.booking.viewmodel.SocketViewModel
 
 sealed class AppNavItem(
@@ -42,6 +45,11 @@ sealed class AppNavItem(
     object Profile: AppNavItem("profile")
     object Login: AppNavItem("login")
     object CreateBooking : AppNavItem("create/booking")
+    object SignIn: AppNavItem("signIn/{loginId}/{kakaoNickName}"){
+        fun createRoute(loginId: String, kakaoNickName: String): String {
+            return "signIn/$loginId/$kakaoNickName"
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -100,6 +108,13 @@ fun Route(googleSignInClient: GoogleSignInClient) {
             composable("create/booking") {
                 BookingCreate(navController, appViewModel)
             }
+            composable("signIn/{loginId}/{kakaoNickName}") { navBackStackEntry ->
+                // 여기에서 loginId와 nickName을 추출합니다.
+                val loginId = navBackStackEntry.arguments?.getString("loginId") ?: ""
+                val kakaoNickName = navBackStackEntry.arguments?.getString("kakaoNickName") ?: ""
+                SignInScreen(loginId,kakaoNickName)
+            }
+
         }
     }
 }

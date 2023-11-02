@@ -121,6 +121,8 @@ dependencies {
     implementation ("androidx.compose.runtime:runtime-livedata:1.3.3")
     implementation ("androidx.compose.runtime:runtime-rxjava2:1.3.3")
 
+    implementation ("com.google.android.gms:play-services-location:21.0.1")
+
     // Room
     implementation(Room.ROOM_RUNTIME)
     annotationProcessor(Room.ROOM_COMPILER)

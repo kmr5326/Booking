@@ -1,4 +1,4 @@
-package com.ssafy.data.repository.google
+package com.ssafy.data.repository.token
 
 import android.content.Context
 import android.content.SharedPreferences
@@ -7,17 +7,16 @@ import com.ssafy.domain.model.google.AccountInfo
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
-class PreferenceDataSource @Inject constructor(
+class TokenDataSource @Inject constructor(
     @ApplicationContext context: Context,
 ) {
     companion object {
-        private const val PREFERENCE_NAME = "preference_name"
-        private const val ACCOUNT_INFO = "account_info"
+        private const val ACCESS_TOKEN = "access_token"
     }
-    private fun getPreference(context: Context) : SharedPreferences {
-        return context.getSharedPreferences(PREFERENCE_NAME, Context.MODE_PRIVATE)
+    private fun getTokenPreference(context: Context) : SharedPreferences {
+        return context.getSharedPreferences(ACCESS_TOKEN, Context.MODE_PRIVATE)
     }
-    private val prefs by lazy { getPreference(context) }
+    private val prefs by lazy { getTokenPreference(context) }
     private val editor by lazy { prefs.edit() }
     private val gson = Gson()
 
@@ -48,15 +47,16 @@ class PreferenceDataSource @Inject constructor(
         return prefs.getInt(key, defValue)
     }
 
-    fun putAccountInfo(accountInfo: AccountInfo) {
-        putString(ACCOUNT_INFO, gson.toJson(accountInfo))
+    // 토큰 부분
+    fun putToken(token: String?) {
+        putString(ACCESS_TOKEN, token)
+    }
+    fun getToken(): String? {
+        return getString(ACCESS_TOKEN)
     }
 
-    fun getAccountInfo() : AccountInfo? {
-        return gson.fromJson(getString(ACCOUNT_INFO), AccountInfo::class.java)
+    fun removeToken() {
+        putString(ACCESS_TOKEN, null)
     }
 
-    fun removeAccountInfo() {
-        putString(ACCOUNT_INFO, null)
-    }
 }
