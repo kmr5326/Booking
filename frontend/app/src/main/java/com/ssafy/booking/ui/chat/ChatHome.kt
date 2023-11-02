@@ -41,6 +41,9 @@ import com.ssafy.booking.viewmodel.AppViewModel
 import com.ssafy.booking.ui.LocalNavigation
 import com.ssafy.booking.viewmodel.ChatViewModel
 import com.ssafy.booking.viewmodel.SocketViewModel
+import com.ssafy.domain.model.ChatCreateRequest
+import com.ssafy.domain.model.ChatExitRequest
+import com.ssafy.domain.model.ChatJoinRequest
 import com.ssafy.domain.model.ChatRoom
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -48,9 +51,8 @@ import com.ssafy.domain.model.ChatRoom
 fun ChatHome(
     navController: NavController,
     appViewModel: AppViewModel,
-    socketViewModel: SocketViewModel,
-    chatViewModel: ChatViewModel
     ) {
+    val chatViewModel: ChatViewModel = hiltViewModel()
     Scaffold (
         topBar = {
             TopBar("채팅방")
@@ -66,32 +68,53 @@ fun ChatHome(
         ){
             Box {
                 Column {
-                    ChatList(navController)
-                }
-                Row (
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .fillMaxHeight()
-                        .padding(bottom = 200.dp),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.Bottom
-                ) {
                     Button(
                         onClick = {
-                     }
+                            navController.navigate("chatDetail/3")
+                        }
                     ) {
-                        Text("Test:소켓 연결")
+                        Text("채팅방 이동")
                     }
+                    Button(
+                        onClick = {
+                            val request = ChatCreateRequest(1, 1, "독서모임")
+                            chatViewModel.createChatRoom(request)
+                        }
+                    ) {
+                        Text("채팅방 생성 API")
+                    }
+                    Button(
+                        onClick = {
+                            val request = ChatJoinRequest(1, 1)
+                            chatViewModel.joinChatRoom(request)
+                        }
+                    ) {
+                        Text("채팅방 참가 API")
+                    }
+                    Button(
+                        onClick = {
+                            val request = ChatExitRequest(1, 1)
+                            chatViewModel.exitChatRoom(request)
+                        }
+                    ) {
+                        Text("채팅방 나가기 API")
+                    }
+                    Button(
+                        onClick = {
+                        }
+                    ) {
+                        Text("소켓 연결 테스트")
+                    }
+                    ChatList()
                 }
             }
+
         }
     }
 }
 
 @Composable
-fun ChatList(
-    navController: NavController,
-) {
+fun ChatList() {
     val chatViewModel: ChatViewModel = hiltViewModel()
     val chatListState = chatViewModel.chatListState.value
 
