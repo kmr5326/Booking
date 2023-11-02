@@ -1,4 +1,4 @@
-package com.booking.book.global.jwt.data;
+package com.booking.book.global.data;
 
 import com.booking.book.book.domain.Book;
 import com.booking.book.book.service.BookService;
@@ -45,7 +45,8 @@ public class DataLoader {
     @Bean
     public CommandLineRunner dataLoad() {
         return (args) -> {
-            bookService.initializeCheck()
+            bookService.ensureTextIndexOnTitle()
+                       .then(bookService.initializeCheck())
                        .flatMap(exists -> {
                            if (exists) {
                                return Mono.empty();
