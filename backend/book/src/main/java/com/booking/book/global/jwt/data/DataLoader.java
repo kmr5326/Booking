@@ -31,7 +31,7 @@ public class DataLoader {
         ColumnPositionMappingStrategy<Book> strategy = new ColumnPositionMappingStrategy<>();
         strategy.setType(Book.class);
 
-        String[] bookFieldsToBindTo = {"isbn", "title", "author", "coverImage", "genre"};
+        String[] bookFieldsToBindTo = {"isbn", "title", "author", "coverImage", "genre", "content"};
         strategy.setColumnMapping(bookFieldsToBindTo);
 
         CsvToBean<Book> csvToBean = new CsvToBeanBuilder<Book>(reader).withMappingStrategy(strategy)

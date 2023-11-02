@@ -19,6 +19,7 @@ public class Book {
     private String author;
     private String coverImage;
     private String genre;
+    private String content;
 
 
 }
