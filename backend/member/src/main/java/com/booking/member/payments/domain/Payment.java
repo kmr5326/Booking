@@ -1,6 +1,6 @@
 package com.booking.member.payments.domain;
 
-import com.booking.member.members.Member;
+import com.booking.member.members.domain.Member;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
