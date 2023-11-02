@@ -17,14 +17,18 @@ public class HashtagService {
     private final HashtagRepository hashtagRepository;
 
     public Mono<Optional<Hashtag>> findByContent(String content) {
-        log.info("Booking Server Hashtag- '{}' request findByContent", content);
+        log.info("Booking Server Hashtag - findByContent({})", content);
         return Mono
                 .fromSupplier(() -> hashtagRepository.findByContent(content))
                 .subscribeOn(Schedulers.boundedElastic());
+//                .onErrorResume(error -> {
+//                    log.error("Booking Server Hashtag - Error during findByContent : {}", error.toString());
+//                    return Mono.error(new MeetingException(ErrorCode.GET_HASHTAG_FAILURE));
+//                });
     }
 
     public Mono<Hashtag> save(String content) {
-        log.info("Booking Server Hashtag - '{}' request save", content);
+        log.info("Booking Server Hashtag - save({})", content);
         return Mono
                 .fromSupplier(() -> hashtagRepository.save(
                         Hashtag.builder()
@@ -32,16 +36,10 @@ public class HashtagService {
                                 .build()
                 ))
                 .subscribeOn(Schedulers.boundedElastic());
+//                .onErrorResume(error -> {
+//                    log.error("Booking Server Hashtag - Error during save : {}", error.toString());
+//                    return Mono.error(new MeetingException(ErrorCode.CREATE_HASHTAG_FAILURE));
+//                });
+
     }
-//
-//    public Mono<HashtagResponse> findById(Long id) {
-//        log.info("Booking Server Hashtag- '{}' request findById", id);
-//        return Mono
-//                .fromSupplier(() -> hashtagRepository.findById(id))
-//                .flatMap(optional -> optional.map(hashtag ->
-//                        Mono.just(new HashtagResponse(hashtag))
-//                                .switchIfEmpty(Mono.empty()))
-//                        .orElse(Mono.empty()))
-//                .subscribeOn(Schedulers.boundedElastic());
-//    }
 }

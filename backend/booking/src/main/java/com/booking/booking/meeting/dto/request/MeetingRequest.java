@@ -8,16 +8,12 @@ import java.util.List;
 
 public record MeetingRequest(
     String bookIsbn,
-
     String meetingTitle,
-
     String description,
-
     Integer maxParticipants,
-
     List<String> hashtagList
 ) {
-    public Meeting toEntity(MemberInfoResponse memberInfo) {
+    public Meeting toEntity(MemberInfoResponse memberInfo, MeetingState meetingState) {
         return Meeting.builder()
                 .leaderId(memberInfo.loginId())
                 .address(memberInfo.address())
@@ -25,7 +21,7 @@ public record MeetingRequest(
                 .meetingTitle(meetingTitle)
                 .description(description)
                 .maxParticipants(maxParticipants)
-                .meetingState(MeetingState.PREPARING)
+                .meetingState(meetingState)
                 .build();
     }
 }

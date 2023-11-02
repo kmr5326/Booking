@@ -27,22 +27,23 @@ public class MeetingController {
     private static final String AUTHORIZATION = "Authorization";
 
     @PostMapping("/")
-    public Mono<ResponseEntity<Void>> createMeeting(@RequestHeader(AUTHORIZATION) String token, @RequestBody MeetingRequest meetingRequest) {
-
+    public Mono<ResponseEntity<Void>> createMeeting
+            (@RequestHeader(AUTHORIZATION) String token, @RequestBody MeetingRequest meetingRequest) {
         String userEmail = JwtUtil.getLoginEmailByToken(token);
 
-        return meetingService.arrangeMeeting(userEmail, meetingRequest)
+        return meetingService.createMeeting(userEmail, meetingRequest)
                 .thenReturn(ResponseEntity.noContent().build());
     }
 
     @GetMapping("/{meetingId}")
-    public Mono<ResponseEntity<MeetingResponse>> findById(@RequestHeader(AUTHORIZATION) String token, @PathVariable("meetingId") Long meetingId) {
+    public Mono<ResponseEntity<MeetingResponse>> findById(@PathVariable("meetingId") Long meetingId) {
         return meetingService.findById(meetingId)
                 .map(meeting -> ResponseEntity.ok().body(meeting));
     }
 
     @GetMapping("/")
     public ResponseEntity<Flux<MeetingResponse>> findAllById(@RequestHeader(AUTHORIZATION) String token) {
+        // TODO 사용자 주소 기반 검색
         return ResponseEntity.ok().body(meetingService.findAll());
     }
 

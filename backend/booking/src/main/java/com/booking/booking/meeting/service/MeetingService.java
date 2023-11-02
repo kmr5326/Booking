@@ -1,13 +1,14 @@
 package com.booking.booking.meeting.service;
 
-import com.booking.booking.chatroom.service.ChatroomService;
 import com.booking.booking.global.exception.ErrorCode;
 import com.booking.booking.hashtag.dto.response.HashtagResponse;
 import com.booking.booking.hashtag.service.HashtagService;
 import com.booking.booking.hashtagmeeting.domain.HashtagMeeting;
 import com.booking.booking.hashtagmeeting.service.HashtagMeetingService;
 import com.booking.booking.meeting.domain.Meeting;
+import com.booking.booking.meeting.domain.MeetingState;
 import com.booking.booking.meeting.dto.request.MeetingRequest;
+import com.booking.booking.meeting.dto.request.ChatroomRequest;
 import com.booking.booking.meeting.dto.response.MeetingResponse;
 import com.booking.booking.meeting.dto.response.MemberInfoResponse;
 import com.booking.booking.meeting.exception.MeetingException;
@@ -34,48 +35,62 @@ public class MeetingService {
     private final MeetingRepository meetingRepository;
     private final HashtagMeetingService hashtagMeetingService;
     private final HashtagService hashtagService;
-    private final ChatroomService chatroomService;
     private final ParticipantService participantService;
     private final WaitlistService waitlistService;
 
     private static final String GATEWAY_URL = "http://localhost:8999";
 
-    public Mono<Void> arrangeMeeting(String userEmail, MeetingRequest meetingRequest) {
-        log.info("Booking Server - '{}' request arrangeMeeting", meetingRequest.toString());
-
+    public Mono<Void> createMeeting(String userEmail, MeetingRequest meetingRequest) {
+        log.info("Booking Server Meeting - createMeeting({}, {})", userEmail, meetingRequest);
         return getMemberInfoByEmail(userEmail)
                 .flatMap(memberInfo -> {
-                    Meeting meeting = meetingRequest.toEntity(memberInfo);
+                    Meeting meeting = meetingRequest.toEntity(memberInfo, MeetingState.PREPARING);
                     return Mono.fromRunnable(() -> handleArrangeMeeting(meeting, meetingRequest.hashtagList()))
                             .subscribeOn(Schedulers.boundedElastic())
                             .then();
                 })
-                .doOnError(error -> {
-                    log.error("Error during arrangeMeeting : {}", error.toString());
-                    throw new MeetingException(ErrorCode.CREATE_MEETING_FAILURE);
+                .onErrorResume(error -> {
+                    log.error("Booking Server Meeting - Error during createMeeting : {}", error.toString());
+                    return Mono.error(new MeetingException(ErrorCode.CREATE_MEETING_FAILURE));
                 });
     }
 
     private Mono<MemberInfoResponse> getMemberInfoByEmail(String userEmail) {
-        log.info("start inter-server comm");
+        log.info("Booking Server Meeting - getMemberInfoByEmail({})", userEmail);
         WebClient webClient = WebClient.builder().build();
         URI uri = URI.create(GATEWAY_URL + "/api/members/memberInfo/" + userEmail);
 
-        Mono<MemberInfoResponse> memberInfoResponse = webClient.get()
+        return webClient.get()
                 .uri(uri)
                 .retrieve()
                 .onStatus(HttpStatus::is4xxClientError, response -> Mono.error(RuntimeException::new))
                 .onStatus(HttpStatus::is5xxServerError, response -> Mono.error(RuntimeException::new))
                 .bodyToMono(MemberInfoResponse.class);
+    }
 
-        log.info("end inter-server comm");
-        return memberInfoResponse;
+    private Mono<Void> createChatroom(ChatroomRequest chatroomRequest) {
+        log.info("Booking Server Meeting - createChatroom()");
+        log.info("start inter-server comm");
+        WebClient webClient = WebClient.builder().build();
+        URI uri = URI.create(GATEWAY_URL + "/api/chat/room/");
+
+        return webClient.post()
+                .uri(uri)
+                .bodyValue(chatroomRequest)
+                .retrieve()
+                .onStatus(HttpStatus::is4xxClientError, response -> Mono.error(RuntimeException::new))
+                .onStatus(HttpStatus::is5xxServerError, response -> Mono.error(RuntimeException::new))
+                .bodyToMono(Void.class);
     }
 
     private void handleArrangeMeeting(Meeting meeting, List<String> hashtagList) {
+        log.info("Booking Server Meeting - handleArrangeMeeting({}, {})", meeting, hashtagList);
+        log.info("start inter-server comm");
+
         meetingRepository.save(meeting);
+//        createChatroom(new ChatroomRequest(meeting)).subscribe();
+        // TODO 채팅방 생성, 채팅방 인원 추가
         hashtagMeetingService.saveHashtags(meeting, hashtagList).subscribe();
-        chatroomService.createChatroom(meeting).subscribe();
         participantService.addParticipant(meeting).subscribe();
     }
 

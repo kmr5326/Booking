@@ -27,7 +27,7 @@ public class MeetingInfoController {
     public Mono<ResponseEntity<Void>> createDetailedMeeting(@RequestHeader(AUTHORIZATION) String token, @RequestBody MeetingInfoRequest meetingInfoRequest) {
         String userEmail = JwtUtil.getLoginEmailByToken(token);
 
-        return meetingInfoService.createMeeting(userEmail, meetingInfoRequest)
+        return meetingInfoService.createMeetingDetail(userEmail, meetingInfoRequest)
                 .thenReturn(ResponseEntity.noContent().build());
     }
 }

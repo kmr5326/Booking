@@ -1,7 +1,5 @@
 package com.booking.booking.meeting.domain;
 
-
-import com.booking.booking.chatroom.domain.Chatroom;
 import com.booking.booking.hashtagmeeting.domain.HashtagMeeting;
 import com.booking.booking.meetinginfo.domain.MeetingInfo;
 import com.booking.booking.participant.domain.Participant;
@@ -22,7 +20,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
@@ -59,9 +56,6 @@ public class Meeting {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "meeting")
     private List<MeetingInfo> meetingInfoList;
-
-    @OneToOne(fetch = FetchType.LAZY, mappedBy = "meeting")
-    private Chatroom chatroom;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "meeting")
     private List<Waitlist> waitList;

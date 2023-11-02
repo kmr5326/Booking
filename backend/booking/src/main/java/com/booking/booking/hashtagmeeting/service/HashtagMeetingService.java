@@ -23,18 +23,24 @@ public class HashtagMeetingService {
     private final HashtagService hashtagService;
 
     public Mono<Void> saveHashtags(Meeting meeting, List<String> hashtagList) {
-        log.info("Booking Server - '{}' request saveHashtags", hashtagList);
+        log.info("Booking Server HashtagMeeting - saveHashtags({}, {})", meeting.getMeetingTitle(), hashtagList);
         return Flux.fromIterable(hashtagList)
                 .flatMap(content ->
                     hashtagService.findByContent(content)
                             .defaultIfEmpty(Optional.empty())
-                            .flatMap(optionalHashtag -> optionalHashtag.map(Mono::just).orElseGet(() -> hashtagService.save(content)))
+                            .flatMap(optionalHashtag ->
+                                    optionalHashtag.map(Mono::just).orElseGet(() -> hashtagService.save(content)))
                 )
                 .flatMap(savedHashtag -> mapHashtagToMeeting(meeting, savedHashtag))
+//                .onErrorResume(error -> {
+//                    log.error("Booking Server Hashtag - Error during findByContent : {}", error.toString());
+//                    return Mono.error(new MeetingException(ErrorCode.CREATE_MEETING_FAILURE));
+//                })
                 .then();
     }
 
     private Mono<Void> mapHashtagToMeeting(Meeting meeting, Hashtag hashtag) {
+        log.info("Booking Server HashtagMeeting - mapHashtagToMeeting({}, {})", meeting.getMeetingTitle(), hashtag);
         return Mono
                 .fromRunnable(() -> hashtagMeetingRepository.save(
                         HashtagMeeting.builder()
