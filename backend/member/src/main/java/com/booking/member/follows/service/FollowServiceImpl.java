@@ -32,4 +32,21 @@ public class FollowServiceImpl implements FollowService{
         followRepository.save(follow);
         return Mono.empty();
     }
+
+    @Override
+    public Mono<Void> unfollow(String loginId, String targetNickname) {
+        Member member=memberRepository.findByLoginId(loginId);
+        Member target=memberRepository.findByNickname(targetNickname);
+        if(target==null){
+            log.error("언팔로우 에러 대상 없음");
+            return Mono.error(new UsernameNotFoundException("사용자 찾을 수 없음"));
+        }
+        Follow follow=followRepository.findByFollowerAndFollowing(member,target);
+        if(follow==null){
+            log.error("팔로우 상태가 아닙니다.");
+            return Mono.error(new RuntimeException("팔로우 상태가 아닙니다."));
+        }
+        followRepository.delete(follow);
+        return Mono.empty();
+    }
 }
