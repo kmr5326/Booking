@@ -59,8 +59,8 @@ import com.ssafy.booking.ui.common.TopBar
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignInScreen(
-    // 회원 정보 가져오기
-
+    loginId:String = "",
+    kakaoNickName:String = ""
 ) {
     val context = LocalContext.current
     var permissionsGranted by remember { mutableStateOf(false) }
@@ -95,9 +95,9 @@ fun SignInScreen(
     }
 
     var email :String by remember { mutableStateOf("") }
-    var nickName :String by remember { mutableStateOf("") }
+    var nickName :String by remember { mutableStateOf(kakaoNickName) }
     var name :String by remember { mutableStateOf("") }
-    var isError by remember { mutableStateOf(true) }
+    var isError by remember { mutableStateOf(false) }
 
     val years = (2013 downTo 1900).map {it.toString()}
     val months = (1..12).map {it.toString()}
