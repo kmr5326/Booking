@@ -15,7 +15,11 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document
 public class book {
 
-    @Id String isbn;
+    @Id private String isbn;
+    private String title;
+    private String author;
+    private String coverImage;
+
 
 
 }
