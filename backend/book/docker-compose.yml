@@ -16,7 +16,7 @@ services:
     restart: always
     container_name: book-mongodb
     ports:
-      - "27018:27018"
+      - "27018:27017"
     environment:
       MONGO_INITDB_ROOT_USERNAME: booking
       MONGO_INITDB_ROOT_PASSWORD: booking123!
