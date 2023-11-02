@@ -115,6 +115,7 @@ val retrofit = Retrofit.Builder()
     .baseUrl("https://k9c206.p.ssafy.io:9999") // 실제 서버 URL로 변경해야 함
     .addConverterFactory(GsonConverterFactory.create())
     .build()
+
 val loginService = retrofit.create(LoginService::class.java)
 
 // 로그인 API 호출
@@ -147,8 +148,8 @@ private fun onLoginSuccess(context: Context, loginId: String, navController: Nav
                 when (errorCode) {
                     // 에러 코드가 400이면 회원가입이 필요한 상태 -> 회원가입으로 라우트
                     400 -> {
-                        navController.navigate(AppNavItem.Chat.route) {
-                            popUpTo("login") { inclusive = false }
+                        navController.navigate(AppNavItem.SignIn.route) {
+                            popUpTo("SignIn") { inclusive = false }
                         }
                     }
                 }
@@ -199,6 +200,7 @@ fun Greeting(
                 getHash(context)
             }
             NewButton(context, navController)
+            SignInBtn()
         }
     }
 }
@@ -250,6 +252,7 @@ fun GoogleLoginButton(
             { inclusive = true }
             launchSingleTop = true
         }
+        Log.i("UserInfo","정보들 : $accountInfo")
     } else {
         Button(
             onClick = { startForResult.launch(googleSignInClient.signInIntent) },
@@ -396,9 +399,9 @@ fun NewButton(context: Context, navController: NavController) {
                         UserApiClient.instance.me { user, error ->
                             if (error != null) {
                                 Log.e(TAG, "사용자 정보 요청 실패", error)
-                            } else if (user != null) {
-                                Log.i(
-                                    TAG, "사용자 정보 요청 성공" +
+                            }
+                            else if (user != null) {
+                                Log.i("UserInfo", "사용자 정보 요청 성공" +
 //                                        "\n회원번호: ${user.id}" +
 //                                        "\n이메일: ${user.kakaoAccount?.email}" +
                                             "\n닉네임: ${user.kakaoAccount?.profile?.nickname}"
@@ -428,6 +431,15 @@ fun NewButton(context: Context, navController: NavController) {
             "새로운 로그인 버튼",
             fontWeight = FontWeight.Bold
         )
+    }
+}
+
+@Composable
+fun SignInBtn() {
+    val navController = LocalNavigation.current
+
+    Button(onClick = {navController.navigate(AppNavItem.SignIn.route)}) {
+        Text(text = "회원가입페이지 연결")
     }
 }
 ////
