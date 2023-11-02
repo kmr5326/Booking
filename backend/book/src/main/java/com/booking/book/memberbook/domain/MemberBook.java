@@ -26,7 +26,7 @@ public class MemberBook {
 
     private Long memberId;
 
-    private Long bookIsbn;
+    private String bookIsbn;
 
     private List<Note> notes;
 

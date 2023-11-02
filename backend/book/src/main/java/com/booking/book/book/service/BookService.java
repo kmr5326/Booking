@@ -2,7 +2,9 @@ package com.booking.book.book.service;
 
 import com.booking.book.book.domain.Book;
 import com.booking.book.book.dto.response.BookResponse;
+import com.booking.book.book.exception.BookException;
 import com.booking.book.book.repository.BookRepository;
+import com.booking.book.global.exception.ErrorCode;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -56,6 +58,7 @@ public class BookService {
     }
 
     public Mono<Book> findByIsbn(String isbn) {
-
+        return bookRepository.findById(isbn)
+            .switchIfEmpty(Mono.error(new BookException(ErrorCode.BOOK_NOT_FOUND)));
     }
 }

@@ -7,7 +7,7 @@ import java.util.List;
 
 public record MemberBookResponse(
     Long memberId,
-    Long bookIsbn,
+    String bookIsbn,
     List<Note> notes,
     LocalDateTime createdAt
 ) {
