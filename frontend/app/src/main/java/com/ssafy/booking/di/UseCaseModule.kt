@@ -2,6 +2,8 @@ package com.ssafy.booking.di
 
 import com.ssafy.domain.repository.GoogleRepository
 import com.ssafy.domain.repository.MemberRepository
+import com.ssafy.domain.repository.PostChatCreateRepository
+import com.ssafy.domain.usecase.ChatCreateUseCase
 import com.ssafy.domain.usecase.GetTokenRepoUseCase
 import com.ssafy.domain.usecase.SignInUseCase
 import dagger.Module
@@ -22,4 +24,8 @@ class UseCaseModule {
     @Provides
     @Singleton
     fun provideSignInUseCase(repository : MemberRepository) = SignInUseCase(repository)
+
+    @Provides
+    @Singleton
+    fun providePostChatCreateUseCase(repository: PostChatCreateRepository) = ChatCreateUseCase(repository)
 }

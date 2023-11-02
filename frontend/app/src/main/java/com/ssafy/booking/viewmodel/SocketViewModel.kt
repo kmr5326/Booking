@@ -38,7 +38,7 @@ class SocketViewModel @Inject constructor() : ViewModel() {
         stomp.send("/publish/message/1", jsonMessage)
             .subscribe { success ->
                 if (success) {
-                    Log.d("CHAT", "chatting send is successful")
+                    Log.d("CHAT", "chatting send is successful ${jsonMessage}")
                 } else {
                     Log.d("CHAT", "failed to send message")
                 }
