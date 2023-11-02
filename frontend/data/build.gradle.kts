@@ -68,4 +68,8 @@ dependencies {
     kapt(Room.ROOM_COMPILER)
     implementation(Room.ROOM_KTX)
 
+    // serialize
+    implementation ("com.fasterxml.jackson.core:jackson-databind:2.12.3") // 버전은 적절하게 조절
+    implementation ("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.12.3")
+
 }
