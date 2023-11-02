@@ -3,6 +3,7 @@ package com.ssafy.booking.di
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.ssafy.booking.utils.Utils.BASE_URL
+import com.ssafy.data.remote.api.ChatListApi
 import com.ssafy.data.remote.api.GoogleApi
 import dagger.Module
 import dagger.Provides
@@ -69,6 +70,11 @@ class NetworkModule {
         return retrofit.create(GoogleApi::class.java)
     }
 
+    @Provides
+    @Singleton
+    fun provideChatListApi(retrofit: Retrofit): ChatListApi {
+        return retrofit.create(ChatListApi::class.java)
+    }
 
     private fun getLoggingInterceptor(): HttpLoggingInterceptor =
         HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BODY }

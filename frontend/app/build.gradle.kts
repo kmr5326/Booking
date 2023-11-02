@@ -139,6 +139,13 @@ dependencies {
     // 카카오 로그인
     implementation ("com.kakao.sdk:v2-user:2.17.0") // 카카오 로그인
 
+    //STOMP
+    implementation ("com.github.bishoybasily:stomp:2.0.5")
+
+    // serialize
+    implementation ("com.fasterxml.jackson.core:jackson-databind:2.12.3") // 버전은 적절하게 조절
+    implementation ("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.12.3")
+
 }
 
 // Allow references to generated code
@@ -149,3 +156,5 @@ kapt {
 ksp {
     arg("moshi.kotlin.codegen.metadata", "true")
 }
+
+

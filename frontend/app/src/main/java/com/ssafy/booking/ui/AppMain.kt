@@ -32,6 +32,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import com.ssafy.booking.ui.booking.MyFloatingActionButton
 import com.ssafy.booking.ui.login.SignInScreen
 import com.ssafy.booking.viewmodel.ChatViewModel
+import com.ssafy.booking.viewmodel.SocketViewModel
 
 sealed class AppNavItem(
     val route: String
@@ -56,7 +57,7 @@ sealed class AppNavItem(
 fun BookingApp(googleSignInClient: GoogleSignInClient) {
     val viewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current)
     val appViewModel = viewModel<AppViewModel>(viewModelStoreOwner)
-    val chatViewModel = hiltViewModel<ChatViewModel>(viewModelStoreOwner)
+    val socketViewModel = hiltViewModel<SocketViewModel>(viewModelStoreOwner)
 
     BookingTheme {
         Scaffold {
@@ -75,6 +76,7 @@ fun Route(googleSignInClient: GoogleSignInClient) {
     val viewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current)
     val appViewModel = viewModel<AppViewModel>(viewModelStoreOwner)
     val mainViewModel = hiltViewModel<MainViewModel>(viewModelStoreOwner)
+    val socketViewModel = hiltViewModel<SocketViewModel>(viewModelStoreOwner)
     val chatViewModel = hiltViewModel<ChatViewModel>(viewModelStoreOwner)
 
     CompositionLocalProvider(
@@ -95,10 +97,10 @@ fun Route(googleSignInClient: GoogleSignInClient) {
                 Main(navController, appViewModel)
             }
             composable("chat") {
-                ChatHome(navController, appViewModel, chatViewModel)
+                ChatHome(navController, appViewModel, socketViewModel, chatViewModel)
             }
             composable("chatDetail/{chatId}") {
-                ChatDetail(navController, chatViewModel)
+                ChatDetail(navController, socketViewModel)
             }
             composable("profile") {
                 ProfileHome(navController, appViewModel)

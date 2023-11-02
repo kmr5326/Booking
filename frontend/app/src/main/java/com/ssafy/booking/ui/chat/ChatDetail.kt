@@ -1,7 +1,5 @@
 package com.ssafy.booking.ui.chat
 
-import android.util.Log
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -17,22 +15,14 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Send
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonColors
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -48,7 +38,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -56,12 +45,13 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.ssafy.booking.R
 import com.ssafy.booking.ui.common.TopBarChat
-import com.ssafy.booking.viewmodel.ChatViewModel
+import com.ssafy.booking.viewmodel.SocketViewModel
+import com.ssafy.domain.model.KafkaMessage
 import java.time.LocalDateTime
 
 @Composable
 fun ChatDetail(
-    navController: NavController, chatViewModel: ChatViewModel
+    navController: NavController, socketViewModel: SocketViewModel
 ) {
     val chatId = navController.currentBackStackEntry?.arguments?.getString("chatId")
 
@@ -71,7 +61,7 @@ fun ChatDetail(
         modifier = Modifier.fillMaxSize()
     ) {
 
-        if(chatId == "3") {
+        if (chatId == "3") {
             TopBarChat(title = "자율프로젝트")
         } else {
             TopBarChat(title = "${chatId}번째 채팅방")
@@ -84,7 +74,7 @@ fun ChatDetail(
         )
 
         InputText(
-            chatViewModel,
+            socketViewModel,
             modifier = Modifier.padding(start = 16.dp, end = 16.dp),
         )
     }
@@ -101,7 +91,8 @@ fun MessageList(
     ) {
         itemsIndexed(filteredMessages) { index, message ->
             val previousMessage = if (index > 0) filteredMessages[index - 1] else null
-            val nextMessage = if (index < filteredMessages.size - 1) filteredMessages[index + 1] else null
+            val nextMessage =
+                if (index < filteredMessages.size - 1) filteredMessages[index + 1] else null
 
             MessageItem(message, previousMessage, nextMessage)
         }
@@ -124,7 +115,7 @@ fun MessageItem(
             .fillMaxWidth()
             .padding(vertical = 6.dp)
     ) {
-        Row() {
+        Row {
             if (previousMessage?.member != message.member) {
                 AsyncImage(
                     model = R.drawable.basic_profile,
@@ -167,7 +158,7 @@ fun MessageItem(
                     Spacer(modifier = Modifier.width(4.dp))
 
                     // 시간을 표시하는 조건
-                    if (nextMessage?.timestamp != message.timestamp || nextMessage?.member != message.member || nextMessage == null) {
+                    if (nextMessage?.timestamp != message.timestamp || nextMessage.member != message.member || nextMessage == null) {
                         Text(
                             text = String.format(
                                 "%02d:%02d", message.timestamp.hour, message.timestamp.minute
@@ -187,7 +178,8 @@ fun MessageItem(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InputText(
-    chatViewModel: ChatViewModel, modifier: Modifier = Modifier
+    socketViewModel: SocketViewModel,
+    modifier: Modifier = Modifier
 ) {
     var text by rememberSaveable(stateSaver = TextFieldValue.Saver) {
         mutableStateOf(TextFieldValue(""))
@@ -212,21 +204,27 @@ fun InputText(
             )
         )
 
-        IconButton(onClick = {
-            Log.d("CHAT", "눌렀습니다.")
-            chatViewModel.sendMessage(text)
-        }, modifier = Modifier.padding(0.dp),  // IconButton의 패딩을 제거
+        IconButton(
+            onClick = {
+                val message = KafkaMessage(
+                    message = text.text,
+                    senderId = 1, // 사용자의 식별자
+                    sendTime = LocalDateTime.now()
+                )
+                socketViewModel.sendMessage(message)
+                text = TextFieldValue("")
+            },
+            modifier = Modifier.padding(0.dp),  // IconButton의 패딩을 제거
             content = {
                 Icon(
                     imageVector = Icons.Filled.Send,
                     contentDescription = null,
                     tint = Color.Black
                 )
-            })
-
+            }
+        )
     }
 }
-
 
 // ########################## 객체
 data class MessageData(
@@ -246,7 +244,13 @@ val messages = listOf(
     MessageData(3, 3, "김재만", "안되서 고치는중인데", currentTime.plusMinutes(20)),
     MessageData(4, 3, "한결", "그거 내 문제인듯", currentTime.plusMinutes(21)),
     MessageData(5, 3, "한결", "로컬에선 됐는데", currentTime.plusMinutes(21)),
-    MessageData(6, 3, "김재만", "프론트 쪽에서 서버쪽 SSL인증서 PEM키를 넣어서 okhttp 쪽에 넣으라해서", currentTime.plusMinutes(21)),
+    MessageData(
+        6,
+        3,
+        "김재만",
+        "프론트 쪽에서 서버쪽 SSL인증서 PEM키를 넣어서 okhttp 쪽에 넣으라해서",
+        currentTime.plusMinutes(21)
+    ),
     MessageData(7, 3, "한결", "배포하니까 안됨", currentTime.plusMinutes(21)),
     MessageData(8, 3, "김재만", "넣었는데도 안돼..", currentTime.plusMinutes(21)),
     MessageData(9, 3, "김재만", "음 그렇구만", currentTime.plusMinutes(21)),

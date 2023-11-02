@@ -2,7 +2,10 @@ buildscript {
     repositories {
         // 기존에 있던 저장소들
         mavenCentral()
+
+
     }
+
     dependencies {
         // 기존에 있던 의존성들
         classpath("com.google.dagger:hilt-android-gradle-plugin:2.48.1")
@@ -19,3 +22,4 @@ plugins {
     id("com.google.gms.google-services") version "4.4.0" apply false
 
 }
+
