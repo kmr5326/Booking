@@ -1,9 +1,7 @@
-package com.booking.member.follows;
+package com.booking.member.follows.domain;
 
-import com.booking.member.members.Member;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
+import com.booking.member.members.domain.Member;
+import lombok.*;
 
 import javax.persistence.*;
 
@@ -11,6 +9,8 @@ import javax.persistence.*;
 @Getter
 @RequiredArgsConstructor
 @Table(name = "follows")
+@Builder
+@AllArgsConstructor
 public class Follow {
     @Id
     @GeneratedValue

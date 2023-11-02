@@ -3,4 +3,5 @@
 include::member/member.adoc[]
 === /api/payments
 include::payment/payment.adoc[]
-
+=== /api/follows
+include::follow/follow.adoc[]
