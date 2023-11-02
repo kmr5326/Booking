@@ -35,6 +35,11 @@ public class MemberServiceImpl implements MemberService {
                     if (checkMemberDuplicate(req.loginId())) {
                         return Mono.error(new RuntimeException("이미 가입된 회원입니다."));
                     }
+
+                    String[] split=parseAddr(req.address());
+                    Double lat=Double.parseDouble(split[0].trim());
+                    Double lgt=Double.parseDouble(split[1].trim());
+
                     Member mem=Member.builder()
                             .age(req.age())
                             .email(req.email())
@@ -42,7 +47,8 @@ public class MemberServiceImpl implements MemberService {
                             .loginId(req.loginId())
                             .nickname(req.nickname())
                             .fullName(req.fullName())
-                            .address(req.address())
+                            .lat(lat)
+                            .lgt(lgt)
                             .role(UserRole.USER)
                             .profileImage(req.profileImage())
                             .provider(req.provider())
@@ -76,7 +82,8 @@ public class MemberServiceImpl implements MemberService {
                 member.getGender() == null ? "" : member.getGender().name(),
                 member.getNickname(),
                 member.getFullName() == null ? "" : member.getFullName(),
-                member.getAddress() == null ? "" : member.getAddress(),
+                member.getLat() == null ? -1 : member.getLat(),
+                member.getLgt() == null ? -1 : member.getLgt(),
                 member.getProfileImage(),
                 member.getProvider()
         );
@@ -89,7 +96,13 @@ public class MemberServiceImpl implements MemberService {
         return Mono.defer(() -> {
                     Member member = memberRepository.findByLoginId(req.loginId());
                     if (member == null) return Mono.error(new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
-                    member.setAddress(req.address());
+
+                    String[] split=parseAddr(req.address());
+                    Double lat=Double.parseDouble(split[0].trim());
+                    Double lgt=Double.parseDouble(split[1].trim());
+
+                    member.setLat(lat);
+                    member.setLgt(lgt);
                     member.setNickname(req.nickname());
                     member.setProfileImage(req.profileImage());
 
@@ -133,5 +146,11 @@ public class MemberServiceImpl implements MemberService {
 
     public boolean checkMemberDuplicate(String loginId) {
         return memberRepository.existsByLoginId(loginId);
+    }
+
+    public String[] parseAddr(String address){
+        String addr=address.substring(14);
+        addr=addr.substring(0,addr.indexOf("hAcc")).trim();
+        return addr.split(",");
     }
 }
