@@ -86,8 +86,8 @@ public class TokenProvider implements InitializingBean {
 
         //accessToken 생성
         String accessToken=Jwts.builder()
-                .setSubject(loginId)
                 .setClaims(claims)
+                .setSubject(loginId)
                 .signWith(key, SignatureAlgorithm.HS512)
                 .setExpiration(validity)
                 .compact();
