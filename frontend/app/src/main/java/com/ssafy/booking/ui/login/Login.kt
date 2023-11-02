@@ -28,6 +28,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -38,6 +40,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -78,15 +81,10 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import com.ssafy.data.repository.google.PreferenceDataSource
 import retrofit2.http.GET
-//
-//import retrofit2.Retrofit
-//import retrofit2.Call
+
 import retrofit2.Callback
 import retrofit2.Response
-//import kotlin.coroutines.jvm.internal.CompletedContinuation.context
 
-//import retrofit2.http.GET
-//import okhttp3.ResponseBody
 import com.kakao.sdk.common.util.Utility
 import com.ssafy.booking.utils.Utils.BASE_URL
 import com.google.android.gms.tasks.Task
@@ -122,8 +120,6 @@ val loginService = retrofit.create(LoginService::class.java)
 private fun onLoginSuccess(context: Context, loginId: String, navController: NavController,kakaoNickName:String) {
     val loginInfo = LoginInfo(loginId = loginId) // 실제 로그인 ID로 변경해야 함
 //    val loginInfo = LoginInfo(loginId = "kakao_3143286573")
-
-    Log.d("loginId", loginId)
     val call = loginService.login(loginInfo)
     call.enqueue(object : Callback<ResponseBody> {
         override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
@@ -134,16 +130,12 @@ private fun onLoginSuccess(context: Context, loginId: String, navController: Nav
                 val tokenDataSource = TokenDataSource(context)
                 tokenDataSource.putToken(token)
                 val asdf = tokenDataSource.getToken()
-                Log.d("data", "API 데이터 뽑아보기~!!!: $asdf")
                 navController.navigate(AppNavItem.Main.route) {
                     popUpTo("login") { inclusive = true }
                     launchSingleTop = true
                 }
             } else {
                 // 오류 처리
-                Log.d("api", "API 호출 실패~~~: ${response.errorBody()?.string()}")
-                Log.d("api", "API 호출 실패 전체코드: $response.code()")
-                Log.d("api","dddd:${loginId}")
                 val errorCode = response.code()
                 when (errorCode) {
                     // 에러 코드가 400이면 회원가입이 필요한 상태 -> 회원가입으로 라우트
@@ -173,12 +165,6 @@ fun Greeting(
     googleSignInClient: GoogleSignInClient,
     modifier: Modifier = Modifier
 ) {
-
-    fun getHash(context: Context) {
-        Log.d(TAG1, "keyHash: $keyHash")
-        Log.d(TAG1, "keyHash2: ${Utility.getKeyHash(context)}")
-    }
-
     val navController = navController
     Box(
         modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center
@@ -191,34 +177,34 @@ fun Greeting(
                 text = "BOOKING",
                 fontWeight = FontWeight.SemiBold,
                 modifier = modifier.padding(bottom = 24.dp),
-                color = Color(0xFFffffff),
+                color = Color(0xFF00C68E),
                 style = TextStyle(fontSize = 40.sp),
             )
-            KakaoLoginButton(navController)
-            GoogleLoginButton(mainViewModel, googleSignInClient, navController)
-            TempLoginButton {
-                getHash(context)
-            }
-            NewButton(context, navController)
-            SignInBtn()
+
+            KakaoLoginButton(context, navController)
+            TempLoginButton(navController)
+//            GoogleLoginButton(mainViewModel, googleSignInClient, navController)
+//            SignInBtn()
         }
     }
 }
 @Composable
-fun KakaoLoginButton(navController: NavController) {
+fun TempLoginButton(navController: NavController) {
     Button(
+        modifier = Modifier.width(200.dp).clip(RoundedCornerShape(5.dp)),
+        shape = RoundedCornerShape(5.dp),
         onClick = {
             navController.navigate(AppNavItem.Main.route) {
                 popUpTo("login") { inclusive = true }
             }
         },
         colors = ButtonDefaults.buttonColors(
-            containerColor = Color(0xFFfae100),
+            containerColor = Color.Gray,
             contentColor = Color(0xFFffffff)
         )
     ) {
         Text(
-            "카카오로 로그인하기",
+            "게스트로 로그인하기",
             fontWeight = FontWeight.Bold
         )
     }
@@ -297,27 +283,6 @@ private fun handleSignInResult(
     }
 }
 
-
-@Composable
-fun TempLoginButton(getHash: () -> Unit) {
-    Button(
-        onClick = {
-            getHash()
-        },
-        colors = ButtonDefaults.buttonColors(
-            containerColor = Color(0xFF00C68E),
-            contentColor = Color(0xFFffffff)
-        )
-
-
-    ) {
-        Text(
-            "임시 로그인 버튼",
-            fontWeight = FontWeight.Bold
-        )
-    }
-}
-
 @Composable
 fun TestButton(onClick: () -> Unit) {
     Button(
@@ -354,7 +319,7 @@ private fun loginCallback(
                 val loginId = "kakao_" + user.id.toString()
                 onLoginSuccess(context, loginId, navController,user.kakaoAccount?.profile?.nickname.toString())
                 Log.i(
-                    "asdf", "사용자 정보 요청 성공" +
+                    "loginInfo", "사용자 정보 요청 성공" +
                             "\n회원번호: ${user.id}" +
                             "\n이메일: ${user.kakaoAccount?.email}" +
                             "\n닉네임: ${user.kakaoAccount?.profile?.nickname}" +
@@ -367,8 +332,10 @@ private fun loginCallback(
 
 
 @Composable
-fun NewButton(context: Context, navController: NavController) {
+fun KakaoLoginButton(context: Context, navController: NavController) {
     Button(
+        modifier = Modifier.width(200.dp).clip(RoundedCornerShape(5.dp)),
+        shape = RoundedCornerShape(5.dp),
         onClick = {
             // 카카오톡이 설치되어 있으면 카카오톡으로 로그인, 아니면 카카오계정으로 로그인
             if (UserApiClient.instance.isKakaoTalkLoginAvailable(context)) {
@@ -423,12 +390,12 @@ fun NewButton(context: Context, navController: NavController) {
             }
         },
         colors = ButtonDefaults.buttonColors(
-            containerColor = Color(0xFF00C68E),
+            containerColor = Color(0xFFFEE500),
             contentColor = Color(0xFFffffff)
         )
     ) {
         Text(
-            "새로운 로그인 버튼",
+            "카카오로 로그인하기",
             fontWeight = FontWeight.Bold
         )
     }

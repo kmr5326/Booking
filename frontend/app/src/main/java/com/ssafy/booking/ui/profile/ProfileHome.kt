@@ -52,9 +52,8 @@ import com.ssafy.booking.ui.common.TabBar
 fun ProfileHome(
     navController: NavController, appViewModel: AppViewModel
 ) {
-    Temp(navController, appViewModel)
+    Profile(navController, appViewModel)
 }
-
 
 @Composable
 fun MyProfile(profileData : ProfileData) {
@@ -99,11 +98,7 @@ fun MyProfile(profileData : ProfileData) {
     }
 }
 
-// 메뉴 탭바 누가 만들지 ?? 공통으로 쓰이네
-// 책 보이는 것도 공통으로 보임 (보이는 방식이 조금 다르지만)
-// 팔로워, 팔로잉 사람 보이는 거랑 초대 목록 보이는 것도 동일한 양식
-
-@Preview
+// 내 서재 Composable
 @Composable
 fun DefaultPreview() {
     val profileData = ProfileData(
@@ -113,11 +108,23 @@ fun DefaultPreview() {
         followers = 390,
         followings = 255
     )
-    MyProfile(profileData=profileData)
+    MyProfile(profileData = profileData)
 }
 
 @Composable
-fun Temp(
+fun MyBook() {
+    Text("내 서재")
+}
+
+// 북킹 Composable
+@Composable
+fun BookingList() {
+    Text("북킹")
+}
+
+
+@Composable
+fun Profile(
     navController: NavController, appViewModel: AppViewModel
 ) {
     val context = LocalContext.current
@@ -140,8 +147,8 @@ fun Temp(
             contentForTab = { index ->
                 // 인덱스 마다 @composable 함수 넣으면 됨.
                 when (index) {
-                    0 -> Text("여기다가 내 서재 @Composable 넣으세요.")
-                    1 -> Text("여기다가 북킹 @Composable 넣으세요.")
+                    0 -> MyBook()
+                    1 -> BookingList()
                 }
             }
         )

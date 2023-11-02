@@ -55,7 +55,6 @@ class TokenDataSource @Inject constructor(
     fun getToken(): String? {
         return getString(ACCESS_TOKEN)
     }
-
     fun removeToken() {
         putString(ACCESS_TOKEN, null)
     }
