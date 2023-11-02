@@ -11,7 +11,6 @@ public record MemberBookResponse(
     List<Note> notes,
     LocalDateTime createdAt
 ) {
-
     public MemberBookResponse(MemberBook memberBook) {
         this(
             memberBook.getMemberId(),
@@ -20,5 +19,4 @@ public record MemberBookResponse(
             memberBook.getCreatedAt()
         );
     }
-
 }

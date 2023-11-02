@@ -54,4 +54,8 @@ public class BookService {
         return bookRepository.findByTitleRegex(regex)
                              .map(BookResponse::new);
     }
+
+    public Mono<Book> findByIsbn(String isbn) {
+
+    }
 }

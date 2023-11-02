@@ -1,7 +1,7 @@
 package com.booking.book.memberbook.controller;
 
 import com.booking.book.global.jwt.JwtUtil;
-import com.booking.book.memberbook.dto.response.MemberBookResponse;
+import com.booking.book.memberbook.dto.response.MemberBookListResponse;
 import com.booking.book.memberbook.service.MemberBookService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +21,7 @@ public class MemberBookController {
     private static final String AUTHORIZATION = "Authorization";
 
     @GetMapping("/")
-    public Flux<MemberBookResponse> getMemberBookByMemberId(@RequestHeader(AUTHORIZATION) String token) {
+    public Flux<MemberBookListResponse> getMemberBookByMemberId(@RequestHeader(AUTHORIZATION) String token) {
         Long memberId = JwtUtil.getMemberIdByToken(token);
         log.info(" {} member request readBookList", memberId);
         return memberBookService.getMemberBookByMemberId(memberId);
