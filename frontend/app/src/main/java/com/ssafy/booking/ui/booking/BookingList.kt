@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -30,51 +31,62 @@ import androidx.compose.ui.text.style.TextOverflow
 import com.ssafy.booking.R
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Scaffold
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
 import com.ssafy.booking.ui.AppNavItem
+import com.ssafy.booking.ui.common.TopBar
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Main(
     navController: NavController, appViewModel: AppViewModel
 ) {
-    Box(modifier = Modifier.fillMaxSize()) {
-        Column {
-            Image(
-                painter = painterResource(id = R.drawable.logo),
-                contentDescription = "App Logo",
-                modifier = Modifier
-//                    .align(Alignment.TopStart)  // Align to top-left
-                    .size(120.dp, 120.dp)
-                    .padding(start = 10.dp)
-            )
+    Scaffold (
+        topBar = {
+            TopBar("홈")
+        },
+        bottomBar = {
+            BottomNav(navController, appViewModel)
+        },
+        floatingActionButton = {
+            MyFloatingActionButton(navController,appViewModel)
+        },
+        modifier = Modifier.fillMaxSize()
+    ) { paddingValues ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .fillMaxHeight()
+        ) {
+    //        Image(
+    //            painter = painterResource(id = R.drawable.logo),
+    //            contentDescription = "App Logo",
+    //            modifier = Modifier
+    //                //                    .align(Alignment.TopStart)  // Align to top-left
+    //                .size(120.dp, 120.dp)
+    //                .padding(start = 10.dp)
+    //        )
             BookList(navController, appViewModel)
         }
-
     }
-    // 책 목록 부분
-
-    BottomNav(
-        navController, appViewModel)
-
-
 }
 
 @Composable
 fun BookList(navController: NavController, appViewModel: AppViewModel) {
-    Box {
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 16.dp, vertical = 8.dp)
-        ) {
-            items(bookItemsList) { book ->
-                BookItem(book)
-            }
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .fillMaxHeight()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+    ) {
+        items(bookItemsList) { book ->
+            BookItem(book)
         }
-        MyFloatingActionButton(navController, appViewModel) // 여기에 추가
     }
 }
 @Composable
@@ -107,24 +119,17 @@ fun BookItem(book: Book) {
 // 모임 생성 버튼
 @Composable
 fun MyFloatingActionButton(navController: NavController, appViewModel: AppViewModel) {
-    Box(
+    FloatingActionButton(
+        onClick = {navController.navigate(AppNavItem.CreateBooking.route)},
         modifier = Modifier
-            .fillMaxSize()
-            .padding(bottom = 96.dp) // 네비게이션 바 높이에 따라 조정
+            .padding(end = 16.dp, bottom = 10.dp)
+            .size(65.dp)
     ) {
-        FloatingActionButton(
-            onClick = {navController.navigate(AppNavItem.CreateBooking.route)},
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(end = 16.dp, bottom = 10.dp)
-                .size(80.dp)
-        ) {
-            Icon(
-                Icons.Filled.Add,
-                contentDescription = "Localized description",
-                modifier = Modifier.size(40.dp)
-            )
-        }
+        Icon(
+            Icons.Filled.Add,
+            contentDescription = "Localized description",
+            modifier = Modifier.size(40.dp)
+        )
     }
 }
 

@@ -19,6 +19,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -44,57 +46,69 @@ import com.ssafy.domain.model.ChatExitRequest
 import com.ssafy.domain.model.ChatJoinRequest
 import com.ssafy.domain.model.ChatRoom
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatHome(
     navController: NavController,
     appViewModel: AppViewModel,
     ) {
     val chatViewModel: ChatViewModel = hiltViewModel()
-    Column (){
-        TopBar(title = "채팅")
-        Box {
-            Column {
-                Button(
-                    onClick = {
-                        navController.navigate("chatDetail/3")
+    Scaffold (
+        topBar = {
+            TopBar("채팅방")
+        },
+        bottomBar = {
+            BottomNav(navController, appViewModel)
+        },
+        modifier = Modifier.fillMaxSize()
+    ) {paddingValues->
+        Column (
+            modifier = Modifier.padding(paddingValues)
+                .fillMaxSize()
+        ){
+            Box {
+                Column {
+                    Button(
+                        onClick = {
+                            navController.navigate("chatDetail/3")
+                        }
+                    ) {
+                        Text("채팅방 이동")
                     }
-                ) {
-                    Text("채팅방 이동")
-                }
-                Button(
-                    onClick = {
-                        val request = ChatCreateRequest(1, 1, "독서모임")
-                        chatViewModel.createChatRoom(request)
+                    Button(
+                        onClick = {
+                            val request = ChatCreateRequest(1, 1, "독서모임")
+                            chatViewModel.createChatRoom(request)
+                        }
+                    ) {
+                        Text("채팅방 생성 API")
                     }
-                ) {
-                    Text("채팅방 생성 API")
-                }
-                Button(
-                    onClick = {
-                        val request = ChatJoinRequest(1, 1)
-                        chatViewModel.joinChatRoom(request)
+                    Button(
+                        onClick = {
+                            val request = ChatJoinRequest(1, 1)
+                            chatViewModel.joinChatRoom(request)
+                        }
+                    ) {
+                        Text("채팅방 참가 API")
                     }
-                ) {
-                    Text("채팅방 참가 API")
-                }
-                Button(
-                    onClick = {
-                        val request = ChatExitRequest(1, 1)
-                        chatViewModel.exitChatRoom(request)
+                    Button(
+                        onClick = {
+                            val request = ChatExitRequest(1, 1)
+                            chatViewModel.exitChatRoom(request)
+                        }
+                    ) {
+                        Text("채팅방 나가기 API")
                     }
-                ) {
-                    Text("채팅방 나가기 API")
-                }
-                Button(
-                    onClick = {
+                    Button(
+                        onClick = {
+                        }
+                    ) {
+                        Text("소켓 연결 테스트")
                     }
-                ) {
-                    Text("소켓 연결 테스트")
+                    ChatList()
                 }
-                ChatList()
             }
 
-            BottomNav(navController, appViewModel)
         }
     }
 }
