@@ -119,7 +119,7 @@ val retrofit = Retrofit.Builder()
 val loginService = retrofit.create(LoginService::class.java)
 
 // 로그인 API 호출
-private fun onLoginSuccess(context: Context, loginId: String, navController: NavController) {
+private fun onLoginSuccess(context: Context, loginId: String, navController: NavController,kakaoNickName:String) {
     val loginInfo = LoginInfo(loginId = loginId) // 실제 로그인 ID로 변경해야 함
 //    val loginInfo = LoginInfo(loginId = "kakao_3143286573")
 
@@ -148,7 +148,7 @@ private fun onLoginSuccess(context: Context, loginId: String, navController: Nav
                 when (errorCode) {
                     // 에러 코드가 400이면 회원가입이 필요한 상태 -> 회원가입으로 라우트
                     400 -> {
-                        navController.navigate(AppNavItem.SignIn.route) {
+                        navController.navigate(AppNavItem.SignIn.createRoute(loginId, kakaoNickName)) {
                             popUpTo("SignIn") { inclusive = false }
                         }
                     }
@@ -230,7 +230,6 @@ fun GoogleLoginButton(
     googleSignInClient: GoogleSignInClient,
     navController: NavController
 ) {
-
     val accountInfo by viewModel.accountInfo.collectAsState()
     val firebaseAuth by lazy { FirebaseAuth.getInstance() }
     val context = LocalContext.current
@@ -352,7 +351,8 @@ private fun loginCallback(
             if (error != null) {
                 Log.e("asdf", "사용자 정보 요청 실패", error)
             } else if (user != null) {
-                onLoginSuccess(context, user.id.toString(), navController)
+                val loginId = "kakao_" + user.id.toString()
+                onLoginSuccess(context, loginId, navController,user.kakaoAccount?.profile?.nickname.toString())
                 Log.i(
                     "asdf", "사용자 정보 요청 성공" +
                             "\n회원번호: ${user.id}" +
@@ -407,7 +407,7 @@ fun NewButton(context: Context, navController: NavController) {
                                             "\n닉네임: ${user.kakaoAccount?.profile?.nickname}"
                                 )
 //                                        "\n프로필사진: ${user.kakaoAccount?.profile?.thumbnailImageUrl}")
-                                onLoginSuccess(context, user.id.toString(), navController)
+                                onLoginSuccess(context, user.id.toString(), navController,user.kakaoAccount?.profile?.nickname.toString())
 
                             }
                         }

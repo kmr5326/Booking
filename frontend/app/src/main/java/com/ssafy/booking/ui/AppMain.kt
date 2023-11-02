@@ -44,7 +44,11 @@ sealed class AppNavItem(
     object Profile: AppNavItem("profile")
     object Login: AppNavItem("login")
     object CreateBooking : AppNavItem("create/booking")
-    object SignIn: AppNavItem("signIn")
+    object SignIn: AppNavItem("signIn/{loginId}/{kakaoNickName}"){
+        fun createRoute(loginId: String, kakaoNickName: String): String {
+            return "signIn/$loginId/$kakaoNickName"
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -102,8 +106,11 @@ fun Route(googleSignInClient: GoogleSignInClient) {
             composable("create/booking") {
                 BookingCreate(navController, appViewModel)
             }
-            composable("signIn") {
-                SignInScreen()
+            composable("signIn/{loginId}/{kakaoNickName}") { navBackStackEntry ->
+                // 여기에서 loginId와 nickName을 추출합니다.
+                val loginId = navBackStackEntry.arguments?.getString("loginId") ?: ""
+                val kakaoNickName = navBackStackEntry.arguments?.getString("kakaoNickName") ?: ""
+                SignInScreen(loginId,kakaoNickName)
             }
 
         }
