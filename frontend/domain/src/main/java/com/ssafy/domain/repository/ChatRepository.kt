@@ -1,6 +1,8 @@
 package com.ssafy.domain.repository
 
 import com.ssafy.domain.model.ChatCreateRequest
+import com.ssafy.domain.model.ChatExitRequest
+import com.ssafy.domain.model.ChatJoinRequest
 import com.ssafy.domain.model.ChatRoom
 import retrofit2.Response
 
@@ -10,5 +12,13 @@ interface GetChatListRepository {
 }
 
 interface PostChatCreateRepository {
-    suspend fun postChatCreate(request: ChatCreateRequest) : Response<Int>
+    suspend fun postChatCreate(request: ChatCreateRequest) : Response<Unit>
+}
+
+interface PostChatJoinRepository {
+    suspend fun postChatJoin(request: ChatJoinRequest) : Response<Unit>
+}
+
+interface PostChatExitRepository {
+    suspend fun postChatExit(request: ChatExitRequest) : Response<Unit>
 }

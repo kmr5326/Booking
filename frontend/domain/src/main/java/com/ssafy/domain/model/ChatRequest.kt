@@ -10,3 +10,17 @@ data class ChatCreateRequest (
     @SerializedName("meetingTitle")
     val meetingTitle : String,
 )
+
+data class ChatJoinRequest (
+    @SerializedName("meetingId")
+    val meetingId : Int,
+    @SerializedName("memberId")
+    val memberId : Int,
+)
+
+data class ChatExitRequest (
+    @SerializedName("meetingId")
+    val meetingId : Int,
+    @SerializedName("memberId")
+    val memberId : Int,
+)

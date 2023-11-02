@@ -7,6 +7,8 @@ import com.ssafy.data.remote.api.GetChatListApi
 import com.ssafy.data.remote.api.GoogleApi
 import com.ssafy.data.remote.api.MemberApi
 import com.ssafy.data.remote.api.PostChatCreateApi
+import com.ssafy.data.remote.api.PostChatExitApi
+import com.ssafy.data.remote.api.PostChatJoinApi
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -83,6 +85,18 @@ class NetworkModule {
     @Singleton
     fun providePostChatCreateApi(retrofit: Retrofit): PostChatCreateApi {
         return retrofit.create(PostChatCreateApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun providePostChatJoinApi(retrofit: Retrofit): PostChatJoinApi {
+        return retrofit.create(PostChatJoinApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun providePostChatExitApi(retrofit: Retrofit): PostChatExitApi {
+        return retrofit.create(PostChatExitApi::class.java)
     }
 
 

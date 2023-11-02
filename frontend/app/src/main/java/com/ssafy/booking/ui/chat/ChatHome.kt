@@ -40,6 +40,8 @@ import com.ssafy.booking.ui.LocalNavigation
 import com.ssafy.booking.viewmodel.ChatViewModel
 import com.ssafy.booking.viewmodel.SocketViewModel
 import com.ssafy.domain.model.ChatCreateRequest
+import com.ssafy.domain.model.ChatExitRequest
+import com.ssafy.domain.model.ChatJoinRequest
 import com.ssafy.domain.model.ChatRoom
 
 @Composable
@@ -69,12 +71,16 @@ fun ChatHome(
                 }
                 Button(
                     onClick = {
+                        val request = ChatJoinRequest(1, 1)
+                        chatViewModel.joinChatRoom(request)
                     }
                 ) {
                     Text("채팅방 참가 API")
                 }
                 Button(
                     onClick = {
+                        val request = ChatExitRequest(1, 1)
+                        chatViewModel.exitChatRoom(request)
                     }
                 ) {
                     Text("채팅방 나가기 API")
