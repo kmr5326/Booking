@@ -35,4 +35,10 @@ public class BookService {
         return bookRepository.findByTitleContaining(title, pageable)
                              .map(BookResponse::new);
     }
+
+    public Flux<BookResponse> searchBookListByTitleRegex(String title) {
+        String regex = ".*%s.*".formatted(title);
+        return bookRepository.findByTitleRegex(regex)
+                             .map(BookResponse::new);
+    }
 }
