@@ -1,6 +1,7 @@
 package com.ssafy.booking.ui.common
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -20,6 +21,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -39,17 +41,21 @@ fun Btn(
     navController: NavController,
     appViewModel: AppViewModel,
 ){
+    val imgLength = 30
+    val horPadVal = 20
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .fillMaxHeight()
-            .padding(bottom = 20.dp),
+            .height(80.dp)
+            .padding(bottom = 20.dp)
+            .background(color= colorResource(id = R.color.background_color))
+        ,
         horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.Bottom
+        verticalAlignment = Alignment.Bottom,
     ) {
         Box(
             contentAlignment = Alignment.Center,
-            modifier = Modifier.padding(horizontal = 10.dp)
+            modifier = Modifier.padding(horizontal = horPadVal.dp)
         ) {
             val btnBook = painterResource(R.drawable.btn_book)
             Image(painter = btnBook, contentDescription = null,
@@ -64,13 +70,13 @@ fun Btn(
                             }
                         }
                     )
-                    .width(50.dp)
-                    .height(50.dp)
+                    .width(imgLength.dp)
+                    .height(imgLength.dp)
             )
         }
         Box(
             contentAlignment = Alignment.Center,
-            modifier = Modifier.padding(horizontal = 10.dp)
+            modifier = Modifier.padding(horizontal = horPadVal.dp)
         ) {
             val btnHistory = painterResource(R.drawable.btn_history)
             Image(painter = btnHistory, contentDescription = null,
@@ -85,13 +91,13 @@ fun Btn(
                             }
                         }
                     )
-                    .width(50.dp)
-                    .height(50.dp)
+                    .width(imgLength.dp)
+                    .height(imgLength.dp)
             )
         }
         Box(
             contentAlignment = Alignment.Center,
-            modifier = Modifier.padding(horizontal = 10.dp)
+            modifier = Modifier.padding(horizontal = horPadVal.dp)
         ) {
             val btnHome = painterResource(R.drawable.btn_home)
             Image(painter = btnHome, contentDescription = null,
@@ -106,13 +112,13 @@ fun Btn(
                             }
                         }
                     )
-                    .width(50.dp)
-                    .height(50.dp)
+                    .width(55.dp)
+                    .height(55.dp)
             )
         }
         Box(
             contentAlignment = Alignment.Center,
-            modifier = Modifier.padding(horizontal = 10.dp)
+            modifier = Modifier.padding(horizontal = horPadVal.dp)
         ) {
             val btnChat = painterResource(R.drawable.btn_chat)
             Image(painter = btnChat, contentDescription = null,
@@ -127,13 +133,13 @@ fun Btn(
                             }
                         }
                     )
-                    .width(50.dp)
-                    .height(50.dp)
+                    .width(imgLength.dp)
+                    .height(imgLength.dp)
             )
         }
         Box(
             contentAlignment = Alignment.Center,
-            modifier = Modifier.padding(horizontal = 10.dp)
+            modifier = Modifier.padding(horizontal = horPadVal.dp)
         ) {
             val btnProfile = painterResource(R.drawable.btn_profile)
             Image(painter = btnProfile, contentDescription = null,
@@ -148,8 +154,8 @@ fun Btn(
                             }
                         }
                     )
-                    .width(50.dp)
-                    .height(50.dp)
+                    .width(imgLength.dp)
+                    .height(imgLength.dp)
             )
         }
     }

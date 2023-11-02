@@ -16,6 +16,7 @@ import com.kakao.sdk.common.KakaoSdk
 import com.kakao.sdk.common.util.Utility
 import android.Manifest
 import android.content.pm.PackageManager
+import android.util.TypedValue
 import androidx.core.app.ActivityCompat
 import com.google.android.gms.location.LocationServices
 import com.ssafy.booking.R
@@ -72,5 +73,4 @@ class MainActivity : ComponentActivity() {
         fusedLocationClient.lastLocation.addOnSuccessListener {  }
     }
 }
-
 
