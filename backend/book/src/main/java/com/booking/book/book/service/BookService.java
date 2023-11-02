@@ -25,8 +25,10 @@ public class BookService {
 
     private final BookRepository bookRepository;
     private final ReactiveMongoTemplate reactiveMongoTemplate;
+
     public Mono<Void> initializeSave(List<Book> bookList) {
-        return bookRepository.saveAll(bookList).then();
+        return bookRepository.saveAll(bookList)
+                             .then();
     }
 
     public Mono<Boolean> initializeCheck() {
@@ -40,8 +42,10 @@ public class BookService {
 
         return reactiveMongoTemplate.indexOps(Book.class)
                                     .ensureIndex(textIndex)
-                                    .doOnSuccess(indexName -> log.info("Text index created on title with name: {}", indexName))
-                                    .doOnError(e -> log.error("Error creating text index on title", e));
+                                    .doOnSuccess(indexName -> log.info(
+                                        "Text index created on title with name: {}", indexName))
+                                    .doOnError(
+                                        e -> log.error("Error creating text index on title", e));
     }
 
     public Flux<BookResponse> searchBookListByTitleAndRelevance(String title) {
@@ -59,6 +63,7 @@ public class BookService {
 
     public Mono<Book> findByIsbn(String isbn) {
         return bookRepository.findById(isbn)
-            .switchIfEmpty(Mono.error(new BookException(ErrorCode.BOOK_NOT_FOUND)));
+                             .switchIfEmpty(
+                                 Mono.error(new BookException(ErrorCode.BOOK_NOT_FOUND)));
     }
 }
