@@ -48,13 +48,13 @@ public class MemberServiceImpl implements MemberService {
                             .provider(req.provider())
                             .build();
 
-                    return Mono.fromRunnable(() -> memberRepository.save(mem))
+                    return Mono.fromRunnable(() ->  memberRepository.save(mem))
                             .subscribeOn(Schedulers.boundedElastic())
-                            .then(Mono.just(req.loginId()));
+                            .then(Mono.just(mem));
 
                 })
-                .flatMap(loginId ->
-                        Mono.fromCallable(()-> tokenProvider.createToken(loginId))
+                .flatMap(member ->
+                        Mono.fromCallable(()-> tokenProvider.createToken(member.getLoginId(), member.getId()))
                                 .subscribeOn(Schedulers.boundedElastic())
                                 .map(TokenDto::getAccessToken))
                 .onErrorResume(e -> {
@@ -126,7 +126,7 @@ public class MemberServiceImpl implements MemberService {
         if (member == null) {
             return Mono.error(new UsernameNotFoundException("회원 가입이 필요합니다."));
         }
-        return Mono.fromCallable(() -> tokenProvider.createToken(loginId))
+        return Mono.fromCallable(() -> tokenProvider.createToken(loginId,member.getId()))
                 .map(TokenDto::getAccessToken);
     }
 
