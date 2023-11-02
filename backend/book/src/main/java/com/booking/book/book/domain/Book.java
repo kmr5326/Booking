@@ -1,6 +1,5 @@
 package com.booking.book.book.domain;
 
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -10,9 +9,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 @Builder
-@Document
+@Document(collection = "book")
 public class Book {
 
     @Id private String isbn;
