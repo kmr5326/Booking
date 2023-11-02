@@ -5,6 +5,7 @@ import com.booking.member.payments.dto.ApprovalResponseDto.Amount;
 import com.booking.member.payments.dto.ApprovalResponseDto.CardInfo;
 import com.booking.member.payments.dto.ReadyPaymentRequestDto;
 import com.booking.member.payments.dto.ReadyPaymentResponseDto;
+import com.booking.member.payments.dto.SendRequestDto;
 import com.booking.member.util.ControllerTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -47,12 +48,12 @@ public class PaymentControllerTest extends ControllerTest {
 
         ReadyPaymentRequestDto readyPaymentRequestDto = new ReadyPaymentRequestDto("1000");
 
-        when(paymentService.readyPayment(any(),anyString()))
+        when(paymentService.readyPayment(any(), anyString()))
                 .thenReturn(Mono.just(responseDto));
 
         MvcResult mvcResult = mockMvc.perform(post(baseUrl + "/ready")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization","Bearer JWT")
+                        .header("Authorization", "Bearer JWT")
                         .content(objectMapper.writeValueAsBytes(readyPaymentRequestDto)))
                 .andReturn();
 
@@ -81,7 +82,7 @@ public class PaymentControllerTest extends ControllerTest {
     @Test
     @DisplayName("결제 성공 시 응답")
     void t2() throws Exception {
-        Amount amount=Amount.builder()
+        Amount amount = Amount.builder()
                 .total(1000)
                 .tax_free(0)
                 .vat(0)
@@ -90,7 +91,7 @@ public class PaymentControllerTest extends ControllerTest {
                 .green_deposit(0)
                 .build();
 
-        CardInfo cardInfo= CardInfo.builder()
+        CardInfo cardInfo = CardInfo.builder()
                 .interest_free_install("몰라")
                 .bin("몰라")
                 .card_type("카드 타입")
@@ -107,7 +108,7 @@ public class PaymentControllerTest extends ControllerTest {
                 .kakaopay_issuer_corp_code("?")
                 .build();
 
-        ApprovalResponseDto approvalResponseDto= ApprovalResponseDto.builder()
+        ApprovalResponseDto approvalResponseDto = ApprovalResponseDto.builder()
                 .cid("cid")
                 .aid("aid")
                 .tid("tid")
@@ -126,7 +127,7 @@ public class PaymentControllerTest extends ControllerTest {
 
         MvcResult mvcResult = mockMvc.perform(get(baseUrl + "/success")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .param("pg_token","pgToken"))
+                        .param("pg_token", "pgToken"))
                 .andReturn();
 
         mockMvc.perform(asyncDispatch(mvcResult))
@@ -135,6 +136,34 @@ public class PaymentControllerTest extends ControllerTest {
                         document("/payment/success",
                                 preprocessRequest(prettyPrint()),
                                 preprocessResponse(prettyPrint())
+                        )
+                );
+    }
+
+    @Test
+    @DisplayName("포인트 송금")
+    @WithMockUser(username = "testUser")
+    void t3() throws Exception {
+        SendRequestDto sendRequestDto = SendRequestDto.builder()
+                .receiver("1234")
+                .amount(1234)
+                .build();
+
+        when(paymentService.sendPoint(any(), anyString())).thenReturn(Mono.empty());
+
+        mockMvc.perform(post(baseUrl + "/send")
+                        .header("Authorization", "Bearer JWT")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(sendRequestDto)))
+                .andExpect(status().isOk())
+                .andDo(
+                        document("/payment/send",
+                                preprocessRequest(prettyPrint()),
+                                preprocessResponse(prettyPrint()),
+                                requestFields(
+                                        fieldWithPath("receiver").description("받는 사람"),
+                                        fieldWithPath("amount").description("금액")
+                                )
                         )
                 );
     }
