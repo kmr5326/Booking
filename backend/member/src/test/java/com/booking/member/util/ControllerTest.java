@@ -1,5 +1,8 @@
 package com.booking.member.util;
 
+import com.booking.member.follows.Repository.FollowRepository;
+import com.booking.member.follows.controller.FollowController;
+import com.booking.member.follows.service.FollowService;
 import com.booking.member.members.controller.MemberController;
 import com.booking.member.members.repository.MemberRepository;
 import com.booking.member.members.service.MemberService;
@@ -31,7 +34,7 @@ import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.docu
 @AutoConfigureMockMvc(addFilters = false)
 @ExtendWith(RestDocumentationExtension.class)
 @WebMvcTest({
-    MemberController.class, PaymentController.class
+    MemberController.class, PaymentController.class, FollowController.class
 })
 public class ControllerTest {
 
@@ -54,12 +57,16 @@ public class ControllerTest {
     protected MemberService memberService;
     @MockBean
     protected PaymentService paymentService;
+    @MockBean
+    protected FollowService followService;
 
     // Repository
     @MockBean
     protected MemberRepository memberRepository;
     @MockBean
     protected PaymentRepository paymentRepository;
+    @MockBean
+    protected FollowRepository followRepository;
 
     @BeforeEach
     void setUp() {
