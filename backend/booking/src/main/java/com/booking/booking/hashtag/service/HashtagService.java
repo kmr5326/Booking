@@ -17,13 +17,14 @@ public class HashtagService {
     private final HashtagRepository hashtagRepository;
 
     public Mono<Optional<Hashtag>> findByContent(String content) {
+        log.info("Booking Server Hashtag- '{}' request findByContent", content);
         return Mono
                 .fromSupplier(() -> hashtagRepository.findByContent(content))
                 .subscribeOn(Schedulers.boundedElastic());
     }
 
     public Mono<Hashtag> save(String content) {
-        log.info("Booking Server - '{}' request saveHashtag", content);
+        log.info("Booking Server Hashtag - '{}' request save", content);
         return Mono
                 .fromSupplier(() -> hashtagRepository.save(
                         Hashtag.builder()
@@ -33,7 +34,14 @@ public class HashtagService {
                 .subscribeOn(Schedulers.boundedElastic());
     }
 //
-//    public Mono<Hashtag> test(String content) {
-//        return Mono.justOrEmpty(hashtagRepository.findByContent(content)).subscribeOn(Schedulers.boundedElastic());
+//    public Mono<HashtagResponse> findById(Long id) {
+//        log.info("Booking Server Hashtag- '{}' request findById", id);
+//        return Mono
+//                .fromSupplier(() -> hashtagRepository.findById(id))
+//                .flatMap(optional -> optional.map(hashtag ->
+//                        Mono.just(new HashtagResponse(hashtag))
+//                                .switchIfEmpty(Mono.empty()))
+//                        .orElse(Mono.empty()))
+//                .subscribeOn(Schedulers.boundedElastic());
 //    }
 }

@@ -3,13 +3,11 @@ package com.booking.booking.participant.service;
 import com.booking.booking.global.exception.ErrorCode;
 import com.booking.booking.meeting.domain.Meeting;
 import com.booking.booking.meeting.exception.MeetingException;
-import com.booking.booking.meeting.service.MeetingService;
 import com.booking.booking.participant.domain.Participant;
 import com.booking.booking.participant.repository.ParticipantRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
@@ -18,7 +16,7 @@ import reactor.core.scheduler.Schedulers;
 @Service
 public class ParticipantService {
     private final ParticipantRepository participantRepository;
-    private final MeetingService meetingService;
+
     public Mono<Void> addParticipant(Meeting meeting) {
         return Mono
                 .fromCallable(() -> buildParticipant(meeting))
@@ -41,14 +39,15 @@ public class ParticipantService {
                 .build();
     }
 
-    public Flux<Participant> findAllMemberByMeeting(Meeting meeting) {
-        return Mono
-                .fromCallable(() -> participantRepository.findAllByMeeting(meeting))
-                .subscribeOn(Schedulers.boundedElastic())
-                .flatMapMany(Flux::fromIterable);
-    }
+//    public Flux<Participant> findAllMemberByMeeting(Meeting meeting) {
+//        return Mono
+//                .fromCallable(() -> participantRepository.findAllByMeeting(meeting))
+//                .subscribeOn(Schedulers.boundedElastic())
+//                .flatMapMany(Flux::fromIterable);
+//    }
 
     public Mono<Boolean> existsParticipantByMeetingAndMemberId(Meeting meeting, String memberId) {
+        log.info("existsParticipantByMeetingAndMemberId inside");
         return Mono
                 .fromCallable(() -> participantRepository.existsParticipantByMeetingAndMemberId(meeting, memberId))
                 .subscribeOn(Schedulers.boundedElastic());

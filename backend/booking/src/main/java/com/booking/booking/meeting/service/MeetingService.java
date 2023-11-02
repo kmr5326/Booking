@@ -2,10 +2,13 @@ package com.booking.booking.meeting.service;
 
 import com.booking.booking.chatroom.service.ChatroomService;
 import com.booking.booking.global.exception.ErrorCode;
+import com.booking.booking.hashtag.dto.response.HashtagResponse;
+import com.booking.booking.hashtag.service.HashtagService;
+import com.booking.booking.hashtagmeeting.domain.HashtagMeeting;
 import com.booking.booking.hashtagmeeting.service.HashtagMeetingService;
 import com.booking.booking.meeting.domain.Meeting;
-import com.booking.booking.meeting.domain.MeetingState;
 import com.booking.booking.meeting.dto.request.MeetingRequest;
+import com.booking.booking.meeting.dto.response.MeetingResponse;
 import com.booking.booking.meeting.dto.response.MemberInfoResponse;
 import com.booking.booking.meeting.exception.MeetingException;
 import com.booking.booking.meeting.repository.MeetingRepository;
@@ -16,11 +19,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.net.URI;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -28,6 +33,7 @@ import java.util.List;
 public class MeetingService {
     private final MeetingRepository meetingRepository;
     private final HashtagMeetingService hashtagMeetingService;
+    private final HashtagService hashtagService;
     private final ChatroomService chatroomService;
     private final ParticipantService participantService;
     private final WaitlistService waitlistService;
@@ -39,7 +45,7 @@ public class MeetingService {
 
         return getMemberInfoByEmail(userEmail)
                 .flatMap(memberInfo -> {
-                    Meeting meeting = buildMeeting(memberInfo, meetingRequest);
+                    Meeting meeting = meetingRequest.toEntity(memberInfo);
                     return Mono.fromRunnable(() -> handleArrangeMeeting(meeting, meetingRequest.hashtagList()))
                             .subscribeOn(Schedulers.boundedElastic())
                             .then();
@@ -66,18 +72,6 @@ public class MeetingService {
         return memberInfoResponse;
     }
 
-    private Meeting buildMeeting(MemberInfoResponse memberInfo, MeetingRequest meetingRequest) {
-        return Meeting.builder()
-                .leaderId(memberInfo.loginId())
-                .address(memberInfo.address())
-                .bookIsbn(meetingRequest.bookIsbn())
-                .meetingTitle(meetingRequest.meetingTitle())
-                .description(meetingRequest.description())
-                .maxParticipants(meetingRequest.maxParticipants())
-                .meetingState(MeetingState.PREPARING)
-                .build();
-    }
-
     private void handleArrangeMeeting(Meeting meeting, List<String> hashtagList) {
         meetingRepository.save(meeting);
         hashtagMeetingService.saveHashtags(meeting, hashtagList).subscribe();
@@ -85,21 +79,49 @@ public class MeetingService {
         participantService.addParticipant(meeting).subscribe();
     }
 
+    public Mono<MeetingResponse> findById(Long id) {
+        return Mono.justOrEmpty(meetingRepository.findById(id))
+                .flatMap(meeting -> {
+                    List<HashtagResponse> hashtagResponseList = meeting.getHashtagMeetingList().stream()
+                            .map(HashtagMeeting::getHashtag)
+                            .map(HashtagResponse::new)
+                            .collect(Collectors.toList());
+
+                    return Mono.just(new MeetingResponse(meeting, hashtagResponseList));
+                })
+                .switchIfEmpty(Mono.error(new MeetingException(ErrorCode.GET_MEETING_FAILURE)));
+    }
+
+    public Flux<MeetingResponse> findAll() {
+        return Flux.fromIterable(meetingRepository.findAll())
+                .flatMap(meeting -> {
+                    List<HashtagResponse> hashtagResponseList = meeting.getHashtagMeetingList().stream()
+                            .map(HashtagMeeting::getHashtag)
+                            .map(HashtagResponse::new)
+                            .collect(Collectors.toList());
+
+                    return Mono.just(new MeetingResponse(meeting, hashtagResponseList));
+                })
+                .subscribeOn(Schedulers.boundedElastic());
+    }
+
     public Mono<Void> enrollMeeting(String userEmail, Long meetingId) {
         log.info("Booking Server - '{}' request enrollMeeting", userEmail);
 
         // TODO 참가자랑 대기중인 사람은 등록 불가, 존재하지 않는 미팅
-        return Mono.justOrEmpty(meetingRepository.findById(meetingId))
-                        .zipWith(getMemberInfoByEmail(userEmail))
-                .flatMap(it -> participantService.existsParticipantByMeetingAndMemberId(it.getT1(), it.getT2().loginId())
-                        .flatMap(exists -> {
-                            if (exists) {
-                                return Mono.error(new RuntimeException("이미 가입한 모임입니다."));
-                            }
-                            return Mono.just(it);
-                        }))
-                .flatMap(it -> Mono.fromRunnable(() -> waitlistService.enrollMeeting(it.getT1(), it.getT2().loginId())))
-                .subscribeOn(Schedulers.boundedElastic())
-                .then();
+//        return Mono.justOrEmpty(meetingRepository.findById(meetingId))
+//                        .zipWith(getMemberInfoByEmail(userEmail))
+//                .flatMap(it -> participantService.existsParticipantByMeetingAndMemberId(it.getT1(), it.getT2().loginId())
+//                        .doOnNext(exists -> log.info("existsParticipantByMeetingAndMemberId"))
+//                        .flatMap(exists -> {
+//                            if (exists) {
+//                                return Mono.error(new RuntimeException("이미 가입한 모임입니다."));
+//                            }
+//                            return Mono.just(it);
+//                        }))
+//                .flatMap(it -> Mono.fromRunnable(() -> waitlistService.enrollMeeting(it.getT1(), it.getT2().loginId())))
+//                .subscribeOn(Schedulers.boundedElastic())
+//                .then();
+        return Mono.empty();
     }
 }

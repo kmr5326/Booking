@@ -2,6 +2,7 @@ package com.booking.booking.meeting.controller;
 
 import com.booking.booking.global.jwt.JwtUtil;
 import com.booking.booking.meeting.dto.request.MeetingRequest;
+import com.booking.booking.meeting.dto.response.MeetingResponse;
 import com.booking.booking.meeting.service.MeetingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Slf4j
@@ -31,6 +33,17 @@ public class MeetingController {
 
         return meetingService.arrangeMeeting(userEmail, meetingRequest)
                 .thenReturn(ResponseEntity.noContent().build());
+    }
+
+    @GetMapping("/{meetingId}")
+    public Mono<ResponseEntity<MeetingResponse>> findById(@RequestHeader(AUTHORIZATION) String token, @PathVariable("meetingId") Long meetingId) {
+        return meetingService.findById(meetingId)
+                .map(meeting -> ResponseEntity.ok().body(meeting));
+    }
+
+    @GetMapping("/")
+    public ResponseEntity<Flux<MeetingResponse>> findAllById(@RequestHeader(AUTHORIZATION) String token) {
+        return ResponseEntity.ok().body(meetingService.findAll());
     }
 
     @GetMapping("/enroll/{meetingId}")

@@ -1,7 +1,6 @@
 package com.booking.booking.waitlist.service;
 
 import com.booking.booking.meeting.domain.Meeting;
-import com.booking.booking.participant.service.ParticipantService;
 import com.booking.booking.waitlist.domain.Waitlist;
 import com.booking.booking.waitlist.repository.WaitlistRepository;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +13,6 @@ import reactor.core.publisher.Mono;
 @Service
 public class WaitlistService {
     private final WaitlistRepository waitlistRepository;
-    private final ParticipantService participantService;
 
     public Mono<Void> enrollMeeting(Meeting meeting, String memberId) {
         // error
