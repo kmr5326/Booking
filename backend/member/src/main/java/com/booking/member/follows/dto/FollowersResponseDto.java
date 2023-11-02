@@ -12,6 +12,13 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class FollowersResponseDto {
-    private List<String> followers;
+    private List<Follower> followers;
     private Integer followersCnt;
+
+    @AllArgsConstructor
+    @Data
+    public static class Follower{
+        private String nickname;
+        private String profileImage;
+    }
 }

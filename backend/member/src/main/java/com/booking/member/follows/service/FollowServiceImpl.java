@@ -3,7 +3,9 @@ package com.booking.member.follows.service;
 import com.booking.member.follows.Repository.FollowRepository;
 import com.booking.member.follows.domain.Follow;
 import com.booking.member.follows.dto.FollowersResponseDto;
+import com.booking.member.follows.dto.FollowersResponseDto.Follower;
 import com.booking.member.follows.dto.FollowingsResponseDto;
+import com.booking.member.follows.dto.FollowingsResponseDto.Following;
 import com.booking.member.members.domain.Member;
 import com.booking.member.members.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -64,13 +66,19 @@ public class FollowServiceImpl implements FollowService{
         Member member=memberRepository.findByNickname(nickname);
         if(member==null)return Mono.error(new UsernameNotFoundException("사용자 찾을 수 없음"));
         List<Follow> followers=followRepository.findByFollowing(member);
-        List<String> followerNicknames = followers.stream()
-                .map(follow -> follow.getFollower().getNickname())
+        List<Follower> followerDetails = followers.stream()
+                .map(follow -> {
+                    Member followerMember = follow.getFollower();
+                    return new Follower(
+                            followerMember.getNickname(),
+                            followerMember.getProfileImage()
+                    );
+                })
                 .collect(Collectors.toList());
 
         FollowersResponseDto responseDto = FollowersResponseDto.builder()
-                .followers(followerNicknames)
-                .followersCnt(followerNicknames.size())
+                .followers(followerDetails)
+                .followersCnt(followerDetails.size())
                 .build();
 
         return Mono.just(responseDto);
@@ -81,13 +89,19 @@ public class FollowServiceImpl implements FollowService{
         Member member=memberRepository.findByNickname(nickname);
         if(member==null)return Mono.error(new UsernameNotFoundException("사용자 찾을 수 없음"));
         List<Follow> followings=followRepository.findByFollower(member);
-        List<String> followingsNicknames = followings.stream()
-                .map(follow -> follow.getFollowing().getNickname())
+        List<Following> followingsDetails = followings.stream()
+                .map(follow -> {
+                    Member followingMember= follow.getFollowing();
+                    return new Following(
+                            followingMember.getNickname(),
+                            followingMember.getProfileImage()
+                    );
+                })
                 .toList();
 
         FollowingsResponseDto responseDto = FollowingsResponseDto.builder()
-                .followings(followingsNicknames)
-                .followingsCnt(followingsNicknames.size())
+                .followings(followingsDetails)
+                .followingsCnt(followingsDetails.size())
                 .build();
 
         return Mono.just(responseDto);
