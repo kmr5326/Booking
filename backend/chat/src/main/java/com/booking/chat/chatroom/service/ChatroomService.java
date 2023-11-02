@@ -57,4 +57,12 @@ public class ChatroomService {
         return chatroomRepository.findByMemberListContains(memberId)
                                  .map(ChatroomListResponse::from);
     }
+
+    public Mono<Chatroom> findByChatroomId(Long chatroomId) {
+        return chatroomRepository.findById(chatroomId).switchIfEmpty(Mono.error(new ChatroomException(ErrorCode.CHATROOM_NOT_FOUND)));
+    }
+
+    public Mono<Chatroom> save(Chatroom chatroom) {
+        return chatroomRepository.save(chatroom);
+    }
 }

@@ -29,11 +29,18 @@ public class Chatroom {
     @CreatedDate
     private LocalDateTime createdAt;
 
+    private LocalDateTime lastMessageReceivedTime;
+
     public static Chatroom createWithLeader(InitChatroomRequest initChatroomRequest) {
         return Chatroom.builder()
                        ._id(initChatroomRequest.meetingId())
                        .leaderId(initChatroomRequest.leaderId())
                        .memberList(List.of(initChatroomRequest.leaderId()))
+                       .lastMessageReceivedTime(LocalDateTime.now())
                        .build();
+    }
+
+    public void updateListMessageReceived() {
+        this.lastMessageReceivedTime = LocalDateTime.now();
     }
 }
