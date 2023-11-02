@@ -30,6 +30,7 @@ import com.ssafy.booking.ui.profile.ProfileHome
 import com.ssafy.booking.viewmodel.MainViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import com.ssafy.booking.ui.booking.MyFloatingActionButton
+import com.ssafy.booking.ui.login.SignInScreen
 import com.ssafy.booking.viewmodel.ChatViewModel
 
 sealed class AppNavItem(
@@ -43,6 +44,7 @@ sealed class AppNavItem(
     object Profile: AppNavItem("profile")
     object Login: AppNavItem("login")
     object CreateBooking : AppNavItem("create/booking")
+    object SignIn: AppNavItem("signIn")
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -100,6 +102,10 @@ fun Route(googleSignInClient: GoogleSignInClient) {
             composable("create/booking") {
                 BookingCreate(navController, appViewModel)
             }
+            composable("signIn") {
+                SignInScreen()
+            }
+
         }
     }
 }

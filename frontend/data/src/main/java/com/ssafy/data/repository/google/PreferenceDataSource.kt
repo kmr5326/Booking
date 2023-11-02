@@ -59,5 +59,4 @@ class PreferenceDataSource @Inject constructor(
     fun removeAccountInfo() {
         putString(ACCOUNT_INFO, null)
     }
-
 }
