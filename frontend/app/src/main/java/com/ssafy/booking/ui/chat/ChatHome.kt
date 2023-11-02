@@ -19,6 +19,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -41,6 +43,7 @@ import com.ssafy.booking.viewmodel.ChatViewModel
 import com.ssafy.booking.viewmodel.SocketViewModel
 import com.ssafy.domain.model.ChatRoom
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatHome(
     navController: NavController,
@@ -48,28 +51,39 @@ fun ChatHome(
     socketViewModel: SocketViewModel,
     chatViewModel: ChatViewModel
     ) {
-    Column (){
-        TopBar(title = "채팅방")
-        Box {
-            Column {
-                ChatList(navController)
-            }
-            Row (
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight()
-                    .padding(bottom = 200.dp),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.Bottom
-            ) {
-                Button(
-                    onClick = {
-                 }
+    Scaffold (
+        topBar = {
+            TopBar("채팅방")
+        },
+        bottomBar = {
+            BottomNav(navController, appViewModel)
+        },
+        modifier = Modifier.fillMaxSize()
+    ) {paddingValues->
+        Column (
+            modifier = Modifier.padding(paddingValues)
+                .fillMaxSize()
+        ){
+            Box {
+                Column {
+                    ChatList(navController)
+                }
+                Row (
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .fillMaxHeight()
+                        .padding(bottom = 200.dp),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.Bottom
                 ) {
-                    Text("Test:소켓 연결")
+                    Button(
+                        onClick = {
+                     }
+                    ) {
+                        Text("Test:소켓 연결")
+                    }
                 }
             }
-            BottomNav(navController, appViewModel)
         }
     }
 }
