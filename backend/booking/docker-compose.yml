@@ -38,7 +38,7 @@ services:
     image: 'booking-image:latest'
     container_name: 'booking-container'
     environment:
-      CONFIG_URL: 'http://172.26.14.101:8123'
+      CONFIG_URL: 'http://k9c206.p.ssafy.io:8123/'
     ports:
       - '9003:9003'
     networks:
