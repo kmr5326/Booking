@@ -1,85 +1,43 @@
 package com.ssafy.booking.viewmodel
 
 import android.util.Log
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import com.gmail.bishoybasily.stomp.lib.Event
-import com.gmail.bishoybasily.stomp.lib.StompClient
-import com.google.gson.GsonBuilder
-import com.ssafy.data.remote.model.KafkaMessage
-import com.ssafy.data.utils.LocalDateTimeDeserializer
-import com.ssafy.data.utils.LocalDateTimeSerializer
-import com.ssafy.domain.usecase.OkhttpService
+import androidx.lifecycle.viewModelScope
+import com.ssafy.domain.model.ChatRoom
+import com.ssafy.domain.repository.ChatRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.reactivex.disposables.Disposable
-import java.time.LocalDateTime
-import java.util.Scanner
-import java.util.logging.Logger
+import kotlinx.coroutines.launch
+import retrofit2.HttpException
+import java.io.IOException
 import javax.inject.Inject
+
 @HiltViewModel
-class ChatViewModel @Inject constructor() : ViewModel() {
-    val logger = Logger.getLogger("CHAT")
-
-    var stompConnection: Disposable
-    lateinit var topic: Disposable
-
-    private val url2 = "wss://k9c206.p.ssafy.io:10001/booking/chat"
-    private val intervalMillis = 1000L
-    private val client = OkhttpService.OkHttpClientSingleton.provideOkHttpClient()
-
-    val stomp = StompClient(client, intervalMillis).apply { this@apply.url = url2 }
-
-    fun sendMessage(message: KafkaMessage) {
-        val gson = GsonBuilder()
-            .registerTypeAdapter(LocalDateTime::class.java, LocalDateTimeSerializer())
-            .registerTypeAdapter(LocalDateTime::class.java, LocalDateTimeDeserializer())
-            .create()
-        val jsonMessage = gson.toJson(message)
-
-        stomp.send("/publish/message/1", jsonMessage)
-            .subscribe { success ->
-                if (success) {
-                    Log.d("CHAT", "chatting send is successful")
-                } else {
-                    Log.d("CHAT", "failed to send message")
-                }
-            }
-    }
-
+class ChatViewModel @Inject constructor(
+    private val chatRepository: ChatRepository
+) : ViewModel() {
+    var chatListState = mutableStateOf<List<ChatRoom>>(listOf())
+    var errorMessage = mutableStateOf("")
     init {
-        stompConnection = stomp.connect().subscribe {
-            when (it.type) {
-                Event.Type.OPENED -> {
-
-                    // subscribe
-                    topic = stomp.join("/subscribe/1")
-                        .subscribe { Log.d("CHAT", it) }
-
-                    // unsubscribe
-//                topic.dispose()
-
-//                val test = KafkaMessage("Hello 희창", 1, now())
-
-                }
-
-                Event.Type.CLOSED -> {
-
-                }
-
-                Event.Type.ERROR -> {
-
-                }
-
-                else -> {
-                    Log.d("CHAT", "else")
-                }
-
+        loadChatList()
+    }
+    private fun loadChatList() {
+        viewModelScope.launch {
+            try {
+                chatListState.value = chatRepository.getChatList()
+            } catch (e: HttpException) {
+                // HTTP 에러 처리
+                errorMessage.value = "네트워크 에러: ${e.code()} ${e.message}"
+                Log.d("CHAT", "$errorMessage.value")
+            } catch (e: IOException) {
+                // 네트워크 연결 문제 등의 IOException 처리
+                errorMessage.value = "네트워크 연결을 확인해 주세요."
+                Log.d("CHAT", "$errorMessage.value")
+            } catch (e: Exception) {
+                // 그 외의 예외 처리
+                errorMessage.value = "알 수 없는 에러 발생: ${e.message}"
+                Log.d("CHAT", "$errorMessage.value")
             }
         }
-
-        val scanner = Scanner(System.`in`)
-//        scanner.nextLine()
-
-//    // disconnect
-//    stompConnection.dispose()
     }
 }

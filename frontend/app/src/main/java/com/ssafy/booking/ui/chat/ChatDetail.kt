@@ -45,13 +45,13 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.ssafy.booking.R
 import com.ssafy.booking.ui.common.TopBarChat
-import com.ssafy.booking.viewmodel.ChatViewModel
-import com.ssafy.data.remote.model.KafkaMessage
+import com.ssafy.booking.viewmodel.SocketViewModel
+import com.ssafy.domain.model.KafkaMessage
 import java.time.LocalDateTime
 
 @Composable
 fun ChatDetail(
-    navController: NavController, chatViewModel: ChatViewModel
+    navController: NavController, socketViewModel: SocketViewModel
 ) {
     val chatId = navController.currentBackStackEntry?.arguments?.getString("chatId")
 
@@ -74,7 +74,7 @@ fun ChatDetail(
         )
 
         InputText(
-            chatViewModel,
+            socketViewModel,
             modifier = Modifier.padding(start = 16.dp, end = 16.dp),
         )
     }
@@ -178,7 +178,7 @@ fun MessageItem(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InputText(
-    chatViewModel: ChatViewModel,
+    socketViewModel: SocketViewModel,
     modifier: Modifier = Modifier
 ) {
     var text by rememberSaveable(stateSaver = TextFieldValue.Saver) {
@@ -211,7 +211,7 @@ fun InputText(
                     senderId = 1, // 사용자의 식별자
                     sendTime = LocalDateTime.now()
                 )
-                chatViewModel.sendMessage(message)
+                socketViewModel.sendMessage(message)
                 text = TextFieldValue("")
             },
             modifier = Modifier.padding(0.dp),  // IconButton의 패딩을 제거

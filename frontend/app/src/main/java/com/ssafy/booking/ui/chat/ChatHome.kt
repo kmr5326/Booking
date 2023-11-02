@@ -1,5 +1,6 @@
 package com.ssafy.booking.ui.chat
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -29,6 +30,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.ssafy.booking.R
 import com.ssafy.booking.ui.common.BottomNav
@@ -36,23 +38,22 @@ import com.ssafy.booking.ui.common.TopBar
 import com.ssafy.booking.viewmodel.AppViewModel
 import com.ssafy.booking.ui.LocalNavigation
 import com.ssafy.booking.viewmodel.ChatViewModel
+import com.ssafy.booking.viewmodel.SocketViewModel
+import com.ssafy.domain.model.ChatRoom
 
 @Composable
 fun ChatHome(
     navController: NavController,
     appViewModel: AppViewModel,
-    chatViewModel: ChatViewModel,
-
+    socketViewModel: SocketViewModel,
+    chatViewModel: ChatViewModel
     ) {
-
     Column (){
         TopBar(title = "채팅방")
-
         Box {
             Column {
                 ChatList(navController)
             }
-
             Row (
                 modifier = Modifier
                     .fillMaxWidth()
@@ -68,32 +69,38 @@ fun ChatHome(
                     Text("Test:소켓 연결")
                 }
             }
-
             BottomNav(navController, appViewModel)
         }
-
     }
-
-
 }
 
 @Composable
-fun ChatList(navController: NavController) {
+fun ChatList(
+    navController: NavController,
+) {
+    val chatViewModel: ChatViewModel = hiltViewModel()
+    val chatListState = chatViewModel.chatListState.value
+
+    Log.d("CHAT", "$chatListState")
+    val chatList = chatListState
+
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
-        items(chatItemList) { chat ->
-            ChatItem(chat) {}
+        items(chatList) { chat ->
+            ChatItem(chat) {
+
+            }
         }
     }
 }
 
 @Composable
 fun ChatItem(
-    chat: ChatData,
-    onRowClick: (ChatData) -> Unit
+    chat: ChatRoom,
+    onRowClick: (ChatRoom) -> Unit
 ) {
     val navController = LocalNavigation.current
     Row(
@@ -102,12 +109,12 @@ fun ChatItem(
             .padding(10.dp)
             .clickable(onClick = {
                 onRowClick(chat)
-                navController.navigate("chatDetail/${chat.chatId}")
+                navController.navigate("chatDetail/${chat.chatroomId}")
             })
     ) {
-        if(chat.chatHeadCount <= 1) {
+        if(chat.memberList.size <= 1) {
             Image(
-                painter = painterResource(id = chat.imageResId),
+                painter = painterResource(id = R.drawable.chat1),
                 contentDescription = "Chat Image",
                 modifier = Modifier
                     .size(70.dp, 70.dp)
@@ -115,31 +122,27 @@ fun ChatItem(
             )
         } else {
             Image(
-                painter = painterResource(id = chat.imageResId),
+                painter = painterResource(id = R.drawable.chat3),
                 contentDescription = "Chat Image",
                 modifier = Modifier
                     .size(70.dp, 70.dp)
             )
         }
-
-
         Spacer(modifier = Modifier.width(16.dp))
-
         Column(
             modifier = Modifier.width(200.dp),
         ) {
             Row (verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    text = chat.chatTitle, maxLines = 1,
+                    text = chat.meetingTitle, maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     fontWeight = FontWeight.ExtraBold,
                     fontSize = 16.sp
                 )
                 Spacer(modifier = Modifier.width(4.dp))
-
-                if(chat.chatHeadCount > 1) {
+                if(chat.memberList.size > 1) {
                     Text(
-                        text = "${chat.chatHeadCount}",
+                        text = "${chat.memberList.size}",
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
                         fontWeight = FontWeight.Medium,
@@ -150,7 +153,7 @@ fun ChatItem(
             }
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = chat.chatContent,
+                text = chat.meetingTitle,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
                 fontWeight = FontWeight.Medium,
@@ -160,18 +163,3 @@ fun ChatItem(
         }
     }
 }
-
-// ########################## 객체
-data class ChatData(
-    val chatId : Int,
-    val chatType : String,
-    val imageResId: Int,
-    val chatTitle: String,
-    val chatContent: String,
-    val chatHeadCount: Int
-)
-// ########################## 데이터
-val chatItemList = listOf(
-    ChatData(1,"Notification", R.drawable.chat1, "알림", "자율프로젝트에 참여했습니다!",1),
-    ChatData(3,"Booking",R.drawable.chat3, "자율프로젝트", "굳굳",6),
-)
