@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -21,9 +22,11 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CardDefaults.cardElevation
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -34,6 +37,7 @@ import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -41,6 +45,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import com.ssafy.booking.R
 import com.ssafy.booking.ui.common.BottomNav
 import com.ssafy.booking.ui.common.TopBar
 import com.ssafy.booking.viewmodel.AppViewModel
@@ -58,7 +63,9 @@ fun ProfileHome(
 @Composable
 fun MyProfile(profileData : ProfileData) {
     Card(
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(
+            containerColor = colorResource(id = R.color.background_color)
+        ),
         modifier = Modifier
             .padding(16.dp)
             .fillMaxWidth()
@@ -78,14 +85,14 @@ fun MyProfile(profileData : ProfileData) {
             )
             Spacer(modifier = Modifier.size(40.dp))
             Column {
-                Text(text = profileData.name)
+                Text(text = profileData.name, color=colorResource(id = R.color.font_color))
                 Spacer(modifier = Modifier.size(4.dp))
-                Text(text = "읽은 책 : ${profileData.readBookNumber}권")
+                Text(text = "읽은 책 : ${profileData.readBookNumber}권", color=colorResource(id = R.color.font_color))
                 Spacer(modifier = Modifier.size(4.dp))
                 Row {
-                    Text(text = "팔로잉 ${profileData.followings}")
+                    Text(text = "팔로잉 ${profileData.followings}", color=colorResource(id = R.color.font_color))
                     Spacer(modifier = Modifier.size(16.dp))
-                    Text(text = "팔로워 ${profileData.followers}")
+                    Text(text = "팔로워 ${profileData.followers}", color=colorResource(id = R.color.font_color))
                 }
             }
             Spacer(modifier = Modifier.size(40.dp))
@@ -113,16 +120,31 @@ fun DefaultPreview() {
 
 @Composable
 fun MyBook() {
-    Text("내 서재")
+    Column(
+        modifier = Modifier
+            .padding(32.dp)
+            .fillMaxWidth()
+            .fillMaxHeight()
+    ) {
+        Text("내 서재")
+    }
 }
 
 // 북킹 Composable
 @Composable
 fun BookingList() {
-    Text("북킹")
+    Column(
+        modifier = Modifier
+            .padding(32.dp)
+            .fillMaxWidth()
+            .fillMaxHeight()
+    ) {
+        Text("북킹")
+    }
 }
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Profile(
     navController: NavController, appViewModel: AppViewModel
@@ -137,25 +159,34 @@ fun Profile(
         followings = 255
     )
 
-    Column {
-        TopBar("프로필")
-        MyProfile(profileData=profileData)
-        // 인자로 첫번째는 title 리스트, 두번째는 각 탭에 해당하는 @composable
-        // 현재는 테스트용으로 하드코딩 해뒀음.
-        TabBar(
+    Scaffold (
+        topBar = {
+            TopBar("프로필")
+        },
+        bottomBar = {
+            BottomNav(navController, appViewModel)
+        },
+        modifier = Modifier.fillMaxSize()
+    ) {paddingValues->
+        Column(
+            modifier = Modifier.fillMaxSize()
+                .padding(paddingValues)
+        ) {
+            MyProfile(profileData=profileData)
+            // 인자로 첫번째는 title 리스트, 두번째는 각 탭에 해당하는 @composable
+            // 현재는 테스트용으로 하드코딩 해뒀음.
+            TabBar(
                 tabTitles = listOf("내 서재", "북킹"),
-            contentForTab = { index ->
-                // 인덱스 마다 @composable 함수 넣으면 됨.
-                when (index) {
-                    0 -> MyBook()
-                    1 -> BookingList()
+                contentForTab = { index ->
+                    // 인덱스 마다 @composable 함수 넣으면 됨.
+                    when (index) {
+                        0 -> MyBook()
+                        1 -> BookingList()
+                    }
                 }
-            }
-        )
+            )
+        }
     }
-
-//    Text(text = "${tokenDataSource.getLoginId()}")
-    BottomNav(navController, appViewModel)
 }
 
 
