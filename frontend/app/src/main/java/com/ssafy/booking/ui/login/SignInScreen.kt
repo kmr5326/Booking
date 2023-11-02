@@ -37,6 +37,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -48,12 +49,20 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
+import com.ssafy.booking.ui.AppNavItem
+import com.ssafy.booking.ui.LocalNavigation
 import com.ssafy.booking.ui.common.TopBar
+import com.ssafy.booking.viewmodel.SignInViewModel
+import com.ssafy.data.repository.token.TokenDataSource
+import com.ssafy.domain.model.SignInRequest
+import retrofit2.Response
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -64,6 +73,26 @@ fun SignInScreen(
 ) {
     val context = LocalContext.current
     var permissionsGranted by remember { mutableStateOf(false) }
+
+    val viewModel: SignInViewModel = hiltViewModel()
+    val signInResponse: Response<String>? by viewModel.signInResponse.observeAsState()
+
+    val navController = LocalNavigation.current
+
+    LaunchedEffect(signInResponse) {
+        if (signInResponse?.body() != null) {
+            val tokenDataSource = TokenDataSource(context)
+            tokenDataSource.putToken(signInResponse?.body())
+            tokenDataSource.putLoginId(loginId)
+            Log.i("token","${tokenDataSource.getToken()}")
+            Log.i("token","${loginId}")
+            Log.i("token","${tokenDataSource.getLoginId()}")
+            navController.navigate(AppNavItem.Main.route) {
+                popUpTo("signIn") { inclusive = true }
+                launchSingleTop = true
+            }
+        }
+    }
 
     val requestPermissionsLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
@@ -103,7 +132,7 @@ fun SignInScreen(
     val months = (1..12).map {it.toString()}
     val days = (1..31).map {it.toString()}
 
-    val genderOptions = listOf("여성", "남성")
+    val genderOptions = listOf("FEMALE", "MALE")
 
     // 여성, 남성 선택을 위한 state
     val (selectedGender, setSelectedGender) = remember { mutableStateOf(genderOptions[0]) }
@@ -312,8 +341,22 @@ fun SignInScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 if (!isError) {
-                    Button(onClick = { /*TODO: handle click event*/ }) {
-                        Text(text = "확인")
+                    Button(onClick = {
+                        val request = SignInRequest(
+                            loginId= loginId,
+                            address = myLocation,
+                            age = 2023 - selectedYear.toInt(),
+                            email = email,
+                            fullName = name,
+                            gender = selectedGender,
+                            nickname = nickName,
+                            profileImage = null,
+                            provider = "kakao"
+                        )
+                        viewModel.signIn(request)
+
+                    }) {
+                        Text(text = "회원 가입")
                     }
                 }
             }
@@ -329,6 +372,8 @@ fun SignInScreen(
                 Text(text = "위치 인증 체크")
             }
         }
+
+
     }
 }
 

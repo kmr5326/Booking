@@ -12,6 +12,7 @@ class TokenDataSource @Inject constructor(
 ) {
     companion object {
         private const val ACCESS_TOKEN = "access_token"
+        private const val LOGIN_ID = "login_id"
     }
     private fun getTokenPreference(context: Context) : SharedPreferences {
         return context.getSharedPreferences(ACCESS_TOKEN, Context.MODE_PRIVATE)
@@ -57,6 +58,18 @@ class TokenDataSource @Inject constructor(
 
     fun removeToken() {
         putString(ACCESS_TOKEN, null)
+    }
+
+    fun putLoginId(loginId: String?) {
+        putString(LOGIN_ID, loginId)
+    }
+
+    fun getLoginId() : String? {
+        return LOGIN_ID
+    }
+
+    fun removeLoginId() {
+        putString(LOGIN_ID, null)
     }
 
 }

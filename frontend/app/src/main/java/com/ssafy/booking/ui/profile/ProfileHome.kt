@@ -1,6 +1,7 @@
 package com.ssafy.booking.ui.profile
 
 import android.graphics.drawable.Icon
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -32,6 +33,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.modifier.modifierLocalConsumer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -42,6 +44,7 @@ import coil.compose.AsyncImage
 import com.ssafy.booking.ui.common.BottomNav
 import com.ssafy.booking.ui.common.TopBar
 import com.ssafy.booking.viewmodel.AppViewModel
+import com.ssafy.data.repository.token.TokenDataSource
 // TabBar Import
 import com.ssafy.booking.ui.common.TabBar
 
@@ -57,7 +60,8 @@ fun ProfileHome(
 fun MyProfile(profileData : ProfileData) {
     Card(
         colors = CardDefaults.cardColors(containerColor = Color.White),
-        modifier = Modifier.padding(16.dp)
+        modifier = Modifier
+            .padding(16.dp)
             .fillMaxWidth()
     ) {
         Row (
@@ -69,7 +73,8 @@ fun MyProfile(profileData : ProfileData) {
                 contentScale = ContentScale.Crop,
                 contentDescription = null,
                 placeholder = ColorPainter(Color.DarkGray),
-                modifier = Modifier.size(64.dp)
+                modifier = Modifier
+                    .size(64.dp)
                     .clip(CircleShape)
             )
             Spacer(modifier = Modifier.size(40.dp))
@@ -102,7 +107,7 @@ fun MyProfile(profileData : ProfileData) {
 @Composable
 fun DefaultPreview() {
     val profileData = ProfileData(
-        imgUri = "https://i.imgur.com/VbyOogn.jpg",
+        imgUri = "https://k.kakaocdn.net/dn/bmkJaA/btszA0swBym/dY3wBT2UQjy1UqZIufY4O0/img_110x110.jpg",
         name = "@uni.gy",
         readBookNumber = 10,
         followers = 390,
@@ -115,8 +120,10 @@ fun DefaultPreview() {
 fun Temp(
     navController: NavController, appViewModel: AppViewModel
 ) {
+    val context = LocalContext.current
+    val tokenDataSource = TokenDataSource(context)
     val profileData = ProfileData(
-        imgUri = "https://i.imgur.com/VbyOogn.jpg",
+        imgUri = "https://k.kakaocdn.net/dn/bmkJaA/btszA0swBym/dY3wBT2UQjy1UqZIufY4O0/img_110x110.jpg",
         name = "@uni.gy",
         readBookNumber = 10,
         followers = 390,
@@ -140,7 +147,7 @@ fun Temp(
         )
     }
 
-
+//    Text(text = "${tokenDataSource.getLoginId()}")
     BottomNav(navController, appViewModel)
 }
 

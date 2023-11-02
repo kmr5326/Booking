@@ -1,6 +1,8 @@
 package com.ssafy.booking.di
 
+import com.ssafy.data.repository.MemberRepositoryImpl
 import com.ssafy.data.repository.google.AccountRepositoryImpl
+import com.ssafy.domain.repository.MemberRepository
 import com.ssafy.domain.repository.google.AccountRepository
 import dagger.Binds
 import dagger.Module
@@ -15,4 +17,5 @@ interface DataModule {
     @Binds
     @Singleton
     fun bindSearchRepository(accountRepositoryImpl: AccountRepositoryImpl) : AccountRepository
+
 }
