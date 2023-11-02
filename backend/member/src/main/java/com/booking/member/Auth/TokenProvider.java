@@ -1,7 +1,7 @@
 package com.booking.member.Auth;
 
-import com.booking.member.members.Member;
-import com.booking.member.members.UserRole;
+import com.booking.member.members.domain.Member;
+import com.booking.member.members.domain.UserRole;
 import com.booking.member.members.repository.MemberRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;

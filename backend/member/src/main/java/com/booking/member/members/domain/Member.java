@@ -1,6 +1,6 @@
-package com.booking.member.members;
+package com.booking.member.members.domain;
 
-import com.booking.member.follows.Follow;
+import com.booking.member.follows.domain.Follow;
 import com.booking.member.payments.domain.Payment;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;

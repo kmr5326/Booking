@@ -2,9 +2,9 @@ package com.booking.member.members.service;
 
 import com.booking.member.Auth.TokenDto;
 import com.booking.member.Auth.TokenProvider;
-import com.booking.member.members.Gender;
-import com.booking.member.members.Member;
-import com.booking.member.members.UserRole;
+import com.booking.member.members.domain.Gender;
+import com.booking.member.members.domain.Member;
+import com.booking.member.members.domain.UserRole;
 import com.booking.member.members.dto.MemberInfoResponseDto;
 import com.booking.member.members.dto.ModifyRequestDto;
 import com.booking.member.members.dto.SignUpRequestDto;
@@ -34,6 +34,8 @@ public class MemberServiceImpl implements MemberService {
                 .flatMap(member -> {
                     if (checkMemberDuplicate(req.loginId())) {
                         return Mono.error(new RuntimeException("이미 가입된 회원입니다."));
+                    } else if (checkNicknameDuplicate(req.nickname())) {
+                        return Mono.error(new RuntimeException("중복된 닉네임"));
                     }
 
                     String[] split=parseAddr(req.address());
@@ -146,6 +148,10 @@ public class MemberServiceImpl implements MemberService {
 
     public boolean checkMemberDuplicate(String loginId) {
         return memberRepository.existsByLoginId(loginId);
+    }
+
+    public boolean checkNicknameDuplicate(String nickname) {
+        return memberRepository.existsByNickname(nickname);
     }
 
     public String[] parseAddr(String address){
