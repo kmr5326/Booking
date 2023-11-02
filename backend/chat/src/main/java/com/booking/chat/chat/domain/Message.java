@@ -1,6 +1,6 @@
 package com.booking.chat.chat.domain;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -31,7 +31,7 @@ public class Message {
     private String content;
 
     @CreatedDate
-    private Date timestamp;
+    private LocalDateTime timestamp;
 
 
     public void setAutoIncrementId(Long id) {

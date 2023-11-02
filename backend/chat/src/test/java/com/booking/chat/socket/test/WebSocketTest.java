@@ -21,7 +21,7 @@ public class WebSocketTest extends StompTest {
         this.stompSession.subscribe("/subscribe/1", handler);
         System.out.println("소켓 연결 여부 : " + this.stompSession.isConnected());
 
-        KafkaMessage kafkaMessage = new KafkaMessage("메세지 전송", "2", LocalDateTime.now());
+        KafkaMessage kafkaMessage = new KafkaMessage("메세지 전송", 2L, LocalDateTime.now());
         String chatRoomId = "1";
 
         MessagePayload messagePayload = new MessagePayload(kafkaMessage, chatRoomId);
