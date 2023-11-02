@@ -58,6 +58,11 @@ public class ChatroomService {
                                  .map(ChatroomListResponse::from);
     }
 
+    public Flux<ChatroomListResponse> getChatroomListByMemberIdOrderByDest(Long memberId) {
+        return chatroomRepository.findByMemberListContainsOrderByLastMessageReceivedTimeDesc(memberId)
+            .map(ChatroomListResponse::from);
+    }
+
     public Mono<Chatroom> findByChatroomId(Long chatroomId) {
         return chatroomRepository.findById(chatroomId).switchIfEmpty(Mono.error(new ChatroomException(ErrorCode.CHATROOM_NOT_FOUND)));
     }

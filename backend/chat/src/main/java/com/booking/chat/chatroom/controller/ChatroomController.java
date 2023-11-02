@@ -63,7 +63,7 @@ public class ChatroomController {
     public Flux<ChatroomListResponse> getChatroomListByMemberId(@RequestHeader(AUTHORIZATION) String token) {
         Long memberId = JwtUtil.getMemberIdByToken(token);
         log.info(" {} member request chatroomList ", memberId);
-        return chatroomService.getChatroomListByMemberId(memberId);
+        return chatroomService.getChatroomListByMemberIdOrderByDest(memberId);
     }
 
 
