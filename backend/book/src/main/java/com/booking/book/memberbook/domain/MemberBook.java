@@ -28,7 +28,7 @@ public class MemberBook {
 
     private Long bookIsbn;
 
-    private List<Note> note;
+    private List<Note> notes;
 
     @CreatedDate
     private LocalDateTime createdAt;
