@@ -30,16 +30,14 @@ public class ChatroomService {
 
     public Mono<Void> joinChatroom(JoinChatroomRequest joinChatroomRequest) {
         return chatroomRepository.findById(joinChatroomRequest.meetingId())
-            .switchIfEmpty(Mono.error(new ChatroomException(ErrorCode.CHATROOM_NOT_FOUND)))
-            .flatMap(chatroom -> {
-                List<Long> members = chatroom.getMemberList();
-                if(members.contains(joinChatroomRequest.memberId())) {
-                    return Mono.error(new ChatroomException(ErrorCode.MEMBER_ALREADY_EXISTS));
-                }
-                chatroom.getMemberList().add(joinChatroomRequest.memberId());
-                return chatroomRepository.save(chatroom);
-            })
-            .then();
+                                 .flatMap(chatroom -> {
+                                     List<Long> members = chatroom.getMemberList();
+                                     if (members.contains(joinChatroomRequest.memberId())) {
+                                         return Mono.empty(); // 에러 대신 Mono<Void> 반환
+                                     }
+                                     members.add(joinChatroomRequest.memberId());
+                                     return chatroomRepository.save(chatroom).then();
+                                 });
     }
 
     public Mono<Void> exitChatroom(ExitChatroomRequest exitChatroomRequest) {
