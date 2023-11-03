@@ -30,28 +30,25 @@ public class ChatroomService {
 
     public Mono<Void> joinChatroom(JoinChatroomRequest joinChatroomRequest) {
         return chatroomRepository.findById(joinChatroomRequest.meetingId())
-            .switchIfEmpty(Mono.error(new ChatroomException(ErrorCode.CHATROOM_NOT_FOUND)))
-            .flatMap(chatroom -> {
-                List<Long> members = chatroom.getMemberList();
-                if(members.contains(joinChatroomRequest.memberId())) {
-                    return Mono.error(new ChatroomException(ErrorCode.MEMBER_ALREADY_EXISTS));
-                }
-                chatroom.getMemberList().add(joinChatroomRequest.memberId());
-                return chatroomRepository.save(chatroom);
-            })
-            .then();
+                                 .flatMap(chatroom -> {
+                                     List<Long> members = chatroom.getMemberList();
+                                     if (members.contains(joinChatroomRequest.memberId())) {
+                                         return Mono.empty(); // 에러 대신 Mono<Void> 반환
+                                     }
+                                     members.add(joinChatroomRequest.memberId());
+                                     return chatroomRepository.save(chatroom).then();
+                                 });
     }
 
     public Mono<Void> exitChatroom(ExitChatroomRequest exitChatroomRequest) {
         return chatroomRepository.findById(exitChatroomRequest.meetingId())
-            .switchIfEmpty(Mono.error(new ChatroomException(ErrorCode.CHATROOM_NOT_FOUND)))
-            .flatMap(chatroom -> {
-                List<Long> members = chatroom.getMemberList();
-                if(!chatroom.getMemberList().remove(exitChatroomRequest.memberId())) {
-                    return Mono.error(new ChatroomException(ErrorCode.MEMBER_NOT_PART_OF_CHATROOM));
-                }
-                return chatroomRepository.save(chatroom);
-            }).then();
+                                 .flatMap(chatroom -> {
+                                     boolean removed = chatroom.getMemberList().remove(exitChatroomRequest.memberId());
+                                     if (!removed) {
+                                         return Mono.empty(); // 대신 Mono<Void>를 반환
+                                     }
+                                     return chatroomRepository.save(chatroom).then();
+                                 });
     }
     public Flux<ChatroomListResponse> getChatroomListByMemberId(Long memberId) {
         return chatroomRepository.findByMemberListContains(memberId)
