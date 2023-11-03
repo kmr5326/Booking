@@ -36,9 +36,11 @@ public class Meeting {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long meetingId;
 
-    private String leaderId;
+    private Integer leaderId;
 
-    private String address;
+    private Double lat;
+
+    private Double lgt;
 
     private String bookIsbn;
 

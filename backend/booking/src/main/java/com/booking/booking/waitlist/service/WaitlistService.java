@@ -14,9 +14,9 @@ import reactor.core.publisher.Mono;
 public class WaitlistService {
     private final WaitlistRepository waitlistRepository;
 
-    public Mono<Void> enrollMeeting(Meeting meeting, String memberId) {
+    public Mono<Void> enrollMeeting(Meeting meeting, Integer memberId) {
         // error
-        checkDuplicated(meeting, memberId);
+//        checkDuplicated(meeting, memberId);
 
         waitlistRepository.save(
                 Waitlist.builder()
@@ -27,17 +27,17 @@ public class WaitlistService {
         return Mono.empty();
     }
 
-    private void checkDuplicated(Meeting meeting, String memberId) {
-
-        // 기존 미팅 참가자 | 대기 목록에 있는 사람이면 에러를 던져야 한다
-//        participantService.findAllMemberByMeeting(meeting)
-
-
-        /*
-         existBy -> boolean
-         if(exist) throw new MeetingException(Errorcode.XXX)
-         */
-
-
-    }
+//    private void checkDuplicated(Meeting meeting, String memberId) {
+//
+//        // 기존 미팅 참가자 | 대기 목록에 있는 사람이면 에러를 던져야 한다
+////        participantService.findAllMemberByMeeting(meeting)
+//
+//
+//        /*
+//         existBy -> boolean
+//         if(exist) throw new MeetingException(Errorcode.XXX)
+//         */
+//
+//
+//    }
 }

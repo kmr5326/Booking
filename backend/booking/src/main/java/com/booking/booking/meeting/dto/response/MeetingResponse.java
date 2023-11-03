@@ -7,7 +7,7 @@ import java.util.List;
 
 public record MeetingResponse (
         Long meetingId,
-        String leaderId,
+        Integer leaderId,
         String bookIsbn,
         String meetingTitle,
         String description,

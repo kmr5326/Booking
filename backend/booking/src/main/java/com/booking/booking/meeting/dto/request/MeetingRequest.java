@@ -15,8 +15,9 @@ public record MeetingRequest(
 ) {
     public Meeting toEntity(MemberInfoResponse memberInfo, MeetingState meetingState) {
         return Meeting.builder()
-                .leaderId(memberInfo.loginId())
-                .address(memberInfo.address())
+                .leaderId(memberInfo.memberPk())
+                .lat(memberInfo.lat())
+                .lgt(memberInfo.lgt())
                 .bookIsbn(bookIsbn)
                 .meetingTitle(meetingTitle)
                 .description(description)

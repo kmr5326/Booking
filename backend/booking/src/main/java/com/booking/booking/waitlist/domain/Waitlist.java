@@ -26,7 +26,7 @@ public class Waitlist {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long waitlistId;
 
-    private String memberId;
+    private Integer memberId;
 
     @ManyToOne
     @JoinColumn(name = "meetingId")

@@ -4,7 +4,7 @@ import com.booking.booking.meeting.domain.Meeting;
 
 public record ChatroomRequest(
         Long meetingId,
-        String leaderId,
+        Integer memberPk,
         String meetingTitle
 ) {
     public ChatroomRequest(Meeting meeting) {

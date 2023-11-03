@@ -30,7 +30,7 @@ public class Post {
     @JoinColumn(name = "meetingId")
     private Meeting meeting;
 
-    private long memberId;
+    private Integer memberId;
 
     private String title;
 
