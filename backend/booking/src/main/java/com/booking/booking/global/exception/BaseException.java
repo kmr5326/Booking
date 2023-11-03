@@ -1,10 +1,12 @@
 package com.booking.booking.global.exception;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
-@AllArgsConstructor
 public class BaseException extends RuntimeException{
     ErrorCode errorCode;
+
+    public BaseException(ErrorCode errorCode) {
+        super(errorCode.getMessage());
+    }
 }

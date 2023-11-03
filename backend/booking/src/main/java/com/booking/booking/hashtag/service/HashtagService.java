@@ -1,6 +1,8 @@
 package com.booking.booking.hashtag.service;
 
+import com.booking.booking.global.exception.ErrorCode;
 import com.booking.booking.hashtag.domain.Hashtag;
+import com.booking.booking.hashtag.exception.HashtagException;
 import com.booking.booking.hashtag.repository.HashtagRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,10 +23,6 @@ public class HashtagService {
         return Mono
                 .fromSupplier(() -> hashtagRepository.findByContent(content))
                 .subscribeOn(Schedulers.boundedElastic());
-//                .onErrorResume(error -> {
-//                    log.error("Booking Server Hashtag - Error during findByContent : {}", error.toString());
-//                    return Mono.error(new MeetingException(ErrorCode.GET_HASHTAG_FAILURE));
-//                });
     }
 
     public Mono<Hashtag> save(String content) {
@@ -35,11 +33,10 @@ public class HashtagService {
                                 .content(content)
                                 .build()
                 ))
-                .subscribeOn(Schedulers.boundedElastic());
-//                .onErrorResume(error -> {
-//                    log.error("Booking Server Hashtag - Error during save : {}", error.toString());
-//                    return Mono.error(new MeetingException(ErrorCode.CREATE_HASHTAG_FAILURE));
-//                });
-
+                .subscribeOn(Schedulers.boundedElastic())
+                .onErrorResume(error -> {
+                    log.error("Booking Server Hashtag - Error during save : {}", error.toString());
+                    return Mono.error(new HashtagException(ErrorCode.CREATE_HASHTAG_FAILURE));
+                });
     }
 }

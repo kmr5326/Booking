@@ -1,6 +1,8 @@
 package com.booking.booking.hashtagmeeting.service;
 
+import com.booking.booking.global.exception.ErrorCode;
 import com.booking.booking.hashtag.domain.Hashtag;
+import com.booking.booking.hashtag.exception.HashtagException;
 import com.booking.booking.hashtag.service.HashtagService;
 import com.booking.booking.hashtagmeeting.domain.HashtagMeeting;
 import com.booking.booking.hashtagmeeting.repository.HashtagMeetingRepository;
@@ -13,7 +15,6 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -27,20 +28,19 @@ public class HashtagMeetingService {
         return Flux.fromIterable(hashtagList)
                 .flatMap(content ->
                     hashtagService.findByContent(content)
-                            .defaultIfEmpty(Optional.empty())
                             .flatMap(optionalHashtag ->
                                     optionalHashtag.map(Mono::just).orElseGet(() -> hashtagService.save(content)))
                 )
                 .flatMap(savedHashtag -> mapHashtagToMeeting(meeting, savedHashtag))
-//                .onErrorResume(error -> {
-//                    log.error("Booking Server Hashtag - Error during findByContent : {}", error.toString());
-//                    return Mono.error(new MeetingException(ErrorCode.CREATE_MEETING_FAILURE));
-//                })
+                .onErrorResume(error -> {
+                    log.error("Booking Server HashtagMeeting - Error during saveHashtags : {}", error.toString());
+                    return Mono.error(new HashtagException(ErrorCode.CREATE_HASHTAG_FAILURE));
+                })
                 .then();
     }
 
     private Mono<Void> mapHashtagToMeeting(Meeting meeting, Hashtag hashtag) {
-        log.info("Booking Server HashtagMeeting - mapHashtagToMeeting({}, {})", meeting.getMeetingTitle(), hashtag);
+        log.info("Booking Server HashtagMeeting - mapHashtagToMeeting({}, {})", meeting.getMeetingTitle(), hashtag.getContent());
         return Mono
                 .fromRunnable(() -> hashtagMeetingRepository.save(
                         HashtagMeeting.builder()
@@ -48,6 +48,10 @@ public class HashtagMeetingService {
                                 .hashtag(hashtag)
                                 .build()))
                 .subscribeOn(Schedulers.boundedElastic())
+                .onErrorResume(error -> {
+                    log.error("Booking Server HashtagMeeting - Error during mapHashtagToMeeting : {}", error.toString());
+                    return Mono.error(new HashtagException(ErrorCode.CREATE_HASHTAG_FAILURE));
+                })
                 .then();
     }
 }
