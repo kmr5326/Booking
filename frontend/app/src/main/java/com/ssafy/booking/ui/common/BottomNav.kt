@@ -16,6 +16,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -48,14 +49,14 @@ fun Btn(
             .fillMaxWidth()
             .height(80.dp)
             .padding(bottom = 20.dp)
-            .background(color= colorResource(id = R.color.background_color))
+            .background(color = colorResource(id = R.color.background_color))
         ,
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.Bottom,
     ) {
         Box(
             contentAlignment = Alignment.Center,
-            modifier = Modifier.padding(horizontal = horPadVal.dp)
+            modifier = Modifier.padding(end = horPadVal.dp)
         ) {
             val btnBook = painterResource(R.drawable.btn_book)
             Image(painter = btnBook, contentDescription = null,
@@ -139,7 +140,7 @@ fun Btn(
         }
         Box(
             contentAlignment = Alignment.Center,
-            modifier = Modifier.padding(horizontal = horPadVal.dp)
+            modifier = Modifier.padding(start = horPadVal.dp)
         ) {
             val btnProfile = painterResource(R.drawable.btn_profile)
             Image(painter = btnProfile, contentDescription = null,
