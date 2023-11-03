@@ -11,7 +11,9 @@ import com.booking.chat.global.exception.ErrorCode;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -23,12 +25,16 @@ public class ChatroomService {
     private final ChatroomRepository chatroomRepository;
 
     public Mono<Chatroom> initializeChatroom(InitChatroomRequest initChatroomRequest) {
-
-        Chatroom chatroom = Chatroom.createWithLeader(initChatroomRequest);
-        return chatroomRepository.save(chatroom);
+        return chatroomRepository.findById(initChatroomRequest.meetingId())
+                                 .flatMap(existingChatroom -> Mono.<Chatroom>error(new ResponseStatusException(
+                                     HttpStatus.BAD_REQUEST, "Chatroom with given meetingId already exists")))
+                                 .switchIfEmpty(Mono.defer(() -> {
+                                     Chatroom chatroom = Chatroom.createWithLeader(initChatroomRequest);
+                                     return chatroomRepository.save(chatroom);
+                                 }));
     }
 
-    public Mono<Void> joinChatroom(JoinChatroomRequest joinChatroomRequest) {
+    public Mono<Long> joinChatroom(JoinChatroomRequest joinChatroomRequest) {
         return chatroomRepository.findById(joinChatroomRequest.meetingId())
                                  .flatMap(chatroom -> {
                                      List<Long> members = chatroom.getMemberList();
@@ -36,18 +42,18 @@ public class ChatroomService {
                                          return Mono.empty(); // 에러 대신 Mono<Void> 반환
                                      }
                                      members.add(joinChatroomRequest.memberId());
-                                     return chatroomRepository.save(chatroom).then();
+                                     return chatroomRepository.save(chatroom).thenReturn(joinChatroomRequest.memberId());
                                  });
     }
 
-    public Mono<Void> exitChatroom(ExitChatroomRequest exitChatroomRequest) {
+    public Mono<Long> exitChatroom(ExitChatroomRequest exitChatroomRequest) {
         return chatroomRepository.findById(exitChatroomRequest.meetingId())
                                  .flatMap(chatroom -> {
                                      boolean removed = chatroom.getMemberList().remove(exitChatroomRequest.memberId());
                                      if (!removed) {
                                          return Mono.empty(); // 대신 Mono<Void>를 반환
                                      }
-                                     return chatroomRepository.save(chatroom).then();
+                                     return chatroomRepository.save(chatroom).thenReturn(exitChatroomRequest.memberId());
                                  });
     }
     public Flux<ChatroomListResponse> getChatroomListByMemberId(Long memberId) {
