@@ -79,6 +79,8 @@ fun SignInScreen(
 
     val navController = LocalNavigation.current
 
+    val (isNickNameError, setIsNickNameError) = remember { mutableStateOf(false) }
+
     LaunchedEffect(signInResponse) {
         if (signInResponse?.body() != null) {
             val tokenDataSource = TokenDataSource(context)
@@ -91,6 +93,14 @@ fun SignInScreen(
                 popUpTo("signIn") { inclusive = true }
                 launchSingleTop = true
             }
+        } else {
+            // 에러 처리
+            Log.i("token","${signInResponse?.code()}")
+            if(signInResponse?.code() == 400) {
+                // 닉네임 중복
+                setIsNickNameError(true)
+            }
+
         }
     }
 
@@ -168,6 +178,10 @@ fun SignInScreen(
             singleLine = true
         )
         Spacer(modifier = Modifier.height(16.dp))
+
+        if(isNickNameError) {
+            Text("닉네임이 중복되었습니다.", color = Color.Red)
+        }
 
         OutlinedTextField(
             value = nickName,
@@ -343,7 +357,7 @@ fun SignInScreen(
                 if (!isError) {
                     Button(onClick = {
                         val request = SignInRequest(
-                            loginId= loginId,
+                            loginId= "kakako_$loginId",
                             address = myLocation,
                             age = 2023 - selectedYear.toInt(),
                             email = email,

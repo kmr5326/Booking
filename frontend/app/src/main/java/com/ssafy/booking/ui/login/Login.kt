@@ -137,6 +137,7 @@ private fun onLoginSuccess(context: Context, loginId: String, navController: Nav
             } else {
                 // 오류 처리
                 val errorCode = response.code()
+                Log.d("kakao","$errorCode")
                 when (errorCode) {
                     // 에러 코드가 400이면 회원가입이 필요한 상태 -> 회원가입으로 라우트
                     400 -> {
@@ -396,7 +397,8 @@ fun KakaoLoginButton(context: Context, navController: NavController) {
     ) {
         Text(
             "카카오로 로그인하기",
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
+            color = Color.Black
         )
     }
 }
