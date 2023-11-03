@@ -1,11 +1,12 @@
-package com.booking.member.members;
+package com.booking.member.members.domain;
 
-import com.booking.member.follows.Follow;
+import com.booking.member.follows.domain.Follow;
 import com.booking.member.payments.domain.Payment;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
+import javax.ws.rs.DefaultValue;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,9 +42,18 @@ public class Member {
     private String fullName;
 
     //@Column(columnDefinition = "TEXT")
+//    @Setter
+//    @Column(length = 255)
+//    private String address;
+    @Column(name = "latitude")
     @Setter
-    @Column(length = 255)
-    private String address;
+    @DefaultValue("0")
+    private Double lat;
+
+    @Column(name = "longitude")
+    @Setter
+    @DefaultValue("0")
+    private Double lgt;
 
     @Setter
     private UserRole role;

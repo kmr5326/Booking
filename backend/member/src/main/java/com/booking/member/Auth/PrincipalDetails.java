@@ -1,6 +1,6 @@
 package com.booking.member.Auth;
 
-import com.booking.member.members.Member;
+import com.booking.member.members.domain.Member;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.user.OAuth2User;

@@ -1,6 +1,6 @@
 package com.booking.member.payments.Service;
 
-import com.booking.member.members.Member;
+import com.booking.member.members.domain.Member;
 import com.booking.member.members.repository.MemberRepository;
 import com.booking.member.payments.Repository.PaymentRepository;
 import com.booking.member.payments.domain.Payment;
@@ -8,16 +8,20 @@ import com.booking.member.payments.domain.PaymentType;
 import com.booking.member.payments.dto.ApprovalResponseDto;
 import com.booking.member.payments.dto.ReadyPaymentRequestDto;
 import com.booking.member.payments.dto.ReadyPaymentResponseDto;
+import com.booking.member.payments.dto.SendRequestDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
+
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -132,5 +136,41 @@ public class PaymentServiceImpl implements PaymentService {
                     member.setPoint(member.getPoint()+response.getAmount().getTotal());
                     memberRepository.save(member);
                 });
+    }
+
+    @Override
+    public Mono<Void> sendPoint(SendRequestDto req,String loginId) {
+        Member sender=memberRepository.findByLoginId(loginId);
+        Member receiver= memberRepository.findByLoginId(req.receiver());
+        if(receiver==null) {
+            log.error("사용자를 찾을 수 없음");
+            return Mono.error(new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+        }
+        if(sender.getPoint()<req.amount()){
+            log.error("포인트 부족");
+            return Mono.error(new RuntimeException("포인트가 부족합니다."));
+        }
+        Payment paymentSend= Payment.builder()
+                .approved_at(LocalDateTime.now())
+                .amount(req.amount())
+                .type(PaymentType.Send)
+                .payer(sender)
+                .receiver(receiver)
+                .build();
+
+        Payment paymentReceive = Payment.builder()
+                .approved_at(LocalDateTime.now())
+                .amount(req.amount())
+                .type(PaymentType.Receive)
+                .payer(sender)
+                .receiver(receiver)
+                .build();
+        paymentRepository.save(paymentSend);
+        paymentRepository.save(paymentReceive);
+        sender.setPoint(sender.getPoint()-req.amount());
+        receiver.setPoint(receiver.getPoint()+req.amount());
+        memberRepository.save(sender);
+        memberRepository.save(receiver);
+        return Mono.empty();
     }
 }
