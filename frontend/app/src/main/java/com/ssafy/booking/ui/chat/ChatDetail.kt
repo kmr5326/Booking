@@ -1,5 +1,6 @@
 package com.ssafy.booking.ui.chat
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -51,11 +52,16 @@ import java.time.LocalDateTime
 
 @Composable
 fun ChatDetail(
-    navController: NavController, socketViewModel: SocketViewModel
+    navController: NavController,
+    socketViewModel: SocketViewModel
 ) {
     val chatId = navController.currentBackStackEntry?.arguments?.getString("chatId")
-
+    Log.d("CHAT", "${chatId}")
     val filteredMessages = messages.filter { it.chatId.toString() == chatId }
+
+    if(filteredMessages.isEmpty()) {
+        return
+    }
 
     Column(
         modifier = Modifier.fillMaxSize()

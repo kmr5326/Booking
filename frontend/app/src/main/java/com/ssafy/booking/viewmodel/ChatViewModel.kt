@@ -8,10 +8,7 @@ import com.ssafy.domain.model.ChatCreateRequest
 import com.ssafy.domain.model.ChatExitRequest
 import com.ssafy.domain.model.ChatJoinRequest
 import com.ssafy.domain.model.ChatRoom
-import com.ssafy.domain.repository.GetChatListRepository
-import com.ssafy.domain.repository.PostChatCreateRepository
-import com.ssafy.domain.repository.PostChatExitRepository
-import com.ssafy.domain.repository.PostChatJoinRepository
+import com.ssafy.domain.repository.ChatRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
@@ -20,10 +17,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ChatViewModel @Inject constructor(
-    private val getChatListRepository: GetChatListRepository,
-    private val postChatCreateRepository: PostChatCreateRepository,
-    private val postChatJoinRepository: PostChatJoinRepository,
-    private val postChatExitRepository: PostChatExitRepository
+    private val chatRepository: ChatRepository,
 ) : ViewModel() {
     var chatListState = mutableStateOf<List<ChatRoom>>(listOf())
     var errorMessage = mutableStateOf("")
@@ -31,9 +25,10 @@ class ChatViewModel @Inject constructor(
     fun createChatRoom(request: ChatCreateRequest) {
         viewModelScope.launch {
             try {
-                val response = postChatCreateRepository.postChatCreate(request)
-                if (response.isSuccessful && response.body() != null) {
+                val response = chatRepository.postChatCreate(request)
+                if (response.isSuccessful) {
                     Log.d("CHAT", "Chat room created successfully: ${response}")
+                    loadChatList()
                 } else {
                     Log.e("CHAT", "Error creating chat room: ${response}")
                 }
@@ -46,9 +41,10 @@ class ChatViewModel @Inject constructor(
     fun joinChatRoom(request: ChatJoinRequest) {
         viewModelScope.launch {
             try {
-                val response = postChatJoinRepository.postChatJoin(request)
-                if (response.isSuccessful && response.body() != null) {
+                val response = chatRepository.postChatJoin(request)
+                if (response.isSuccessful) {
                     Log.d("CHAT", "Chat room joined successfully: ${response}")
+                    loadChatList()
                 } else {
                     Log.e("CHAT", "Error joining chat room: ${response}")
                 }
@@ -61,9 +57,10 @@ class ChatViewModel @Inject constructor(
     fun exitChatRoom(request: ChatExitRequest) {
         viewModelScope.launch {
             try {
-                val response = postChatExitRepository.postChatExit(request)
-                if (response.isSuccessful && response.body() != null) {
+                val response = chatRepository.postChatExit(request)
+                if (response.isSuccessful ) {
                     Log.d("CHAT", "Chat room exited successfully: ${response}")
+                    loadChatList()
                 } else {
                     Log.e("CHAT", "Error exiting chat room: ${response}")
                 }
@@ -76,7 +73,7 @@ class ChatViewModel @Inject constructor(
     fun loadChatList() {
         viewModelScope.launch {
             try {
-                chatListState.value = getChatListRepository.getChatList()
+                chatListState.value = chatRepository.getChatList()
                 Log.d("CHAT", "Get Chat room List ${chatListState}")
             } catch (e: HttpException) {
                 errorMessage.value = "네트워크 에러: ${e.code()} ${e.message}"
@@ -92,6 +89,6 @@ class ChatViewModel @Inject constructor(
     }
 
     init {
-    loadChatList()
+        loadChatList()
     }
 }
