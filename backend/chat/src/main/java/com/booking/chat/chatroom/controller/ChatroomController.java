@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -54,8 +55,8 @@ public class ChatroomController {
     public Mono<ResponseEntity<Void>> exitChatroom(@RequestBody ExitChatroomRequest exitChatroomRequest) {
         log.info(" {} member request exit chatroom : {} ", exitChatroomRequest.memberId(), exitChatroomRequest.meetingId());
         return chatroomService.exitChatroom(exitChatroomRequest)
-                              .then(Mono.just(ResponseEntity.noContent()
-                                                            .build()));
+                              .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Chatroom not found or member not part of chatroom")))
+                              .then(Mono.just(new ResponseEntity<>(HttpStatus.NO_CONTENT)));
     }
 
 
