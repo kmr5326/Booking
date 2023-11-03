@@ -40,7 +40,9 @@ public class ChatroomController {
                                   return Mono.just(new ResponseEntity<Void>(HttpStatus.CREATED));
                               })
                               .onErrorResume(e -> {
+                                  log.info(" Request to create room is failed");
                                   if (e instanceof ResponseStatusException) {
+
                                       return Mono.just(new ResponseEntity<Void>(((ResponseStatusException) e).getStatus()));
                                   }
                                   return Mono.just(new ResponseEntity<Void>(HttpStatus.INTERNAL_SERVER_ERROR));
