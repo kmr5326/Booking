@@ -25,19 +25,10 @@ import androidx.compose.ui.unit.sp
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopBar(
-    title: String,
+    title: String
 ) {
     TopAppBar(
         title = { Text(text = "$title") },
-        navigationIcon = {
-            IconButton(onClick = {}) {
-                Icon(
-                    imageVector = Icons.Filled.ArrowBack,
-                    contentDescription = "업 네비게이션"
-                )
-
-            }
-        },
         actions = {
             IconButton(onClick = {  }) {
                 Icon(
