@@ -11,7 +11,9 @@ import com.booking.chat.global.exception.ErrorCode;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -23,9 +25,13 @@ public class ChatroomService {
     private final ChatroomRepository chatroomRepository;
 
     public Mono<Chatroom> initializeChatroom(InitChatroomRequest initChatroomRequest) {
-
-        Chatroom chatroom = Chatroom.createWithLeader(initChatroomRequest);
-        return chatroomRepository.save(chatroom);
+        return chatroomRepository.findById(initChatroomRequest.meetingId())
+                                 .flatMap(existingChatroom -> Mono.<Chatroom>error(new ResponseStatusException(
+                                     HttpStatus.BAD_REQUEST, "Chatroom with given meetingId already exists")))
+                                 .switchIfEmpty(Mono.defer(() -> {
+                                     Chatroom chatroom = Chatroom.createWithLeader(initChatroomRequest);
+                                     return chatroomRepository.save(chatroom);
+                                 }));
     }
 
     public Mono<Long> joinChatroom(JoinChatroomRequest joinChatroomRequest) {

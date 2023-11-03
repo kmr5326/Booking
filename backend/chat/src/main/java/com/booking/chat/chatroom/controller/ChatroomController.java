@@ -39,8 +39,12 @@ public class ChatroomController {
                                       initChatroomRequest.leaderId());
                                   return Mono.just(new ResponseEntity<Void>(HttpStatus.CREATED));
                               })
-                              .defaultIfEmpty(ResponseEntity.badRequest()
-                                                            .build());
+                              .onErrorResume(e -> {
+                                  if (e instanceof ResponseStatusException) {
+                                      return Mono.just(new ResponseEntity<Void>(((ResponseStatusException) e).getStatus()));
+                                  }
+                                  return Mono.just(new ResponseEntity<Void>(HttpStatus.INTERNAL_SERVER_ERROR));
+                              });
     }
 
     @PostMapping("/join")
