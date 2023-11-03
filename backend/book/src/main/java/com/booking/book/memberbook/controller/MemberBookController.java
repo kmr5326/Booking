@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -35,10 +36,12 @@ public class MemberBookController {
     }
 
     @GetMapping("/{isbn}")
-    public Mono<MemberBookResponse> getMemberBookDetail(@RequestHeader(AUTHORIZATION) String token, @PathVariable String isbn) {
+    public Mono<ResponseEntity<MemberBookResponse>> getMemberBookDetail(@RequestHeader(AUTHORIZATION) String token, @PathVariable String isbn) {
         Long memberId = JwtUtil.getMemberIdByToken(token);
         log.info(" {} member request detail member book : {} ", memberId, isbn);
-        return memberBookService.getMemberBookDetail(memberId, isbn);
+        return memberBookService.getMemberBookDetail(memberId, isbn)
+                                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Member has not read this book")))
+                                .map(ResponseEntity::ok);
     }
 
     @PostMapping("/")
