@@ -52,7 +52,8 @@ import java.time.LocalDateTime
 
 @Composable
 fun ChatDetail(
-    navController: NavController, socketViewModel: SocketViewModel
+    navController: NavController,
+    socketViewModel: SocketViewModel
 ) {
     val chatId = navController.currentBackStackEntry?.arguments?.getString("chatId")
     Log.d("CHAT", "${chatId}")
