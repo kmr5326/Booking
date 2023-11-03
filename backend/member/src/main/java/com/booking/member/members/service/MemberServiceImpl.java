@@ -87,7 +87,8 @@ public class MemberServiceImpl implements MemberService {
                 member.getLat() == null ? -1 : member.getLat(),
                 member.getLgt() == null ? -1 : member.getLgt(),
                 member.getProfileImage(),
-                member.getProvider()
+                member.getProvider(),
+                member.getId()
         );
         return Mono.just(memberInfoResponseDto);
     }
