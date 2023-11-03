@@ -18,6 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -92,6 +94,32 @@ public class MemberServiceImpl implements MemberService {
                 member.getId()
         );
         return Mono.just(memberInfoResponseDto);
+    }
+
+    @Override
+    public Mono<MemberInfoResponseDto> loadMemberInfoByPk(Integer memberPk) {
+        Optional<Member> optionalMember = memberRepository.findById(memberPk);
+        if(optionalMember.isPresent()){
+            Member member=optionalMember.get();
+            MemberInfoResponseDto memberInfoResponseDto = new MemberInfoResponseDto(
+                    member.getLoginId(),
+                    member.getEmail() == null ? "" : member.getEmail(),
+                    member.getAge() == null ? -1 : member.getAge(),
+                    member.getGender() == null ? "" : member.getGender().name(),
+                    member.getNickname(),
+                    member.getFullName() == null ? "" : member.getFullName(),
+                    member.getLat() == null ? -1 : member.getLat(),
+                    member.getLgt() == null ? -1 : member.getLgt(),
+                    member.getProfileImage(),
+                    member.getProvider(),
+                    member.getId()
+            );
+            return Mono.just(memberInfoResponseDto);
+        }
+        else{
+            return Mono.error(new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+        }
+
     }
 
     @Override

@@ -84,4 +84,13 @@ public class MemberController {
         return memberService.changeLocation(reqDto,user.getUsername())
                 .thenReturn(ResponseEntity.ok().build());
     }
+
+    @GetMapping("/memberInfo-pk/{memberPk}")
+    Mono<ResponseEntity<MemberInfoResponseDto>> loadMemberByPk(@PathVariable Integer memberPk) {
+        log.info("유저 정보 조회 memberPk={}", memberPk);
+
+        return memberService.loadMemberInfoByPk(memberPk)
+                .map(response -> ResponseEntity.ok().body(response))
+                .switchIfEmpty(Mono.just(ResponseEntity.notFound().build()));
+    }
 }
