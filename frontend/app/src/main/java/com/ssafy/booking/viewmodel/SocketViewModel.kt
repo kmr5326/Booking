@@ -17,7 +17,7 @@ import java.util.logging.Logger
 import javax.inject.Inject
 @HiltViewModel
 class SocketViewModel @Inject constructor() : ViewModel() {
-    val logger = Logger.getLogger("CHAT")
+    val logger = Logger.getLogger("STOMP")
 
     var stompConnection: Disposable
     lateinit var topic: Disposable
@@ -38,9 +38,9 @@ class SocketViewModel @Inject constructor() : ViewModel() {
         stomp.send("/publish/message/1", jsonMessage)
             .subscribe { success ->
                 if (success) {
-                    Log.d("CHAT", "chatting send is successful ${jsonMessage}")
+                    Log.d("STOMP", "chatting send is successful ${jsonMessage}")
                 } else {
-                    Log.d("CHAT", "failed to send message")
+                    Log.d("STOMP", "failed to send message")
                 }
             }
     }
@@ -52,7 +52,7 @@ class SocketViewModel @Inject constructor() : ViewModel() {
 
                     // subscribe
                     topic = stomp.join("/subscribe/1")
-                        .subscribe { Log.d("CHAT", it) }
+                        .subscribe { Log.d("STOMP", "${it} subscribe!!!") }
 
                     // unsubscribe
 //                topic.dispose()
@@ -70,7 +70,7 @@ class SocketViewModel @Inject constructor() : ViewModel() {
                 }
 
                 else -> {
-                    Log.d("CHAT", "else")
+                    Log.d("STOMP", "else")
                 }
 
             }

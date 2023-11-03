@@ -23,6 +23,9 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -45,17 +48,18 @@ import com.ssafy.domain.model.ChatCreateRequest
 import com.ssafy.domain.model.ChatExitRequest
 import com.ssafy.domain.model.ChatJoinRequest
 import com.ssafy.domain.model.ChatRoom
+import retrofit2.Response
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatHome(
     navController: NavController,
     appViewModel: AppViewModel,
-    ) {
+) {
     val chatViewModel: ChatViewModel = hiltViewModel()
     Scaffold (
         topBar = {
-            TopBar("채팅방")
+            TopBar("채팅")
         },
         bottomBar = {
             BottomNav(navController, appViewModel)
@@ -63,7 +67,8 @@ fun ChatHome(
         modifier = Modifier.fillMaxSize()
     ) {paddingValues->
         Column (
-            modifier = Modifier.padding(paddingValues)
+            modifier = Modifier
+                .padding(paddingValues)
                 .fillMaxSize()
         ){
             Box {
@@ -77,7 +82,7 @@ fun ChatHome(
                     }
                     Button(
                         onClick = {
-                            val request = ChatCreateRequest(1, 1, "독서모임")
+                            val request = ChatCreateRequest(2, 7001, "독서모임")
                             chatViewModel.createChatRoom(request)
                         }
                     ) {
@@ -85,7 +90,8 @@ fun ChatHome(
                     }
                     Button(
                         onClick = {
-                            val request = ChatJoinRequest(1, 1)
+                            val request = ChatJoinRequest(2, 7001)
+                            Log.d("CHAT", "${request}")
                             chatViewModel.joinChatRoom(request)
                         }
                     ) {
@@ -93,7 +99,8 @@ fun ChatHome(
                     }
                     Button(
                         onClick = {
-                            val request = ChatExitRequest(1, 1)
+                            val request = ChatExitRequest(2, 7001)
+                            Log.d("CHAT", "${request}")
                             chatViewModel.exitChatRoom(request)
                         }
                     ) {
@@ -118,7 +125,6 @@ fun ChatList() {
     val chatViewModel: ChatViewModel = hiltViewModel()
     val chatListState = chatViewModel.chatListState.value
 
-    Log.d("CHAT", "$chatListState")
     val chatList = chatListState
 
     LazyColumn(
@@ -133,6 +139,7 @@ fun ChatList() {
         }
     }
 }
+
 
 @Composable
 fun ChatItem(
@@ -151,7 +158,7 @@ fun ChatItem(
     ) {
         if(chat.memberList.size <= 1) {
             Image(
-                painter = painterResource(id = R.drawable.chat1),
+                painter = painterResource(id = R.drawable.chat3),
                 contentDescription = "Chat Image",
                 modifier = Modifier
                     .size(70.dp, 70.dp)
