@@ -28,7 +28,7 @@ public class ChatroomService {
         return chatroomRepository.save(chatroom);
     }
 
-    public Mono<Void> joinChatroom(JoinChatroomRequest joinChatroomRequest) {
+    public Mono<Long> joinChatroom(JoinChatroomRequest joinChatroomRequest) {
         return chatroomRepository.findById(joinChatroomRequest.meetingId())
                                  .flatMap(chatroom -> {
                                      List<Long> members = chatroom.getMemberList();
@@ -36,18 +36,18 @@ public class ChatroomService {
                                          return Mono.empty(); // 에러 대신 Mono<Void> 반환
                                      }
                                      members.add(joinChatroomRequest.memberId());
-                                     return chatroomRepository.save(chatroom).then();
+                                     return chatroomRepository.save(chatroom).thenReturn(joinChatroomRequest.memberId());
                                  });
     }
 
-    public Mono<Void> exitChatroom(ExitChatroomRequest exitChatroomRequest) {
+    public Mono<Long> exitChatroom(ExitChatroomRequest exitChatroomRequest) {
         return chatroomRepository.findById(exitChatroomRequest.meetingId())
                                  .flatMap(chatroom -> {
                                      boolean removed = chatroom.getMemberList().remove(exitChatroomRequest.memberId());
                                      if (!removed) {
                                          return Mono.empty(); // 대신 Mono<Void>를 반환
                                      }
-                                     return chatroomRepository.save(chatroom).then();
+                                     return chatroomRepository.save(chatroom).thenReturn(exitChatroomRequest.memberId());
                                  });
     }
     public Flux<ChatroomListResponse> getChatroomListByMemberId(Long memberId) {

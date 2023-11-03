@@ -45,6 +45,7 @@ public class ChatroomController {
 
     @PostMapping("/join")
     public Mono<ResponseEntity<Void>> joinChatroom(@RequestBody JoinChatroomRequest joinChatroomRequest) {
+        log.info(" {} member request join chatroom : {} ", joinChatroomRequest.memberId(), joinChatroomRequest.meetingId());
         return chatroomService.joinChatroom(joinChatroomRequest)
                               .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Chatroom not found or member already exists")))
                               .then(Mono.just(new ResponseEntity<>(HttpStatus.NO_CONTENT)));
