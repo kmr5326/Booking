@@ -10,6 +10,7 @@ public record MemberInfoResponseDto(
         Double lat,
         Double lgt,
         String profileImage,
-        String provider
+        String provider,
+        Integer memberPk
 ) {
 }
