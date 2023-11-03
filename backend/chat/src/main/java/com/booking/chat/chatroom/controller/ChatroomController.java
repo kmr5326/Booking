@@ -39,12 +39,19 @@ public class ChatroomController {
                                       initChatroomRequest.leaderId());
                                   return Mono.just(new ResponseEntity<Void>(HttpStatus.CREATED));
                               })
-                              .defaultIfEmpty(ResponseEntity.badRequest()
-                                                            .build());
+                              .onErrorResume(e -> {
+                                  log.info(" Request to create room is failed");
+                                  if (e instanceof ResponseStatusException) {
+
+                                      return Mono.just(new ResponseEntity<Void>(((ResponseStatusException) e).getStatus()));
+                                  }
+                                  return Mono.just(new ResponseEntity<Void>(HttpStatus.INTERNAL_SERVER_ERROR));
+                              });
     }
 
     @PostMapping("/join")
     public Mono<ResponseEntity<Void>> joinChatroom(@RequestBody JoinChatroomRequest joinChatroomRequest) {
+        log.info(" {} member request join chatroom : {} ", joinChatroomRequest.memberId(), joinChatroomRequest.meetingId());
         return chatroomService.joinChatroom(joinChatroomRequest)
                               .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Chatroom not found or member already exists")))
                               .then(Mono.just(new ResponseEntity<>(HttpStatus.NO_CONTENT)));
