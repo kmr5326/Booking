@@ -28,6 +28,7 @@ class ChatViewModel @Inject constructor(
                 val response = chatRepository.postChatCreate(request)
                 if (response.isSuccessful) {
                     Log.d("CHAT", "Chat room created successfully: ${response}")
+                    loadChatList()
                 } else {
                     Log.e("CHAT", "Error creating chat room: ${response}")
                 }
@@ -43,6 +44,7 @@ class ChatViewModel @Inject constructor(
                 val response = chatRepository.postChatJoin(request)
                 if (response.isSuccessful) {
                     Log.d("CHAT", "Chat room joined successfully: ${response}")
+                    loadChatList()
                 } else {
                     Log.e("CHAT", "Error joining chat room: ${response}")
                 }
@@ -58,6 +60,7 @@ class ChatViewModel @Inject constructor(
                 val response = chatRepository.postChatExit(request)
                 if (response.isSuccessful ) {
                     Log.d("CHAT", "Chat room exited successfully: ${response}")
+                    loadChatList()
                 } else {
                     Log.e("CHAT", "Error exiting chat room: ${response}")
                 }
