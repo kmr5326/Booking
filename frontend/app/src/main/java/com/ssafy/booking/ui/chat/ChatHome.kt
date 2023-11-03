@@ -51,7 +51,7 @@ import com.ssafy.domain.model.ChatRoom
 fun ChatHome(
     navController: NavController,
     appViewModel: AppViewModel,
-    ) {
+) {
     val chatViewModel: ChatViewModel = hiltViewModel()
     Scaffold (
         topBar = {
@@ -77,7 +77,7 @@ fun ChatHome(
                     }
                     Button(
                         onClick = {
-                            val request = ChatCreateRequest(1, 1, "독서모임")
+                            val request = ChatCreateRequest(2, 7001, "독서모임")
                             chatViewModel.createChatRoom(request)
                         }
                     ) {
@@ -85,7 +85,8 @@ fun ChatHome(
                     }
                     Button(
                         onClick = {
-                            val request = ChatJoinRequest(1, 1)
+                            val request = ChatJoinRequest(2, 7001)
+                            Log.d("CHAT", "${request}")
                             chatViewModel.joinChatRoom(request)
                         }
                     ) {
@@ -93,7 +94,8 @@ fun ChatHome(
                     }
                     Button(
                         onClick = {
-                            val request = ChatExitRequest(1, 1)
+                            val request = ChatExitRequest(2, 7001)
+                            Log.d("CHAT", "${request}")
                             chatViewModel.exitChatRoom(request)
                         }
                     ) {
@@ -118,7 +120,6 @@ fun ChatList() {
     val chatViewModel: ChatViewModel = hiltViewModel()
     val chatListState = chatViewModel.chatListState.value
 
-    Log.d("CHAT", "$chatListState")
     val chatList = chatListState
 
     LazyColumn(
@@ -151,7 +152,7 @@ fun ChatItem(
     ) {
         if(chat.memberList.size <= 1) {
             Image(
-                painter = painterResource(id = R.drawable.chat1),
+                painter = painterResource(id = R.drawable.chat3),
                 contentDescription = "Chat Image",
                 modifier = Modifier
                     .size(70.dp, 70.dp)

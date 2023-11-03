@@ -14,11 +14,14 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import okhttp3.CertificatePinner
+import okhttp3.Interceptor
 import okhttp3.OkHttpClient
+import okhttp3.Response
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.create
+import java.io.IOException
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
@@ -27,31 +30,41 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 class NetworkModule {
 
-//    @Provides
-//    @Singleton
-//    fun provideHttpClient() : OkHttpClient {
-//        return OkHttpClient.Builder()
-//            .readTimeout(10, TimeUnit.SECONDS)
-//            .connectTimeout(10, TimeUnit.SECONDS)
-//            .writeTimeout(15, TimeUnit.SECONDS)
-//            .addInterceptor(getLoggingInterceptor())
-//            .build()
-//    }
-
     @Provides
     @Singleton
-    fun provideRetrofitInstance(
-        okHttpClient: OkHttpClient,
-        gsonConverterFactory: GsonConverterFactory
-    ): Retrofit {
-        return Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .client(okHttpClient)
-//            .client(provideHttpClient())
-            .addConverterFactory(gsonConverterFactory)
+    fun okHttpClient(interceptor : AppInterceptor) : OkHttpClient {
+        return OkHttpClient.Builder()
+            .readTimeout(10, TimeUnit.SECONDS)
+            .connectTimeout(10, TimeUnit.SECONDS)
+            .writeTimeout(15, TimeUnit.SECONDS)
+            .addInterceptor(interceptor)
+            .addInterceptor(getLoggingInterceptor())
+            .addInterceptor(HttpLoggingInterceptor().apply {
+                level = HttpLoggingInterceptor.Level.BODY
+            })
             .build()
     }
 
+    @Provides
+    @Singleton
+    fun retrofit(): Retrofit {
+        return Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .client(okHttpClient(AppInterceptor()))
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+    }
+
+    class AppInterceptor : Interceptor {
+        @Throws(IOException::class)
+        override fun intercept(chain: Interceptor.Chain) : Response = with(chain) {
+            val accessToken = App.prefs.getToken() // ViewModel에서 지정한 key로 JWT 토큰을 가져온다.
+            val newRequest = request().newBuilder()
+                .addHeader("authorization", "Bearer ${accessToken}") // 헤더에 authorization라는 key로 JWT 를 넣어준다.
+                .build()
+            proceed(newRequest)
+        }
+    }
 
     @Provides
     @Singleton

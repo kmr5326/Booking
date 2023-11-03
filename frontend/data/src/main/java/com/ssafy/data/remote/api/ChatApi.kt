@@ -17,7 +17,7 @@ interface GetChatListApi {
 
 interface PostChatCreateApi  {
     @Headers("Content-Type: application/json")
-    @POST("/api/chat/room")
+    @POST("/api/chat/room/")
     suspend fun postChatCreate(@Body request: ChatCreateRequest ): Response<Unit>
 }
 
