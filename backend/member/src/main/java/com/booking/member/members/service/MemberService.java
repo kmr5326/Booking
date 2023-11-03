@@ -1,5 +1,6 @@
 package com.booking.member.members.service;
 
+import com.booking.member.members.dto.ChangeLocationRequestDto;
 import com.booking.member.members.dto.MemberInfoResponseDto;
 import com.booking.member.members.dto.ModifyRequestDto;
 import com.booking.member.members.dto.SignUpRequestDto;
@@ -12,5 +13,6 @@ public interface MemberService {
     Mono<Void> deleteMember(String loginId);
 
     Mono<String> login(String loginId);
+    Mono<Void> changeLocation(ChangeLocationRequestDto req,String loginId);
 
 }

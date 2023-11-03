@@ -6,6 +6,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.payload.JsonFieldType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MvcResult;
 import reactor.core.publisher.Mono;
 
@@ -66,7 +67,7 @@ public class MemberControllerTest extends ControllerTest {
     void t2() throws Exception {
         String loginId = "1234";
         MemberInfoResponseDto responseDto = new MemberInfoResponseDto("1234", "email", 10, "MALE",
-                "mono", "monono", 1.1, 1.1, "profileImg","google");
+                "mono", "monono", 1.1, 1.1, "profileImg","google",1);
 
         when(memberService.loadMemberInfo(any())).thenReturn(Mono.just(responseDto));
 
@@ -92,19 +93,22 @@ public class MemberControllerTest extends ControllerTest {
                                         fieldWithPath("lat").description("위도"),
                                         fieldWithPath("lgt").description("경도"),
                                         fieldWithPath("profileImage").description("프로필 이미지"),
-                                        fieldWithPath("provider").description("google,kakao")
+                                        fieldWithPath("provider").description("google,kakao"),
+                                        fieldWithPath("memberPk").description("member pk")
                                 ))
 
                 );
     }
 
     @Test
+    @WithMockUser
     @DisplayName("회원 정보 수정")
     void t3() throws Exception {
-        ModifyRequestDto modifyRequestDto = new ModifyRequestDto("123", "mono", "addr", "img");
+        ModifyRequestDto modifyRequestDto = new ModifyRequestDto("123", "mono", "img");
         when(memberService.modifyMemberInfo(any(ModifyRequestDto.class))).thenReturn(Mono.empty());
 
         mockMvc.perform(patch(baseUrl + "/modification")
+                        .header("Authorization", "Bearer JWT")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsBytes(modifyRequestDto)))
                 .andExpect(status().isOk())
@@ -115,7 +119,6 @@ public class MemberControllerTest extends ControllerTest {
                                 requestFields(
                                         fieldWithPath("loginId").description("로그인 id"),
                                         fieldWithPath("nickname").description("닉네임"),
-                                        fieldWithPath("address").description("주소"),
                                         fieldWithPath("profileImage").description("프로필 이미지")
                                 )
                         )
@@ -167,4 +170,27 @@ public class MemberControllerTest extends ControllerTest {
                 );
     }
 
+    @Test
+    @WithMockUser
+    @DisplayName("회원 정보 수정")
+    void t6() throws Exception {
+        ChangeLocationRequestDto changeLocationRequestDto=new ChangeLocationRequestDto("addr");
+        when(memberService.changeLocation(any(),anyString())).thenReturn(Mono.empty());
+
+        mockMvc.perform(patch(baseUrl + "/location")
+                        .header("Authorization", "Bearer JWT")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(changeLocationRequestDto)))
+                .andExpect(status().isOk())
+                .andDo(
+                        document("/member/location",
+                                preprocessRequest(prettyPrint()),
+                                preprocessResponse(prettyPrint()),
+                                requestFields(
+                                        fieldWithPath("address").description("위치")
+                                )
+                        )
+
+                );
+    }
 }

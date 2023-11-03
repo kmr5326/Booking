@@ -5,6 +5,7 @@ import com.booking.member.Auth.TokenProvider;
 import com.booking.member.members.domain.Gender;
 import com.booking.member.members.domain.Member;
 import com.booking.member.members.domain.UserRole;
+import com.booking.member.members.dto.ChangeLocationRequestDto;
 import com.booking.member.members.dto.MemberInfoResponseDto;
 import com.booking.member.members.dto.ModifyRequestDto;
 import com.booking.member.members.dto.SignUpRequestDto;
@@ -100,12 +101,7 @@ public class MemberServiceImpl implements MemberService {
                     Member member = memberRepository.findByLoginId(req.loginId());
                     if (member == null) return Mono.error(new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
 
-                    String[] split=parseAddr(req.address());
-                    Double lat=Double.parseDouble(split[0].trim());
-                    Double lgt=Double.parseDouble(split[1].trim());
 
-                    member.setLat(lat);
-                    member.setLgt(lgt);
                     member.setNickname(req.nickname());
                     member.setProfileImage(req.profileImage());
 
@@ -145,6 +141,20 @@ public class MemberServiceImpl implements MemberService {
         }
         return Mono.fromCallable(() -> tokenProvider.createToken(loginId,member.getId()))
                 .map(TokenDto::getAccessToken);
+    }
+
+    @Override
+    public Mono<Void> changeLocation(ChangeLocationRequestDto req,String loginId) {
+        Member member=memberRepository.findByLoginId(loginId);
+
+        String[] split=parseAddr(req.address());
+        Double lat=Double.parseDouble(split[0].trim());
+        Double lgt=Double.parseDouble(split[1].trim());
+
+        member.setLat(lat);
+        member.setLgt(lgt);
+        memberRepository.save(member);
+        return Mono.empty();
     }
 
     public boolean checkMemberDuplicate(String loginId) {

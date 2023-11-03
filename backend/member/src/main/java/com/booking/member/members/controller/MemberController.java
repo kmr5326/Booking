@@ -5,6 +5,8 @@ import com.booking.member.members.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
@@ -48,7 +50,8 @@ public class MemberController {
     }
 
     @PatchMapping("/modification")
-    Mono<ResponseEntity<String>> modifyMemberInfo(@RequestBody ModifyRequestDto req) {
+    Mono<ResponseEntity<String>> modifyMemberInfo(@AuthenticationPrincipal UserDetails user,
+                                                  @RequestBody ModifyRequestDto req) {
         log.info("회원 정보 수정 요청={}", req);
         return memberService.modifyMemberInfo(req)
                 .then(Mono.just(ResponseEntity.ok().body("유저 정보 수정 완료")))
@@ -72,5 +75,13 @@ public class MemberController {
                     log.info("로그인 에러: {}", e.getMessage());
                     return Mono.just(ResponseEntity.badRequest().body(e.getMessage()));
                 });
+    }
+
+    @PatchMapping("/location")
+    Mono<ResponseEntity<Void>> changeLocation(@AuthenticationPrincipal UserDetails user,
+                                              @RequestBody ChangeLocationRequestDto reqDto){
+        log.info("위치 수정 요청: {}",reqDto);
+        return memberService.changeLocation(reqDto,user.getUsername())
+                .thenReturn(ResponseEntity.ok().build());
     }
 }
