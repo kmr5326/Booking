@@ -5,6 +5,7 @@ import com.booking.member.Auth.TokenProvider;
 import com.booking.member.members.domain.Gender;
 import com.booking.member.members.domain.Member;
 import com.booking.member.members.domain.UserRole;
+import com.booking.member.members.dto.ChangeLocationRequestDto;
 import com.booking.member.members.dto.MemberInfoResponseDto;
 import com.booking.member.members.dto.ModifyRequestDto;
 import com.booking.member.members.dto.SignUpRequestDto;
@@ -16,6 +17,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
+
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -94,18 +97,39 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
+    public Mono<MemberInfoResponseDto> loadMemberInfoByPk(Integer memberPk) {
+        Optional<Member> optionalMember = memberRepository.findById(memberPk);
+        if(optionalMember.isPresent()){
+            Member member=optionalMember.get();
+            MemberInfoResponseDto memberInfoResponseDto = new MemberInfoResponseDto(
+                    member.getLoginId(),
+                    member.getEmail() == null ? "" : member.getEmail(),
+                    member.getAge() == null ? -1 : member.getAge(),
+                    member.getGender() == null ? "" : member.getGender().name(),
+                    member.getNickname(),
+                    member.getFullName() == null ? "" : member.getFullName(),
+                    member.getLat() == null ? -1 : member.getLat(),
+                    member.getLgt() == null ? -1 : member.getLgt(),
+                    member.getProfileImage(),
+                    member.getProvider(),
+                    member.getId()
+            );
+            return Mono.just(memberInfoResponseDto);
+        }
+        else{
+            return Mono.error(new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+        }
+
+    }
+
+    @Override
     @Transactional
     public Mono<Void> modifyMemberInfo(ModifyRequestDto req) {
         return Mono.defer(() -> {
                     Member member = memberRepository.findByLoginId(req.loginId());
                     if (member == null) return Mono.error(new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
 
-                    String[] split=parseAddr(req.address());
-                    Double lat=Double.parseDouble(split[0].trim());
-                    Double lgt=Double.parseDouble(split[1].trim());
 
-                    member.setLat(lat);
-                    member.setLgt(lgt);
                     member.setNickname(req.nickname());
                     member.setProfileImage(req.profileImage());
 
@@ -145,6 +169,20 @@ public class MemberServiceImpl implements MemberService {
         }
         return Mono.fromCallable(() -> tokenProvider.createToken(loginId,member.getId()))
                 .map(TokenDto::getAccessToken);
+    }
+
+    @Override
+    public Mono<Void> changeLocation(ChangeLocationRequestDto req,String loginId) {
+        Member member=memberRepository.findByLoginId(loginId);
+
+        String[] split=parseAddr(req.address());
+        Double lat=Double.parseDouble(split[0].trim());
+        Double lgt=Double.parseDouble(split[1].trim());
+
+        member.setLat(lat);
+        member.setLgt(lgt);
+        memberRepository.save(member);
+        return Mono.empty();
     }
 
     public boolean checkMemberDuplicate(String loginId) {

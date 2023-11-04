@@ -36,13 +36,13 @@ public class MeetingController {
     }
 
     @GetMapping("/{meetingId}")
-    public Mono<ResponseEntity<MeetingResponse>> findById(@RequestHeader(AUTHORIZATION) String token, @PathVariable("meetingId") Long meetingId) {
+    public Mono<ResponseEntity<MeetingResponse>> findById(@PathVariable("meetingId") Long meetingId) {
         return meetingService.findById(meetingId)
                 .map(meeting -> ResponseEntity.ok().body(meeting));
     }
 
     @GetMapping("/")
-    public ResponseEntity<Flux<MeetingResponse>> findAllById(@RequestHeader(AUTHORIZATION) String token) {
+    public ResponseEntity<Flux<MeetingResponse>> findAllById() {
         return ResponseEntity.ok().body(meetingService.findAll());
     }
 
