@@ -6,6 +6,7 @@ import com.ssafy.booking.utils.Utils.BASE_URL
 import com.ssafy.data.remote.api.ChatApi
 import com.ssafy.data.remote.api.GoogleApi
 import com.ssafy.data.remote.api.MemberApi
+import com.ssafy.data.remote.api.MyPageApi
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -89,6 +90,12 @@ class NetworkModule {
     @Singleton
     fun provideMemberApi(retrofit: Retrofit): MemberApi {
         return retrofit.create(MemberApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideMyPageApi(retrofit: Retrofit): MyPageApi {
+        return retrofit.create(MyPageApi::class.java)
     }
 
 //    @Provides

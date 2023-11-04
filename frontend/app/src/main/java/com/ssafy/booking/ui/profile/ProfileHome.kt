@@ -29,6 +29,9 @@ import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -43,6 +46,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.ssafy.booking.R
@@ -52,13 +56,12 @@ import com.ssafy.booking.viewmodel.AppViewModel
 import com.ssafy.data.repository.token.TokenDataSource
 // TabBar Import
 import com.ssafy.booking.ui.common.TabBar
+import com.ssafy.booking.viewmodel.MyPageViewModel
+import com.ssafy.domain.model.mypage.UserFollowersResponse
+import com.ssafy.domain.model.mypage.UserFollowingsResponse
+import com.ssafy.domain.model.mypage.UserInfoResponse
+import retrofit2.Response
 
-@Composable
-fun ProfileHome(
-    navController: NavController, appViewModel: AppViewModel
-) {
-    Profile(navController, appViewModel)
-}
 
 @Composable
 fun MyProfile(profileData : ProfileData) {
@@ -105,18 +108,6 @@ fun MyProfile(profileData : ProfileData) {
     }
 }
 
-// 내 서재 Composable
-@Composable
-fun DefaultPreview() {
-    val profileData = ProfileData(
-        imgUri = "https://k.kakaocdn.net/dn/bmkJaA/btszA0swBym/dY3wBT2UQjy1UqZIufY4O0/img_110x110.jpg",
-        name = "@uni.gy",
-        readBookNumber = 10,
-        followers = 390,
-        followings = 255
-    )
-    MyProfile(profileData = profileData)
-}
 
 @Composable
 fun MyBook() {
@@ -146,11 +137,50 @@ fun BookingList() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Profile(
+fun ProfileHome(
     navController: NavController, appViewModel: AppViewModel
 ) {
     val context = LocalContext.current
     val tokenDataSource = TokenDataSource(context)
+
+    val loginId : String? = tokenDataSource.getLoginId()
+
+    val viewModel : MyPageViewModel = hiltViewModel()
+
+    val userInfo : Response<UserInfoResponse>? by viewModel.getUserInfoResponse.observeAsState()
+    val userFollowers : Response<UserFollowersResponse>? by viewModel.getUserFollowersResponse.observeAsState()
+    val userFollowings : Response<UserFollowingsResponse>? by viewModel.getUserFollowingsResponse.observeAsState()
+
+    // 페이지 로딩 시 한번만 실행
+    LaunchedEffect(Unit) {
+        loginId?.let {
+            viewModel.getUserInfo(it)
+        } ?: run {
+            Log.d("mypage","login Id 가 null 입니다.")
+        }
+    }
+
+    // 유저 정보를 가져온 이후 닉네임을 통한 followers, followings 조회
+    if (userInfo != null && userInfo!!.isSuccessful) {
+        LaunchedEffect(userInfo) {
+            userInfo!!.body()?.nickname?.let {
+                viewModel.getUserFollowers(it)
+                viewModel.getUserFollowings(it)
+            } ?: run {
+                Log.d("mypage","userInfo 에서 nickname 이 null 입니다.")
+            }
+        }
+    } else {
+        Log.d("mypage","userInfo 가 null 또는 요청 실패입니다.")
+    }
+
+
+    // userInfo를 사용하여 UI 구성
+    userInfo?.let {
+
+    }
+
+
     val profileData = ProfileData(
         imgUri = "https://k.kakaocdn.net/dn/bmkJaA/btszA0swBym/dY3wBT2UQjy1UqZIufY4O0/img_110x110.jpg",
         name = "@uni.gy",
@@ -169,7 +199,8 @@ fun Profile(
         modifier = Modifier.fillMaxSize()
     ) {paddingValues->
         Column(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
                 .padding(paddingValues)
         ) {
             MyProfile(profileData=profileData)
@@ -190,11 +221,11 @@ fun Profile(
 }
 
 
-// 우선 여기에 데이터 class 만들어 둠
+// sealed class 만들어 둠
 data class ProfileData(
-    val imgUri : String,
-    val name : String,
-    val readBookNumber : Number,
-    val followers : Number,
-    val followings : Number
+    val imgUri : String?,
+    val name : String?,
+    val readBookNumber : Number?,
+    val followers : Number?,
+    val followings : Number?
 )
