@@ -4,6 +4,7 @@ import com.booking.member.payments.Service.PaymentService;
 import com.booking.member.payments.dto.ApprovalResponseDto;
 import com.booking.member.payments.dto.ReadyPaymentRequestDto;
 import com.booking.member.payments.dto.ReadyPaymentResponseDto;
+import com.booking.member.payments.dto.SendRequestDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -34,11 +35,6 @@ public class PaymentController {
                 });
     }
 
-//    @PostMapping("/approval")
-//    public void approve() {
-//        log.info("결제 승인 요청: {}","");
-//    }
-
     @GetMapping("/success")
     public Mono<ResponseEntity<ApprovalResponseDto>> readyPaymentSuccess(@RequestParam(value = "pg_token") String pgToken) {
         log.info("결제 pgToken: {}",pgToken);
@@ -58,5 +54,12 @@ public class PaymentController {
     @GetMapping("/cancle")
     public Mono<ResponseEntity<String>> readyPaymentCancle() {
         return Mono.just(ResponseEntity.ok().body("결제 준비 요청 취소"));
+    }
+
+    @PostMapping("/send")
+    public Mono<ResponseEntity<Void>> sendPoint(@AuthenticationPrincipal UserDetails user,
+                                             @RequestBody SendRequestDto req) {
+        return paymentService.sendPoint(req,user.getUsername())
+                .then(Mono.just(ResponseEntity.noContent().build()));
     }
 }

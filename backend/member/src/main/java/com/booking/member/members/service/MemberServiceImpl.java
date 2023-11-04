@@ -2,9 +2,10 @@ package com.booking.member.members.service;
 
 import com.booking.member.Auth.TokenDto;
 import com.booking.member.Auth.TokenProvider;
-import com.booking.member.members.Gender;
-import com.booking.member.members.Member;
-import com.booking.member.members.UserRole;
+import com.booking.member.members.domain.Gender;
+import com.booking.member.members.domain.Member;
+import com.booking.member.members.domain.UserRole;
+import com.booking.member.members.dto.ChangeLocationRequestDto;
 import com.booking.member.members.dto.MemberInfoResponseDto;
 import com.booking.member.members.dto.ModifyRequestDto;
 import com.booking.member.members.dto.SignUpRequestDto;
@@ -16,6 +17,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
+
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -34,7 +37,14 @@ public class MemberServiceImpl implements MemberService {
                 .flatMap(member -> {
                     if (checkMemberDuplicate(req.loginId())) {
                         return Mono.error(new RuntimeException("이미 가입된 회원입니다."));
+                    } else if (checkNicknameDuplicate(req.nickname())) {
+                        return Mono.error(new RuntimeException("중복된 닉네임"));
                     }
+
+                    String[] split=parseAddr(req.address());
+                    Double lat=Double.parseDouble(split[0].trim());
+                    Double lgt=Double.parseDouble(split[1].trim());
+
                     Member mem=Member.builder()
                             .age(req.age())
                             .email(req.email())
@@ -42,10 +52,12 @@ public class MemberServiceImpl implements MemberService {
                             .loginId(req.loginId())
                             .nickname(req.nickname())
                             .fullName(req.fullName())
-                            .address(req.address())
+                            .lat(lat)
+                            .lgt(lgt)
                             .role(UserRole.USER)
                             .profileImage(req.profileImage())
                             .provider(req.provider())
+                            .point(0)
                             .build();
 
                     return Mono.fromRunnable(() ->  memberRepository.save(mem))
@@ -75,11 +87,39 @@ public class MemberServiceImpl implements MemberService {
                 member.getGender() == null ? "" : member.getGender().name(),
                 member.getNickname(),
                 member.getFullName() == null ? "" : member.getFullName(),
-                member.getAddress() == null ? "" : member.getAddress(),
+                member.getLat() == null ? -1 : member.getLat(),
+                member.getLgt() == null ? -1 : member.getLgt(),
                 member.getProfileImage(),
-                member.getProvider()
+                member.getProvider(),
+                member.getId()
         );
         return Mono.just(memberInfoResponseDto);
+    }
+
+    @Override
+    public Mono<MemberInfoResponseDto> loadMemberInfoByPk(Integer memberPk) {
+        Optional<Member> optionalMember = memberRepository.findById(memberPk);
+        if(optionalMember.isPresent()){
+            Member member=optionalMember.get();
+            MemberInfoResponseDto memberInfoResponseDto = new MemberInfoResponseDto(
+                    member.getLoginId(),
+                    member.getEmail() == null ? "" : member.getEmail(),
+                    member.getAge() == null ? -1 : member.getAge(),
+                    member.getGender() == null ? "" : member.getGender().name(),
+                    member.getNickname(),
+                    member.getFullName() == null ? "" : member.getFullName(),
+                    member.getLat() == null ? -1 : member.getLat(),
+                    member.getLgt() == null ? -1 : member.getLgt(),
+                    member.getProfileImage(),
+                    member.getProvider(),
+                    member.getId()
+            );
+            return Mono.just(memberInfoResponseDto);
+        }
+        else{
+            return Mono.error(new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+        }
+
     }
 
     @Override
@@ -88,7 +128,8 @@ public class MemberServiceImpl implements MemberService {
         return Mono.defer(() -> {
                     Member member = memberRepository.findByLoginId(req.loginId());
                     if (member == null) return Mono.error(new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
-                    member.setAddress(req.address());
+
+
                     member.setNickname(req.nickname());
                     member.setProfileImage(req.profileImage());
 
@@ -130,7 +171,31 @@ public class MemberServiceImpl implements MemberService {
                 .map(TokenDto::getAccessToken);
     }
 
+    @Override
+    public Mono<Void> changeLocation(ChangeLocationRequestDto req,String loginId) {
+        Member member=memberRepository.findByLoginId(loginId);
+
+        String[] split=parseAddr(req.address());
+        Double lat=Double.parseDouble(split[0].trim());
+        Double lgt=Double.parseDouble(split[1].trim());
+
+        member.setLat(lat);
+        member.setLgt(lgt);
+        memberRepository.save(member);
+        return Mono.empty();
+    }
+
     public boolean checkMemberDuplicate(String loginId) {
         return memberRepository.existsByLoginId(loginId);
+    }
+
+    public boolean checkNicknameDuplicate(String nickname) {
+        return memberRepository.existsByNickname(nickname);
+    }
+
+    public String[] parseAddr(String address){
+        String addr=address.substring(14);
+        addr=addr.substring(0,addr.indexOf("hAcc")).trim();
+        return addr.split(",");
     }
 }

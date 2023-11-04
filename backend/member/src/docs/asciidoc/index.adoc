@@ -1,6 +1,0 @@
-==== MEMBER SERVICE API
-=== /api/members
-include::member/member.adoc[]
-=== /api/payments
-include::payment/payment.adoc[]
-
