@@ -1,8 +1,7 @@
 package com.booking.member.reports;
 
-import com.booking.member.members.Member;
+import com.booking.member.members.domain.Member;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
 import javax.persistence.*;

@@ -1,8 +1,8 @@
 package com.booking.member.Auth;
 
-import com.booking.member.members.Member;
+import com.booking.member.members.domain.Member;
 import com.booking.member.members.repository.MemberRepository;
-import com.booking.member.members.UserRole;
+import com.booking.member.members.domain.UserRole;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
