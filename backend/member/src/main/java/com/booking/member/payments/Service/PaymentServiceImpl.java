@@ -1,6 +1,6 @@
 package com.booking.member.payments.Service;
 
-import com.booking.member.members.Member;
+import com.booking.member.members.domain.Member;
 import com.booking.member.members.repository.MemberRepository;
 import com.booking.member.payments.Repository.PaymentRepository;
 import com.booking.member.payments.domain.Payment;
