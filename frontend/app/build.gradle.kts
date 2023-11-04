@@ -146,6 +146,9 @@ dependencies {
     implementation ("com.fasterxml.jackson.core:jackson-databind:2.12.3") // 버전은 적절하게 조절
     implementation ("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.12.3")
 
+    // m3
+    implementation("androidx.compose.material3:material3-window-size-class:1.0.1")
+    implementation("androidx.compose.material3:material3:1.0.1")
 }
 
 // Allow references to generated code
