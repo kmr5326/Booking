@@ -132,9 +132,6 @@ private fun onLoginSuccess(context: Context, loginId: String, navController: Nav
                 tokenDataSource.putToken(token)
                 // 로그인 아이디 넣기
                 tokenDataSource.putLoginId(loginId)
-
-
-
                 navController.navigate(AppNavItem.Main.route) {
                     popUpTo("login") { inclusive = true }
                     launchSingleTop = true
@@ -384,7 +381,6 @@ fun KakaoLoginButton(context: Context, navController: NavController) {
 
                             }
                         }
-
                     }
                 }
             } else {

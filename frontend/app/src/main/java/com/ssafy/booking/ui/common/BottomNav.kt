@@ -55,6 +55,7 @@ import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.DateRange
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material.icons.outlined.Send
@@ -108,12 +109,11 @@ fun BottomNav(
             NavigationBarItem(
                 icon = {
                     val icon = when (item) {
-                        AppNavItem.Book -> Icons.Outlined.PlayArrow
+                        AppNavItem.Book -> Icons.Outlined.FavoriteBorder
                         AppNavItem.History -> Icons.Outlined.DateRange
                         AppNavItem.Main -> Icons.Outlined.Home
                         AppNavItem.Chat -> Icons.Outlined.Send
                         AppNavItem.Profile -> Icons.Outlined.AccountCircle
-                        // 'else' 분기는 'when'이 sealed class를 처리할 때 필요 없으므로 제거합니다.
                         else -> {
                             Icons.Filled.Info
                         }
@@ -122,12 +122,11 @@ fun BottomNav(
                 },
                 label = {
                     val label = when (item) {
-                        AppNavItem.Book -> "북킹"
-                        AppNavItem.History -> "이전 기록"
+                        AppNavItem.Book -> "도서"
+                        AppNavItem.History -> "이전 모임"
                         AppNavItem.Main -> "홈"
                         AppNavItem.Chat -> "채팅"
                         AppNavItem.Profile -> "프로필"
-                        // 'else' 분기는 'when'이 sealed class를 처리할 때 필요 없으므로 제거합니다.
                         else -> {
                             "기타"
                         }
@@ -138,10 +137,10 @@ fun BottomNav(
                 onClick = {
                     if (currentRoute != item.route) {
                         navController.navigate(item.route) {
-                            launchSingleTop = true // 현재 탑 레벨 데스티네이션을 재시작하지 않습니다.
+                            launchSingleTop = true // 현재 탑 레벨 데스티네이션을 재시작하지 않음.
                             restoreState = true // 상태를 복원합니다 (예: 스크롤 위치).
                             popUpTo(navController.graph.startDestinationId) {
-                                saveState = true // 데스티네이션을 pop할 때 상태를 저장합니다.
+                                saveState = true // 데스티네이션을 pop할 때 상태를 저장
                             }
                         }
                     }
@@ -152,7 +151,6 @@ fun BottomNav(
                     unselectedIconColor = unselectedColor,
                     selectedTextColor = selectedColor,
                     unselectedTextColor = unselectedColor,
-
                 )
             )
         }
