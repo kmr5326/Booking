@@ -4,7 +4,7 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.ssafy.data.room.dao.MessageDao
-import com.ssafy.data.room.entity.Converters
+import com.ssafy.data.room.Converters
 import com.ssafy.data.room.entity.MessageEntity
 
 @Database(entities = [MessageEntity::class], version = 1)
