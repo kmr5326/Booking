@@ -2,7 +2,7 @@ package com.booking.booking.meeting.dto.request;
 
 import com.booking.booking.meeting.domain.Meeting;
 import com.booking.booking.meeting.domain.MeetingState;
-import com.booking.booking.meeting.dto.response.MemberInfoResponse;
+import com.booking.booking.global.dto.MemberInfoResponse;
 
 import java.util.List;
 

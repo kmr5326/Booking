@@ -24,7 +24,6 @@ import reactor.core.publisher.Mono;
 @RequestMapping("/api/booking/meeting")
 @RestController
 public class MeetingController {
-
     private final MeetingService meetingService;
     private static final String AUTHORIZATION = "Authorization";
 
@@ -35,31 +34,47 @@ public class MeetingController {
 
         return meetingService.createMeeting(userEmail, meetingRequest)
                 .map(meetingId -> ResponseEntity.ok().body(meetingId))
-                .onErrorResume(throwable ->
-                        Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, throwable.getMessage())));
+                .onErrorResume(error ->
+                        Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, error.getMessage())));
     }
 
     @GetMapping("/{meetingId}")
     public Mono<ResponseEntity<MeetingResponse>> findById(@PathVariable("meetingId") Long meetingId) {
         return meetingService.findById(meetingId)
                 .map(meeting -> ResponseEntity.ok().body(meeting))
-                .onErrorResume(throwable ->
-                        Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, throwable.getMessage())));
+                .onErrorResume(error ->
+                        Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, error.getMessage())));
     }
 
     @GetMapping("/")
-    public ResponseEntity<Flux<MeetingResponse>> findAllById(@RequestHeader(AUTHORIZATION) String token) {
+    public ResponseEntity<Flux<MeetingResponse>> findAllByLocation(@RequestHeader(AUTHORIZATION) String token) {
         String userEmail = JwtUtil.getLoginEmailByToken(token);
 
-        return ResponseEntity.ok().body(meetingService.findAll(userEmail));
+        Flux<MeetingResponse> meetingResponseFlux = meetingService.findAllByLocation(userEmail)
+                .onErrorResume(error ->
+                        Flux.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, error.getMessage())));
+
+        return ResponseEntity.ok().body(meetingResponseFlux);
     }
 
-    @GetMapping("/enroll/{meetingId}")
-    public Mono<ResponseEntity<Void>> enrollMeeting(@RequestHeader(AUTHORIZATION) String token, @PathVariable("meetingId") Long meetingId) {
+    @PostMapping("/{meetingId}/waiting")
+    public Mono<ResponseEntity<Void>> enrollMeeting
+            (@RequestHeader(AUTHORIZATION) String token, @PathVariable("meetingId") Long meetingId) {
         String userEmail = JwtUtil.getLoginEmailByToken(token);
 
         return meetingService.enrollMeeting(userEmail, meetingId)
-                .thenReturn(ResponseEntity.ok().build());
+                .thenReturn(ResponseEntity.ok().<Void>build())
+                .onErrorResume(error ->
+                        Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, error.getMessage())));
     }
 
+    @PostMapping("/{meetingId}/accept/{memberId}")
+    public Mono<ResponseEntity<Void>> acceptMeeting(@RequestHeader(AUTHORIZATION) String token, @PathVariable("meetingId") Long meetingId, @PathVariable("memberId") Integer memberId) {
+        String userEmail = JwtUtil.getLoginEmailByToken(token);
+
+        return meetingService.acceptMeeting(userEmail, meetingId, memberId)
+                .thenReturn(ResponseEntity.ok().<Void>build())
+                .onErrorResume(error ->
+                        Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, error.getMessage())));
+    }
 }

@@ -1,8 +1,6 @@
 package com.booking.booking.hashtag.service;
 
-import com.booking.booking.global.exception.ErrorCode;
 import com.booking.booking.hashtag.domain.Hashtag;
-import com.booking.booking.hashtag.exception.HashtagException;
 import com.booking.booking.hashtag.repository.HashtagRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,7 +34,7 @@ public class HashtagService {
                 .subscribeOn(Schedulers.boundedElastic())
                 .onErrorResume(error -> {
                     log.error("Booking Server Hashtag - Error during save : {}", error.toString());
-                    return Mono.error(new HashtagException(ErrorCode.CREATE_HASHTAG_FAILURE));
+                    return Mono.error(new RuntimeException("해시태그 저장 실패"));
                 });
     }
 }

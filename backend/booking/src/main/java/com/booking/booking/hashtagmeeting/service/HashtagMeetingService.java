@@ -1,8 +1,6 @@
 package com.booking.booking.hashtagmeeting.service;
 
-import com.booking.booking.global.exception.ErrorCode;
 import com.booking.booking.hashtag.domain.Hashtag;
-import com.booking.booking.hashtag.exception.HashtagException;
 import com.booking.booking.hashtag.service.HashtagService;
 import com.booking.booking.hashtagmeeting.domain.HashtagMeeting;
 import com.booking.booking.hashtagmeeting.repository.HashtagMeetingRepository;
@@ -34,7 +32,7 @@ public class HashtagMeetingService {
                 .flatMap(savedHashtag -> mapHashtagToMeeting(meeting, savedHashtag))
                 .onErrorResume(error -> {
                     log.error("Booking Server HashtagMeeting - Error during saveHashtags : {}", error.toString());
-                    return Mono.error(new HashtagException(ErrorCode.CREATE_HASHTAG_FAILURE));
+                    return Mono.error(error);
                 })
                 .then();
     }
@@ -50,7 +48,7 @@ public class HashtagMeetingService {
                 .subscribeOn(Schedulers.boundedElastic())
                 .onErrorResume(error -> {
                     log.error("Booking Server HashtagMeeting - Error during mapHashtagToMeeting : {}", error.toString());
-                    return Mono.error(new HashtagException(ErrorCode.CREATE_HASHTAG_FAILURE));
+                    return Mono.error(new RuntimeException("해시태그 미팅 연결 실패"));
                 })
                 .then();
     }

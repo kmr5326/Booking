@@ -1,4 +1,4 @@
-package com.booking.booking.meeting.dto.response;
+package com.booking.booking.global.dto;
 
 public record MemberInfoResponse(
     String loginId,
