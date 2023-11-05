@@ -1,7 +1,7 @@
 package com.booking.booking.meetinginfo.controller;
 
 
-import com.booking.booking.global.jwt.JwtUtil;
+import com.booking.booking.global.utils.JwtUtil;
 import com.booking.booking.meetinginfo.dto.request.MeetingInfoRequest;
 import com.booking.booking.meetinginfo.service.MeetingInfoService;
 import lombok.RequiredArgsConstructor;

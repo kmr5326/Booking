@@ -1,6 +1,6 @@
 package com.booking.booking.meeting.controller;
 
-import com.booking.booking.global.jwt.JwtUtil;
+import com.booking.booking.global.utils.JwtUtil;
 import com.booking.booking.meeting.dto.request.MeetingRequest;
 import com.booking.booking.meeting.dto.response.MeetingResponse;
 import com.booking.booking.meeting.service.MeetingService;

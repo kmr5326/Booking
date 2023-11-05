@@ -135,6 +135,7 @@ public class MeetingService {
     public Mono<Void> acceptMeeting(String userEmail, Long meetingId, Integer memberId) {
         log.info("Booking Server Meeting - acceptMeeting({}, {}, {})", userEmail, meetingId, memberId);
 
+        // TODO 최대 인원 확인
         return Mono.zip(
                 Mono.justOrEmpty(meetingRepository.findById(meetingId))
                         .switchIfEmpty(Mono.error(new RuntimeException("존재하지 않는 모임"))),
