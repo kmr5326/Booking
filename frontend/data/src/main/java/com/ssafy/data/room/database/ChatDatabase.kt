@@ -5,7 +5,7 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.ssafy.data.room.dao.ChatDao
 import com.ssafy.data.room.entity.ChatEntity
-import com.ssafy.data.room.entity.Converters
+import com.ssafy.data.room.Converters
 
 @Database(entities = [ChatEntity::class], version = 1)
 @TypeConverters(Converters::class)

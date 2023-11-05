@@ -1,8 +1,11 @@
-package com.ssafy.data.room.entity
+package com.ssafy.data.room
 
 import androidx.room.TypeConverter
 import com.google.gson.Gson
 import java.sql.Timestamp
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 
 class Converters {
     @TypeConverter
@@ -13,15 +16,12 @@ class Converters {
     fun jsonToList(value: String): List<Int> {
         return Gson().fromJson(value, Array<Int>::class.java).toList()
     }
-
     @TypeConverter
-    fun dateToTimestamp(timestamp: Timestamp?): Long? {
-        return timestamp?.time
+    fun fromTimestamp(value: Long?): LocalDateTime? {
+        return value?.let { LocalDateTime.ofInstant(Instant.ofEpochMilli(it), ZoneOffset.UTC) }
     }
-
     @TypeConverter
-    fun fromTimestamp(value: Long?): Timestamp? {
-        return value?.let { Timestamp(it) }
+    fun dateToTimestamp(date: LocalDateTime?): Long? {
+        return date?.atZone(ZoneOffset.UTC)?.toInstant()?.toEpochMilli()
     }
-
 }
