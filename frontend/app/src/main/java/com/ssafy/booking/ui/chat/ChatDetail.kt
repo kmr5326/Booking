@@ -29,6 +29,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -60,6 +61,7 @@ import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import kotlin.random.Random
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatDetail(
     navController: NavController,
@@ -84,14 +86,16 @@ fun ChatDetail(
         }
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        Column(modifier = Modifier.fillMaxSize()) {
+    Scaffold (
+        topBar = {
             TopBarChat(title = "${chatId}번 채팅방")
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-            ) {
+        }
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(it)
+        ) {
                 MessageList(
                     modifier = Modifier
                         .weight(1f)
@@ -111,8 +115,8 @@ fun ChatDetail(
                 }
             }
         }
-    }
 }
+
 
 @Composable
 fun MessageList(
@@ -123,7 +127,7 @@ fun MessageList(
 ) {
 
     Box(
-        modifier = Modifier
+        modifier = modifier
             .background(Color(0xFF9bbbd4))
             .fillMaxSize()
     ) {
@@ -166,8 +170,11 @@ fun MessageItem(
             .padding(vertical = 6.dp)
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = if (isOwnMessage) 10.dp else 0.dp),
             horizontalArrangement = if (isOwnMessage) Arrangement.End else Arrangement.Start
+
         ) {
             if(isOwnMessage) {
 
@@ -271,10 +278,10 @@ fun InputText(
             onValueChange = { text = it },
             modifier = Modifier.weight(1f),
             colors = TextFieldDefaults.textFieldColors(
-                containerColor = Color.Transparent,   // 텍스트 필드의 배경색을 흰색으로 설정
-                cursorColor = Color.Black,       // 커서의 색상을 검은색으로 설정
-                focusedIndicatorColor = Color.Transparent,  // 포커스 시 아래지시선 색상을 투명하게 설정
-                unfocusedIndicatorColor = Color.Transparent  // 비포커스 시 아래지시선 색상을 투명하게 설정
+                containerColor = Color.Transparent,
+                cursorColor = Color.Black,
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent
             )
         )
 
@@ -298,7 +305,9 @@ fun InputText(
                     tint = if (text.text.isNotBlank()) Color.Black else Color.Gray
                 )
             }
+
         )
+
         LaunchedEffect(key1 = scrollNeeded) {
             if (scrollNeeded && messagesSize > 0) {
                 listState.animateScrollToItem(index = messagesSize - 1)
