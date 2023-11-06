@@ -35,6 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -42,18 +43,25 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.navigation.NavController
 import com.ssafy.booking.R
+import com.ssafy.booking.model.UserProfileState
 import com.ssafy.booking.ui.common.BottomNav
 import com.ssafy.booking.ui.common.TopBar
 import com.ssafy.booking.viewmodel.AppViewModel
 import com.ssafy.booking.ui.LocalNavigation
+import com.ssafy.booking.ui.profile.ProfileData
 import com.ssafy.booking.viewmodel.ChatViewModel
+import com.ssafy.booking.viewmodel.MyPageViewModel
 import com.ssafy.booking.viewmodel.SocketViewModel
+import com.ssafy.data.repository.token.TokenDataSource
 import com.ssafy.domain.model.ChatCreateRequest
 import com.ssafy.domain.model.ChatExitRequest
 import com.ssafy.domain.model.ChatJoinRequest
 import com.ssafy.domain.model.ChatRoom
+import com.ssafy.domain.model.mypage.UserInfoResponse
 import retrofit2.Response
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -63,8 +71,30 @@ fun ChatHome(
     appViewModel: AppViewModel,
 ) {
     val chatViewModel: ChatViewModel = hiltViewModel()
+    val myPageViewModel: MyPageViewModel = hiltViewModel()
+    val context = LocalContext.current
+    val tokenDataSource = TokenDataSource(context)
 
-    var chatId by remember {mutableStateOf("1")}
+    var chatId by remember {mutableStateOf("")}
+    var memId by remember { mutableStateOf<Long?>(null) }
+
+    val loginId: String? = tokenDataSource.getLoginId()
+    val getUserInfoResponse by myPageViewModel.getUserInfoResponse.observeAsState()
+    chatViewModel.loadChatList()
+
+    LaunchedEffect(loginId) {
+        val result = loginId?.let {
+            Log.d("CHAT","$loginId")
+            myPageViewModel.getUserInfo(loginId)
+        }
+    }
+
+    LaunchedEffect(getUserInfoResponse) {
+        if(getUserInfoResponse != null) {
+            Log.d("CHAT","${getUserInfoResponse!!.body()}")
+            memId = getUserInfoResponse!!.body()?.memberPk
+        }
+    }
 
     Scaffold (
         topBar = {
@@ -87,36 +117,34 @@ fun ChatHome(
                             value = chatId,
                             onValueChange = { chatId = it },
                             placeholder = { Text("채팅방 번호") },
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                            singleLine = true,
                         )
                         Button(
                             onClick = {
-                                val request = ChatCreateRequest(chatId.toInt(), 7001, "${chatId}번 채팅")
+                                val request = ChatCreateRequest(chatId.toInt(), memId, "${chatId}번 채팅")
                                 chatViewModel.createChatRoom(request)
                             }
                         ) {
-                            Text("채팅방 생성 API")
+                            Text("방 생성")
                         }
                     }
                     Row {
                         Button(
                             onClick = {
-                                val request = ChatJoinRequest(chatId.toInt(), 7001)
+                                val request = ChatJoinRequest(chatId.toInt(), memId)
                                 Log.d("CHAT", "${request}")
                                 chatViewModel.joinChatRoom(request)
                             }
                         ) {
-                            Text("채팅방 참가 API")
+                            Text("채팅방 참가")
                         }
                         Button(
                             onClick = {
-                                val request = ChatExitRequest(chatId.toInt(), 7001)
+                                val request = ChatExitRequest(chatId.toInt(), memId)
                                 Log.d("CHAT", "${request}")
                                 chatViewModel.exitChatRoom(request)
                             }
                         ) {
-                            Text("채팅방 나가기 API")
+                            Text("채팅방 나가기")
                         }
                     }
                     ChatList()
@@ -204,7 +232,9 @@ fun ChatItem(
             }
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = chat.meetingTitle,
+                text = chat.lastMessage?.let{
+                           chat.lastMessage
+                } ?: "",
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
                 fontWeight = FontWeight.Medium,

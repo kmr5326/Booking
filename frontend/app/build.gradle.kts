@@ -125,6 +125,9 @@ dependencies {
 
     implementation ("com.google.android.gms:play-services-location:21.0.1")
 
+    // Paging
+    implementation ("androidx.paging:paging-runtime:3.1.1")
+
     // Room
     implementation(Room.ROOM_RUNTIME)
     annotationProcessor(Room.ROOM_COMPILER)

@@ -63,7 +63,8 @@ fun BookingApp(googleSignInClient: GoogleSignInClient) {
 
     BookingTheme {
         Scaffold {
-            Box(Modifier.padding(it)) {
+            Box(modifier = Modifier
+                .padding(it)) {
                 Route(googleSignInClient)
             }
         }

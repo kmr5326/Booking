@@ -7,6 +7,8 @@ data class ChatRoom (
     val chatroomId: Int,
     @SerializedName("meetingTitle")
     val meetingTitle : String,
+    @SerializedName("lastMessage")
+    val lastMessage : String?,
     @SerializedName("memberList")
     val memberList: List<Int>
 )

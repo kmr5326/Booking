@@ -42,6 +42,7 @@ class SocketViewModel @Inject constructor(
         .create()
 
     var messages: LiveData<List<MessageEntity>> = MutableLiveData(emptyList())
+
     fun loadMessages(chatId: String) {
         viewModelScope.launch {
             messages = messageDao.getAll(chatId.toInt())
@@ -65,9 +66,10 @@ class SocketViewModel @Inject constructor(
                                 // to MessageEntity
                                 val messageEntity = MessageEntity(
                                     chatId = chatId.toInt(),
-                                    senderId = kafkaMessage.senderId.toInt(),
+                                    senderId = kafkaMessage.senderId,
                                     sendTime = kafkaMessage.sendTime,
-                                    content = kafkaMessage.message
+                                    content = kafkaMessage.message,
+                                    senderName = kafkaMessage.senderName
                                 )
                                 Log.d("STOMP", "Converted to Entity: $messageEntity")
                                 // Insert Room DB
@@ -92,7 +94,7 @@ class SocketViewModel @Inject constructor(
         }
     }
 
-    fun sendMessage(message: KafkaMessage, chatId: String?) {
+    fun sendMessage(message: KafkaMessage, chatId: Long?) {
         val jsonMessage = gson.toJson(message)
         stomp.send("/publish/message/${chatId}", jsonMessage)
             .subscribe { success ->
