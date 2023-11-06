@@ -17,6 +17,7 @@ import reactor.core.scheduler.Schedulers;
 @Service
 public class ParticipantService {
     private final ParticipantRepository participantRepository;
+    private final MemberUtil memberUtil;
 
     public Mono<Void> addParticipant(Meeting meeting, Integer memberId) {
         log.info("Booking Server Participant - addParticipant({}, {})", meeting, memberId);
@@ -55,7 +56,7 @@ public class ParticipantService {
 
         return Mono.fromCallable(() -> participantRepository.findAllByMeetingMeetingId(meetingId))
                 .flatMapMany(Flux::fromIterable)
-                .flatMap(participant -> MemberUtil.getMemberInfoByPk(participant.getMemberId())
+                .flatMap(participant -> memberUtil.getMemberInfoByPk(participant.getMemberId())
                         .flatMap(memberInfo -> Mono.just(new ParticipantResponse(memberInfo, participant))))
                 .onErrorResume(error -> {
                     log.error("Booking Server Participant - Error during findAllByMeetingId : {}", error.getMessage());
