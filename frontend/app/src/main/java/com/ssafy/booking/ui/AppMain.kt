@@ -30,6 +30,7 @@ import com.ssafy.booking.ui.profile.ProfileHome
 import com.ssafy.booking.viewmodel.MainViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import com.ssafy.booking.ui.booking.MyFloatingActionButton
+import com.ssafy.booking.ui.common.SettingPage
 import com.ssafy.booking.ui.login.SignInScreen
 import com.ssafy.booking.viewmodel.ChatViewModel
 import com.ssafy.booking.viewmodel.SocketViewModel
@@ -50,6 +51,7 @@ sealed class AppNavItem(
             return "signIn/$loginId/$kakaoNickName"
         }
     }
+    object Setting: AppNavItem("setting")
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -114,7 +116,9 @@ fun Route(googleSignInClient: GoogleSignInClient) {
                 val kakaoNickName = navBackStackEntry.arguments?.getString("kakaoNickName") ?: ""
                 SignInScreen(loginId,kakaoNickName)
             }
-
+            composable("setting") {
+                SettingPage()
+            }
         }
     }
 }

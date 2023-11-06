@@ -357,7 +357,7 @@ fun SignInScreen(
                 if (!isError) {
                     Button(onClick = {
                         val request = SignInRequest(
-                            loginId= "kakako_$loginId",
+                            loginId= loginId,
                             address = myLocation,
                             age = 2023 - selectedYear.toInt(),
                             email = email,
