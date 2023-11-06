@@ -58,6 +58,12 @@ dependencies {
 	//fluentd
 	implementation group: 'org.fluentd', name: 'fluent-logger', version: '0.3.4'
 	implementation group: 'com.sndyuk', name: 'logback-more-appenders', version: '1.8.8'
+
+	//actuator
+	implementation group: 'org.springframework.boot', name: 'spring-boot-starter-actuator', version: '3.1.0'
+	//micrometer,prometheus
+	implementation group: 'io.micrometer', name: 'micrometer-registry-prometheus', version: '1.11.1'
+	implementation group: 'io.micrometer', name: 'micrometer-core', version: '1.11.1'
 }
 
 dependencyManagement {
