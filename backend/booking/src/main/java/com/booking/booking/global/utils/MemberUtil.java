@@ -13,10 +13,14 @@ import java.net.URI;
 @Slf4j
 @Component
 public class MemberUtil {
-    @Value("${gateway.url}")
-    private String GATEWAY_URL;
+    private static String GATEWAY_URL;
 
-    public Mono<MemberInfoResponse> getMemberInfoByEmail(String userEmail) {
+    @Value("${gateway.url}")
+    public void setGatewayUrl(String gatewayUrl) {
+        MemberUtil.GATEWAY_URL = gatewayUrl;
+    }
+
+    public static Mono<MemberInfoResponse> getMemberInfoByEmail(String userEmail) {
         log.info("Booking Server MemberUtil - getMemberInfoByEmail({})", userEmail);
 
         WebClient webClient = WebClient.builder().build();
@@ -32,7 +36,7 @@ public class MemberUtil {
                 .bodyToMono(MemberInfoResponse.class);
     }
 
-    public Mono<MemberInfoResponse> getMemberInfoByPk(Integer memberPk) {
+    public static Mono<MemberInfoResponse> getMemberInfoByPk(Integer memberPk) {
         log.info("Booking Server MemberUtil - getMemberInfoByPk({})", memberPk);
 
         WebClient webClient = WebClient.builder().build();
