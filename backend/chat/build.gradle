@@ -74,6 +74,10 @@ dependencies {
 	//fluentd
 	implementation group: 'org.fluentd', name: 'fluent-logger', version: '0.3.4'
 	implementation group: 'com.sndyuk', name: 'logback-more-appenders', version: '1.8.8'
+
+	//firebase
+	implementation 'com.google.firebase:firebase-admin:9.2.0'
+
 }
 
 dependencyManagement {

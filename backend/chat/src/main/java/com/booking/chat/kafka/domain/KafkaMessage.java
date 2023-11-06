@@ -22,8 +22,8 @@ public class KafkaMessage implements Serializable {
 
     private String message;
     private Long senderId;
-
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime sendTime;
+    private String senderName;
 }
