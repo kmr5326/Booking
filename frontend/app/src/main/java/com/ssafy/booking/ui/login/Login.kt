@@ -128,8 +128,10 @@ private fun onLoginSuccess(context: Context, loginId: String, navController: Nav
                 val token = response.body()?.string()
                 Log.d("API", "API 호출 성공,AT는: $token")
                 val tokenDataSource = TokenDataSource(context)
+                // 토큰 넣기
                 tokenDataSource.putToken(token)
-                val asdf = tokenDataSource.getToken()
+                // 로그인 아이디 넣기
+                tokenDataSource.putLoginId(loginId)
                 navController.navigate(AppNavItem.Main.route) {
                     popUpTo("login") { inclusive = true }
                     launchSingleTop = true
@@ -379,7 +381,6 @@ fun KakaoLoginButton(context: Context, navController: NavController) {
 
                             }
                         }
-
                     }
                 }
             } else {
