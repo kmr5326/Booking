@@ -59,6 +59,15 @@ dependencies {
 	implementation 'org.springframework.cloud:spring-cloud-starter-config'
 	implementation 'org.springframework.cloud:spring-cloud-starter-bootstrap'
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+	//zipkin
+	implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-sleuth', version: '3.1.9'
+	implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-zipkin', version: '2.2.8.RELEASE'
+
+	//fluentd
+	implementation group: 'org.fluentd', name: 'fluent-logger', version: '0.3.4'
+	implementation group: 'com.sndyuk', name: 'logback-more-appenders', version: '1.8.8'
+
 }
 
 dependencyManagement {

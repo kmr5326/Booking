@@ -36,4 +36,11 @@ include::{snippets}/member/delete/request-fields.adoc[]
 ==== HTTP Response
 include::{snippets}/member/delete/http-response.adoc[]
 
+=== 회원 위치 수정
+==== HTTP Request
+include::{snippets}/member/location/http-request.adoc[]
+include::{snippets}/member/location/request-fields.adoc[]
+==== HTTP Response
+include::{snippets}/member/location/http-response.adoc[]
+
 
