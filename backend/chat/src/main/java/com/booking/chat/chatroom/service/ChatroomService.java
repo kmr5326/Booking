@@ -8,6 +8,7 @@ import com.booking.chat.chatroom.dto.response.ChatroomListResponse;
 import com.booking.chat.chatroom.exception.ChatroomException;
 import com.booking.chat.chatroom.repository.ChatroomRepository;
 import com.booking.chat.global.exception.ErrorCode;
+import java.time.Duration;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -62,7 +63,8 @@ public class ChatroomService {
 
     public Flux<ChatroomListResponse> getChatroomListByMemberIdOrderByDesc(Long memberId) {
         return chatroomRepository.findByMemberListContainsOrderByLastMessageReceivedTimeDesc(memberId)
-            .map(ChatroomListResponse::from);
+            .map(ChatroomListResponse::from)
+            .repeatWhen(flux -> flux.delayElements(Duration.ofSeconds(1)));
     }
 
     public Mono<Chatroom> findByChatroomId(Long chatroomId) {
