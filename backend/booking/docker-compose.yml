@@ -6,8 +6,8 @@ volumes:
       name: booking_booking_maria
 
 networks:
-  booking_booking_service_network:
-    name: booking_booking_service_network
+  booking_booking_network:
+    name: booking_booking_network
     driver: bridge
 
 services:
@@ -22,7 +22,7 @@ services:
       MYSQL_ROOT_PASSWORD: booking123!
       TZ: Asia/Seoul
     networks:
-      - booking_booking_service_network
+      - booking_booking_network
     volumes:
       - 'booking_booking_maria:/var/lib/mysql'
     command:
@@ -42,4 +42,4 @@ services:
     ports:
       - '9003:9003'
     networks:
-      - booking_booking_service_network
+      - booking_booking_network
