@@ -1,11 +1,16 @@
 package com.booking.booking.waitlist.dto.response;
 
+import com.booking.booking.global.dto.MemberInfoResponse;
 import com.booking.booking.waitlist.domain.Waitlist;
 
 public record WaitlistResponse(
-    Integer memberPk
+        String loginId,
+        String nickname,
+        String profileImage,
+        Integer memberPk
 ) {
-    public WaitlistResponse(Waitlist waitlist) {
-        this(waitlist.getMemberId());
+    public WaitlistResponse(MemberInfoResponse memberInfoResponse, Waitlist waitlist) {
+        this(memberInfoResponse.loginId(), memberInfoResponse.nickname(), memberInfoResponse.profileImage(),
+                waitlist.getMemberId());
     }
 }

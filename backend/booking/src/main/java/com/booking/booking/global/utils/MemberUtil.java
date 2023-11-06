@@ -27,4 +27,20 @@ public class MemberUtil {
                         response -> Mono.error(new RuntimeException("회원정보 응답 에러")))
                 .bodyToMono(MemberInfoResponse.class);
     }
+
+    public static Mono<MemberInfoResponse> getMemberInfoByPk(Integer memberPk) {
+        log.info("Booking Server MemberUtil - getMemberInfoByPk({})", memberPk);
+
+        WebClient webClient = WebClient.builder().build();
+        URI uri = URI.create(GATEWAY_URL + "/api/members/memberInfo-pk/" + memberPk);
+
+        return webClient.get()
+                .uri(uri)
+                .retrieve()
+                .onStatus(HttpStatus::is4xxClientError,
+                        response -> Mono.error(new RuntimeException("회원정보 응답 에러")))
+                .onStatus(HttpStatus::is5xxServerError,
+                        response -> Mono.error(new RuntimeException("회원정보 응답 에러")))
+                .bodyToMono(MemberInfoResponse.class);
+    }
 }

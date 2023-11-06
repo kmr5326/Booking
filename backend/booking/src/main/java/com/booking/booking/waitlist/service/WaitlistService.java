@@ -1,5 +1,6 @@
 package com.booking.booking.waitlist.service;
 
+import com.booking.booking.global.utils.MemberUtil;
 import com.booking.booking.meeting.domain.Meeting;
 import com.booking.booking.waitlist.domain.Waitlist;
 import com.booking.booking.waitlist.dto.response.WaitlistResponse;
@@ -55,7 +56,8 @@ public class WaitlistService {
 
         return Mono.fromCallable(() -> waitlistRepository.findAllByMeetingMeetingId(meetingId))
                 .flatMapMany(Flux::fromIterable)
-                .flatMap(waitlist -> Mono.just(new WaitlistResponse(waitlist)))
+                .flatMap(waitlist -> MemberUtil.getMemberInfoByPk(waitlist.getMemberId())
+                                .flatMap(memberInfo -> Mono.just(new WaitlistResponse(memberInfo, waitlist))))
                 .onErrorResume(error -> {
                     log.error("Booking Server Waitlist - Error during findAllByMeetingId : {}", error.getMessage());
                     return Flux.error(new RuntimeException("대기자 목록 조회 실패"));

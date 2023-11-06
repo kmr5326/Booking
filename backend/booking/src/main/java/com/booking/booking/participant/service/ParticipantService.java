@@ -2,7 +2,6 @@ package com.booking.booking.participant.service;
 
 import com.booking.booking.global.utils.MemberUtil;
 import com.booking.booking.meeting.domain.Meeting;
-import com.booking.booking.meeting.service.MeetingService;
 import com.booking.booking.participant.domain.Participant;
 import com.booking.booking.participant.dto.response.ParticipantResponse;
 import com.booking.booking.participant.repository.ParticipantRepository;
@@ -56,7 +55,8 @@ public class ParticipantService {
 
         return Mono.fromCallable(() -> participantRepository.findAllByMeetingMeetingId(meetingId))
                 .flatMapMany(Flux::fromIterable)
-                .flatMap(participant -> Mono.just(new ParticipantResponse(participant)))
+                .flatMap(participant -> MemberUtil.getMemberInfoByPk(participant.getMemberId())
+                        .flatMap(memberInfo -> Mono.just(new ParticipantResponse(memberInfo, participant))))
                 .onErrorResume(error -> {
                     log.error("Booking Server Participant - Error during findAllByMeetingId : {}", error.getMessage());
                     return Flux.error(new RuntimeException("참가자 목록 조회 실패"));
