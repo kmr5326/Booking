@@ -62,6 +62,7 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: booking
       MONGO_INITDB_ROOT_PASSWORD: booking123!
+      MONGODB_PORT: 27016
     command: mongod --replSet rs0 --keyFile /etc/mongodb.key --bind_ip_all
     networks:
       - booking_chat_network
