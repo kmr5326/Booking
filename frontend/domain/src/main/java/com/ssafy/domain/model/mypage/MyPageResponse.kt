@@ -16,12 +16,16 @@ data class UserInfoResponse(
     val nickname : String,
     @SerializedName("fullname")
     val fullname : String,
-    @SerializedName("address")
-    val address : String,
+    @SerializedName("lat")
+    val lat : Double,
+    @SerializedName("lgt")
+    val lgt : Double,
     @SerializedName("profileImage")
     val profileImage : String,
     @SerializedName("provider")
     val provider : String,
+    @SerializedName("memberPk")
+    val memberPk: Long
 )
 
 data class FollowersList (
@@ -35,7 +39,7 @@ data class FollowersList (
 data class UserFollowersResponse (
 
     @SerializedName("followers")
-    val followers: List<FollowersList>,
+    val followers: List<FollowersList?>,
     @SerializedName("followersCnt")
     val followersCnt: Int
 )
@@ -43,7 +47,7 @@ data class UserFollowersResponse (
 data class UserFollowingsResponse (
 
     @SerializedName("followings")
-    val followings: List<FollowersList>,
+    val followings: List<FollowersList?>,
     @SerializedName("followingsCnt")
     val followingsCnt: Int
 )

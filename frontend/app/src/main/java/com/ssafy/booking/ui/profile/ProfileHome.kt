@@ -4,6 +4,7 @@ import android.graphics.drawable.Icon
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -16,40 +17,31 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CardDefaults.cardElevation
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.ssafy.booking.R
+import com.ssafy.booking.model.UserProfileState
 import com.ssafy.booking.ui.common.BottomNav
 import com.ssafy.booking.ui.common.TopBar
 import com.ssafy.booking.viewmodel.AppViewModel
@@ -57,10 +49,14 @@ import com.ssafy.data.repository.token.TokenDataSource
 // TabBar Import
 import com.ssafy.booking.ui.common.TabBar
 import com.ssafy.booking.viewmodel.MyPageViewModel
+import com.ssafy.domain.model.mypage.FollowersList
 import com.ssafy.domain.model.mypage.UserFollowersResponse
 import com.ssafy.domain.model.mypage.UserFollowingsResponse
 import com.ssafy.domain.model.mypage.UserInfoResponse
 import retrofit2.Response
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.lifecycle.LiveData
 
 
 @Composable
@@ -78,7 +74,7 @@ fun MyProfile(profileData : ProfileData) {
             modifier = Modifier.padding(8.dp),
         ){
             AsyncImage(
-                model = profileData.imgUri,
+                model = profileData.myProfile?.profileImage,
                 contentScale = ContentScale.Crop,
                 contentDescription = null,
                 placeholder = ColorPainter(Color.DarkGray),
@@ -88,21 +84,22 @@ fun MyProfile(profileData : ProfileData) {
             )
             Spacer(modifier = Modifier.size(40.dp))
             Column {
-                Text(text = profileData.name, color=colorResource(id = R.color.font_color))
+                Text(text = "@${profileData.myProfile?.nickname}", color=colorResource(id = R.color.font_color))
                 Spacer(modifier = Modifier.size(4.dp))
                 Text(text = "읽은 책 : ${profileData.readBookNumber}권", color=colorResource(id = R.color.font_color))
                 Spacer(modifier = Modifier.size(4.dp))
                 Row {
-                    Text(text = "팔로잉 ${profileData.followings}", color=colorResource(id = R.color.font_color))
+                    Text(text = "팔로잉 ${profileData.followings?.followingsCnt}", color=colorResource(id = R.color.font_color))
                     Spacer(modifier = Modifier.size(16.dp))
-                    Text(text = "팔로워 ${profileData.followers}", color=colorResource(id = R.color.font_color))
+                    Text(text = "팔로워 ${profileData.followers?.followersCnt}", color=colorResource(id = R.color.font_color))
                 }
             }
             Spacer(modifier = Modifier.size(40.dp))
             Icon(
                 imageVector = Icons.Filled.Edit,
                 contentDescription = null,
-                modifier = Modifier.align(Alignment.Top)
+                modifier = Modifier.align(Alignment.Top),
+                tint = colorResource(id = R.color.font_color)
             )
         }
     }
@@ -147,48 +144,66 @@ fun ProfileHome(
 
     val viewModel : MyPageViewModel = hiltViewModel()
 
-    val userInfo : Response<UserInfoResponse>? by viewModel.getUserInfoResponse.observeAsState()
-    val userFollowers : Response<UserFollowersResponse>? by viewModel.getUserFollowersResponse.observeAsState()
-    val userFollowings : Response<UserFollowingsResponse>? by viewModel.getUserFollowingsResponse.observeAsState()
+//    val userInfo : Response<UserInfoResponse>? by viewModel.getUserInfoResponse.observeAsState()
+//    val userFollowers : Response<UserFollowersResponse>? by viewModel.getUserFollowersResponse.observeAsState()
+//    val userFollowings : Response<UserFollowingsResponse>? by viewModel.getUserFollowingsResponse.observeAsState()
+//
+//    // 페이지 로딩 시 한번만 실행
+//    LaunchedEffect(Unit) {
+//        loginId?.let {
+//            viewModel.getUserInfo(it)
+//        } ?: run {
+//            Log.d("mypage","login Id 가 null 입니다.")
+//        }
+//    }
+//
+//    // 유저 정보를 가져온 이후 닉네임을 통한 followers, followings 조회
+//    if (userInfo != null && userInfo!!.isSuccessful) {
+//        LaunchedEffect(userInfo) {
+//            userInfo!!.body()?.nickname?.let {
+//                viewModel.getUserFollowers(it)
+//                viewModel.getUserFollowings(it)
+//            } ?: run {
+//                Log.d("mypage","userInfo 에서 nickname 이 null 입니다.")
+//            }
+//        }
+//    } else {
+//        Log.d("mypage","userInfo 가 null 또는 요청 실패입니다.")
+//    }
+//
+//
+//    // userInfo를 사용하여 UI 구성
+//    userInfo?.let {
+//
+//    }
 
-    // 페이지 로딩 시 한번만 실행
+    // 상태 관찰
+    val profileState by viewModel.profileState.observeAsState()
+
     LaunchedEffect(Unit) {
         loginId?.let {
-            viewModel.getUserInfo(it)
+            Log.d("mypage","$loginId")
+            viewModel.getMyPage(loginId)
         } ?: run {
-            Log.d("mypage","login Id 가 null 입니다.")
+            // 로그인 페이지로 이동시키는 버튼이 있는 화면 띄우기
+
         }
     }
 
-    // 유저 정보를 가져온 이후 닉네임을 통한 followers, followings 조회
-    if (userInfo != null && userInfo!!.isSuccessful) {
-        LaunchedEffect(userInfo) {
-            userInfo!!.body()?.nickname?.let {
-                viewModel.getUserFollowers(it)
-                viewModel.getUserFollowings(it)
-            } ?: run {
-                Log.d("mypage","userInfo 에서 nickname 이 null 입니다.")
-            }
-        }
-    } else {
-        Log.d("mypage","userInfo 가 null 또는 요청 실패입니다.")
+    // 화면 표시
+    when (profileState) {
+        is UserProfileState.Loading -> LoadingView()
+        is UserProfileState.Success -> ProfileView(data = (profileState as UserProfileState.Success).data, navController = navController, appViewModel = appViewModel)
+        is UserProfileState.Error -> ErrorView(message = (profileState as UserProfileState.Error).message, navController = navController, appViewModel = appViewModel)
+        else -> GuestView(navController = navController, appViewModel = appViewModel)
     }
+}
 
-
-    // userInfo를 사용하여 UI 구성
-    userInfo?.let {
-
-    }
-
-
-    val profileData = ProfileData(
-        imgUri = "https://k.kakaocdn.net/dn/bmkJaA/btszA0swBym/dY3wBT2UQjy1UqZIufY4O0/img_110x110.jpg",
-        name = "@uni.gy",
-        readBookNumber = 10,
-        followers = 390,
-        followings = 255
-    )
-
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ProfileView(
+    data: ProfileData, navController: NavController, appViewModel: AppViewModel
+) {
     Scaffold (
         topBar = {
             TopBar("프로필")
@@ -203,7 +218,7 @@ fun ProfileHome(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            MyProfile(profileData=profileData)
+            MyProfile(profileData=data)
             // 인자로 첫번째는 title 리스트, 두번째는 각 탭에 해당하는 @composable
             // 현재는 테스트용으로 하드코딩 해뒀음.
             TabBar(
@@ -220,12 +235,73 @@ fun ProfileHome(
     }
 }
 
+@Composable
+fun LoadingView() {
+    Text("로딩중...")
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun GuestView(
+    navController : NavController,
+    appViewModel : AppViewModel
+) {
+    Scaffold(
+        topBar = {
+            TopBar(title = "프로필")
+        },
+        bottomBar = {
+            BottomNav(navController, appViewModel)
+        },
+        modifier = Modifier.fillMaxSize()
+    ) { paddingValues->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text("로그인을 하고 와주세요...")
+            // 로그인 페이지로 넘기는 버튼 만들기
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ErrorView(
+    message : String,
+    navController : NavController,
+    appViewModel : AppViewModel
+) {
+    Scaffold(
+        topBar = {
+            TopBar(title = "프로필")
+        },
+        bottomBar = {
+            BottomNav(navController, appViewModel)
+        },
+        modifier = Modifier.fillMaxSize()
+    ) { paddingValues->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text("에러페이지 에러 : $message")
+            // 로그인 페이지로 넘기는 버튼 만들기
+        }
+    }
+
+}
 
 // sealed class 만들어 둠
 data class ProfileData(
-    val imgUri : String?,
-    val name : String?,
-    val readBookNumber : Number?,
-    val followers : Number?,
-    val followings : Number?
+    val myProfile : UserInfoResponse?,
+    val readBookNumber : Number = 0,
+    val followers : UserFollowersResponse?,
+    val followings : UserFollowingsResponse?
 )

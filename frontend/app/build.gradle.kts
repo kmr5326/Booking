@@ -83,6 +83,7 @@ dependencies {
     implementation(Retrofit.RETROFIT)
     implementation(Retrofit.CONVERTER_GSON)
     implementation(Retrofit.CONVERTER_JAXB)
+    implementation(Retrofit.CONVERTER_SCALARS)
 
     // okHttp
 //    implementation(platform("com.squareup.okhttp3:okhttp-bom:4.11.0"))

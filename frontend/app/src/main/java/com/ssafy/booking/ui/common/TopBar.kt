@@ -21,16 +21,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.ssafy.booking.ui.AppNavItem
+import com.ssafy.booking.ui.LocalNavigation
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopBar(
     title: String
 ) {
+    val navController = LocalNavigation.current
     TopAppBar(
         title = { Text(text = "$title") },
         actions = {
-            IconButton(onClick = {  }) {
+            IconButton(onClick = {
+                navController.navigate(AppNavItem.Setting.route) {
+                    popUpTo("login") { inclusive = true }
+                }
+            }) {
                 Icon(
                     imageVector = Icons.Filled.Settings,
                     contentDescription = "메뉴"
@@ -38,28 +45,4 @@ fun TopBar(
             }
         }
     )
-
-//    Row (
-//        horizontalArrangement = Arrangement.SpaceBetween,
-//        modifier = Modifier
-//            .fillMaxWidth()
-//            .padding(16.dp)
-//    ) {
-//        Text(
-//            text = title,
-//            fontSize = 20.sp,
-//            fontWeight = FontWeight(100)
-//        )
-//
-//        IconButton(
-//            onClick = {}
-//        ) {
-//            Icon(
-//                Icons.Filled.Menu, contentDescription = null
-//            )
-//            Spacer(
-//                modifier = Modifier.size(ButtonDefaults.IconSpacing)
-//            )
-//        }
-//    }
 }

@@ -64,7 +64,7 @@ class TokenDataSource @Inject constructor(
     }
 
     fun getLoginId() : String? {
-        return LOGIN_ID
+        return getString(LOGIN_ID)
     }
 
     fun removeLoginId() {

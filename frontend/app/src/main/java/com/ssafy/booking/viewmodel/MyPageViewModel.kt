@@ -4,6 +4,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ssafy.booking.model.UserProfileState
+import com.ssafy.booking.ui.profile.ProfileData
 import com.ssafy.domain.model.mypage.AddressnModifyRequest
 import com.ssafy.domain.model.mypage.UserDeleteRequest
 import com.ssafy.domain.model.mypage.UserFollowersResponse
@@ -21,6 +23,10 @@ class MyPageViewModel @Inject constructor(
     private val myPageUseCase: MyPageUseCase
 ) : ViewModel() {
 
+    // 마이페이지 에러 핸들링
+    private val _profileState = MutableLiveData<UserProfileState>()
+    val profileState: LiveData<UserProfileState> = _profileState
+
     // GET - 유저 정보 요청 로직
     private val _getUserInfoResponse = MutableLiveData<Response<UserInfoResponse>>()
     val getUserInfoResponse: LiveData<Response<UserInfoResponse>> get() = _getUserInfoResponse
@@ -29,8 +35,6 @@ class MyPageViewModel @Inject constructor(
         viewModelScope.launch {
             _getUserInfoResponse.value = myPageUseCase.getUserInfo(loginId)
         }
-
-
 
     // PATCH - 회원 정보 수정 요청 로직
     private val _patchUserInfoResponse = MutableLiveData<Response<Unit>>()
@@ -77,4 +81,42 @@ class MyPageViewModel @Inject constructor(
         viewModelScope.launch {
             _getUserFollowingsResponse.value = myPageUseCase.getUserFollowings(nickname)
         }
+
+
+    // 최종 마이페이지 작업 로직
+    fun getMyPage(loginId: String) = viewModelScope.launch {
+        _profileState.value = UserProfileState.Loading
+
+        try {
+            val userInfoResponse = myPageUseCase.getUserInfo(loginId)
+            if (userInfoResponse.isSuccessful && userInfoResponse.body() != null) {
+                // loginId 를 통한 유저 정보 조회 완료 시 - 팔로워 팔로잉 목록 조회
+                userInfoResponse.body()?.nickname?.let { nickname ->
+                    val userFollowersResponse = myPageUseCase.getUserFollowers(nickname)
+                    val userFollowingsResponse = myPageUseCase.getUserFollowings(nickname)
+
+                    if (userFollowersResponse.isSuccessful && userFollowingsResponse.isSuccessful
+                        && userFollowersResponse.body() != null && userFollowingsResponse.body() != null) {
+                        val profileData = ProfileData(
+                            myProfile = userInfoResponse.body(),
+                            followers = userFollowersResponse.body(),
+                            followings = userFollowingsResponse.body()
+                            // readBookNumber는 예시에 없으므로 기본값 0을 사용
+                        )
+                        _profileState.value = UserProfileState.Success(profileData)
+                    } else {
+                        _profileState.value = UserProfileState.Error("Failed to fetch followers && followings.")
+                        return@launch
+                    }
+                } ?: run {
+                    _profileState.value = UserProfileState.Error("nickname is null")
+                }
+            } else {
+                _profileState.value = UserProfileState.Error("Failed to fetch user info.")
+            }
+        } catch (e: Exception) {
+            _profileState.value = UserProfileState.Error(e.message ?: "Unknown error occurred")
+        }
+    }
+
 }
