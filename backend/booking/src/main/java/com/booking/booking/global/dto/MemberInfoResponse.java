@@ -1,4 +1,4 @@
-package com.booking.booking.meeting.dto.response;
+package com.booking.booking.global.dto;
 
 public record MemberInfoResponse(
     String loginId,
@@ -7,9 +7,11 @@ public record MemberInfoResponse(
     String gender,
     String nickname,
     String fullname,
-    String address,
+    Double lat,
+    Double lgt,
     String profileImage,
-    String provider
+    String provider,
+    Integer memberPk
 ) {
 
 }

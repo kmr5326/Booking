@@ -26,7 +26,7 @@ public class Participant {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long participantId;
 
-    private String memberId;
+    private Integer memberId;
 
     @ManyToOne
     @JoinColumn(name = "meetingId")
