@@ -4,9 +4,6 @@ volumes:
   booking_chat_service:
     external:
       name: booking_chat_service
-  booking_chat_service_replica:
-    external:
-      name: booking_chat_service_replica
 
 networks:
   booking_chat_network:
@@ -45,31 +42,12 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: booking
       MONGO_INITDB_ROOT_PASSWORD: booking123!
-    command: mongod --replSet rs0 --keyFile /etc/mongodb.key --bind_ip_all --port 27017 --dbpath /data/db
     networks:
       - booking_chat_network
     depends_on:
       - chat_kafka
     volumes:
       - booking_chat_service:/data/db
-      - ~/.ssh/mongodb.key:/etc/mongodb.key
-  chat_mongodb2:
-    image: mongo
-    restart: always
-    container_name: chat-mongodb-replica
-    ports:
-      - "27016:27016"
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: booking
-      MONGO_INITDB_ROOT_PASSWORD: booking123!
-    command: mongod --replSet rs0 --keyFile /etc/mongodb.key --bind_ip_all --port 27017 --dbpath /data/db
-    networks:
-      - booking_chat_network
-    depends_on:
-      - chat_mongodb
-    volumes:
-      - booking_chat_service_replica:/data/db
-      - ~/.ssh/mongodb.key:/etc/mongodb.key
   booking_chat_server:
     restart: on-failure
     depends_on:
@@ -83,3 +61,4 @@ services:
       - booking_chat_network
     ports:
       - '9002:9002'
+
