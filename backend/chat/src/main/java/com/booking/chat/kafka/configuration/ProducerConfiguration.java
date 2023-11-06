@@ -28,6 +28,7 @@ public class ProducerConfiguration {
 
     @Bean
     public Map<String, Object> producerConfigurations() {
+//        JsonSerializer<KafkaMessage> jsonSerializer = new JsonSerializer<>();
         return ImmutableMap.<String, Object>builder()
                            .put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, KAFKA_PORT)
                            .put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class)
