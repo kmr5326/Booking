@@ -9,7 +9,9 @@ import com.booking.chat.chatroom.exception.ChatroomException;
 import com.booking.chat.chatroom.repository.ChatroomRepository;
 import com.booking.chat.global.exception.ErrorCode;
 import java.time.Duration;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -62,10 +64,14 @@ public class ChatroomService {
     }
 
     public Flux<ChatroomListResponse> getChatroomListByMemberIdOrderByDesc(Long memberId) {
-        return chatroomRepository.findByMemberListContainsOrderByLastMessageReceivedTimeDesc(memberId)
-            .map(ChatroomListResponse::from)
-            .repeatWhen(flux -> flux.delayElements(Duration.ofSeconds(1)));
+        return chatroomRepository.findByMemberListContains(memberId)
+                                 .bufferTimeout(100, Duration.ofSeconds(1))  // 버퍼링, 여기서는 최대 100개의 문서 또는 1초의 지연을 기준으로 함
+                                 .flatMap(list -> Flux.fromIterable(list.stream()
+                                                                        .sorted(Comparator.comparing(Chatroom::getLastMessageReceivedTime).reversed())  // 내림차순 정렬
+                                                                        .collect(Collectors.toList())))
+                                 .map(ChatroomListResponse::from);
     }
+
 
     public Mono<Chatroom> findByChatroomId(Long chatroomId) {
         return chatroomRepository.findById(chatroomId).switchIfEmpty(Mono.error(new ChatroomException(ErrorCode.CHATROOM_NOT_FOUND)));
