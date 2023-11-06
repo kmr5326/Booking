@@ -6,13 +6,14 @@ import androidx.room.PrimaryKey
 import androidx.room.TypeConverter
 import com.google.gson.Gson
 import java.sql.Timestamp
+import java.time.LocalDateTime
 
 @Entity(tableName = "messageEntity")
 data class MessageEntity (
-    @PrimaryKey val id: Int,
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
 
     @ColumnInfo(name = "chat_id") val chatId : Int?,
     @ColumnInfo(name = "sender_id") val senderId : Int?,
-    @ColumnInfo(name = "send_time") val sendTime : Timestamp,
+    @ColumnInfo(name = "send_time") val sendTime : LocalDateTime?,
     @ColumnInfo(name = "content") val content : String?
 )

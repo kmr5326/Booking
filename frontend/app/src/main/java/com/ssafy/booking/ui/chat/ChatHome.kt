@@ -18,20 +18,26 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -57,6 +63,9 @@ fun ChatHome(
     appViewModel: AppViewModel,
 ) {
     val chatViewModel: ChatViewModel = hiltViewModel()
+
+    var chatId by remember {mutableStateOf("1")}
+
     Scaffold (
         topBar = {
             TopBar("채팅")
@@ -73,44 +82,42 @@ fun ChatHome(
         ){
             Box {
                 Column {
-                    Button(
-                        onClick = {
-                            navController.navigate("chatDetail/3")
+                    Row {
+                        TextField(
+                            value = chatId,
+                            onValueChange = { chatId = it },
+                            placeholder = { Text("채팅방 번호") },
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            singleLine = true,
+                        )
+                        Button(
+                            onClick = {
+                                val request = ChatCreateRequest(chatId.toInt(), 7001, "${chatId}번 채팅")
+                                chatViewModel.createChatRoom(request)
+                            }
+                        ) {
+                            Text("채팅방 생성 API")
                         }
-                    ) {
-                        Text("채팅방 이동")
                     }
-                    Button(
-                        onClick = {
-                            val request = ChatCreateRequest(2, 7001, "독서모임")
-                            chatViewModel.createChatRoom(request)
+                    Row {
+                        Button(
+                            onClick = {
+                                val request = ChatJoinRequest(chatId.toInt(), 7001)
+                                Log.d("CHAT", "${request}")
+                                chatViewModel.joinChatRoom(request)
+                            }
+                        ) {
+                            Text("채팅방 참가 API")
                         }
-                    ) {
-                        Text("채팅방 생성 API")
-                    }
-                    Button(
-                        onClick = {
-                            val request = ChatJoinRequest(2, 7001)
-                            Log.d("CHAT", "${request}")
-                            chatViewModel.joinChatRoom(request)
+                        Button(
+                            onClick = {
+                                val request = ChatExitRequest(chatId.toInt(), 7001)
+                                Log.d("CHAT", "${request}")
+                                chatViewModel.exitChatRoom(request)
+                            }
+                        ) {
+                            Text("채팅방 나가기 API")
                         }
-                    ) {
-                        Text("채팅방 참가 API")
-                    }
-                    Button(
-                        onClick = {
-                            val request = ChatExitRequest(2, 7001)
-                            Log.d("CHAT", "${request}")
-                            chatViewModel.exitChatRoom(request)
-                        }
-                    ) {
-                        Text("채팅방 나가기 API")
-                    }
-                    Button(
-                        onClick = {
-                        }
-                    ) {
-                        Text("소켓 연결 테스트")
                     }
                     ChatList()
                 }
