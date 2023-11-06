@@ -1,12 +1,14 @@
 package com.booking.booking.meeting.service;
 
-import com.booking.booking.global.dto.MemberInfoResponse;
+import com.booking.booking.global.dto.BookResponse;
 import com.booking.booking.global.utils.MemberUtil;
 import com.booking.booking.hashtag.dto.response.HashtagResponse;
 import com.booking.booking.hashtagmeeting.domain.HashtagMeeting;
 import com.booking.booking.hashtagmeeting.service.HashtagMeetingService;
 import com.booking.booking.meeting.domain.Meeting;
 import com.booking.booking.meeting.domain.MeetingState;
+import com.booking.booking.meeting.dto.request.InitChatroomRequest;
+import com.booking.booking.meeting.dto.request.JoinChatroomRequest;
 import com.booking.booking.meeting.dto.request.MeetingRequest;
 import com.booking.booking.meeting.dto.response.MeetingResponse;
 import com.booking.booking.meeting.repository.MeetingRepository;
@@ -14,11 +16,15 @@ import com.booking.booking.participant.service.ParticipantService;
 import com.booking.booking.waitlist.service.WaitlistService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -37,6 +43,9 @@ public class MeetingService {
         log.info("Booking Server Meeting - createMeeting({}, {})", userEmail, meetingRequest);
 
         // TODO isbn 존재 여부 확인
+//        getBookByIsbn(meetingRequest.bookIsbn())
+//                .subscribeOn(Schedulers.boundedElastic())
+//                .subscribe(bookResponse -> log.info("!!!!!" + bookResponse.content()));
         return MemberUtil.getMemberInfoByEmail(userEmail)
                 .flatMap(memberInfo -> {
                     Meeting meeting = meetingRequest.toEntity(memberInfo, MeetingState.PREPARING);
@@ -49,13 +58,65 @@ public class MeetingService {
                 });
     }
 
+    private Mono<BookResponse> getBookByIsbn(String isbn) {
+        log.info("Booking Server Meeting - getBookByIsbn({})", isbn);
+
+        WebClient webClient = WebClient.builder().build();
+        URI uri = URI.create(GATEWAY_URL + "/api/book/" + isbn);
+
+        return webClient.get()
+                .uri(uri)
+                .retrieve()
+                .onStatus(HttpStatus::is4xxClientError,
+                        response -> Mono.error(new RuntimeException("책 정보 응답 에러")))
+                .onStatus(HttpStatus::is5xxServerError,
+                        response -> Mono.error(new RuntimeException("책 정보 응답 에러")))
+                .bodyToMono(BookResponse.class);
+    }
+
+    private Mono<Void> initializeChatroom(InitChatroomRequest initChatroomRequest){
+        log.info("Booking Server Meeting - initializeChatroom({})", initChatroomRequest);
+
+        WebClient webClient = WebClient.builder().build();
+        URI uri = URI.create(GATEWAY_URL + "/api/chat/room/");
+
+        return webClient.post()
+                .uri(uri)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(Mono.just(initChatroomRequest), InitChatroomRequest.class)
+                .retrieve()
+                .onStatus(HttpStatus::is4xxClientError,
+                        response -> Mono.error(new RuntimeException("채팅방 생성 에러")))
+                .onStatus(HttpStatus::is5xxServerError,
+                        response -> Mono.error(new RuntimeException("채팅방 생성 에러")))
+                .bodyToMono(Void.class);
+    }
+
+    private Mono<Void> joinChatroom(JoinChatroomRequest joinChatroomRequest){
+        log.info("Booking Server Meeting - joinChatroom({})", joinChatroomRequest);
+
+        WebClient webClient = WebClient.builder().build();
+        URI uri = URI.create(GATEWAY_URL + "/api/chat/room/join");
+
+        return webClient.post()
+                .uri(uri)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(Mono.just(joinChatroomRequest), JoinChatroomRequest.class)
+                .retrieve()
+                .onStatus(HttpStatus::is4xxClientError,
+                        response -> Mono.error(new RuntimeException("채팅방 생성 에러")))
+                .onStatus(HttpStatus::is5xxServerError,
+                        response -> Mono.error(new RuntimeException("채팅방 생성 에러")))
+                .bodyToMono(Void.class);
+    }
+
     private Mono<Long> handleCreateMeeting(Meeting meeting, List<String> hashtagList) {
         log.info("Booking Server Meeting - handleArrangeMeeting({}, {})", meeting.getMeetingTitle(), hashtagList);
 
         return Mono
                 .fromCallable(() -> {
-                    // TODO 채팅방 생성 요청
                     meetingRepository.save(meeting);
+                    initializeChatroom(new InitChatroomRequest(meeting)).subscribe();
                     hashtagMeetingService.saveHashtags(meeting, hashtagList).block();
                     participantService.addParticipant(meeting, meeting.getLeaderId()).block();
 
@@ -156,7 +217,8 @@ public class MeetingService {
                                 return Mono.empty();
                             })
                             .then(Mono.defer(() -> waitlistService.deleteByMeetingAndMemberId(meeting, memberId)))
-                            .then(Mono.defer(() -> participantService.addParticipant(meeting, memberId)));
+                            .then(Mono.defer(() -> participantService.addParticipant(meeting, memberId)))
+                            .then(Mono.defer(() -> joinChatroom(new JoinChatroomRequest(meetingId, memberId))));
                 })
                 .onErrorResume(error -> {
                     log.error("Booking Server Meeting - Error during acceptMeeting : {}", error.getMessage());
