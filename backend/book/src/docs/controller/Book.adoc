@@ -1,0 +1,13 @@
+== 책 API
+
+=== 책 조회 API
+
+==== HTTP REQUEST
+include::{snippets}/book/list/http-request.adoc[]
+include::{snippets}/book/list/httpie-request.adoc[]
+
+==== HTTP RESPONSE
+
+include::{snippets}/book/list/http-response.adoc[]
+include::{snippets}/book/list/response-body.adoc[]
+include::{snippets}/book/list/response-fields.adoc[]
