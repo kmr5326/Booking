@@ -5,6 +5,8 @@ import com.booking.book.book.dto.response.BookResponse;
 import com.booking.book.book.exception.BookException;
 import com.booking.book.book.repository.BookRepository;
 import com.booking.book.global.exception.ErrorCode;
+
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -65,5 +67,10 @@ public class BookService {
         return bookRepository.findById(isbn)
                              .switchIfEmpty(
                                  Mono.error(new BookException(ErrorCode.BOOK_NOT_FOUND)));
+    }
+
+    public Flux<BookResponse> loadLatestBooks(Pageable pageable) {
+        return bookRepository.findByPublishDateBeforeCurrentDateOrderByPublishDateDesc(LocalDateTime.now(),pageable)
+                .map(BookResponse::new);
     }
 }
