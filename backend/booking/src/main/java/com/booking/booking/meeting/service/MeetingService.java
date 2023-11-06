@@ -39,7 +39,7 @@ public class MeetingService {
     private final MemberUtil memberUtil;
 
     @Value("${gateway.url}")
-    private static String GATEWAY_URL;
+    private String GATEWAY_URL;
 
     public Mono<Long> createMeeting(String userEmail, MeetingRequest meetingRequest) {
         log.info("Booking Server Meeting - createMeeting({}, {})", userEmail, meetingRequest);
