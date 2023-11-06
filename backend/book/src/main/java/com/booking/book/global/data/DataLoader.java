@@ -31,14 +31,13 @@ public class DataLoader {
         ColumnPositionMappingStrategy<Book> strategy = new ColumnPositionMappingStrategy<>();
         strategy.setType(Book.class);
 
-        String[] bookFieldsToBindTo = {"isbn", "title", "author", "coverImage", "genre", "content"};
+        String[] bookFieldsToBindTo = {"isbn", "title", "author", "coverImage", "genre","publishdate" ,"content"};
         strategy.setColumnMapping(bookFieldsToBindTo);
 
         CsvToBean<Book> csvToBean = new CsvToBeanBuilder<Book>(reader).withMappingStrategy(strategy)
                                                                       .withSkipLines(1)
                                                                       .withType(Book.class)
                                                                       .build();
-
         return Flux.fromIterable(csvToBean.parse());
     }
 
