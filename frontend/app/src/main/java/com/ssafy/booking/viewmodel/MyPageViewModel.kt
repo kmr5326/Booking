@@ -37,7 +37,7 @@ class MyPageViewModel @Inject constructor(
         }
 
     // PATCH - 회원 정보 수정 요청 로직
-    private val _patchUserInfoResponse = MutableLiveData<Response<Unit>>()
+        private val _patchUserInfoResponse = MutableLiveData<Response<Unit>>()
     val patchUserInfoResponse: LiveData<Response<Unit>> get() = _patchUserInfoResponse
 
     fun patchUserinfo(request: UserModifyRequest) =
