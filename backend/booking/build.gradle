@@ -29,17 +29,18 @@ ext {
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+//    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-data-r2dbc'
+//    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
-    implementation 'org.springframework.boot:spring-boot-starter-web'
+//    implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
     implementation 'org.apache.kafka:kafka-streams'
     implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
     implementation 'org.springframework.kafka:spring-kafka'
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
-    runtimeOnly 'com.h2database:h2'
+//    runtimeOnly 'com.h2database:h2'
     runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
@@ -67,6 +68,10 @@ dependencies {
     //fluentd
     implementation group: 'org.fluentd', name: 'fluent-logger', version: '0.3.4'
     implementation group: 'com.sndyuk', name: 'logback-more-appenders', version: '1.8.8'
+
+    // r2dbc
+    implementation group: 'org.mariadb', name: 'r2dbc-mariadb', version: '1.1.4'
+    implementation 'io.r2dbc:r2dbc-h2'
 }
 
 dependencyManagement {

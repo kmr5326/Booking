@@ -1,7 +1,7 @@
-package com.booking.booking.meeting.dto.request;
-
-public record JoinChatroomRequest(
-        Long meetingId,
-        Integer memberId
-) {
-}
+//package com.booking.booking.meeting.dto.request;
+//
+//public record JoinChatroomRequest(
+//        Long meetingId,
+//        Integer memberId
+//) {
+//}
