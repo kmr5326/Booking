@@ -17,6 +17,7 @@ import reactor.core.scheduler.Schedulers;
 @Service
 public class WaitlistService {
     private final WaitlistRepository waitlistRepository;
+    private final MemberUtil memberUtil;
 
     public Mono<Boolean> existsByMeetingAndMemberId(Meeting meeting, Integer memberId) {
         log.info("Booking Server Waitlist - existsByMeetingAndMemberId({}, {})", meeting, memberId);
@@ -56,7 +57,7 @@ public class WaitlistService {
 
         return Mono.fromCallable(() -> waitlistRepository.findAllByMeetingMeetingId(meetingId))
                 .flatMapMany(Flux::fromIterable)
-                .flatMap(waitlist -> MemberUtil.getMemberInfoByPk(waitlist.getMemberId())
+                .flatMap(waitlist -> memberUtil.getMemberInfoByPk(waitlist.getMemberId())
                                 .flatMap(memberInfo -> Mono.just(new WaitlistResponse(memberInfo, waitlist))))
                 .onErrorResume(error -> {
                     log.error("Booking Server Waitlist - Error during findAllByMeetingId : {}", error.getMessage());

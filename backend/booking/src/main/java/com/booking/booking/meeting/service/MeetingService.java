@@ -1,6 +1,5 @@
 package com.booking.booking.meeting.service;
 
-import com.booking.booking.global.dto.BookResponse;
 import com.booking.booking.global.utils.MemberUtil;
 import com.booking.booking.hashtag.dto.response.HashtagResponse;
 import com.booking.booking.hashtagmeeting.domain.HashtagMeeting;
@@ -16,6 +15,7 @@ import com.booking.booking.participant.service.ParticipantService;
 import com.booking.booking.waitlist.service.WaitlistService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -36,8 +36,10 @@ public class MeetingService {
     private final HashtagMeetingService hashtagMeetingService;
     private final ParticipantService participantService;
     private final WaitlistService waitlistService;
+    private final MemberUtil memberUtil;
 
-    private static final String GATEWAY_URL = "http://localhost:8999";
+    @Value("${gateway.url}")
+    private static String GATEWAY_URL;
 
     public Mono<Long> createMeeting(String userEmail, MeetingRequest meetingRequest) {
         log.info("Booking Server Meeting - createMeeting({}, {})", userEmail, meetingRequest);
@@ -46,7 +48,7 @@ public class MeetingService {
 //        getBookByIsbn(meetingRequest.bookIsbn())
 //                .subscribeOn(Schedulers.boundedElastic())
 //                .subscribe(bookResponse -> log.info("!!!!!" + bookResponse.content()));
-        return MemberUtil.getMemberInfoByEmail(userEmail)
+        return memberUtil.getMemberInfoByEmail(userEmail)
                 .flatMap(memberInfo -> {
                     Meeting meeting = meetingRequest.toEntity(memberInfo, MeetingState.PREPARING);
                     return handleCreateMeeting(meeting, meetingRequest.hashtagList())
@@ -58,21 +60,21 @@ public class MeetingService {
                 });
     }
 
-    private Mono<BookResponse> getBookByIsbn(String isbn) {
-        log.info("Booking Server Meeting - getBookByIsbn({})", isbn);
-
-        WebClient webClient = WebClient.builder().build();
-        URI uri = URI.create(GATEWAY_URL + "/api/book/" + isbn);
-
-        return webClient.get()
-                .uri(uri)
-                .retrieve()
-                .onStatus(HttpStatus::is4xxClientError,
-                        response -> Mono.error(new RuntimeException("책 정보 응답 에러")))
-                .onStatus(HttpStatus::is5xxServerError,
-                        response -> Mono.error(new RuntimeException("책 정보 응답 에러")))
-                .bodyToMono(BookResponse.class);
-    }
+//    private Mono<BookResponse> getBookByIsbn(String isbn) {
+//        log.info("Booking Server Meeting - getBookByIsbn({})", isbn);
+//
+//        WebClient webClient = WebClient.builder().build();
+//        URI uri = URI.create(GATEWAY_URL + "/api/book/" + isbn);
+//
+//        return webClient.get()
+//                .uri(uri)
+//                .retrieve()
+//                .onStatus(HttpStatus::is4xxClientError,
+//                        response -> Mono.error(new RuntimeException("책 정보 응답 에러")))
+//                .onStatus(HttpStatus::is5xxServerError,
+//                        response -> Mono.error(new RuntimeException("책 정보 응답 에러")))
+//                .bodyToMono(BookResponse.class);
+//    }
 
     private Mono<Void> initializeChatroom(InitChatroomRequest initChatroomRequest){
         log.info("Booking Server Meeting - initializeChatroom({})", initChatroomRequest);
@@ -155,7 +157,7 @@ public class MeetingService {
         log.info("Booking Server Meeting - findAllByLocation({})", userEmail);
 
         // TODO 사용자 위치 기반
-        return MemberUtil.getMemberInfoByEmail(userEmail)
+        return memberUtil.getMemberInfoByEmail(userEmail)
                 .flatMap(memberInfo -> {
                     log.info(memberInfo.toString());
                     return Mono.just(meetingRepository.findMeetingsWithinRadius(memberInfo.lat(), memberInfo.lgt(), 10));
@@ -181,7 +183,7 @@ public class MeetingService {
         return Mono.zip(
                     Mono.justOrEmpty(meetingRepository.findById(meetingId))
                             .switchIfEmpty(Mono.error(new RuntimeException("존재하지 않는 모임"))),
-                        MemberUtil.getMemberInfoByEmail(userEmail))
+                        memberUtil.getMemberInfoByEmail(userEmail))
                 .flatMap(it -> {
                     Meeting meeting = it.getT1();
                     Integer memberId = it.getT2().memberPk();
@@ -211,7 +213,7 @@ public class MeetingService {
         return Mono.zip(
                 Mono.justOrEmpty(meetingRepository.findById(meetingId))
                         .switchIfEmpty(Mono.error(new RuntimeException("존재하지 않는 모임"))),
-                MemberUtil.getMemberInfoByEmail(userEmail))
+                        memberUtil.getMemberInfoByEmail(userEmail))
                 .flatMap(it -> {
                     Meeting meeting = it.getT1();
                     Integer leaderId = it.getT2().memberPk();
