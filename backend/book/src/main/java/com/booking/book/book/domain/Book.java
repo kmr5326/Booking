@@ -1,5 +1,9 @@
 package com.booking.book.book.domain;
 
+import com.booking.book.global.data.LocalDateConverter;
+import com.opencsv.bean.CsvBindByPosition;
+import com.opencsv.bean.CsvCustomBindByPosition;
+import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,21 +21,31 @@ import org.springframework.data.mongodb.core.mapping.TextScore;
 @Document(collection = "book")
 public class Book {
 
+    @CsvBindByPosition(position = 0)
     @Id @Field("isbn")
     private String isbn;
 
+    @CsvBindByPosition(position = 1)
     @TextIndexed @Field("title")
     private String title;
 
+    @CsvBindByPosition(position = 2)
     @Field("author")
     private String author;
 
+    @CsvBindByPosition(position = 3)
     @Field("coverImage")
     private String coverImage;
 
+    @CsvBindByPosition(position = 4)
     @Field("genre")
     private String genre;
 
+    @Field("publishDate")
+    @CsvCustomBindByPosition(position = 5, converter = LocalDateConverter.class)
+    private LocalDate publishDate;
+
+    @CsvBindByPosition(position = 6)
     @Field("content")
     private String content;
 
