@@ -1,7 +1,7 @@
 package com.booking.booking.meetinginfo.controller;
 
 
-import com.booking.booking.global.jwt.JwtUtil;
+import com.booking.booking.global.utils.JwtUtil;
 import com.booking.booking.meetinginfo.dto.request.MeetingInfoRequest;
 import com.booking.booking.meetinginfo.service.MeetingInfoService;
 import lombok.RequiredArgsConstructor;
@@ -24,10 +24,11 @@ public class MeetingInfoController {
     private static final String AUTHORIZATION = "Authorization";
 
     @PostMapping("/")
-    public Mono<ResponseEntity<Void>> createDetailedMeeting(@RequestHeader(AUTHORIZATION) String token, @RequestBody MeetingInfoRequest meetingInfoRequest) {
+    public Mono<ResponseEntity<Void>> createDetailedMeeting
+            (@RequestHeader(AUTHORIZATION) String token, @RequestBody MeetingInfoRequest meetingInfoRequest) {
         String userEmail = JwtUtil.getLoginEmailByToken(token);
 
-        return meetingInfoService.createMeeting(userEmail, meetingInfoRequest)
+        return meetingInfoService.createMeetingDetail(userEmail, meetingInfoRequest)
                 .thenReturn(ResponseEntity.noContent().build());
     }
 }

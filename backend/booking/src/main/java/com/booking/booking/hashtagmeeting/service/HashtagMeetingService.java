@@ -13,7 +13,6 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -23,18 +22,23 @@ public class HashtagMeetingService {
     private final HashtagService hashtagService;
 
     public Mono<Void> saveHashtags(Meeting meeting, List<String> hashtagList) {
-        log.info("Booking Server - '{}' request saveHashtags", hashtagList);
+        log.info("Booking Server HashtagMeeting - saveHashtags({}, {})", meeting.getMeetingTitle(), hashtagList);
         return Flux.fromIterable(hashtagList)
                 .flatMap(content ->
                     hashtagService.findByContent(content)
-                            .defaultIfEmpty(Optional.empty())
-                            .flatMap(optionalHashtag -> optionalHashtag.map(Mono::just).orElseGet(() -> hashtagService.save(content)))
+                            .flatMap(optionalHashtag ->
+                                    optionalHashtag.map(Mono::just).orElseGet(() -> hashtagService.save(content)))
                 )
                 .flatMap(savedHashtag -> mapHashtagToMeeting(meeting, savedHashtag))
+                .onErrorResume(error -> {
+                    log.error("Booking Server HashtagMeeting - Error during saveHashtags : {}", error.toString());
+                    return Mono.error(error);
+                })
                 .then();
     }
 
     private Mono<Void> mapHashtagToMeeting(Meeting meeting, Hashtag hashtag) {
+        log.info("Booking Server HashtagMeeting - mapHashtagToMeeting({}, {})", meeting.getMeetingTitle(), hashtag.getContent());
         return Mono
                 .fromRunnable(() -> hashtagMeetingRepository.save(
                         HashtagMeeting.builder()
@@ -42,6 +46,10 @@ public class HashtagMeetingService {
                                 .hashtag(hashtag)
                                 .build()))
                 .subscribeOn(Schedulers.boundedElastic())
+                .onErrorResume(error -> {
+                    log.error("Booking Server HashtagMeeting - Error during mapHashtagToMeeting : {}", error.toString());
+                    return Mono.error(new RuntimeException("해시태그 미팅 연결 실패"));
+                })
                 .then();
     }
 }
