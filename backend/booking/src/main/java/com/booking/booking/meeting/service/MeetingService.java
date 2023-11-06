@@ -155,24 +155,24 @@ public class MeetingService {
         log.info("Booking Server Meeting - findAllByLocation({})", userEmail);
 
         // TODO 사용자 위치 기반
-//        return MemberUtil.getMemberInfoByEmail(userEmail)
-//                .flatMap(memberInfo -> {
-//                    log.info(memberInfo.toString());
-//                    return Mono.just(meetingRepository.findMeetingsWithinRadius(memberInfo.lat(), memberInfo.lgt(), 10));
-//                })
-//                .flatMapMany(Flux::fromIterable)
-//                .flatMap(this::makeMeetingResponse)
-//                .onErrorResume(error -> {
-//                    log.error("Booking Server Meeting - Error during findAllByLocation : {}", error.getMessage());
-//                    return Flux.error(new RuntimeException("미팅 목록 조회 실패"));
-//                });
-        return Mono.fromCallable(meetingRepository::findAll)
+        return MemberUtil.getMemberInfoByEmail(userEmail)
+                .flatMap(memberInfo -> {
+                    log.info(memberInfo.toString());
+                    return Mono.just(meetingRepository.findMeetingsWithinRadius(memberInfo.lat(), memberInfo.lgt(), 10));
+                })
                 .flatMapMany(Flux::fromIterable)
                 .flatMap(this::makeMeetingResponse)
                 .onErrorResume(error -> {
                     log.error("Booking Server Meeting - Error during findAllByLocation : {}", error.getMessage());
                     return Flux.error(new RuntimeException("미팅 목록 조회 실패"));
                 });
+//        return Mono.fromCallable(meetingRepository::findAll)
+//                .flatMapMany(Flux::fromIterable)
+//                .flatMap(this::makeMeetingResponse)
+//                .onErrorResume(error -> {
+//                    log.error("Booking Server Meeting - Error during findAllByLocation : {}", error.getMessage());
+//                    return Flux.error(new RuntimeException("미팅 목록 조회 실패"));
+//                });
     }
 
     public Mono<Void> enrollMeeting(String userEmail, Long meetingId) {

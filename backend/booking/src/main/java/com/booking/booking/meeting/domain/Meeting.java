@@ -68,6 +68,6 @@ public class Meeting {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "meeting")
     private List<Post> postList;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "meeting")
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "meeting")
     private List<HashtagMeeting> hashtagMeetingList;
 }
