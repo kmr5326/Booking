@@ -118,7 +118,7 @@ public class MeetingService {
         return Mono
                 .fromCallable(() -> {
                     meetingRepository.save(meeting);
-                    initializeChatroom(new InitChatroomRequest(meeting)).subscribe();
+//                    initializeChatroom(new InitChatroomRequest(meeting)).subscribe();
                     hashtagMeetingService.saveHashtags(meeting, hashtagList).block();
                     participantService.addParticipant(meeting, meeting.getLeaderId()).block();
 
@@ -230,8 +230,8 @@ public class MeetingService {
                                 return Mono.empty();
                             })
                             .then(Mono.defer(() -> waitlistService.deleteByMeetingAndMemberId(meeting, memberId)))
-                            .then(Mono.defer(() -> participantService.addParticipant(meeting, memberId)))
-                            .then(Mono.defer(() -> joinChatroom(new JoinChatroomRequest(meetingId, memberId))));
+                            .then(Mono.defer(() -> participantService.addParticipant(meeting, memberId)));
+//                            .then(Mono.defer(() -> joinChatroom(new JoinChatroomRequest(meetingId, memberId))));
                 })
                 .onErrorResume(error -> {
                     log.error("Booking Server Meeting - Error during acceptMeeting : {}", error.getMessage());
