@@ -2,17 +2,21 @@ package com.booking.booking.global.utils;
 
 import com.booking.booking.global.dto.MemberInfoResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
 
 @Slf4j
+@Component
 public class MemberUtil {
-    private static final String GATEWAY_URL = "http://localhost:8999";
+    @Value("${gateway.url}")
+    private String GATEWAY_URL;
 
-    public static Mono<MemberInfoResponse> getMemberInfoByEmail(String userEmail) {
+    public Mono<MemberInfoResponse> getMemberInfoByEmail(String userEmail) {
         log.info("Booking Server MemberUtil - getMemberInfoByEmail({})", userEmail);
 
         WebClient webClient = WebClient.builder().build();
@@ -28,7 +32,7 @@ public class MemberUtil {
                 .bodyToMono(MemberInfoResponse.class);
     }
 
-    public static Mono<MemberInfoResponse> getMemberInfoByPk(Integer memberPk) {
+    public Mono<MemberInfoResponse> getMemberInfoByPk(Integer memberPk) {
         log.info("Booking Server MemberUtil - getMemberInfoByPk({})", memberPk);
 
         WebClient webClient = WebClient.builder().build();
