@@ -29,7 +29,7 @@ public class SimpleKafkaTest {
 
         KafkaMessage message = KafkaMessage.builder()
                                            .message("Test Message")
-                                           .sender("TestSender")
+                                           .senderId(2L)
                                            .sendTime(LocalDateTime.now())
                                            .build();
 
