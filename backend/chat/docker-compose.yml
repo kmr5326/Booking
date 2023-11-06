@@ -58,7 +58,7 @@ services:
     restart: always
     container_name: chat-mongodb-replica
     ports:
-      - "27016:27017"
+      - "27016:27016"
     environment:
       MONGO_INITDB_ROOT_USERNAME: booking
       MONGO_INITDB_ROOT_PASSWORD: booking123!
