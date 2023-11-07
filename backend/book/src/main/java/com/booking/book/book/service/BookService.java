@@ -5,11 +5,11 @@ import com.booking.book.book.dto.response.BookResponse;
 import com.booking.book.book.exception.BookException;
 import com.booking.book.book.repository.BookRepository;
 import com.booking.book.global.exception.ErrorCode;
-
 import java.time.LocalDateTime;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -68,6 +68,19 @@ public class BookService {
         return bookRepository.findByTitleRegex(regex)
                              .map(BookResponse::new);
     }
+
+    public Flux<BookResponse> combineSearchBookListByTitle(String title) {
+
+        Flux<BookResponse> relevanceList = searchBookListByTitleAndRelevance(title);
+        Flux<BookResponse> regexList = searchBookListByTitleRegex(title);
+
+        Set<BookResponse> combinedResults = new LinkedHashSet<>();
+
+        return relevanceList.concatWith(regexList)
+                            .filterWhen(bookResponse -> Mono.just(combinedResults.add(bookResponse)))
+                            .doOnNext(combinedResults::add);
+    }
+
 
     public Mono<Book> findByIsbn(String isbn) {
         return bookRepository.findById(isbn)
