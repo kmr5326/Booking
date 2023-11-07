@@ -10,8 +10,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MvcResult;
 import reactor.core.publisher.Mono;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
@@ -172,7 +171,7 @@ public class MemberControllerTest extends ControllerTest {
 
     @Test
     @WithMockUser
-    @DisplayName("회원 정보 수정")
+    @DisplayName("회원 위치 정보 수정")
     void t6() throws Exception {
         ChangeLocationRequestDto changeLocationRequestDto=new ChangeLocationRequestDto("addr");
         when(memberService.changeLocation(any(),anyString())).thenReturn(Mono.empty());
@@ -190,6 +189,82 @@ public class MemberControllerTest extends ControllerTest {
                                         fieldWithPath("address").description("위치")
                                 )
                         )
+
+                );
+    }
+
+    @Test
+    @DisplayName("회원 PK로 조회")
+    void t7() throws Exception {
+        Integer memberPk = 1;
+        MemberInfoResponseDto responseDto = new MemberInfoResponseDto("1234", "email", 10, "MALE",
+                "mono", "monono", 1.1, 1.1, "profileImg","google",1);
+
+        when(memberService.loadMemberInfoByPk(anyInt())).thenReturn(Mono.just(responseDto));
+
+        MvcResult mvcResult = mockMvc.perform(get(baseUrl + "/memberInfo-pk/{memberPk}", memberPk)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
+
+        mockMvc.perform(asyncDispatch(mvcResult))
+                .andExpect(status().isOk()) // 200 반환
+                .andDo(
+                        document("/member/info-pk",
+                                preprocessResponse(prettyPrint()),
+                                pathParameters(
+                                        parameterWithName("memberPk").description("pk: Integer")
+                                ),
+                                responseFields(
+                                        fieldWithPath("loginId").description("로그인 id"),
+                                        fieldWithPath("email").description("이메일"),
+                                        fieldWithPath("age").description("나이"),
+                                        fieldWithPath("gender").description("성별"),
+                                        fieldWithPath("nickname").description("닉네임"),
+                                        fieldWithPath("fullname").description("이름"),
+                                        fieldWithPath("lat").description("위도"),
+                                        fieldWithPath("lgt").description("경도"),
+                                        fieldWithPath("profileImage").description("프로필 이미지"),
+                                        fieldWithPath("provider").description("google,kakao"),
+                                        fieldWithPath("memberPk").description("member pk")
+                                ))
+
+                );
+    }
+
+    @Test
+    @DisplayName("회원 닉네임으로 조회")
+    void t8() throws Exception {
+        String nickname= "닉네임";
+        MemberInfoResponseDto responseDto = new MemberInfoResponseDto("1234", "email", 10, "MALE",
+                "mono", "monono", 1.1, 1.1, "profileImg","google",1);
+
+        when(memberService.loadMemberInfoByNickname(anyString())).thenReturn(Mono.just(responseDto));
+
+        MvcResult mvcResult = mockMvc.perform(get(baseUrl + "/memberInfo-nick/{nickname}", nickname)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
+
+        mockMvc.perform(asyncDispatch(mvcResult))
+                .andExpect(status().isOk()) // 200 반환
+                .andDo(
+                        document("/member/info-nick",
+                                preprocessResponse(prettyPrint()),
+                                pathParameters(
+                                        parameterWithName("nickname").description("닉네임: string")
+                                ),
+                                responseFields(
+                                        fieldWithPath("loginId").description("로그인 id"),
+                                        fieldWithPath("email").description("이메일"),
+                                        fieldWithPath("age").description("나이"),
+                                        fieldWithPath("gender").description("성별"),
+                                        fieldWithPath("nickname").description("닉네임"),
+                                        fieldWithPath("fullname").description("이름"),
+                                        fieldWithPath("lat").description("위도"),
+                                        fieldWithPath("lgt").description("경도"),
+                                        fieldWithPath("profileImage").description("프로필 이미지"),
+                                        fieldWithPath("provider").description("google,kakao"),
+                                        fieldWithPath("memberPk").description("member pk")
+                                ))
 
                 );
     }
