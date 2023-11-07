@@ -64,6 +64,13 @@ dependencies {
 	//micrometer,prometheus
 	implementation group: 'io.micrometer', name: 'micrometer-registry-prometheus', version: '1.11.1'
 	implementation group: 'io.micrometer', name: 'micrometer-core', version: '1.11.1'
+
+	//elastic search
+	// https://mvnrepository.com/artifact/org.springframework.data/spring-data-elasticsearch
+	implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch:3.1.5'
+	implementation 'org.elasticsearch.client:elasticsearch-rest-high-level-client'
+
+
 }
 
 dependencyManagement {
