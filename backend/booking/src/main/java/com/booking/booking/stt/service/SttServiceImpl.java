@@ -1,7 +1,9 @@
 package com.booking.booking.stt.service;
 
+import com.booking.booking.stt.domain.Transcription;
 import com.booking.booking.stt.dto.SttRequestDto;
 import com.booking.booking.stt.dto.SttResponseDto;
+import com.booking.booking.stt.repository.TranscriptionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,6 +24,8 @@ public class SttServiceImpl implements SttService{
     private String invokeUrl;
     @Value("${stt.key}")
     private String key;
+
+    private final TranscriptionRepository transcriptionRepository;
     @Override
     public Mono<SttResponseDto> speachToText(SttRequestDto requestDto) {
         WebClient webClient= WebClient.create(invokeUrl);
@@ -34,18 +38,6 @@ public class SttServiceImpl implements SttService{
         requestBody.put("fullText",Boolean.TRUE);
         requestBody.put("resultToObs",Boolean.TRUE);
         requestBody.put("diarization.enable",Boolean.TRUE);
-
-//        private String language = "ko-KR";
-//        //completion optional, sync/async
-//        private String completion = "sync";
-//        //optional, used to receive the analyzed results
-//        private String callback;
-//        private Boolean wordAlignment = Boolean.TRUE;
-//        private Boolean fullText = Boolean.TRUE;
-//        //comma separated words
-//        private String forbiddens;
-//        private Diarization diarization;
-
 
         return webClient.post()
                 .uri("/recognizer/object-storage")
@@ -66,6 +58,12 @@ public class SttServiceImpl implements SttService{
                     }).then(Mono.error(new RuntimeException("Server error")));
                 })
                 .bodyToMono(SttResponseDto.class)
+                .flatMap(sttResponseDto -> saveTranscription(sttResponseDto).thenReturn(sttResponseDto))
                 .doOnNext(resp-> log.info("stt 결과 {}",resp));
+    }
+
+    private Mono<Transcription> saveTranscription(SttResponseDto sttResponseDto) {
+        Transcription transcription = Transcription.of(sttResponseDto);
+        return transcriptionRepository.save(transcription);
     }
 }
