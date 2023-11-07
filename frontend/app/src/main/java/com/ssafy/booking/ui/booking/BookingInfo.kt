@@ -17,15 +17,7 @@ import androidx.navigation.NavController
 import com.ssafy.booking.R
 import com.ssafy.booking.viewmodel.AppViewModel
 
-@Preview
-@Composable
-fun preview() {
-    BookingInfo(
-        meetingDate = "2023년 12월 24일",
-        meetingPlace = "서울시 강남구",
-        participationFee = "10000원"
-    )
-}
+
 @Composable
 fun BookingInfo(
     meetingDate: String?,
