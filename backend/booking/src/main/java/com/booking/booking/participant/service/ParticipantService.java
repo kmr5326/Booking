@@ -54,16 +54,14 @@ public class ParticipantService {
                     return Flux.error(new RuntimeException("참가자 목록 조회 실패"));
                 });
     }
-//
-//    public Mono<Boolean> existsByMeetingAndMemberId(Meeting meeting, Integer memberId) {
-//        log.info("Booking Server Participant - existsByMeetingAndMemberId({}, {})", meeting, memberId);
-//
-//        return Mono
-//                .fromCallable(() -> participantRepository.existsByMeetingAndMemberId(meeting, memberId))
-//                .subscribeOn(Schedulers.boundedElastic());
-//    }
-//
-//    public Flux<ParticipantResponse> findAllByMeetingId(Long meetingId) {
+
+    public Mono<Boolean> existsByMeetingIdAndMemberId(Long meetingId, Integer memberId) {
+        log.info("Booking Server Participant - existsByMeetingIdAndMemberId({}, {})", meetingId, memberId);
+
+        return participantRepository.existsByMeetingIdAndMemberId(meetingId, memberId);
+    }
+
+    //    public Flux<ParticipantResponse> findAllByMeetingId(Long meetingId) {
 //        log.info("Booking Server Participant - findAllByMeetingId({})", meetingId);
 //
 //        return Mono.fromCallable(() -> participantRepository.findAllByMeetingMeetingId(meetingId))

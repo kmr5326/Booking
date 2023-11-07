@@ -1,15 +1,11 @@
-//package com.booking.booking.waitlist.repository;
-//
-//import com.booking.booking.meeting.domain.Meeting;
-//import com.booking.booking.waitlist.domain.Waitlist;
-//import org.springframework.data.jpa.repository.JpaRepository;
-//
-//import javax.transaction.Transactional;
-//import java.util.List;
-//
-//public interface WaitlistRepository extends JpaRepository<Waitlist, Long> {
-//    boolean existsByMeetingAndMemberId(Meeting meeting, Integer memberId);
-//    @Transactional
+package com.booking.booking.waitlist.repository;
+
+import com.booking.booking.waitlist.domain.Waitlist;
+import org.springframework.data.r2dbc.repository.R2dbcRepository;
+import reactor.core.publisher.Mono;
+
+public interface WaitlistRepository extends R2dbcRepository<Waitlist, Long> {
+    Mono<Boolean> existsByMeetingIdAndMemberId(Long meetingId, Integer memberId);
 //    void deleteByMeetingAndMemberId(Meeting meeting, Integer memberId);
 //    List<Waitlist> findAllByMeetingMeetingId(Long meetingId);
-//}
+}

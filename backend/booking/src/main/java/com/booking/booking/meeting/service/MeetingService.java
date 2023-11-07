@@ -18,6 +18,7 @@ import com.booking.booking.meetinginfo.dto.response.MeetingInfoResponse;
 import com.booking.booking.meetinginfo.service.MeetingInfoService;
 import com.booking.booking.participant.dto.response.ParticipantResponse;
 import com.booking.booking.participant.service.ParticipantService;
+import com.booking.booking.waitlist.service.WaitlistService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -34,7 +35,7 @@ public class MeetingService {
     private final HashtagMeetingService hashtagMeetingService;
     private final MeetingInfoService meetingInfoService;
     private final ParticipantService participantService;
-//    private final WaitlistService waitlistService;
+    private final WaitlistService waitlistService;
 
 //    @Value("${gateway.url}")
 //    private String GATEWAY_URL;
@@ -132,49 +133,34 @@ public class MeetingService {
                 });
     }
 
-//    public Mono<MeetingResponse> findMeetingWithHashtags(Long meetingId) {
-//        log.info("Booking Server Meeting - findById({})", meetingId);
-//
-//        return meetingRepository.findById(meetingId)
-//                .switchIfEmpty(Mono.error(new RuntimeException("존재하지 않는 미팅")))
-//                .flatMap(this::makeMeetingResponse)
-//                .onErrorResume(error -> {
-//                    log.error("Booking Server Meeting - Error during findById : {}", error.getMessage());
-//                    return Mono.error(error);
-//                });
-//    }
-//
-//
+    public Mono<Void> enrollMeeting(String userEmail, Long meetingId) {
+        log.info("Booking Server Meeting - enrollMeeting({}, {})", userEmail, meetingId);
 
-//
-//    public Mono<Void> enrollMeeting(String userEmail, Long meetingId) {
-//        log.info("Booking Server Meeting - enrollMeeting({}, {})", userEmail, meetingId);
-//
-//        return Mono.zip(
-//                    Mono.justOrEmpty(meetingRepository.findById(meetingId))
-//                            .switchIfEmpty(Mono.error(new RuntimeException("존재하지 않는 모임"))),
-//                        MemberUtil.getMemberInfoByEmail(userEmail))
-//                .flatMap(it -> {
-//                    Meeting meeting = it.getT1();
-//                    Integer memberId = it.getT2().memberPk();
-//
-//                    return Mono.zip(
-//                            participantService.existsByMeetingAndMemberId(meeting, memberId),
-//                            waitlistService.existsByMeetingAndMemberId(meeting, memberId))
-//                            .flatMap(it2 -> {
-//                                if (it2.getT1()) {
-//                                    return Mono.error(new RuntimeException("이미 등록한 회원"));
-//                                } else if (it2.getT2()) {
-//                                    return Mono.error(new RuntimeException("이미 대기 중인 회원"));
-//                                }
-//                                return waitlistService.enrollMeeting(meeting, memberId);
-//                            });
-//                })
-//                .onErrorResume(error -> {
-//                    log.error("Booking Server Meeting - Error during enrollMeeting : {}", error.getMessage());
-//                    return Mono.error(error);
-//                });
-//    }
+        return Mono.zip(
+                    meetingRepository.findById(meetingId)
+                            .switchIfEmpty(Mono.error(new RuntimeException("존재하지 않는 모임"))),
+                        MemberUtil.getMemberInfoByEmail(userEmail))
+                .flatMap(it -> {
+                    Meeting meeting = it.getT1();
+                    Integer memberId = it.getT2().memberPk();
+
+                    return Mono.zip(
+                            participantService.existsByMeetingIdAndMemberId(meetingId, memberId),
+                            waitlistService.existsByMeetingIdAndMemberId(meetingId, memberId))
+                            .flatMap(it2 -> {
+                                if (it2.getT1()) {
+                                    return Mono.error(new RuntimeException("이미 등록한 회원"));
+                                } else if (it2.getT2()) {
+                                    return Mono.error(new RuntimeException("이미 대기 중인 회원"));
+                                }
+                                return waitlistService.enrollMeeting(meetingId, memberId);
+                            });
+                })
+                .onErrorResume(error -> {
+                    log.error("Booking Server Meeting - Error during enrollMeeting : {}", error.getMessage());
+                    return Mono.error(error);
+                });
+    }
 //
 //    public Mono<Void> acceptMeeting(String userEmail, Long meetingId, Integer memberId) {
 //        log.info("Booking Server Meeting - acceptMeeting({}, {}, {})", userEmail, meetingId, memberId);

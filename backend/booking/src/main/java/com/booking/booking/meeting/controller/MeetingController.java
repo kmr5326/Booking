@@ -65,17 +65,17 @@ public class MeetingController {
                         Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, error.getMessage())));
     }
 
-//    @PostMapping("/{meetingId}/waiting")
-//    public Mono<ResponseEntity<Void>> enrollMeeting
-//            (@RequestHeader(AUTHORIZATION) String token, @PathVariable("meetingId") Long meetingId) {
-//        String userEmail = JwtUtil.getLoginEmailByToken(token);
-//
-//        return meetingService.enrollMeeting(userEmail, meetingId)
-//                .thenReturn(ResponseEntity.ok().<Void>build())
-//                .onErrorResume(error ->
-//                        Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, error.getMessage())));
-//    }
-//
+    @PostMapping("/{meetingId}/waiting")
+    public Mono<ResponseEntity<Void>> enrollMeeting
+            (@RequestHeader(AUTHORIZATION) String token, @PathVariable("meetingId") Long meetingId) {
+        String userEmail = JwtUtil.getLoginEmailByToken(token);
+
+        return meetingService.enrollMeeting(userEmail, meetingId)
+                .thenReturn(ResponseEntity.ok().<Void>build())
+                .onErrorResume(error ->
+                        Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, error.getMessage())));
+    }
+
 //    @PostMapping("/{meetingId}/accept/{memberId}")
 //    public Mono<ResponseEntity<Void>> acceptMeeting(@RequestHeader(AUTHORIZATION) String token, @PathVariable("meetingId") Long meetingId, @PathVariable("memberId") Integer memberId) {
 //        String userEmail = JwtUtil.getLoginEmailByToken(token);
