@@ -1,11 +1,14 @@
 package com.booking.booking.participant.service;
 
+import com.booking.booking.global.utils.MemberUtil;
 import com.booking.booking.meeting.domain.Meeting;
 import com.booking.booking.participant.domain.Participant;
+import com.booking.booking.participant.dto.response.ParticipantResponse;
 import com.booking.booking.participant.repository.ParticipantRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Slf4j
@@ -21,6 +24,7 @@ public class ParticipantService {
     public Mono<Void> addParticipant(Meeting meeting, Integer memberId) {
         log.info("Booking Server Participant - addParticipant({}, {})", meeting, memberId);
         
+        // TODO status 확인 - preparing 상태일 때만 추가 가능
         return participantRepository.countAllByMeetingId(meeting.getMeetingId())
                 .flatMap(count -> {
                     if (count >= meeting.getMaxParticipants()) {
@@ -36,6 +40,18 @@ public class ParticipantService {
                 .doOnError(error -> {
                     log.error("Error during addParticipant : {}", error.toString());
                     throw new RuntimeException("참가자 추가 실패");
+                });
+    }
+
+    public Flux<ParticipantResponse> findAllByMeetingId(Long meetingId) {
+        log.info("Booking Server Participant - findAllByMeetingId({})", meetingId);
+
+        return participantRepository.findAllByMeetingId(meetingId)
+                .flatMap(participant -> MemberUtil.getMemberInfoByPk(participant.getMemberId())
+                        .flatMap(member -> Mono.just(new ParticipantResponse(member, participant))))
+                .onErrorResume(error -> {
+                    log.error("Error during findAllByMeetingId : {}", error.toString());
+                    return Flux.error(new RuntimeException("참가자 목록 조회 실패"));
                 });
     }
 //

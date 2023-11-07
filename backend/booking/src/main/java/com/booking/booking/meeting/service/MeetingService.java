@@ -6,14 +6,17 @@ import com.booking.booking.global.dto.response.MemberResponse;
 import com.booking.booking.global.utils.BookUtil;
 import com.booking.booking.global.utils.ChatroomUtil;
 import com.booking.booking.global.utils.MemberUtil;
-import com.booking.booking.hashtag.domain.Hashtag;
 import com.booking.booking.hashtag.dto.response.HashtagResponse;
 import com.booking.booking.hashtagmeeting.service.HashtagMeetingService;
 import com.booking.booking.meeting.domain.Meeting;
 import com.booking.booking.meeting.domain.MeetingState;
 import com.booking.booking.meeting.dto.request.MeetingRequest;
+import com.booking.booking.meeting.dto.response.MeetingDetailResponse;
 import com.booking.booking.meeting.dto.response.MeetingListResponse;
 import com.booking.booking.meeting.repository.MeetingRepository;
+import com.booking.booking.meetinginfo.dto.response.MeetingInfoResponse;
+import com.booking.booking.meetinginfo.service.MeetingInfoService;
+import com.booking.booking.participant.dto.response.ParticipantResponse;
 import com.booking.booking.participant.service.ParticipantService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +32,7 @@ import java.util.List;
 public class MeetingService {
     private final MeetingRepository meetingRepository;
     private final HashtagMeetingService hashtagMeetingService;
+    private final MeetingInfoService meetingInfoService;
     private final ParticipantService participantService;
 //    private final WaitlistService waitlistService;
 
@@ -81,35 +85,52 @@ public class MeetingService {
 
         final double RADIUS = 10.0;
 
-        // TODO 사용자 위치 기반
         return MemberUtil.getMemberInfoByEmail(userEmail)
                 .flatMapMany(member -> meetingRepository.findAllByRadius(member.lat(), member.lgt(), RADIUS))
                 .flatMap(meeting -> {
                     Mono<BookResponse> bookResponseMono = BookUtil.getBookByIsbn(meeting.getBookIsbn());
                     Mono<Integer> curPartipantsMono = participantService.countAllByMeetingId(meeting.getMeetingId());
-                    Mono<List<Hashtag>> hashtagResponseFlux = hashtagMeetingService.findHashtagByMeetingId(meeting.getMeetingId()).collectList();
+                    Mono<List<HashtagResponse>> hashtagResponseFlux =
+                            hashtagMeetingService.findHashtagByMeetingId(meeting.getMeetingId())
+                            .flatMap(hashtag -> Mono.just(new HashtagResponse(hashtag)))
+                            .collectList();
 
                     return Mono.zip(bookResponseMono, curPartipantsMono, hashtagResponseFlux)
-                            .map(tuple -> new MeetingListResponse(meeting, tuple.getT1(), tuple.getT2(), tuple.getT3().stream().map(HashtagResponse::new).toList()));
+                            .map(tuple -> new MeetingListResponse(meeting, tuple.getT1(), tuple.getT2(), tuple.getT3()));
                 })
                 .onErrorResume(error -> {
-                                // TODO 롤백 어떻게 하지
-                                log.error("Booking Server Meeting - Error during handleCreateMeeting : {}", error.getMessage());
-                                return Mono.error(error);
+                    log.error("Booking Server Meeting - Error during findAllByLocation : {}", error.getMessage());
+                    return Mono.error(error);
                 });
     }
 
-//    private Mono<MeetingResponse> makeMeetingResponse(Meeting meeting) {
-//        log.info(meeting.toString());
-//        log.info(meeting.getHashtagList().toString());
-////        List<HashtagResponse> hashtagResponseList = meeting.getHashtagMeetingList().stream()
-////                .map(HashtagMeeting::getHashtag)
-////                .map(HashtagResponse::new)
-////                .collect(Collectors.toList());
-//
-////        return Mono.just(new MeetingResponse(meeting, hashtagResponseList));
-//        return Mono.just(new MeetingResponse(meeting));
-//    }
+    public Mono<MeetingDetailResponse> findByMeetingId(Long meetingId) {
+        log.info("Booking Server Meeting - findByMeetingId({})", meetingId);
+
+        return meetingRepository.findByMeetingId(meetingId)
+                .flatMap(meeting -> {
+                    Mono<BookResponse> bookResponseMono = BookUtil.getBookByIsbn(meeting.getBookIsbn());
+                    Mono<List<ParticipantResponse>> participantResponseMono =
+                            participantService.findAllByMeetingId(meetingId).collectList();
+                    Mono<List<HashtagResponse>> hashtagResponseFlux =
+                            hashtagMeetingService.findHashtagByMeetingId(meeting.getMeetingId())
+                                    .flatMap(hashtag -> Mono.just(new HashtagResponse(hashtag)))
+                                    .collectList();
+                    Mono<List<MeetingInfoResponse>> MeetingInfoResponseMono =
+                            meetingInfoService.findAllByMeetingId(meetingId)
+                                    .collectList();
+
+
+                    return Mono.zip(
+                            bookResponseMono, participantResponseMono, hashtagResponseFlux, MeetingInfoResponseMono)
+                            .map(tuple -> new MeetingDetailResponse
+                                    (meeting, tuple.getT1(), tuple.getT2(), tuple.getT3(), tuple.getT4()));
+                })
+                .onErrorResume(error -> {
+                    log.error("Booking Server Meeting - Error during findByMeetingId : {}", error.getMessage());
+                    return Mono.error(error);
+                });
+    }
 
 //    public Mono<MeetingResponse> findMeetingWithHashtags(Long meetingId) {
 //        log.info("Booking Server Meeting - findById({})", meetingId);

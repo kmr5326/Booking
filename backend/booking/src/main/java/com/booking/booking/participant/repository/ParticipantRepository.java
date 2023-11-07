@@ -7,6 +7,6 @@ import reactor.core.publisher.Mono;
 
 public interface ParticipantRepository extends R2dbcRepository<Participant, Long> {
     Mono<Integer> countAllByMeetingId(Long meetingId);
-    Mono<Boolean> existsByMeetingIdAndMemberId(Long meetingId, Integer memberId);
     Flux<Participant> findAllByMeetingId(Long meetingId);
+    Mono<Boolean> existsByMeetingIdAndMemberId(Long meetingId, Integer memberId);
 }
