@@ -39,6 +39,10 @@ public class BookService {
         return bookRepository.existsById("9788967351021");
     }
 
+    public Flux<Book> findAll() {
+        return bookRepository.findAll();
+    }
+
     public Mono<String> ensureTextIndexOnTitle() {
         TextIndexDefinition textIndex = new TextIndexDefinition.TextIndexDefinitionBuilder()
             .onField("title")
