@@ -140,6 +140,7 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:32.4.1"))
     implementation("com.google.firebase:firebase-analytics-ktx")
     implementation("com.google.firebase:firebase-auth-ktx")
+    implementation("com.google.firebase:firebase-database-ktx")
 
     // 카카오 로그인
     implementation ("com.kakao.sdk:v2-user:2.17.0") // 카카오 로그인

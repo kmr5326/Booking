@@ -8,9 +8,16 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.exclude
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -21,15 +28,26 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Send
+import androidx.compose.material3.Button
+import androidx.compose.material3.Divider
+import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberDrawerState
+import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -37,6 +55,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -44,6 +63,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.ColorPainter
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.TextFieldValue
@@ -54,16 +74,15 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.ssafy.booking.R
 import com.ssafy.booking.ui.common.TopBarChat
+import com.ssafy.booking.viewmodel.ChatViewModel
 import com.ssafy.booking.viewmodel.MyPageViewModel
 import com.ssafy.booking.viewmodel.SocketViewModel
 import com.ssafy.data.repository.token.TokenDataSource
 import com.ssafy.data.room.entity.MessageEntity
+import com.ssafy.domain.model.ChatExitRequest
 import com.ssafy.domain.model.KafkaMessage
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
-import kotlin.random.Random
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -72,82 +91,117 @@ fun ChatDetail(
     socketViewModel: SocketViewModel
 ) {
     val chatId = navController.currentBackStackEntry?.arguments?.getString("chatId")
-
+    val chatViewModel: ChatViewModel = hiltViewModel()
     var memberId by remember { mutableStateOf<Long?>(null) }
     var nickname by remember { mutableStateOf("") }
     val myPageViewModel: MyPageViewModel = hiltViewModel()
+
     val context = LocalContext.current
     val tokenDataSource = TokenDataSource(context)
     val loginId: String? = tokenDataSource.getLoginId()
     val getUserInfoResponse by myPageViewModel.getUserInfoResponse.observeAsState()
-
     LaunchedEffect(loginId) {
         val result = loginId?.let {
             myPageViewModel.getUserInfo(loginId)
         }
     }
-
     LaunchedEffect(getUserInfoResponse) {
         if (getUserInfoResponse != null) {
             Log.d("STOMP", "${getUserInfoResponse!!.body()}")
             memberId = getUserInfoResponse!!.body()?.memberPk
             nickname = getUserInfoResponse!!.body()?.nickname.toString()
         }
-
     }
-
     LaunchedEffect(memberId) {
         chatId?.let {
             socketViewModel.loadLatestMessages(it)
             socketViewModel.connectToChat(it)
         }
     }
-
-    val listState = rememberLazyListState()
-    val messages by socketViewModel.messages.observeAsState(listOf())
-
     DisposableEffect(chatId) {
         onDispose {
-            // 연결 종료
             chatId?.let {
                 socketViewModel.disconnectChat()
             }
         }
     }
 
+    val listState = rememberLazyListState()
+    val topBarState = rememberTopAppBarState()
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val messages by socketViewModel.messages.observeAsState(listOf())
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(topBarState)
+    val coroutineScope = rememberCoroutineScope()
 
-    Scaffold(
-        topBar = {
-            TopBarChat(title = "${chatId}번 채팅방")
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            ModalDrawerSheet {
+                Text("Drawer title", modifier = Modifier.padding(16.dp))
+                Divider()
+                Button(
+                    onClick = {
+                        val request = ChatExitRequest(chatId, memberId)
+                        Log.d("CHAT", "${request}")
+                        chatViewModel.exitChatRoom(request)
+                        navController.popBackStack()
+                    }
+                ) {
+                    Text("채팅방 나가기")
+                }
+            }
         }
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(it)
-        ) {
-            MessageList(
-                modifier = Modifier
-                    .weight(1f)
-                    .background(Color(0xFF9bbbd4)),
-                listState,
-                messages,
-                memberId
-            )
-            chatId?.let {
-                InputText(
-                    socketViewModel,
-                    listState,
-                    messages.size,
-                    chatId,
-                    memberId,
-                    nickname
+        Scaffold(
+            topBar = {
+                TopBarChat(
+                    title = "${chatId}번 채팅방",
+                    onNavigationIconClick = {
+                        coroutineScope.launch {
+                            drawerState.apply {
+                                if (isClosed) open() else close()
+                            }
+                        }
+                    },
+                    scrollBehavior = scrollBehavior
                 )
+            },
+            contentWindowInsets = ScaffoldDefaults
+                .contentWindowInsets
+                .exclude(WindowInsets.navigationBars)
+                .exclude(WindowInsets.ime),
+            modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
+        ) { paddingValues ->
+            Column(
+                Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+            ) {
+                MessageList(
+                    modifier = Modifier
+                        .weight(1f)
+                        .background(Color(0xFF9bbbd4)),
+                    listState,
+                    messages,
+                    memberId
+                )
+                chatId?.let {
+                    InputText(
+                        modifier = Modifier
+                            .navigationBarsPadding()
+                            .imePadding(),
+                        socketViewModel,
+                        listState,
+                        messages.size,
+                        chatId,
+                        memberId,
+                        nickname
+                    )
+                }
             }
         }
     }
 }
-
 
 @Composable
 fun MessageList(
@@ -174,8 +228,6 @@ fun MessageList(
                 MessageItem(message, previousMessage, nextMessage, memberId)
             }
         }
-
-        Log.d("MESSAGE", "${messages}")
 
         LaunchedEffect(messages) {
             if (messages.isNotEmpty()) {
@@ -242,8 +294,9 @@ fun MessageItem(
                 ) {
                     // 자신의 메시지인 경우, 시간을 먼저 표시
                     if (isOwnMessage &&
-                        (nextMessage==null || (nextMessage.sendTime?.hour != message.sendTime?.hour ||
-                                nextMessage.sendTime?.minute != message.sendTime?.minute) || nextMessage?.senderId != message.senderId)) {
+                        (nextMessage == null || (nextMessage.sendTime?.hour != message.sendTime?.hour ||
+                                nextMessage.sendTime?.minute != message.sendTime?.minute) || nextMessage.senderId != message.senderId)
+                    ) {
                         Text(
                             text = message.sendTime?.let {
                                 val updatedTime = it.plusHours(9) // 올바른 시간 계산을 위해 plusHours 사용
@@ -270,8 +323,9 @@ fun MessageItem(
 
                     // 다른 사람의 메시지인 경우, 메시지 뒤에 시간을 표시
                     if (!isOwnMessage &&
-                        (nextMessage==null || (nextMessage.sendTime?.hour != message.sendTime?.hour ||
-                                nextMessage.sendTime?.minute != message.sendTime?.minute) || nextMessage?.senderId != message.senderId)) {
+                        (nextMessage == null || (nextMessage.sendTime?.hour != message.sendTime?.hour ||
+                                nextMessage.sendTime?.minute != message.sendTime?.minute) || nextMessage.senderId != message.senderId)
+                    ) {
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
                             text = message.sendTime?.let {
@@ -292,6 +346,7 @@ fun MessageItem(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InputText(
+    modifier: Modifier,
     socketViewModel: SocketViewModel,
     listState: LazyListState,
     messagesSize: Int,

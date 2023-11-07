@@ -3,12 +3,10 @@ package com.ssafy.booking.ui.chat
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -18,7 +16,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
@@ -38,17 +35,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.navigation.NavController
 import com.ssafy.booking.R
-import com.ssafy.booking.model.UserProfileState
-import com.ssafy.booking.ui.AppNavItem
 import com.ssafy.booking.ui.common.BottomNav
 import com.ssafy.booking.ui.common.TopBar
 import com.ssafy.booking.viewmodel.AppViewModel
@@ -74,23 +66,22 @@ fun ChatHome(
     val navController = LocalNavigation.current
     val chatViewModel: ChatViewModel = hiltViewModel()
     val myPageViewModel: MyPageViewModel = hiltViewModel()
-    val context = LocalContext.current
-    val tokenDataSource = TokenDataSource(context)
 
     var chatId by remember {mutableStateOf("")}
-    var memId by remember { mutableStateOf<Long?>(null) }
 
+    // 유저 정보 불러오기
+    val context = LocalContext.current
+    val tokenDataSource = TokenDataSource(context)
+    var memId by remember { mutableStateOf<Long?>(null) }
     val loginId: String? = tokenDataSource.getLoginId()
     val getUserInfoResponse by myPageViewModel.getUserInfoResponse.observeAsState()
     chatViewModel.loadChatList()
-
     LaunchedEffect(loginId) {
         val result = loginId?.let {
             Log.d("CHAT","$loginId")
             myPageViewModel.getUserInfo(loginId)
         }
     }
-
     LaunchedEffect(getUserInfoResponse) {
         if(getUserInfoResponse != null) {
             Log.d("CHAT","${getUserInfoResponse!!.body()}")
@@ -138,15 +129,6 @@ fun ChatHome(
                             }
                         ) {
                             Text("채팅방 참가")
-                        }
-                        Button(
-                            onClick = {
-                                val request = ChatExitRequest(chatId.toInt(), memId)
-                                Log.d("CHAT", "${request}")
-                                chatViewModel.exitChatRoom(request)
-                            }
-                        ) {
-                            Text("채팅방 나가기")
                         }
                     }
                     ChatList()
