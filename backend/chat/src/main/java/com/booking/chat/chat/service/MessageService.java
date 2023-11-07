@@ -4,6 +4,7 @@ package com.booking.chat.chat.service;
 import com.booking.chat.chat.domain.Message;
 import com.booking.chat.chat.repository.MessageRepository;
 import com.booking.chat.kafka.domain.KafkaMessage;
+import com.booking.chat.notification.service.NotificationService;
 import java.nio.charset.StandardCharsets;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +21,8 @@ public class MessageService {
 
     private final MessageRepository messageRepository;
     private final KafkaTemplate<String, KafkaMessage> kafkaTemplate;
+    private final NotificationService notificationService;
+
 
     public void processAndSend(KafkaMessage kafkaMessage, Long chatroomId) {
         save(kafkaMessage, chatroomId)
@@ -32,6 +35,9 @@ public class MessageService {
         ProducerRecord<String, KafkaMessage> record = new ProducerRecord<>("Chatroom-" + chatroomId, null, null, kafkaMessage);
         record.headers().add("chatroomId", chatroomId.toString().getBytes(StandardCharsets.UTF_8));
         kafkaTemplate.send(record);
+
+        // test
+        notificationService.sendChattingNotification(kafkaMessage.getSenderId()).subscribe();
     }
     public Mono<Void> save(KafkaMessage message, Long chatroomId) {
 

@@ -3,11 +3,18 @@ package com.booking.chat.notification.service;
 import com.booking.chat.notification.domain.NotificationInformation;
 import com.booking.chat.notification.dto.request.DeviceTokenInitRequest;
 import com.booking.chat.notification.repository.NotificationInformationRepository;
+import com.google.api.core.ApiFuture;
+import com.google.common.util.concurrent.MoreExecutors;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.Message;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class NotificationService {
@@ -32,5 +39,36 @@ public class NotificationService {
                                                     ))
                                                 )
                                                 .then();
+    }
+
+    public Mono<Void> sendChattingNotification(Long memberId) {
+        return notificationInformationRepository.findByMemberId(memberId)
+                                                .flatMap(info -> {
+                                                    log.info(" notification send to {} member ", memberId);
+                                                    Message message = Message.builder()
+                                                                             .putData("title", "메세지가 전송되었습니다.")
+                                                                             .putData("content", "채팅내용")
+                                                                             .setToken(info.getDeviceToken())
+                                                                             .build();
+                                                    return send(message);
+                                                })
+                                                .then();
+    }
+
+    public Mono<Void> send(Message message) {
+        ApiFuture<String> apiFuture = FirebaseMessaging.getInstance().sendAsync(message);
+
+        CompletableFuture<String> completableFuture = new CompletableFuture<>();
+        apiFuture.addListener(() -> {
+            try {
+                // ApiFuture가 성공적으로 완료되면 CompletableFuture도 완료
+                completableFuture.complete(apiFuture.get());
+            } catch (Exception e) {
+                // ApiFuture에서 예외가 발생하면 CompletableFuture도 예외로 마크
+                completableFuture.completeExceptionally(e);
+            }
+        }, MoreExecutors.directExecutor()); // directExecutor는 현재 스레드에서 리스너를 실행합니다.
+
+        return Mono.fromFuture(completableFuture).then();
     }
 }
