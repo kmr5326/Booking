@@ -3,6 +3,7 @@ pluginManagement {
         google()
         mavenCentral()
         gradlePluginPortal()
+
     }
 }
 dependencyResolutionManagement {
@@ -13,6 +14,8 @@ dependencyResolutionManagement {
         mavenCentral()
         maven(url = "https://devrepo.kakao.com/nexus/content/groups/public/")
         maven(url = "https://jitpack.io")
+        maven(url = "https://naver.jfrog.io/artifactory/maven/")
+
     }
 }
 
