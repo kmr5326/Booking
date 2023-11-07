@@ -3,6 +3,7 @@ package com.booking.chat.notification.service;
 import com.booking.chat.notification.domain.NotificationInformation;
 import com.booking.chat.notification.dto.request.DeviceTokenInitRequest;
 import com.booking.chat.notification.repository.NotificationInformationRepository;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -24,6 +25,7 @@ public class NotificationService {
                                                     // 정보가 없으면 새로 만들어 저장
                                                     Mono.defer(() -> notificationInformationRepository.save(
                                                         NotificationInformation.builder()
+                                                                               ._id(UUID.randomUUID())
                                                                                .memberId(memberId)
                                                                                .deviceToken(deviceTokenInitRequest.deviceToken())
                                                                                .build()

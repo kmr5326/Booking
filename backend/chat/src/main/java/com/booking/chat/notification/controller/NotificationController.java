@@ -27,8 +27,7 @@ public class NotificationController {
         Long memberId = JwtUtil.getMemberIdByToken(token);
         log.info(" {} user request initialize device token ", memberId);
 
-
-
-        return Mono.empty();
+        return notificationService.upsertDeviceToken(memberId, deviceTokenInitRequest)
+                                  .then(Mono.defer(() -> Mono.just(ResponseEntity.noContent().build())));
     }
 }

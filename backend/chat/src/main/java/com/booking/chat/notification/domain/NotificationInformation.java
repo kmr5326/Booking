@@ -1,6 +1,7 @@
 package com.booking.chat.notification.domain;
 
 
+import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,7 +18,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class NotificationInformation {
 
     @Id
-    private Long _id;
+    private UUID _id;
 
     private Long memberId;
 
