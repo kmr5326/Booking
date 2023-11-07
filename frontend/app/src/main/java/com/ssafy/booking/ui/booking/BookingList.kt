@@ -259,10 +259,6 @@ fun HomeTopBar(navController: NavController, appViewModel: AppViewModel) {
 }
 
 
-
-
-
-
 data class Book(val imageResId: Int, val bookName: String, val title: String, val locate:String, val currentPeople:Int, val maxPeople:Int )
 
 val bookItemsList = listOf(
