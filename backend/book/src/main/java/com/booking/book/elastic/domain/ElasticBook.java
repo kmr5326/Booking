@@ -14,7 +14,7 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Getter
-@Document(indexName = "books")
+@Document(indexName = "booking")
 public class ElasticBook {
 
     @Id

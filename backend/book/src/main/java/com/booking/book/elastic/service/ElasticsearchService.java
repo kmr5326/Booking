@@ -24,8 +24,8 @@ public class ElasticsearchService {
         Query searchQuery = new CriteriaQuery(criteria);
 
         return reactiveElasticsearchOperations.search(searchQuery, ElasticBook.class)
-                                                                           .map(SearchHit::getContent)
-                                                                           .flatMap(elasticBook -> bookService.findByIsbn(elasticBook.getId()));
+                                              .map(SearchHit::getContent)
+                                              .flatMap(elasticBook -> bookService.findByIsbn(elasticBook.getId()));
     }
 
 }
