@@ -28,11 +28,13 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -44,24 +46,29 @@ import androidx.compose.ui.text.TextRange
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import coil.compose.AsyncImage
+import com.ssafy.booking.ui.LocalNavigation
 import com.ssafy.booking.viewmodel.AppViewModel
+import com.ssafy.booking.viewmodel.BookSearchViewModel
 import com.ssafy.booking.viewmodel.BookingViewModel
 import com.ssafy.booking.viewmodel.DummyAppViewModel
 import com.ssafy.booking.viewmodel.SignInViewModel
 import com.ssafy.domain.model.SignInRequest
 import com.ssafy.domain.model.booking.BookingCreateRequest
+import com.ssafy.domain.model.booksearch.BookSearchResponse
 import retrofit2.Response
 
-@Preview(showBackground = true)
-@Composable
-fun preview() {
-    BookingCreate(navController = rememberNavController(),
-        appViewModel = DummyAppViewModel()
-    )
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun preview() {
+//    BookingCreate(navController = rememberNavController(),
+//        appViewModel = DummyAppViewModel()
+//    )
+//}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BookingCreate(navController: NavController, appViewModel: AppViewModel) {
+fun BookingCreate(navController: NavController, appViewModel: AppViewModel, isbn : String?) {
 
     // 상태값들 최상단에 정의
     var meetingTitle by rememberSaveable(stateSaver = TextFieldValue.Saver) {
@@ -71,12 +78,23 @@ fun BookingCreate(navController: NavController, appViewModel: AppViewModel) {
         mutableStateOf(TextFieldValue(""))
     }
 //    var hashTagText by rememberSaveable { mutableStateOf("공포, 스릴러") }
-    var bookIsbn by remember { mutableStateOf(TextFieldValue("788967351021")) }
+
+//    var bookIsbn by remember { mutableStateOf(TextFieldValue(isbn)) }
     var maxParticipants by remember { mutableStateOf(1) }
 
     // 뷰모델
     val viewModel: BookingViewModel = hiltViewModel()
     val postCreateBookingResponse by viewModel.postCreateBookingResponse.observeAsState()
+
+    // isbn 으로 데이터 불러오기
+    val bookSearchViewModel : BookSearchViewModel = hiltViewModel()
+    val getBookSearchByIsbnResponse by bookSearchViewModel.getBookSearchByIsbnResponse.observeAsState()
+
+    LaunchedEffect(Unit) {
+        isbn?.let {
+            bookSearchViewModel.getBookSearchByIsbn(isbn)
+        }
+    }
 
     Log.d(
         "모임생성",postCreateBookingResponse?.code().toString()
@@ -100,7 +118,7 @@ fun BookingCreate(navController: NavController, appViewModel: AppViewModel) {
                 TopBar(
                     navController
                 )
-                BookSearch()
+                BookSearch(getBookSearchByIsbnResponse)
                 TextFieldsSection(
                     meetingTitle = meetingTitle,
                     onMeetingTitleChanged = { meetingTitle = it },
@@ -113,7 +131,7 @@ fun BookingCreate(navController: NavController, appViewModel: AppViewModel) {
 
                 )
                 CreateBookingButton(
-                    bookIsbn = bookIsbn.text,
+                    bookIsbn = "",
                     meetingTitle = meetingTitle.text, // TextFieldValue에서 String으로 변환
                     description = description.text,
                     maxParticipants = maxParticipants,
@@ -146,7 +164,9 @@ fun TopBar(
                     .size(40.dp) // 아이콘의 크기를 설정합니다.
                     .padding(end = 4.dp) // 아이콘과 텍스트 사이의 간격을 설정합니다
                     .clickable {
-                        navController.popBackStack() // 뒤로가기 버튼
+                        navController.navigate("main"){
+                            popUpTo("main") { inclusive = true }
+                        } // 뒤로가기 버튼
                     }
             )
             Text(
@@ -165,7 +185,12 @@ fun TopBar(
     Spacer(modifier = Modifier.height(40.dp))
 }
 @Composable
-fun BookSearch() {
+fun BookSearch(
+    getBookSearchByIsbnResponse : Response<BookSearchResponse>?
+) {
+
+    val navController = LocalNavigation.current
+
     Column(
         modifier = Modifier
             .background(Color.Transparent)
@@ -173,29 +198,47 @@ fun BookSearch() {
             .wrapContentHeight(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        // 왼쪽의 도서 등록 칸
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
                 .background(Color.LightGray)
                 .width(150.dp)
                 .height(210.dp)
+                .clickable {
+                    navController.navigate("book/false")
+                },
         ) {
-            Icon(
-                imageVector = Icons.Default.Add,
-                contentDescription = null,
-                tint = Color.White,
-                modifier = Modifier.size(80.dp)
+        // 왼쪽의 도서 등록 칸
+        getBookSearchByIsbnResponse?.let {
+            val book = it.body()
+            AsyncImage(
+                model = book!!.coverImage,
+                contentDescription = "북 커버",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .fillMaxSize()
+            )
+        } ?: run {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier.size(80.dp)
+                )
+            }
+        }
+        getBookSearchByIsbnResponse?.let {
+            val book = it.body()
+            Text(
+                text = "${book!!.title}",
+                style = MaterialTheme.typography.headlineSmall
+            )
+            Text(
+                text = "${book!!.author}",
+                style = MaterialTheme.typography.bodyMedium
             )
         }
-        Text(
-            text = "인간실격",
-            style = MaterialTheme.typography.headlineSmall
-        )
-        Text(
-            text = "다자이 오사무",
-            style = MaterialTheme.typography.bodyMedium
-        )
+
         Spacer(modifier = Modifier.height(25.dp))
     }
 }
