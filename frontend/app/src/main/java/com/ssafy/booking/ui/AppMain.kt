@@ -18,6 +18,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.ssafy.booking.ui.book.BookDetail
 import com.ssafy.booking.ui.book.BookHome
 import com.ssafy.booking.ui.chat.ChatDetail
 import com.ssafy.booking.ui.chat.ChatHome
@@ -39,6 +40,7 @@ sealed class AppNavItem(
     val route: String
 ) {
     object Book: AppNavItem("book")
+    object BookDetail: AppNavItem("bookDetail/{isbn}")
     object History: AppNavItem("history")
     object Main: AppNavItem("main")
     object Chat: AppNavItem("chat")
@@ -91,6 +93,14 @@ fun Route(googleSignInClient: GoogleSignInClient) {
             }
             composable("book") {
                 BookHome(navController, appViewModel)
+            }
+            composable("bookDetail/{isbn}") {navBackStackEntry ->
+                // isbn 파라미터 추출
+                val isbn = navBackStackEntry.arguments?.getString("isbn")
+                // ISBN이 있을 때만 BookDetail 컴포저블을 렌더링합니다.
+                isbn?.let {
+                    BookDetail(isbn = it) // ISBN을 인자로 BookDetail에 전달합니다.
+                }
             }
             composable("history") {
                 HistoryHome(navController, appViewModel)

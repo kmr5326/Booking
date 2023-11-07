@@ -15,5 +15,7 @@ data class BookSearchResponse (
     @SerializedName("publishDate")
     val publishDate: String,
     @SerializedName("content")
-    val content: String
+    val content: String,
+    @SerializedName("isbn")
+    val isbn : String
 )

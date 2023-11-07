@@ -3,6 +3,7 @@ package com.ssafy.booking.ui.book
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,6 +25,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material.icons.outlined.LocationOn
@@ -31,6 +33,7 @@ import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -40,6 +43,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -70,8 +74,7 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.ssafy.booking.R
 import com.ssafy.booking.model.BookSearchState
-import com.ssafy.booking.ui.booking.BookItem
-import com.ssafy.booking.ui.booking.bookItemsList
+import com.ssafy.booking.ui.LocalNavigation
 import com.ssafy.booking.ui.common.BottomNav
 import com.ssafy.booking.ui.common.TopBar
 import com.ssafy.booking.viewmodel.AppViewModel
@@ -100,12 +103,39 @@ fun BookHome(
         viewModel.getBookLatest(1,16)
     }
 
+    // 이전 페이지 구분
+    val pageValue = true
+
+    val handleClick = {
+        if(pageValue) {
+
+        } else {
+
+        }
+    }
+
     Scaffold (
         topBar = {
-            TopBar(title = "도서 검색")
+            if(pageValue) {
+                TopBar(title = "도서 검색")
+            } else {
+                CenterAlignedTopAppBar(
+                    title = { Text(text = "설정") },
+                    navigationIcon = {
+                        IconButton(onClick = { navController.popBackStack() }) {
+                            Icon(
+                                imageVector = Icons.Filled.ArrowBack,
+                                contentDescription = "뒤로가기"
+                            )
+                        }
+                    },
+                )
+            }
         },
         bottomBar = {
-            BottomNav(navController, appViewModel)
+            if(pageValue) {
+                BottomNav(navController, appViewModel)
+            }
         },
         modifier = Modifier.fillMaxSize()
     ) { paddingValues ->
@@ -170,7 +200,8 @@ fun BookHome(
                     is BookSearchState.Success -> BookSuccessView(
                         data = (bookSearchState as BookSearchState.Success).data,
                         navController,
-                        appViewModel
+                        appViewModel,
+                        viewModel
                     )
                     is BookSearchState.Error -> BookErrorView(message = (bookSearchState as BookSearchState.Error).message)
                     else -> BookInitView()
@@ -197,7 +228,8 @@ fun BookLoadingView() {
 fun BookSuccessView(
     data: List<BookSearchResponse>,
     navController : NavController,
-    appViewModel: AppViewModel
+    appViewModel: AppViewModel,
+    viewModel: BookSearchViewModel
 ) {
     if(data.isEmpty()) {
         Text("검색 결과가 없습니다.")
@@ -217,10 +249,15 @@ fun BookSuccessView(
 
 @Composable
 fun BookSearchItem(book: BookSearchResponse) {
+    val navController = LocalNavigation.current
+
     Card(
         modifier = Modifier
             .padding(4.dp)
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .clickable{
+                navController.navigate("bookDetail/${book.isbn}")
+            },
         colors = CardDefaults.cardColors(
             containerColor = colorResource(id = R.color.background_color)
         ),
@@ -276,10 +313,15 @@ fun BookInitView() {
 
 @Composable
 fun BookInitItem(book: BookSearchResponse) {
+    val navController = LocalNavigation.current
+
     Column(
         modifier = Modifier
             .width(150.dp)
-            .padding(12.dp),
+            .padding(12.dp)
+            .clickable {
+                navController.navigate("bookDetail/${book.isbn}")
+            }
     ) {
         AsyncImage(
             model = book.coverImage,

@@ -15,4 +15,8 @@ class BookSearchUseCase @Inject constructor(
     suspend fun getBookLatest(page: Int, size: Int) : Response<List<BookSearchResponse>> {
         return repository.getBookLatest(page, size)
     }
+
+    suspend fun getBookSearchByIsbn(isbn : String) : Response<BookSearchResponse> {
+        return repository.getBookSearchByIsbn(isbn)
+    }
 }

@@ -17,4 +17,8 @@ class BookSearchRepositoryImpl @Inject constructor(
     override suspend fun getBookLatest(page: Int, size: Int): Response<List<BookSearchResponse>> {
         return bookSearchApi.getBookLatest(page, size)
     }
+
+    override suspend fun getBookSearchByIsbn(isbn: String): Response<BookSearchResponse> {
+        return bookSearchApi.getBookSearchByIsbn(isbn)
+    }
 }

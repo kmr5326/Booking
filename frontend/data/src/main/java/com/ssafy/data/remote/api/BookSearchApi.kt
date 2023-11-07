@@ -13,9 +13,14 @@ interface BookSearchApi {
     suspend fun getBookSearch(@Query("title") title: String) : Response<List<BookSearchResponse>>
 
     @Headers("Content-Type: application/json;charset=UTF-8")
+    @GET("/api/book/searchByIsbn")
+    suspend fun getBookSearchByIsbn(@Query("isbn") isbn: String) : Response<BookSearchResponse>
+
+    @Headers("Content-Type: application/json;charset=UTF-8")
     @GET("/api/book/latest")
     suspend fun getBookLatest(
         @Query("page") page: Int,
         @Query("size") size: Int
     ) : Response<List<BookSearchResponse>>
+
 }

@@ -8,4 +8,6 @@ interface BookSearchRepository {
     suspend fun getBookSearch(title: String) : Response<List<BookSearchResponse>>
 
     suspend fun getBookLatest(page: Int, size: Int) : Response<List<BookSearchResponse>>
+
+    suspend fun getBookSearchByIsbn(isbn: String) : Response<BookSearchResponse>
 }

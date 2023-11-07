@@ -61,6 +61,15 @@ class BookSearchViewModel @Inject constructor(
             _getBookLatestResponse.value = bookSearchUseCase.getBookLatest(page, size)
         }
 
+    // GET - isbn 으로 도서 조회
+    private val _getBookSearchByIsbnResponse = MutableLiveData<Response<BookSearchResponse>>()
+    val getBookSearchByIsbnResponse: LiveData<Response<BookSearchResponse>> get() = _getBookSearchByIsbnResponse
+
+    fun getBookSearchByIsbn(isbn : String) =
+        viewModelScope.launch {
+            _getBookSearchByIsbnResponse.value = bookSearchUseCase.getBookSearchByIsbn(isbn)
+        }
+
     fun bookSearch(title: String) =
         viewModelScope.launch {
             _bookSearchState.value = BookSearchState.Loading
