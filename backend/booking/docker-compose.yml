@@ -4,6 +4,9 @@ volumes:
   booking_booking_maria:
     external:
       name: booking_booking_maria
+  booking_booking_mongo:
+    external:
+      name: booking_booking_mongo
 
 networks:
   booking_booking_network:
@@ -11,6 +14,19 @@ networks:
     driver: bridge
 
 services:
+  booking_mongodb:
+    image: mongo
+    restart: on-failure
+    container_name: booking-mongodb
+#    ports:
+#      - "27018:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: booking
+      MONGO_INITDB_ROOT_PASSWORD: booking123!
+    networks:
+      - booking_booking_network
+    volumes:
+      - booking_booking_mongo:/data/db
   booking_booking_maria:
     restart: on-failure
     image: 'mariadb:10.3'

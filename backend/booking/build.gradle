@@ -73,6 +73,11 @@ dependencies {
     //micrometer,prometheus
     implementation group: 'io.micrometer', name: 'micrometer-registry-prometheus', version: '1.11.1'
     implementation group: 'io.micrometer', name: 'micrometer-core', version: '1.11.1'
+
+    //mongo
+    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb-reactive'
+    testImplementation 'de.flapdoodle.embed:de.flapdoodle.embed.mongo'
 }
 
 dependencyManagement {
