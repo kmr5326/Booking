@@ -13,6 +13,11 @@ import reactor.core.publisher.Mono;
 public class HashtagService {
     private final HashtagRepository hashtagRepository;
 
+    public Mono<Hashtag> findById(Long hashtagId) {
+        log.info("Booking Server Hashtag - findById({})", hashtagId);
+        return hashtagRepository.findById(hashtagId);
+    }
+
     public Mono<Hashtag> findByContent(String content) {
         log.info("Booking Server Hashtag - findByContent({})", content);
         return hashtagRepository.findByContent(content);
