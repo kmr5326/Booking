@@ -176,7 +176,7 @@ fun BookItem(book: Book) {
 @Composable
 fun MyFloatingActionButton(navController: NavController, appViewModel: AppViewModel) {
     FloatingActionButton(
-        onClick = {navController.navigate(AppNavItem.CreateBooking.route)},
+        onClick = {navController.navigate("create/booking/isbn")},
         modifier = Modifier
             .padding(end = 16.dp, bottom = 10.dp)
             .size(65.dp)
@@ -257,10 +257,6 @@ fun HomeTopBar(navController: NavController, appViewModel: AppViewModel) {
         )
     }
 }
-
-
-
-
 
 
 data class Book(val imageResId: Int, val bookName: String, val title: String, val locate:String, val currentPeople:Int, val maxPeople:Int )

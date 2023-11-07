@@ -136,7 +136,12 @@ fun BottomNav(
                 selected = currentRoute == item.route,
                 onClick = {
                     if (currentRoute != item.route) {
-                        navController.navigate(item.route) {
+                        val route = when(item) {
+                            AppNavItem.Book -> "book/true"
+                            else -> item.route
+                        }
+
+                        navController.navigate(route) {
                             launchSingleTop = true // 현재 탑 레벨 데스티네이션을 재시작하지 않음.
                             restoreState = true // 상태를 복원합니다 (예: 스크롤 위치).
                             popUpTo(navController.graph.startDestinationId) {

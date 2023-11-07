@@ -87,7 +87,8 @@ import retrofit2.Response
 @Composable
 fun BookHome(
     navController: NavController,
-    appViewModel: AppViewModel
+    appViewModel: AppViewModel,
+    checkBoolean: Boolean
 ) {
     val viewModel : BookSearchViewModel = hiltViewModel()
     
@@ -101,22 +102,12 @@ fun BookHome(
 
     LaunchedEffect(Unit) {
         viewModel.getBookLatest(1,16)
-    }
-
-    // 이전 페이지 구분
-    val pageValue = true
-
-    val handleClick = {
-        if(pageValue) {
-
-        } else {
-
-        }
+        Log.d("booktest", "$checkBoolean")
     }
 
     Scaffold (
         topBar = {
-            if(pageValue) {
+            if(checkBoolean) {
                 TopBar(title = "도서 검색")
             } else {
                 CenterAlignedTopAppBar(
@@ -133,7 +124,7 @@ fun BookHome(
             }
         },
         bottomBar = {
-            if(pageValue) {
+            if(checkBoolean) {
                 BottomNav(navController, appViewModel)
             }
         },
@@ -201,10 +192,11 @@ fun BookHome(
                         data = (bookSearchState as BookSearchState.Success).data,
                         navController,
                         appViewModel,
-                        viewModel
+                        viewModel,
+                        checkBoolean
                     )
                     is BookSearchState.Error -> BookErrorView(message = (bookSearchState as BookSearchState.Error).message)
-                    else -> BookInitView()
+                    else -> BookInitView(checkBoolean)
                 }
             }
         }
@@ -229,7 +221,8 @@ fun BookSuccessView(
     data: List<BookSearchResponse>,
     navController : NavController,
     appViewModel: AppViewModel,
-    viewModel: BookSearchViewModel
+    viewModel: BookSearchViewModel,
+    checkBoolean : Boolean
 ) {
     if(data.isEmpty()) {
         Text("검색 결과가 없습니다.")
@@ -241,14 +234,14 @@ fun BookSuccessView(
                 .padding(10.dp)
         ) {
             items(data.size) { index ->
-                BookSearchItem(book = data[index])
+                BookSearchItem(book = data[index], checkBoolean)
             }
         }
     }
 }
 
 @Composable
-fun BookSearchItem(book: BookSearchResponse) {
+fun BookSearchItem(book: BookSearchResponse, checkBoolean: Boolean) {
     val navController = LocalNavigation.current
 
     Card(
@@ -256,7 +249,11 @@ fun BookSearchItem(book: BookSearchResponse) {
             .padding(4.dp)
             .fillMaxWidth()
             .clickable{
-                navController.navigate("bookDetail/${book.isbn}")
+                if (checkBoolean) {
+                    navController.navigate("bookDetail/${book.isbn}")
+                } else {
+                    navController.navigate("create/booking/${book.isbn}")
+                }
             },
         colors = CardDefaults.cardColors(
             containerColor = colorResource(id = R.color.background_color)
@@ -292,7 +289,7 @@ fun BookErrorView(message:String) {
 
 
 @Composable
-fun BookInitView() {
+fun BookInitView(checkBoolean : Boolean) {
     val viewModel : BookSearchViewModel = hiltViewModel()
 
     val getBookLatestResponse by viewModel.getBookLatestResponse.observeAsState()
@@ -305,14 +302,14 @@ fun BookInitView() {
                 .padding(horizontal = 8.dp, vertical = 15.dp)
         ) {
             items(it.body()!!) { book ->
-                BookInitItem(book)
+                BookInitItem(book, checkBoolean)
             }
         }
     }
 }
 
 @Composable
-fun BookInitItem(book: BookSearchResponse) {
+fun BookInitItem(book: BookSearchResponse, checkBoolean:Boolean) {
     val navController = LocalNavigation.current
 
     Column(
@@ -320,7 +317,11 @@ fun BookInitItem(book: BookSearchResponse) {
             .width(150.dp)
             .padding(12.dp)
             .clickable {
-                navController.navigate("bookDetail/${book.isbn}")
+                if (checkBoolean) {
+                    navController.navigate("bookDetail/${book.isbn}")
+                } else {
+                    navController.navigate("create/booking/${book.isbn}")
+                }
             }
     ) {
         AsyncImage(

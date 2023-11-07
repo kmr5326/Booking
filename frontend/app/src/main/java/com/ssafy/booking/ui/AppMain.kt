@@ -39,7 +39,7 @@ import com.ssafy.booking.viewmodel.SocketViewModel
 sealed class AppNavItem(
     val route: String
 ) {
-    object Book: AppNavItem("book")
+    object Book: AppNavItem("book/{checkBoolean}")
     object BookDetail: AppNavItem("bookDetail/{isbn}")
     object History: AppNavItem("history")
     object Main: AppNavItem("main")
@@ -47,7 +47,7 @@ sealed class AppNavItem(
     object ChatDetail: AppNavItem("chatDetail/{chatId}")
     object Profile: AppNavItem("profile")
     object Login: AppNavItem("login")
-    object CreateBooking : AppNavItem("create/booking")
+    object CreateBooking : AppNavItem("create/booking/{isbn}")
     object SignIn: AppNavItem("signIn/{loginId}/{kakaoNickName}"){
         fun createRoute(loginId: String, kakaoNickName: String): String {
             return "signIn/$loginId/$kakaoNickName"
@@ -91,15 +91,14 @@ fun Route(googleSignInClient: GoogleSignInClient) {
                 val context = LocalContext.current
                 Greeting(navController, mainViewModel, appViewModel,context,googleSignInClient)
             }
-            composable("book") {
-                BookHome(navController, appViewModel)
+            composable("book/{checkBoolean}") {navBackStackEntry->
+                val checkBoolean = navBackStackEntry.arguments?.getString("checkBoolean")?.toBoolean() ?: true
+                BookHome(navController, appViewModel, checkBoolean)
             }
             composable("bookDetail/{isbn}") {navBackStackEntry ->
-                // isbn 파라미터 추출
                 val isbn = navBackStackEntry.arguments?.getString("isbn")
-                // ISBN이 있을 때만 BookDetail 컴포저블을 렌더링합니다.
                 isbn?.let {
-                    BookDetail(isbn = it) // ISBN을 인자로 BookDetail에 전달합니다.
+                    BookDetail(isbn = it)
                 }
             }
             composable("history") {
@@ -117,8 +116,13 @@ fun Route(googleSignInClient: GoogleSignInClient) {
             composable("profile") {
                 ProfileHome(navController, appViewModel)
             }
-            composable("create/booking") {
-                BookingCreate(navController, appViewModel)
+            composable("create/booking/{isbn}") {navBackStackEntry ->
+                val isbn = navBackStackEntry.arguments?.getString("isbn")
+                if (isbn == "isbn") {
+                    BookingCreate(navController, appViewModel, isbn=null)
+                } else {
+                    BookingCreate(navController, appViewModel, isbn)
+                }
             }
             composable("signIn/{loginId}/{kakaoNickName}") { navBackStackEntry ->
                 // 여기에서 loginId와 nickName을 추출합니다.
