@@ -1,13 +1,12 @@
-//package com.booking.booking.participant.repository;
-//
-//import com.booking.booking.meeting.domain.Meeting;
-//import com.booking.booking.participant.domain.Participant;
-//import org.springframework.data.jpa.repository.JpaRepository;
-//import org.springframework.data.jpa.repository.Query;
-//
-//import java.util.List;
-//
-//public interface ParticipantRepository extends JpaRepository<Participant, Long> {
-//    boolean existsByMeetingAndMemberId(Meeting meeting, Integer memberId);
-//    List<Participant> findAllByMeetingMeetingId(Long meetingId);
-//}
+package com.booking.booking.participant.repository;
+
+import com.booking.booking.participant.domain.Participant;
+import org.springframework.data.r2dbc.repository.R2dbcRepository;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+public interface ParticipantRepository extends R2dbcRepository<Participant, Long> {
+    Mono<Integer> countAllByMeetingId(Long meetingId);
+    Mono<Boolean> existsByMeetingIdAndMemberId(Long meetingId, Integer memberId);
+    Flux<Participant> findAllByMeetingId(Long meetingId);
+}

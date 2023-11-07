@@ -36,21 +36,5 @@ public class Meeting {
     @Max(6)
     private Integer maxParticipants;
 
-//    @Enumerated(EnumType.STRING)
     private MeetingState meetingState;
-//
-//    @OneToMany(fetch = FetchType.LAZY, mappedBy = "meeting")
-//    private List<MeetingInfo> meetingInfoList;
-//
-//    @OneToMany(fetch = FetchType.LAZY, mappedBy = "meeting")
-//    private List<Waitlist> waitList;
-//
-//    @OneToMany(fetch = FetchType.LAZY, mappedBy = "meeting")
-//    private List<Participant> participantsList;
-//
-//    @OneToMany(fetch = FetchType.LAZY, mappedBy = "meeting")
-//    private List<Post> postList;
-//
-//    @OneToMany(fetch = FetchType.EAGER, mappedBy = "meeting")
-//    private List<HashtagMeeting> hashtagMeetingList;
 }

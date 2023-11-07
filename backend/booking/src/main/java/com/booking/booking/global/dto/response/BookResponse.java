@@ -8,6 +8,7 @@ public record BookResponse(
         String coverImage,
         String genre,
         LocalDate publishDate,
-        String content
+        String content,
+        String isbn
 ) {
 }

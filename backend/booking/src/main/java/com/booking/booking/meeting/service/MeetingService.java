@@ -1,15 +1,25 @@
 package com.booking.booking.meeting.service;
 
+import com.booking.booking.global.dto.request.InitChatroomRequest;
+import com.booking.booking.global.dto.response.BookResponse;
+import com.booking.booking.global.dto.response.MemberResponse;
+import com.booking.booking.global.utils.BookUtil;
+import com.booking.booking.global.utils.ChatroomUtil;
 import com.booking.booking.global.utils.MemberUtil;
+import com.booking.booking.hashtag.domain.Hashtag;
+import com.booking.booking.hashtag.dto.response.HashtagResponse;
+import com.booking.booking.hashtagmeeting.service.HashtagMeetingService;
 import com.booking.booking.meeting.domain.Meeting;
 import com.booking.booking.meeting.domain.MeetingState;
 import com.booking.booking.meeting.dto.request.MeetingRequest;
+import com.booking.booking.meeting.dto.response.MeetingListResponse;
 import com.booking.booking.meeting.repository.MeetingRepository;
+import com.booking.booking.participant.service.ParticipantService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 import java.util.List;
 
@@ -18,24 +28,29 @@ import java.util.List;
 @Service
 public class MeetingService {
     private final MeetingRepository meetingRepository;
-//    private final HashtagMeetingService hashtagMeetingService;
-//    private final ParticipantService participantService;
+    private final HashtagMeetingService hashtagMeetingService;
+    private final ParticipantService participantService;
 //    private final WaitlistService waitlistService;
 
-    private static final String GATEWAY_URL = "http://localhost:8999";
+//    @Value("${gateway.url}")
+//    private String GATEWAY_URL;
+
+//    public Flux<Long> test() {
+//
+//        return hashtagMeetingService.findMeetingIdByHashtagId(2L);
+//    }
 
     public Mono<Meeting> createMeeting(String userEmail, MeetingRequest meetingRequest) {
         log.info("Booking Server Meeting - createMeeting({}, {})", userEmail, meetingRequest);
 
-        // TODO isbn 존재 여부 확인
-//        getBookByIsbn(meetingRequest.bookIsbn())
-//                .subscribeOn(Schedulers.boundedElastic())
-//                .subscribe(bookResponse -> log.info("!!!!!" + bookResponse.content()));
-        return MemberUtil.getMemberInfoByEmail(userEmail)
-                .flatMap(memberInfo -> {
-                    Meeting meeting = meetingRequest.toEntity(memberInfo, MeetingState.PREPARING);
-                    return handleCreateMeeting(meeting, meetingRequest.hashtagList())
-                            .subscribeOn(Schedulers.boundedElastic());
+        return Mono.zip(
+                        MemberUtil.getMemberInfoByEmail(userEmail),
+                        BookUtil.getBookByIsbn(meetingRequest.bookIsbn()))
+                .flatMap(tuple -> {
+                    MemberResponse member = tuple.getT1();
+                    BookResponse book = tuple.getT2();
+
+                    return handleCreateMeeting(tuple.getT1(), meetingRequest);
                 })
                 .onErrorResume(error -> {
                     log.error("Booking Server Meeting - Error during createMeeting : {}", error.getMessage());
@@ -43,71 +58,17 @@ public class MeetingService {
                 });
     }
 
-//    private Mono<BookResponse> getBookByIsbn(String isbn) {
-//        log.info("Booking Server Meeting - getBookByIsbn({})", isbn);
-//
-//        WebClient webClient = WebClient.builder().build();
-//        URI uri = URI.create(GATEWAY_URL + "/api/book/" + isbn);
-//
-//        return webClient.get()
-//                .uri(uri)
-//                .retrieve()
-//                .onStatus(HttpStatus::is4xxClientError,
-//                        response -> Mono.error(new RuntimeException("책 정보 응답 에러")))
-//                .onStatus(HttpStatus::is5xxServerError,
-//                        response -> Mono.error(new RuntimeException("책 정보 응답 에러")))
-//                .bodyToMono(BookResponse.class);
-//    }
+    private Mono<Meeting> handleCreateMeeting(MemberResponse memberResponse, MeetingRequest meetingRequest) {
+        log.info("Booking Server Meeting - handleCreateMeeting({}, {})", memberResponse, meetingRequest);
 
-//    private Mono<Void> initializeChatroom(InitChatroomRequest initChatroomRequest){
-//        log.info("Booking Server Meeting - initializeChatroom({})", initChatroomRequest);
-//
-//        WebClient webClient = WebClient.builder().build();
-//        URI uri = URI.create(GATEWAY_URL + "/api/chat/room/");
-//
-//        return webClient.post()
-//                .uri(uri)
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .body(Mono.just(initChatroomRequest), InitChatroomRequest.class)
-//                .retrieve()
-//                .onStatus(HttpStatus::is4xxClientError,
-//                        response -> Mono.error(new RuntimeException("채팅방 생성 에러")))
-//                .onStatus(HttpStatus::is5xxServerError,
-//                        response -> Mono.error(new RuntimeException("채팅방 생성 에러")))
-//                .bodyToMono(Void.class);
-//    }
-//
-//    private Mono<Void> joinChatroom(JoinChatroomRequest joinChatroomRequest){
-//        log.info("Booking Server Meeting - joinChatroom({})", joinChatroomRequest);
-//
-//        WebClient webClient = WebClient.builder().build();
-//        URI uri = URI.create(GATEWAY_URL + "/api/chat/room/join");
-//
-//        return webClient.post()
-//                .uri(uri)
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .body(Mono.just(joinChatroomRequest), JoinChatroomRequest.class)
-//                .retrieve()
-//                .onStatus(HttpStatus::is4xxClientError,
-//                        response -> Mono.error(new RuntimeException("채팅방 생성 에러")))
-//                .onStatus(HttpStatus::is5xxServerError,
-//                        response -> Mono.error(new RuntimeException("채팅방 생성 에러")))
-//                .bodyToMono(Void.class);
-//    }
-
-    private Mono<Meeting> handleCreateMeeting(Meeting meeting, List<String> hashtagList) {
-        log.info("Booking Server Meeting - handleArrangeMeeting({}, {})", meeting.getMeetingTitle(), hashtagList);
-
-        return Mono
-                .fromCallable(() -> {
-                    meetingRepository.save(meeting);
-//                    initializeChatroom(new InitChatroomRequest(meeting)).subscribe();
-//                    hashtagMeetingService.saveHashtags(meeting, hashtagList).block();
-//                    participantService.addParticipant(meeting, meeting.getLeaderId()).block();
-
-                    return meeting;
-                })
-                .subscribeOn(Schedulers.boundedElastic())
+        return meetingRepository.save(meetingRequest.toEntity(memberResponse, MeetingState.PREPARING))
+                .flatMap(meeting -> Mono.defer(() -> {
+                    // TODO 뭔가 이상한데
+                    ChatroomUtil.initializeChatroom(new InitChatroomRequest(meeting)).subscribe();
+                    participantService.addParticipant(meeting, memberResponse.memberPk()).subscribe();
+                    hashtagMeetingService.saveHashtags(meeting.getMeetingId(), meetingRequest.hashtagList()).subscribe();
+                    return Mono.just(meeting);
+                }).thenReturn(meeting))
                 .onErrorResume(error -> {
                     // TODO 롤백 어떻게 하지
                     log.error("Booking Server Meeting - Error during handleCreateMeeting : {}", error.getMessage());
@@ -115,19 +76,45 @@ public class MeetingService {
                 });
     }
 
+    public Flux<MeetingListResponse> findAllByLocation(String userEmail) {
+        log.info("Booking Server Meeting - findAllByLocation({})", userEmail);
+
+        final double RADIUS = 10.0;
+
+        // TODO 사용자 위치 기반
+        return MemberUtil.getMemberInfoByEmail(userEmail)
+                .flatMapMany(member -> meetingRepository.findAllByRadius(member.lat(), member.lgt(), RADIUS))
+                .flatMap(meeting -> {
+                    Mono<BookResponse> bookResponseMono = BookUtil.getBookByIsbn(meeting.getBookIsbn());
+                    Mono<Integer> curPartipantsMono = participantService.countAllByMeetingId(meeting.getMeetingId());
+                    Mono<List<Hashtag>> hashtagResponseFlux = hashtagMeetingService.findHashtagByMeetingId(meeting.getMeetingId()).collectList();
+
+                    return Mono.zip(bookResponseMono, curPartipantsMono, hashtagResponseFlux)
+                            .map(tuple -> new MeetingListResponse(meeting, tuple.getT1(), tuple.getT2(), tuple.getT3().stream().map(HashtagResponse::new).toList()));
+                })
+                .onErrorResume(error -> {
+                                // TODO 롤백 어떻게 하지
+                                log.error("Booking Server Meeting - Error during handleCreateMeeting : {}", error.getMessage());
+                                return Mono.error(error);
+                });
+    }
+
 //    private Mono<MeetingResponse> makeMeetingResponse(Meeting meeting) {
-//        List<HashtagResponse> hashtagResponseList = meeting.getHashtagMeetingList().stream()
-//                .map(HashtagMeeting::getHashtag)
-//                .map(HashtagResponse::new)
-//                .collect(Collectors.toList());
+//        log.info(meeting.toString());
+//        log.info(meeting.getHashtagList().toString());
+////        List<HashtagResponse> hashtagResponseList = meeting.getHashtagMeetingList().stream()
+////                .map(HashtagMeeting::getHashtag)
+////                .map(HashtagResponse::new)
+////                .collect(Collectors.toList());
 //
-//        return Mono.just(new MeetingResponse(meeting, hashtagResponseList));
+////        return Mono.just(new MeetingResponse(meeting, hashtagResponseList));
+//        return Mono.just(new MeetingResponse(meeting));
 //    }
-//
-//    public Mono<MeetingResponse> findById(Long meetingId) {
+
+//    public Mono<MeetingResponse> findMeetingWithHashtags(Long meetingId) {
 //        log.info("Booking Server Meeting - findById({})", meetingId);
 //
-//        return Mono.justOrEmpty(meetingRepository.findById(meetingId))
+//        return meetingRepository.findById(meetingId)
 //                .switchIfEmpty(Mono.error(new RuntimeException("존재하지 않는 미팅")))
 //                .flatMap(this::makeMeetingResponse)
 //                .onErrorResume(error -> {
@@ -136,29 +123,8 @@ public class MeetingService {
 //                });
 //    }
 //
-//    public Flux<MeetingResponse> findAllByLocation(String userEmail) {
-//        log.info("Booking Server Meeting - findAllByLocation({})", userEmail);
 //
-//        // TODO 사용자 위치 기반
-//        return MemberUtil.getMemberInfoByEmail(userEmail)
-//                .flatMap(memberInfo -> {
-//                    log.info(memberInfo.toString());
-//                    return Mono.just(meetingRepository.findMeetingsWithinRadius(memberInfo.lat(), memberInfo.lgt(), 10));
-//                })
-//                .flatMapMany(Flux::fromIterable)
-//                .flatMap(this::makeMeetingResponse)
-//                .onErrorResume(error -> {
-//                    log.error("Booking Server Meeting - Error during findAllByLocation : {}", error.getMessage());
-//                    return Flux.error(new RuntimeException("미팅 목록 조회 실패"));
-//                });
-////        return Mono.fromCallable(meetingRepository::findAll)
-////                .flatMapMany(Flux::fromIterable)
-////                .flatMap(this::makeMeetingResponse)
-////                .onErrorResume(error -> {
-////                    log.error("Booking Server Meeting - Error during findAllByLocation : {}", error.getMessage());
-////                    return Flux.error(new RuntimeException("미팅 목록 조회 실패"));
-////                });
-//    }
+
 //
 //    public Mono<Void> enrollMeeting(String userEmail, Long meetingId) {
 //        log.info("Booking Server Meeting - enrollMeeting({}, {})", userEmail, meetingId);
