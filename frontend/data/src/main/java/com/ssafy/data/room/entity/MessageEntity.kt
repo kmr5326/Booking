@@ -13,7 +13,9 @@ data class MessageEntity (
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
 
     @ColumnInfo(name = "chat_id") val chatId : Int?,
-    @ColumnInfo(name = "sender_id") val senderId : Int?,
+    @ColumnInfo(name = "sender_id") val senderId : Long?,
     @ColumnInfo(name = "send_time") val sendTime : LocalDateTime?,
-    @ColumnInfo(name = "content") val content : String?
+    @ColumnInfo(name = "content") val content : String?,
+    @ColumnInfo(name = "sender_name") val senderName : String?,
+
 )

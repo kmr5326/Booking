@@ -18,6 +18,7 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.util.TypedValue
 import androidx.core.app.ActivityCompat
+import androidx.core.view.WindowCompat
 import com.google.android.gms.location.LocationServices
 import com.ssafy.booking.R
 import com.ssafy.booking.ui.BookingApp
@@ -47,6 +48,9 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+//        WindowCompat.setDecorFitsSystemWindows(window, false)
+
         /** KakaoSDK init */
         KakaoSdk.init(this, "c983af9ff87c243a4acecc793d087699")
         var keyHash = Utility.getKeyHash(this)
