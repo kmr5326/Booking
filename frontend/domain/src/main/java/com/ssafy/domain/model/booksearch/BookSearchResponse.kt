@@ -3,7 +3,6 @@ package com.ssafy.domain.model.booksearch
 import com.google.gson.annotations.SerializedName
 
 data class BookSearchResponse (
-
     @SerializedName("title")
     val title: String,
     @SerializedName("author")
