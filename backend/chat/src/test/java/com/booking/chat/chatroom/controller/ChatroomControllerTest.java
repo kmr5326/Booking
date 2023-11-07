@@ -125,10 +125,10 @@ class ChatroomControllerTest extends ControllerTest {
     @Test
     void getChatroomListTest() throws Exception {
 
-        ChatroomListResponse chatroomListResponse = new ChatroomListResponse(1L, "미팅 이름",
+        ChatroomListResponse chatroomListResponse = new ChatroomListResponse(1L, "미팅 이름", "last",
             List.of(1L, 2L, 3L));
 
-        ChatroomListResponse chatroomListResponse2 = new ChatroomListResponse(2L, "미팅 이름2",
+        ChatroomListResponse chatroomListResponse2 = new ChatroomListResponse(2L, "미팅 이름2", "last",
             List.of(1L, 2L, 3L));
 
         when(chatroomService.getChatroomListByMemberIdOrderByDesc(any())).thenReturn(
