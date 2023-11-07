@@ -66,7 +66,7 @@ public class MemberControllerTest extends ControllerTest {
     void t2() throws Exception {
         String loginId = "1234";
         MemberInfoResponseDto responseDto = new MemberInfoResponseDto("1234", "email", 10, "MALE",
-                "mono", "monono", 1.1, 1.1, "profileImg","google",1);
+                "mono", "monono", 1.1, 1.1, "profileImg","google",1,100000);
 
         when(memberService.loadMemberInfo(any())).thenReturn(Mono.just(responseDto));
 
@@ -93,7 +93,8 @@ public class MemberControllerTest extends ControllerTest {
                                         fieldWithPath("lgt").description("경도"),
                                         fieldWithPath("profileImage").description("프로필 이미지"),
                                         fieldWithPath("provider").description("google,kakao"),
-                                        fieldWithPath("memberPk").description("member pk")
+                                        fieldWithPath("memberPk").description("member pk"),
+                                        fieldWithPath("point").description("잔여 포인트")
                                 ))
 
                 );
@@ -198,7 +199,7 @@ public class MemberControllerTest extends ControllerTest {
     void t7() throws Exception {
         Integer memberPk = 1;
         MemberInfoResponseDto responseDto = new MemberInfoResponseDto("1234", "email", 10, "MALE",
-                "mono", "monono", 1.1, 1.1, "profileImg","google",1);
+                "mono", "monono", 1.1, 1.1, "profileImg","google",1,100000);
 
         when(memberService.loadMemberInfoByPk(anyInt())).thenReturn(Mono.just(responseDto));
 
@@ -225,7 +226,8 @@ public class MemberControllerTest extends ControllerTest {
                                         fieldWithPath("lgt").description("경도"),
                                         fieldWithPath("profileImage").description("프로필 이미지"),
                                         fieldWithPath("provider").description("google,kakao"),
-                                        fieldWithPath("memberPk").description("member pk")
+                                        fieldWithPath("memberPk").description("member pk"),
+                                        fieldWithPath("point").description("잔여 포인트")
                                 ))
 
                 );
@@ -236,7 +238,7 @@ public class MemberControllerTest extends ControllerTest {
     void t8() throws Exception {
         String nickname= "닉네임";
         MemberInfoResponseDto responseDto = new MemberInfoResponseDto("1234", "email", 10, "MALE",
-                "mono", "monono", 1.1, 1.1, "profileImg","google",1);
+                "mono", "monono", 1.1, 1.1, "profileImg","google",1,100000);
 
         when(memberService.loadMemberInfoByNickname(anyString())).thenReturn(Mono.just(responseDto));
 
@@ -263,7 +265,8 @@ public class MemberControllerTest extends ControllerTest {
                                         fieldWithPath("lgt").description("경도"),
                                         fieldWithPath("profileImage").description("프로필 이미지"),
                                         fieldWithPath("provider").description("google,kakao"),
-                                        fieldWithPath("memberPk").description("member pk")
+                                        fieldWithPath("memberPk").description("member pk"),
+                                        fieldWithPath("point").description("잔여 포인트")
                                 ))
 
                 );
