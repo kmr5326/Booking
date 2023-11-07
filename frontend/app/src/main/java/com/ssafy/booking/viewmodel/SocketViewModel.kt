@@ -42,12 +42,17 @@ class SocketViewModel @Inject constructor(
         .create()
 
     var messages: LiveData<List<MessageEntity>> = MutableLiveData(emptyList())
+//    fun updateMessages(chatId: String) {
+//        viewModelScope.launch {
+//            messages = messageDao.getLastest(chatId.toInt())
+//        }
+//    }
 
-    fun loadMessages(chatId: String) {
-        viewModelScope.launch {
-            messages = messageDao.getAll(chatId.toInt())
-        }
+    fun loadLatestMessages(chatId: String) {
+        messages = messageDao.getLatestMessage(chatId.toInt())
     }
+
+
 
     fun connectToChat(chatId: String) {
         stompConnection = stomp.connect().subscribe {
@@ -76,7 +81,7 @@ class SocketViewModel @Inject constructor(
                                 viewModelScope.launch(Dispatchers.IO) {
                                     try {
                                         messageDao.insert(messageEntity)
-                                        loadMessages(chatId)
+                                        loadLatestMessages(chatId)
                                     } catch (e: Exception) {
                                         Log.e("STOMP", "Error inserting message into database", e)
                                     }
@@ -87,9 +92,18 @@ class SocketViewModel @Inject constructor(
                             }
                         )
                 }
-                Event.Type.CLOSED -> { Log.d("STOMP", "${it} CLOSED!!!") }
-                Event.Type.ERROR -> { Log.d("STOMP", "${it} ERROR!!!") }
-                else -> { Log.d("STOMP", "else") }
+
+                Event.Type.CLOSED -> {
+                    Log.d("STOMP", "${it} CLOSED!!!")
+                }
+
+                Event.Type.ERROR -> {
+                    Log.d("STOMP", "${it} ERROR!!!")
+                }
+
+                else -> {
+                    Log.d("STOMP", "else")
+                }
             }
         }
     }

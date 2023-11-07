@@ -48,6 +48,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.navigation.NavController
 import com.ssafy.booking.R
 import com.ssafy.booking.model.UserProfileState
+import com.ssafy.booking.ui.AppNavItem
 import com.ssafy.booking.ui.common.BottomNav
 import com.ssafy.booking.ui.common.TopBar
 import com.ssafy.booking.viewmodel.AppViewModel
@@ -70,6 +71,7 @@ fun ChatHome(
     navController: NavController,
     appViewModel: AppViewModel,
 ) {
+    val navController = LocalNavigation.current
     val chatViewModel: ChatViewModel = hiltViewModel()
     val myPageViewModel: MyPageViewModel = hiltViewModel()
     val context = LocalContext.current
@@ -165,7 +167,7 @@ fun ChatList() {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .padding(horizontal = 16.dp, vertical = 8.dp),
     ) {
         items(chatList) { chat ->
             ChatItem(chat) {

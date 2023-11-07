@@ -98,7 +98,7 @@ fun ChatDetail(
 
     LaunchedEffect(memberId) {
         chatId?.let {
-            socketViewModel.loadMessages(it)
+            socketViewModel.loadLatestMessages(it)
             socketViewModel.connectToChat(it)
         }
     }
@@ -203,7 +203,7 @@ fun MessageItem(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = if (isOwnMessage) 10.dp else 0.dp),
+                .padding(top = if (isOwnMessage) 6.dp else 0.dp),
             horizontalArrangement = if (isOwnMessage) Arrangement.End else Arrangement.Start
 
         ) {
@@ -241,7 +241,9 @@ fun MessageItem(
                     modifier = Modifier.fillMaxWidth() // 이 부분을 추가하여 전체 너비를 사용하도록 설정
                 ) {
                     // 자신의 메시지인 경우, 시간을 먼저 표시
-                    if (isOwnMessage && (nextMessage?.sendTime != message.sendTime || nextMessage?.senderId != message.senderId || nextMessage == null)) {
+                    if (isOwnMessage &&
+                        (nextMessage==null || (nextMessage.sendTime?.hour != message.sendTime?.hour ||
+                                nextMessage.sendTime?.minute != message.sendTime?.minute) || nextMessage?.senderId != message.senderId)) {
                         Text(
                             text = message.sendTime?.let {
                                 val updatedTime = it.plusHours(9) // 올바른 시간 계산을 위해 plusHours 사용
@@ -267,7 +269,9 @@ fun MessageItem(
                     )
 
                     // 다른 사람의 메시지인 경우, 메시지 뒤에 시간을 표시
-                    if (!isOwnMessage && (nextMessage?.sendTime != message.sendTime || nextMessage?.senderId != message.senderId || nextMessage == null)) {
+                    if (!isOwnMessage &&
+                        (nextMessage==null || (nextMessage.sendTime?.hour != message.sendTime?.hour ||
+                                nextMessage.sendTime?.minute != message.sendTime?.minute) || nextMessage?.senderId != message.senderId)) {
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
                             text = message.sendTime?.let {
