@@ -71,6 +71,8 @@ dependencies {
     implementation("com.google.android.gms:play-services-auth:20.7.0")
     implementation("com.google.firebase:firebase-auth-ktx:22.2.0")
     implementation("androidx.compose.ui:ui-text-android:1.5.4")
+    implementation("com.google.firebase:firebase-inappmessaging-ktx:20.4.0")
+    implementation("com.google.android.gms:play-services-mlkit-text-recognition-common:19.0.0")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
@@ -155,6 +157,12 @@ dependencies {
     // m3
     implementation("androidx.compose.material3:material3-window-size-class:1.0.1")
     implementation("androidx.compose.material3:material3:1.0.1")
+
+    // 네이버 지도
+    implementation ("io.github.fornewid:naver-map-location:21.0.1")
+    implementation ("io.github.fornewid:naver-map-compose:1.5.1")
+    implementation ("com.naver.maps:map-sdk:3.17.0")
+
 }
 
 // Allow references to generated code
