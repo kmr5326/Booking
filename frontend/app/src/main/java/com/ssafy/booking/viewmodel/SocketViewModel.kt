@@ -42,11 +42,17 @@ class SocketViewModel @Inject constructor(
         .create()
 
     var messages: LiveData<List<MessageEntity>> = MutableLiveData(emptyList())
-    fun loadMessages(chatId: String) {
-        viewModelScope.launch {
-            messages = messageDao.getAll(chatId.toInt())
-        }
+//    fun updateMessages(chatId: String) {
+//        viewModelScope.launch {
+//            messages = messageDao.getLastest(chatId.toInt())
+//        }
+//    }
+
+    fun loadLatestMessages(chatId: String) {
+        messages = messageDao.getLatestMessage(chatId.toInt())
     }
+
+
 
     fun connectToChat(chatId: String) {
         stompConnection = stomp.connect().subscribe {
@@ -65,16 +71,17 @@ class SocketViewModel @Inject constructor(
                                 // to MessageEntity
                                 val messageEntity = MessageEntity(
                                     chatId = chatId.toInt(),
-                                    senderId = kafkaMessage.senderId.toInt(),
+                                    senderId = kafkaMessage.senderId,
                                     sendTime = kafkaMessage.sendTime,
-                                    content = kafkaMessage.message
+                                    content = kafkaMessage.message,
+                                    senderName = kafkaMessage.senderName
                                 )
                                 Log.d("STOMP", "Converted to Entity: $messageEntity")
                                 // Insert Room DB
                                 viewModelScope.launch(Dispatchers.IO) {
                                     try {
                                         messageDao.insert(messageEntity)
-                                        loadMessages(chatId)
+                                        loadLatestMessages(chatId)
                                     } catch (e: Exception) {
                                         Log.e("STOMP", "Error inserting message into database", e)
                                     }
@@ -85,14 +92,23 @@ class SocketViewModel @Inject constructor(
                             }
                         )
                 }
-                Event.Type.CLOSED -> { Log.d("STOMP", "${it} CLOSED!!!") }
-                Event.Type.ERROR -> { Log.d("STOMP", "${it} ERROR!!!") }
-                else -> { Log.d("STOMP", "else") }
+
+                Event.Type.CLOSED -> {
+                    Log.d("STOMP", "${it} CLOSED!!!")
+                }
+
+                Event.Type.ERROR -> {
+                    Log.d("STOMP", "${it} ERROR!!!")
+                }
+
+                else -> {
+                    Log.d("STOMP", "else")
+                }
             }
         }
     }
 
-    fun sendMessage(message: KafkaMessage, chatId: String?) {
+    fun sendMessage(message: KafkaMessage, chatId: Long?) {
         val jsonMessage = gson.toJson(message)
         stomp.send("/publish/message/${chatId}", jsonMessage)
             .subscribe { success ->
