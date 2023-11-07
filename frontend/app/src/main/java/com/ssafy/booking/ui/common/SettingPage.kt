@@ -14,6 +14,7 @@ import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -39,7 +40,7 @@ fun SettingPage() {
 
     Scaffold(
         topBar = {
-            TopAppBar(
+            CenterAlignedTopAppBar(
                 title = { Text(text = "설정") },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
@@ -49,14 +50,14 @@ fun SettingPage() {
                         )
                     }
                 },
-                actions = {
-                    IconButton(onClick = {}) {
-                        Icon(
-                            imageVector = Icons.Filled.Settings,
-                            contentDescription = "메뉴"
-                        )
-                    }
-                }
+//                actions = {
+//                    IconButton(onClick = {}) {
+//                        Icon(
+//                            imageVector = Icons.Filled.Settings,
+//                            contentDescription = "메뉴"
+//                        )
+//                    }
+//                }
             )
         },
         modifier = Modifier.fillMaxSize()

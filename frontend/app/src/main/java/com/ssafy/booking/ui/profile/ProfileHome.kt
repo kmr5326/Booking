@@ -142,39 +142,6 @@ fun ProfileHome(
     val loginId : String? = tokenDataSource.getLoginId()
     val viewModel : MyPageViewModel = hiltViewModel()
 
-//    val userInfo : Response<UserInfoResponse>? by viewModel.getUserInfoResponse.observeAsState()
-//    val userFollowers : Response<UserFollowersResponse>? by viewModel.getUserFollowersResponse.observeAsState()
-//    val userFollowings : Response<UserFollowingsResponse>? by viewModel.getUserFollowingsResponse.observeAsState()
-//
-//    // 페이지 로딩 시 한번만 실행
-//    LaunchedEffect(Unit) {
-//        loginId?.let {
-//            viewModel.getUserInfo(it)
-//        } ?: run {
-//            Log.d("mypage","login Id 가 null 입니다.")
-//        }
-//    }
-//
-//    // 유저 정보를 가져온 이후 닉네임을 통한 followers, followings 조회
-//    if (userInfo != null && userInfo!!.isSuccessful) {
-//        LaunchedEffect(userInfo) {
-//            userInfo!!.body()?.nickname?.let {
-//                viewModel.getUserFollowers(it)
-//                viewModel.getUserFollowings(it)
-//            } ?: run {
-//                Log.d("mypage","userInfo 에서 nickname 이 null 입니다.")
-//            }
-//        }
-//    } else {
-//        Log.d("mypage","userInfo 가 null 또는 요청 실패입니다.")
-//    }
-//
-//
-//    // userInfo를 사용하여 UI 구성
-//    userInfo?.let {
-//
-//    }
-
     // 상태 관찰
     val profileState by viewModel.profileState.observeAsState()
 
