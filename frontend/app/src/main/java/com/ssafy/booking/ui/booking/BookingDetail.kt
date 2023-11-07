@@ -16,9 +16,13 @@ fun PreviewMyTabBar() {
         tabTitles,
         contentForTab = { index ->
             when (index) {
-                0 -> Text("모임 정보 내용")
-                1 -> Text("참가자 내용")
-                2 -> Text("게시판 내용")
+                0 -> BookingInfo(
+                    meetingDate = "2023년 12월 24일",
+                    meetingPlace = "서울시 강남구",
+                    participationFee = "10000원"
+                )
+                1 -> BookingParticipants()
+                2 -> BookingBoard()
             }
         }
 

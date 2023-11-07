@@ -139,9 +139,7 @@ fun ProfileHome(
 ) {
     val context = LocalContext.current
     val tokenDataSource = TokenDataSource(context)
-
     val loginId : String? = tokenDataSource.getLoginId()
-
     val viewModel : MyPageViewModel = hiltViewModel()
 
 //    val userInfo : Response<UserInfoResponse>? by viewModel.getUserInfoResponse.observeAsState()

@@ -3,6 +3,7 @@ package com.ssafy.booking.di
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.ssafy.booking.utils.Utils.BASE_URL
+import com.ssafy.data.remote.api.BookingApi
 import com.ssafy.data.remote.api.ChatApi
 import com.ssafy.data.remote.api.GoogleApi
 import com.ssafy.data.remote.api.MemberApi
@@ -99,6 +100,13 @@ class NetworkModule {
     fun provideMyPageApi(retrofit: Retrofit): MyPageApi {
         return retrofit.create(MyPageApi::class.java)
     }
+
+    @Provides
+    @Singleton
+    fun provideBookingApi(retrofit: Retrofit): BookingApi {
+        return retrofit.create(BookingApi::class.java)
+    }
+
 
 //    @Provides
 //    @Singleton
