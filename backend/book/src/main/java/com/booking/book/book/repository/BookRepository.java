@@ -14,6 +14,10 @@ public interface BookRepository extends ReactiveMongoRepository<Book, String> {
         sort = "{ score: { $meta: 'textScore' } }")
     Flux<Book> findByTitleContaining(String title, Pageable pageable);
 
+    @Query(value = "{ '$text': { $search: ?0 } }",
+        sort = "{ score: { $meta: 'textScore' } }")
+    Flux<Book> findByTitleContaining(String title);
+
     Flux<Book> findByTitleRegex(String regex);
 
     @Query("{ 'publishDate' : { $lt: ?0 } }")
