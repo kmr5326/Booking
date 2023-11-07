@@ -273,8 +273,6 @@ val bookItemsList = listOf(
     Book(R.drawable.book2, "인간실격", "데미안에 대해 읽고 같이 토론하실 분","하남동",4,6),
     Book(R.drawable.book4, "나미야 잡화점의 기적", "데미안에 대해 읽고 같이 토론하실 분","하남동",3,6),
     Book(R.drawable.book5, "데미안", "데미안에 대해 읽고 같이 토론하실 분","하남동",6,6),
-
-
 )
 
 

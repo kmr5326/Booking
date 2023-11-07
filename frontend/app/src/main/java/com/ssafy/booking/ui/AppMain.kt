@@ -31,6 +31,7 @@ import com.ssafy.booking.viewmodel.MainViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import com.ssafy.booking.ui.booking.MyFloatingActionButton
 import com.ssafy.booking.ui.common.SettingPage
+import com.ssafy.booking.ui.history.HistoryDetail
 import com.ssafy.booking.ui.login.SignInScreen
 import com.ssafy.booking.viewmodel.ChatViewModel
 import com.ssafy.booking.viewmodel.SocketViewModel
@@ -40,6 +41,7 @@ sealed class AppNavItem(
 ) {
     object Book: AppNavItem("book")
     object History: AppNavItem("history")
+    object HistoryDetail: AppNavItem("history/detail")
     object Main: AppNavItem("main")
     object Chat: AppNavItem("chat")
     object ChatDetail: AppNavItem("chatDetail/{chatId}")
@@ -80,6 +82,7 @@ fun Route(googleSignInClient: GoogleSignInClient) {
     val mainViewModel = hiltViewModel<MainViewModel>(viewModelStoreOwner)
     val socketViewModel = hiltViewModel<SocketViewModel>(viewModelStoreOwner)
     val chatViewModel = hiltViewModel<ChatViewModel>(viewModelStoreOwner)
+//    val histroyViewModel = hiltViewModel<HistoryViewModel>(viewModelStoreOwner)
 
     CompositionLocalProvider(
         LocalNavigation provides navController,
@@ -94,6 +97,9 @@ fun Route(googleSignInClient: GoogleSignInClient) {
             }
             composable("history") {
                 HistoryHome(navController, appViewModel)
+            }
+            composable("history/detail") {
+                HistoryDetail(navController, appViewModel)
             }
             composable("main") {
                 Main(navController, appViewModel)
