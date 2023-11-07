@@ -10,6 +10,7 @@ public interface MemberService {
     Mono<String> signup(SignUpRequestDto req);
     Mono<MemberInfoResponseDto> loadMemberInfo(String loginId);
     Mono<MemberInfoResponseDto> loadMemberInfoByPk(Integer memberPk);
+    Mono<MemberInfoResponseDto> loadMemberInfoByNickname(String nickname);
     Mono<Void> modifyMemberInfo(ModifyRequestDto req);
     Mono<Void> deleteMember(String loginId);
 

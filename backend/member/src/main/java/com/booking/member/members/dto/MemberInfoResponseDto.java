@@ -1,5 +1,7 @@
 package com.booking.member.members.dto;
 
+import com.booking.member.members.domain.Member;
+
 public record MemberInfoResponseDto(
         String loginId,
         String email,
@@ -13,4 +15,20 @@ public record MemberInfoResponseDto(
         String provider,
         Integer memberPk
 ) {
+    public static MemberInfoResponseDto of(Member member){
+        MemberInfoResponseDto memberInfoResponseDto = new MemberInfoResponseDto(
+                member.getLoginId(),
+                member.getEmail() == null ? "" : member.getEmail(),
+                member.getAge() == null ? -1 : member.getAge(),
+                member.getGender() == null ? "" : member.getGender().name(),
+                member.getNickname(),
+                member.getFullName() == null ? "" : member.getFullName(),
+                member.getLat() == null ? -1 : member.getLat(),
+                member.getLgt() == null ? -1 : member.getLgt(),
+                member.getProfileImage(),
+                member.getProvider(),
+                member.getId()
+        );
+        return memberInfoResponseDto;
+    }
 }
