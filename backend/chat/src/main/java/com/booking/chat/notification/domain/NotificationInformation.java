@@ -22,4 +22,8 @@ public class NotificationInformation {
     private Long memberId;
 
     private String deviceToken;
+
+    public void update(String deviceToken) {
+        this.deviceToken = deviceToken;
+    }
 }

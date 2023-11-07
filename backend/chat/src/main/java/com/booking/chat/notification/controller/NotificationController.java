@@ -28,6 +28,7 @@ public class NotificationController {
         log.info(" {} user request initialize device token ", memberId);
 
 
+
         return Mono.empty();
     }
 }
