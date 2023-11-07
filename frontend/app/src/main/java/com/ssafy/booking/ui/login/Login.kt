@@ -89,6 +89,8 @@ import com.kakao.sdk.common.util.Utility
 import com.ssafy.booking.utils.Utils.BASE_URL
 import com.google.android.gms.tasks.Task
 import com.ssafy.booking.ui.LocalNavigation
+import com.ssafy.booking.utils.MyFirebaseMessagingService
+import com.ssafy.data.repository.FirebaseRepositoryImpl
 import com.ssafy.data.repository.token.TokenDataSource
 
 import retrofit2.http.Body
@@ -105,6 +107,7 @@ interface LoginService {
     @POST("/api/members/login")
     fun login(@Body loginInfo: LoginInfo): Call<ResponseBody>
 }
+
 // 데이터 정의
 data class LoginInfo(val loginId: String)
 
@@ -138,6 +141,8 @@ private fun onLoginSuccess(context: Context, loginId: String, navController: Nav
                     popUpTo("login") { inclusive = true }
                     launchSingleTop = true
                 }
+                MyFirebaseMessagingService.getFirebaseToken()
+
             } else {
                 // 오류 처리
                 val errorCode = response.code()

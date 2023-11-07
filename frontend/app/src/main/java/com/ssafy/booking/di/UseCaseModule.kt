@@ -2,6 +2,7 @@ package com.ssafy.booking.di
 
 import com.ssafy.domain.repository.BookingRepository
 import com.ssafy.domain.repository.ChatRepository
+import com.ssafy.domain.repository.FirebaseRepository
 import com.ssafy.domain.repository.GoogleRepository
 import com.ssafy.domain.repository.MemberRepository
 import com.ssafy.domain.repository.MyPageRepository
@@ -40,5 +41,4 @@ class UseCaseModule {
     @Provides
     @Singleton
     fun provideBookingUseCase(repository: BookingRepository) = BookingUseCase(repository)
-
 }

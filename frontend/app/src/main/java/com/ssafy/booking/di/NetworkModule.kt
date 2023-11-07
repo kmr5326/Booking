@@ -8,11 +8,11 @@ import com.ssafy.data.remote.api.ChatApi
 import com.ssafy.data.remote.api.GoogleApi
 import com.ssafy.data.remote.api.MemberApi
 import com.ssafy.data.remote.api.MyPageApi
+import com.ssafy.data.remote.api.FirebaseApi
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import okhttp3.CertificatePinner
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Response
@@ -20,7 +20,6 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
-import retrofit2.create
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
@@ -105,6 +104,12 @@ class NetworkModule {
     @Singleton
     fun provideBookingApi(retrofit: Retrofit): BookingApi {
         return retrofit.create(BookingApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideDeviceTokenApi(retrofit: Retrofit): FirebaseApi {
+        return retrofit.create(FirebaseApi::class.java)
     }
 
 

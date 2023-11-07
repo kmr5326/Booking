@@ -19,7 +19,11 @@ plugins {
     id("org.jetbrains.kotlin.android") version "1.8.10" apply false
     id("com.android.library") version "8.1.2" apply false
     id("com.google.dagger.hilt.android") version "2.48.1" apply false
-    id("com.google.gms.google-services") version "4.4.0" apply false
+    
+//    형 이거 FCM때문에 잠깐 주석처리할게
+//    id("com.google.gms.google-services") version "4.4.0" apply false
 
+    // Add the dependency for the Google services Gradle plugin
+    id("com.google.gms.google-services") version "4.3.15" apply false
 }
 
