@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -57,6 +56,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.ssafy.booking.R
 import com.ssafy.booking.ui.common.BottomNav
+import com.ssafy.booking.ui.profile.BookingList
 import com.ssafy.booking.viewmodel.AppViewModel
 import com.ssafy.booking.viewmodel.BookingViewModel
 import com.ssafy.data.repository.token.TokenDataSource
@@ -70,17 +70,18 @@ fun Main(
 ) {
     val bookingViewModel: BookingViewModel = hiltViewModel()
     // ViewModel의 LiveData를 State로 변환
-    val bookingAllListState by bookingViewModel.getBookingAllList.observeAsState()
+//    val bookingAllListState by bookingViewModel.getBookingAllList.observeAsState()
     val bookingDetailState by bookingViewModel.getBookingDetail.observeAsState()
     val participantsState by bookingViewModel.getParticipants.observeAsState()
     val waitingListState by bookingViewModel.getWaitingList.observeAsState()
-
+    val userInfoState by bookingViewModel.getUserInfoResponse.observeAsState()
     val context = LocalContext.current
     val tokenDataSource = TokenDataSource(context)
+    val loginId = tokenDataSource.getLoginId()
+
     val deviceToken: String? = tokenDataSource.getDeviceToken()
 
-    val userInfoState by bookingViewModel.getUserInfoResponse.observeAsState()
-    val loginId = tokenDataSource.getLoginId()
+
     // LaunchedEffect를 사용하여 한 번만 API 호출
     LaunchedEffect(Unit) {
         bookingViewModel.postDeivceToken(DeviceToken(deviceToken))
@@ -90,23 +91,14 @@ fun Main(
         Log.d("test2", "$loginId")
         bookingViewModel.getUserInfo(loginId!!)
 
-        // ////////////////// 지헌 테스트 코드 //////////////////////////////
+        // 전체 북킹 목록 조회
         bookingViewModel.getBookingAllList()
-        bookingViewModel.getBookingDetail(1) // 실제 meetingId로 교체 필요
-        bookingViewModel.getParticipants(1) // 실제 meetingId로 교체 필요
-        bookingViewModel.getWaitingList(1) // 실제 meetingId로 교체 필요
-        Log.d("APICALL", "Booking All List: ${bookingAllListState?.body()}")
-//        bookingAllListState.value?.let { response ->
-//        }
-//        bookingDetailState.value?.let { response ->
-//            Log.d("APICALL", "Booking Detail: ${response.isSuccessful}")
-//        }
-//        participantsState.value?.let { response ->
-//            Log.d("APICALL", "Participants: ${response.isSuccessful}")
-//        }
-//        waitingListState.value?.let { response ->
-//            Log.d("APICALL", "Waiting List: ${response.isSuccessful}")
-//        }
+
+//        bookingViewModel.getBookingDetail(1) // 실제 meetingId로 교체 필요
+//        bookingViewModel.getParticipants(1) // 실제 meetingId로 교체 필요
+//        bookingViewModel.getWaitingList(1) // 실제 meetingId로 교체 필요
+//        Log.d("APICALL", "Booking All List: ${bookingAllListState?.body()}")
+
     }
 
     LaunchedEffect(userInfoState) {
@@ -117,6 +109,10 @@ fun Main(
             Log.d("test3", "${it.nickname}")
         }
     }
+
+//    LaunchedEffect(bookingAllListState) {
+//
+//    }
 
     // ////////////////////////////////////////////////////////////////////////////
 
@@ -139,21 +135,28 @@ fun Main(
                 .padding(paddingValues)
                 .fillMaxHeight()
         ) {
-            BookList(navController, appViewModel)
+                BookList(navController, appViewModel,bookingViewModel)
+            }
         }
     }
-}
+
 
 @Composable
-fun BookList(navController: NavController, appViewModel: AppViewModel) {
+fun BookList(navController: NavController, appViewModel: AppViewModel,bookingViewModel: BookingViewModel) {
+    val bookingAllListState by bookingViewModel.getBookingAllList.observeAsState()
+
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .fillMaxHeight()
             .padding(horizontal = 8.dp, vertical = 15.dp)
     ) {
-        items(bookItemsList) { book ->
-            BookItem(book)
+        item{
+            bookingAllListState?.body()?.let {asdf ->
+                Text(text="${asdf}")
+//            BookItem()
+            }
+
         }
     }
 }
