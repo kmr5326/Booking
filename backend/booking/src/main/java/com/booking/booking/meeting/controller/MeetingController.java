@@ -29,9 +29,9 @@ public class MeetingController {
     private static final String AUTHORIZATION = "Authorization";
 
 //    @GetMapping("/test")
-//    public ResponseEntity<Flux<Long>> test() {
-//        Flux<Long> hashtagFlux = meetingService.test().onErrorResume(error -> Mono.error(new RuntimeException("테스트 에러")));
-//        return ResponseEntity.ok().body(hashtagFlux);
+//    public Mono<ResponseEntity<Void>> test() {
+//        return meetingService.deleteByMeetingId(3L)
+//                .thenReturn(ResponseEntity.ok().<Void>build());
 //    }
 
     @PostMapping("/")
@@ -76,13 +76,13 @@ public class MeetingController {
                         Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, error.getMessage())));
     }
 
-//    @PostMapping("/{meetingId}/accept/{memberId}")
-//    public Mono<ResponseEntity<Void>> acceptMeeting(@RequestHeader(AUTHORIZATION) String token, @PathVariable("meetingId") Long meetingId, @PathVariable("memberId") Integer memberId) {
-//        String userEmail = JwtUtil.getLoginEmailByToken(token);
-//
-//        return meetingService.acceptMeeting(userEmail, meetingId, memberId)
-//                .thenReturn(ResponseEntity.ok().<Void>build())
-//                .onErrorResume(error ->
-//                        Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, error.getMessage())));
-//    }
+    @PostMapping("/{meetingId}/accept/{memberId}")
+    public Mono<ResponseEntity<Void>> acceptMeeting(@RequestHeader(AUTHORIZATION) String token, @PathVariable("meetingId") Long meetingId, @PathVariable("memberId") Integer memberId) {
+        String userEmail = JwtUtil.getLoginEmailByToken(token);
+
+        return meetingService.acceptMeeting(userEmail, meetingId, memberId)
+                .thenReturn(ResponseEntity.ok().<Void>build())
+                .onErrorResume(error ->
+                        Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, error.getMessage())));
+    }
 }

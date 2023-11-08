@@ -1,6 +1,7 @@
 package com.booking.booking.meeting.service;
 
 import com.booking.booking.global.dto.request.InitChatroomRequest;
+import com.booking.booking.global.dto.request.JoinChatroomRequest;
 import com.booking.booking.global.dto.response.BookResponse;
 import com.booking.booking.global.dto.response.MemberResponse;
 import com.booking.booking.global.utils.BookUtil;
@@ -22,6 +23,7 @@ import com.booking.booking.waitlist.service.WaitlistService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -161,37 +163,38 @@ public class MeetingService {
                     return Mono.error(error);
                 });
     }
-//
-//    public Mono<Void> acceptMeeting(String userEmail, Long meetingId, Integer memberId) {
-//        log.info("Booking Server Meeting - acceptMeeting({}, {}, {})", userEmail, meetingId, memberId);
-//
-//        // TODO 최대 인원 확인
-//        return Mono.zip(
-//                Mono.justOrEmpty(meetingRepository.findById(meetingId))
-//                        .switchIfEmpty(Mono.error(new RuntimeException("존재하지 않는 모임"))),
-//                MemberUtil.getMemberInfoByEmail(userEmail))
-//                .flatMap(it -> {
-//                    Meeting meeting = it.getT1();
-//                    Integer leaderId = it.getT2().memberPk();
-//
-//                    if (!meeting.getLeaderId().equals(leaderId)) {
-//                        return Mono.error(new RuntimeException("모임 수락 권한 없음"));
-//                    }
-//
-//                    return waitlistService.existsByMeetingAndMemberId(meeting, memberId)
-//                            .flatMap(exist -> {
-//                                if (!exist) {
-//                                    return Mono.error(new RuntimeException("대기 목록에 없는 회원"));
-//                                }
-//                                return Mono.empty();
-//                            })
-//                            .then(Mono.defer(() -> waitlistService.deleteByMeetingAndMemberId(meeting, memberId)))
-//                            .then(Mono.defer(() -> participantService.addParticipant(meeting, memberId)))
-//                            .then(Mono.defer(() -> joinChatroom(new JoinChatroomRequest(meetingId, memberId))));
-//                })
-//                .onErrorResume(error -> {
-//                    log.error("Booking Server Meeting - Error during acceptMeeting : {}", error.getMessage());
-//                    return Mono.error(error);
-//                });
-//    }
+
+    @Transactional
+    public Mono<Void> acceptMeeting(String userEmail, Long meetingId, Integer memberId) {
+        log.info("Booking Server Meeting - acceptMeeting({}, {}, {})", userEmail, meetingId, memberId);
+
+        // TODO 최대 인원 확인
+        return Mono.zip(
+                    meetingRepository.findById(meetingId)
+                            .switchIfEmpty(Mono.error(new RuntimeException("존재하지 않는 모임"))),
+                    MemberUtil.getMemberInfoByEmail(userEmail))
+                .flatMap(it -> {
+                    Meeting meeting = it.getT1();
+                    Integer leaderId = it.getT2().memberPk();
+
+                    if (!meeting.getLeaderId().equals(leaderId)) {
+                        return Mono.error(new RuntimeException("모임 수락 권한 없음"));
+                    }
+
+                    return waitlistService.existsByMeetingIdAndMemberId(meetingId, memberId)
+                            .flatMap(exist -> {
+                                if (!exist) {
+                                    return Mono.error(new RuntimeException("대기 목록에 없는 회원"));
+                                }
+                                return waitlistService.deleteByMeetingIdAndMemberId(meetingId, memberId)
+                                        .then(participantService.addParticipant(meeting, memberId))
+                                        .then(ChatroomUtil.joinChatroom(new JoinChatroomRequest(meetingId, memberId)));
+                            })
+                            .then();
+                })
+                .onErrorResume(error -> {
+                    log.error("Booking Server Meeting - Error during acceptMeeting : {}", error.getMessage());
+                    return Mono.error(error);
+                });
+    }
 }

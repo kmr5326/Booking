@@ -30,17 +30,16 @@ public class WaitlistService {
                 .then();
     }
 
-//    public Mono<Void> deleteByMeetingAndMemberId(Meeting meeting, Integer memberId) {
-//        log.info("Booking Server Waitlist - deleteByMeetingAndMemberId({}, {})", meeting, memberId);
-//
-//        return Mono.fromRunnable(() -> waitlistRepository.deleteByMeetingAndMemberId(meeting, memberId))
-//                .subscribeOn(Schedulers.boundedElastic())
-//                .onErrorResume(error -> {
-//                    log.error("Booking Server Waitlist - Error during deleteByMeetingAndMemberId : {}", error.getMessage());
-//                    return Mono.error(new RuntimeException("대기 목록 삭제 실패"));
-//                })
-//                .then();
-//    }
+    public Mono<Void> deleteByMeetingIdAndMemberId(Long meetingId, Integer memberId) {
+        log.info("Booking Server Waitlist - deleteByMeetingIdAndMemberId({}, {})", meetingId, memberId);
+
+        return waitlistRepository.deleteByMeetingIdAndMemberId(meetingId, memberId)
+                .onErrorResume(error -> {
+                    log.error("Booking Server Waitlist - Error during deleteByMeetingAndMemberId : {}", error.getMessage());
+                    return Mono.error(new RuntimeException("대기 목록 삭제 실패"));
+                })
+                .then();
+    }
 //
 //    public Flux<WaitlistResponse> findAllByMeetingMeetingId(Long meetingId) {
 //        log.info("Booking Server Waitlist - findAllByMeetingMeetingId({})", meetingId);
