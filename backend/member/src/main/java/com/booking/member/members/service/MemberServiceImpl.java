@@ -109,6 +109,7 @@ public class MemberServiceImpl implements MemberService {
                     Member member = memberRepository.findByLoginId(req.loginId());
                     if (member == null) return Mono.error(new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
 
+                    if(req.nickname().isEmpty())return Mono.error(new RuntimeException("닉네임 빈 문자열"));
 
                     member.setNickname(req.nickname());
                     member.setProfileImage(req.profileImage());
