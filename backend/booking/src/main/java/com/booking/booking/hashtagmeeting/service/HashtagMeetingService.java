@@ -20,47 +20,27 @@ public class HashtagMeetingService {
     private final HashtagService hashtagService;
 
     public Mono<Void> saveHashtags(Long meetingId, List<String> hashtagList) {
-        log.info("Booking Server HashtagMeeting - saveHashtags({}, {})", meetingId, hashtagList);
+        log.info("[Booking:HashtagMeeting] saveHashtags({}, {})", meetingId, hashtagList);
 
         return Flux.fromIterable(hashtagList)
                 .flatMap(content -> hashtagService.findByContent(content).switchIfEmpty(hashtagService.save(content)))
                 .flatMap(hashtag -> mapHashtagToMeeting(meetingId, hashtag))
                 .onErrorResume(error -> {
-                    log.error("Booking Server HashtagMeeting - Error during saveHashtags : {}", error.toString());
+                    log.error("[Booking:HashtagMeeting ERROR] saveHashtags : {}", error.getMessage());
                     return Mono.error(error);
                 })
                 .then();
     }
 
     private Mono<Void> mapHashtagToMeeting(Long meetingId, Hashtag hashtag) {
-        log.info("Booking Server HashtagMeeting - mapHashtagToMeeting({}, {})", meetingId, hashtag.getContent());
+        log.info("[Booking:HashtagMeeting] mapHashtagToMeeting({}, {})", meetingId, hashtag.getContent());
 
-        return hashtagMeetingRepository.save(HashtagMeeting.builder().meetingId(meetingId).hashtagId(hashtag.getHashtagId()).build())
+        return hashtagMeetingRepository
+                .save(HashtagMeeting.builder().meetingId(meetingId).hashtagId(hashtag.getHashtagId()).build())
                 .onErrorResume(error -> {
-                    log.error("Booking Server HashtagMeeting - Error during mapHashtagToMeeting : {}", error.toString());
+                    log.error("[Booking:HashtagMeeting ERROR] mapHashtagToMeeting : {}", error.getMessage());
                     return Mono.error(new RuntimeException("해시태그 미팅 연결 실패"));
                 })
                 .then();
-    }
-
-    public Flux<Hashtag> findHashtagByMeetingId(Long meetingId) {
-        log.info("Booking Server HashtagMeeting - findHashtagByMeetingId({})", meetingId);
-
-        return hashtagMeetingRepository.findAllByMeetingId(meetingId)
-                .flatMap(hashtagService::findById)
-                .onErrorResume(error -> {
-                    log.error("Booking Server HashtagMeeting - Error during findHashtagByMeetingId : {}", error.toString());
-                    return Mono.error(new RuntimeException("해시태그 목록 조회 실패"));
-                });
-    }
-
-    public Flux<Long> findMeetingIdByHashtagId(Long hashtagId) {
-        log.info("Booking Server HashtagMeeting - findMeetingByHashtagId({})", hashtagId);
-
-        return hashtagMeetingRepository.findAllByHashtagId(hashtagId)
-                .onErrorResume(error -> {
-                    log.error("Booking Server HashtagMeeting - Error during findMeetingIdByHashtagId : {}", error.toString());
-                    return Mono.error(new RuntimeException("해시태그 - 모임 검색 실패"));
-                });
     }
 }

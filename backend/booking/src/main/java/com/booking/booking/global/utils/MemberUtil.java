@@ -21,7 +21,7 @@ public class MemberUtil {
     }
 
     public static Mono<MemberResponse> getMemberInfoByEmail(String userEmail) {
-        log.info("Booking Server MemberUtil - getMemberInfoByEmail({})", userEmail);
+        log.info("[Booking:MemberUtil] getMemberInfoByEmail({})", userEmail);
 
         WebClient webClient = WebClient.builder().build();
         URI uri = URI.create(GATEWAY_URL + "/api/members/memberInfo/" + userEmail);
@@ -37,7 +37,7 @@ public class MemberUtil {
     }
 
     public static Mono<MemberResponse> getMemberInfoByPk(Integer memberPk) {
-        log.info("Booking Server MemberUtil - getMemberInfoByPk({})", memberPk);
+        log.info("[Booking:MemberUtil] getMemberInfoByPk({})", memberPk);
 
         WebClient webClient = WebClient.builder().build();
         URI uri = URI.create(GATEWAY_URL + "/api/members/memberInfo-pk/" + memberPk);

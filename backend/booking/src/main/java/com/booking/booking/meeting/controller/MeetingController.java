@@ -5,6 +5,7 @@ import com.booking.booking.meeting.dto.request.MeetingRequest;
 import com.booking.booking.meeting.dto.response.MeetingDetailResponse;
 import com.booking.booking.meeting.dto.response.MeetingListResponse;
 import com.booking.booking.meeting.service.MeetingService;
+import com.booking.booking.meetinginfo.dto.request.MeetingInfoRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -20,26 +21,22 @@ import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import javax.validation.Valid;
+
 @Slf4j
 @RequiredArgsConstructor
 @RequestMapping("/api/booking/meeting")
 @RestController
 public class MeetingController {
     private final MeetingService meetingService;
+
     private static final String AUTHORIZATION = "Authorization";
 
-//    @GetMapping("/test")
-//    public Mono<ResponseEntity<Void>> test() {
-//        return meetingService.deleteByMeetingId(3L)
-//                .thenReturn(ResponseEntity.ok().<Void>build());
-//    }
-
     @PostMapping("/")
-    public Mono<ResponseEntity<Long>> createMeeting
-            (@RequestHeader(AUTHORIZATION) String token, @RequestBody MeetingRequest meetingRequest) {
+    public Mono<ResponseEntity<Long>> createMeeting(@RequestHeader(AUTHORIZATION) String token,
+                                                    @RequestBody @Valid MeetingRequest meetingRequest) {
         String userEmail = JwtUtil.getLoginEmailByToken(token);
 
-        // TODO 채팅방 생성 요청 실패했는데 200
         return meetingService.createMeeting(userEmail, meetingRequest)
                 .map(meeting -> ResponseEntity.ok().body(meeting.getMeetingId()))
                 .onErrorResume(error ->
@@ -58,8 +55,8 @@ public class MeetingController {
     }
 
     @GetMapping("/hashtag/{hashtagId}")
-    public ResponseEntity<Flux<MeetingListResponse>> findAllByHashtagId
-            (@RequestHeader(AUTHORIZATION) String token, @PathVariable("hashtagId") Long hashtagId) {
+    public ResponseEntity<Flux<MeetingListResponse>> findAllByHashtagId(@RequestHeader(AUTHORIZATION) String token,
+                                                                        @PathVariable("hashtagId") Long hashtagId) {
         String userEmail = JwtUtil.getLoginEmailByToken(token);
 
         Flux<MeetingListResponse> meetingListResponseFlux = meetingService.findAllByHashtagId(userEmail, hashtagId)
@@ -78,8 +75,8 @@ public class MeetingController {
     }
 
     @PostMapping("/{meetingId}/waiting")
-    public Mono<ResponseEntity<Void>> enrollMeeting
-            (@RequestHeader(AUTHORIZATION) String token, @PathVariable("meetingId") Long meetingId) {
+    public Mono<ResponseEntity<Void>> enrollMeeting(@RequestHeader(AUTHORIZATION) String token,
+                                                    @PathVariable("meetingId") Long meetingId) {
         String userEmail = JwtUtil.getLoginEmailByToken(token);
 
         return meetingService.enrollMeeting(userEmail, meetingId)
@@ -89,10 +86,23 @@ public class MeetingController {
     }
 
     @PostMapping("/{meetingId}/accept/{memberId}")
-    public Mono<ResponseEntity<Void>> acceptMeeting(@RequestHeader(AUTHORIZATION) String token, @PathVariable("meetingId") Long meetingId, @PathVariable("memberId") Integer memberId) {
+    public Mono<ResponseEntity<Void>> acceptMeeting(@RequestHeader(AUTHORIZATION) String token,
+                                                    @PathVariable("meetingId") Long meetingId,
+                                                    @PathVariable("memberId") Integer memberId) {
         String userEmail = JwtUtil.getLoginEmailByToken(token);
 
         return meetingService.acceptMeeting(userEmail, meetingId, memberId)
+                .thenReturn(ResponseEntity.ok().<Void>build())
+                .onErrorResume(error ->
+                        Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, error.getMessage())));
+    }
+
+    @PostMapping("/info/")
+    public Mono<ResponseEntity<Void>> createDetailedMeeting(@RequestHeader(AUTHORIZATION) String token,
+                                                            @RequestBody MeetingInfoRequest meetingInfoRequest) {
+        String userEmail = JwtUtil.getLoginEmailByToken(token);
+
+        return meetingService.createMeetingInfo(userEmail, meetingInfoRequest)
                 .thenReturn(ResponseEntity.ok().<Void>build())
                 .onErrorResume(error ->
                         Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, error.getMessage())));

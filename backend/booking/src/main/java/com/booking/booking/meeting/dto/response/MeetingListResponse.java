@@ -18,8 +18,8 @@ public record MeetingListResponse(
         Double lgt,
         List<HashtagResponse> hashtagList
 ) {
-    public MeetingListResponse
-            (Meeting meeting, BookResponse book, Integer curParticipants, List<HashtagResponse> hashtagList) {
+    public MeetingListResponse(Meeting meeting, BookResponse book, Integer curParticipants,
+                               List<HashtagResponse> hashtagList) {
         this(meeting.getMeetingId(), book.isbn(), book.title(), book.coverImage(),
                 meeting.getMeetingTitle(), curParticipants, meeting.getMaxParticipants(),
                 meeting.getLat(), meeting.getLgt(), hashtagList);
