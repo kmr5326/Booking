@@ -74,18 +74,23 @@ public class NotificationService {
         return notificationInformationRepository.findByMemberId(notificationResponse.memberId())
                                                 .flatMap(info -> {
                                                     log.info("Notification send to {} member", notificationResponse.memberId());
+//                                                    Notification notification = Notification.builder()
+//                                                                                            .setBody(notificationResponse.body())
+//                                                                                            .setTitle("%s\n%s".formatted(notificationResponse.title(),notificationResponse.memberName()))
+//                                                                                            .build();
+//
+//                                                    Message message = Message.builder()
+//                                                                             .setNotification(notification)
+//                                                                             .setToken(info.getDeviceToken())
+//                                                                             .build();
 
-                                                    Notification notification = Notification.builder()
-                                                                                            .setBody(notificationResponse.body())
-                                                                                            .setTitle("%s\n%s".formatted(notificationResponse.title(),notificationResponse.memberName()))
-                                                                                            .build();
-
-                                                    Message message = Message.builder()
-                                                                             .setNotification(notification)
-                                                                             .setToken(info.getDeviceToken())
-                                                                             .build();
-
-                                                    return send(message).then();
+                                                    return send(Message.builder()
+                                                                       .setNotification(Notification.builder()
+                                                                                                    .setBody(notificationResponse.body())
+                                                                                                    .setTitle("%s\n%s".formatted(notificationResponse.title(),notificationResponse.memberName()))
+                                                                                                    .build())
+                                                                       .setToken(info.getDeviceToken())
+                                                                       .build()).then();
                                                 })
                                                 .then();
     }
