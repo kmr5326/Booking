@@ -7,6 +7,7 @@ import com.ssafy.domain.model.booking.BookingCreateRequest
 import com.ssafy.domain.model.booking.BookingDetail
 import com.ssafy.domain.model.booking.BookingParticipants
 import com.ssafy.domain.model.booking.BookingWaiting
+import com.ssafy.domain.model.booking.SearchResponse
 import com.ssafy.domain.repository.BookingRepository
 import retrofit2.Response
 
@@ -27,6 +28,10 @@ class BookingRepositoryImpl @Inject constructor(
     }
     override suspend fun getWaitingList(meetingId: Long): Response<List<BookingWaiting>> {
         return bookingApi.getWaitingList(meetingId)
+    }
+
+    override suspend fun getSearchList(query:String,display:Int,start:Int,sort:String): Response<SearchResponse> {
+        return bookingApi.getSearchList(query,display,start,sort)
     }
 }
 
