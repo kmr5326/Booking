@@ -7,6 +7,7 @@ import com.google.api.core.ApiFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.Message;
+import com.google.firebase.messaging.Notification;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
@@ -25,18 +26,24 @@ public class NotificationService {
         return notificationInformationRepository.findByMemberId(memberId)
                                                 .flatMap(existingInfo -> {
                                                     // 정보가 이미 있으면 업데이트
-                                                    existingInfo.update(deviceTokenInitRequest.deviceToken());
-                                                    return notificationInformationRepository.save(existingInfo);
+                                                    existingInfo.update(
+                                                        deviceTokenInitRequest.deviceToken());
+                                                    return notificationInformationRepository.save(
+                                                        existingInfo);
                                                 })
                                                 .switchIfEmpty(
                                                     // 정보가 없으면 새로 만들어 저장
-                                                    Mono.defer(() -> notificationInformationRepository.save(
-                                                        NotificationInformation.builder()
-                                                                               ._id(UUID.randomUUID())
-                                                                               .memberId(memberId)
-                                                                               .deviceToken(deviceTokenInitRequest.deviceToken())
-                                                                               .build()
-                                                    ))
+                                                    Mono.defer(
+                                                        () -> notificationInformationRepository.save(
+                                                            NotificationInformation.builder()
+                                                                                   ._id(
+                                                                                       UUID.randomUUID())
+                                                                                   .memberId(
+                                                                                       memberId)
+                                                                                   .deviceToken(
+                                                                                       deviceTokenInitRequest.deviceToken())
+                                                                                   .build()
+                                                        ))
                                                 )
                                                 .then();
     }
@@ -44,19 +51,27 @@ public class NotificationService {
     public Mono<Void> sendChattingNotification(Long memberId) {
         return notificationInformationRepository.findByMemberId(memberId)
                                                 .flatMap(info -> {
-                                                    log.info(" notification send to {} member ", memberId);
+                                                    log.info(" notification send to {} member ",
+                                                        memberId);
+
+                                                    Notification notification = Notification.builder()
+                                                                                            .setBody("안녕하세요")
+                                                                                            .setTitle("메세지 왔어요")
+                                                                                            .build();
+
                                                     Message message = Message.builder()
-                                                                             .putData("title", "메세지가 전송되었습니다.")
-                                                                             .putData("content", "채팅내용")
+                                                                             .setNotification(notification)
                                                                              .setToken(info.getDeviceToken())
                                                                              .build();
+
                                                     return send(message);
                                                 })
                                                 .then();
     }
 
     public Mono<Void> send(Message message) {
-        ApiFuture<String> apiFuture = FirebaseMessaging.getInstance().sendAsync(message);
+        ApiFuture<String> apiFuture = FirebaseMessaging.getInstance()
+                                                       .sendAsync(message);
 
         CompletableFuture<String> completableFuture = new CompletableFuture<>();
         apiFuture.addListener(() -> {
@@ -69,6 +84,7 @@ public class NotificationService {
             }
         }, MoreExecutors.directExecutor()); // directExecutor는 현재 스레드에서 리스너를 실행합니다.
 
-        return Mono.fromFuture(completableFuture).then();
+        return Mono.fromFuture(completableFuture)
+                   .then();
     }
 }
