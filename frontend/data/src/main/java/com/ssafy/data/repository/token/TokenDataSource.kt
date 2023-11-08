@@ -14,6 +14,12 @@ class TokenDataSource @Inject constructor(
     companion object {
         private const val ACCESS_TOKEN = "access_token"
         private const val LOGIN_ID = "login_id"
+        private const val NICKNAME = "nickname"
+        private const val PROFILE_IMAGE = "profile_image"
+        private const val LAT = "lat"
+        private const val LGT = "lgt"
+        private const val MEMBER_PK = "member_pk"
+
         private const val DEVICE_TOKEN = "device_token"
     }
     private fun getTokenPreference(context: Context) : SharedPreferences {
@@ -38,6 +44,11 @@ class TokenDataSource @Inject constructor(
         editor.apply()
     }
 
+    private fun putFloat(key: String, data: Float) {
+        editor.putFloat(key, data)
+        editor.apply()
+    }
+
     private fun getString(key: String, defValue: String? = null) : String? {
         return prefs.getString(key, defValue)
     }
@@ -48,6 +59,10 @@ class TokenDataSource @Inject constructor(
 
     private fun getInt(key: String, defValue: Int = 0) : Int {
         return prefs.getInt(key, defValue)
+    }
+
+    private fun getFloat(key: String, defValue: Float = 0f) : Float {
+        return prefs.getFloat(key, defValue)
     }
 
     // 토큰 부분
@@ -82,5 +97,75 @@ class TokenDataSource @Inject constructor(
     fun removeDeviceToken() {
         return putString(DEVICE_TOKEN, null)
     }
+
+    //
+    fun putNickName(nickname: String?) {
+        putString(NICKNAME, nickname)
+    }
+
+    fun getNickName() : String? {
+        return getString(NICKNAME)
+    }
+
+    fun removeNickName() {
+        putString(NICKNAME, null)
+    }
+
+    //
+
+    fun putProfileImage(profileImage: String?) {
+        putString(PROFILE_IMAGE, profileImage)
+    }
+
+    fun getProfileImage() : String? {
+        return getString(PROFILE_IMAGE)
+    }
+
+    fun removeProfileImage() {
+        putString(PROFILE_IMAGE, null)
+    }
+
+
+    // 위도,경도,멤버pk
+
+//    fun putLat(lat: Float) {
+//        putFloat(LAT, lat)
+//    }
+//
+//    fun getLat() : Float {
+//        return getFloat(LAT)
+//    }
+//
+//    fun removeLat() {
+//        putFloat(LAT, 0f)
+//    }
+//
+//    //
+//
+//    fun putLgt(lgt: Float) {
+//        putFloat(LGT, lgt)
+//    }
+//
+//    fun getLgt() : Float {
+//        return getFloat(LGT)
+//    }
+//
+//    fun removeLgt() {
+//        putFloat(LGT, 0f)
+//    }
+//
+//    //
+//
+//    fun putMemberPk(memberPk: Int) {
+//        putInt(MEMBER_PK, memberPk)
+//    }
+//
+//    fun getMemberPk() : Int {
+//        return getInt(MEMBER_PK)
+//    }
+//
+//    fun removeMemberPk() {
+//        putInt(MEMBER_PK, 0)
+//    }
 
 }

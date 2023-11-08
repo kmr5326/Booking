@@ -12,7 +12,10 @@ import com.ssafy.domain.model.booking.BookingCreateRequest
 import com.ssafy.domain.model.booking.BookingDetail
 import com.ssafy.domain.model.booking.BookingParticipants
 import com.ssafy.domain.model.booking.BookingWaiting
+import com.ssafy.domain.model.booking.SearchResponse
+import com.ssafy.domain.model.mypage.UserInfoResponse
 import com.ssafy.domain.usecase.BookingUseCase
+import com.ssafy.domain.usecase.MyPageUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import retrofit2.Response
@@ -21,7 +24,8 @@ import javax.inject.Inject
 @HiltViewModel
 class BookingViewModel @Inject constructor(
     private val bookingUseCase: BookingUseCase,
-    private val firebaseRepositoryImpl: FirebaseRepositoryImpl
+    private val firebaseRepositoryImpl: FirebaseRepositoryImpl,
+    private val myPageUseCase: MyPageUseCase
 ) : ViewModel() {
     private val _postCreateBookingResponse = MutableLiveData<Response<Unit>>()
     val postCreateBookingResponse: LiveData<Response<Unit>> get() = _postCreateBookingResponse
@@ -76,6 +80,24 @@ class BookingViewModel @Inject constructor(
     fun getWaitingList(meetingId: Long) =
         viewModelScope.launch {
             _getWaitingListResponse.value = bookingUseCase.getWaitingList(meetingId)
+        }
+
+    // GET - 유저 정보 요청 로직
+    private val _getUserInfoResponse = MutableLiveData<Response<UserInfoResponse>>()
+    val getUserInfoResponse: LiveData<Response<UserInfoResponse>> get() = _getUserInfoResponse
+
+    fun getUserInfo(loginId: String) =
+        viewModelScope.launch {
+            _getUserInfoResponse.value = myPageUseCase.getUserInfo(loginId)
+        }
+
+    // GET - 네이버 검색 API
+    private val _getSearchListResponse = MutableLiveData<Response<SearchResponse>>()
+    val getSearchListResponse: LiveData<Response<SearchResponse>> get() = _getSearchListResponse
+
+    fun getSearchList(query:String,display:Int,start:Int,sort:String) =
+        viewModelScope.launch {
+            _getSearchListResponse.value = bookingUseCase.getSearchList(query,display,start,sort)
         }
 }
 

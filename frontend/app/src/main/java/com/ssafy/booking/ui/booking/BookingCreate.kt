@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -41,13 +42,20 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.ImeAction
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
+import com.google.android.material.chip.Chip
 import com.ssafy.booking.ui.LocalNavigation
+import com.ssafy.booking.ui.common.TopBar
 import com.ssafy.booking.viewmodel.AppViewModel
 import com.ssafy.booking.viewmodel.BookSearchViewModel
 import com.ssafy.booking.viewmodel.BookingViewModel
@@ -77,7 +85,7 @@ fun BookingCreate(navController: NavController, appViewModel: AppViewModel, isbn
     var description by rememberSaveable(stateSaver = TextFieldValue.Saver) {
         mutableStateOf(TextFieldValue(""))
     }
-//    var hashTagText by rememberSaveable { mutableStateOf("공포, 스릴러") }
+    var hashTagText by remember { mutableStateOf(listOf<String>()) }
 
 //    var bookIsbn by remember { mutableStateOf(TextFieldValue(isbn)) }
     var maxParticipants by remember { mutableStateOf(1) }
@@ -123,7 +131,16 @@ fun BookingCreate(navController: NavController, appViewModel: AppViewModel, isbn
                     meetingTitle = meetingTitle,
                     onMeetingTitleChanged = { meetingTitle = it },
                     description = description,
-                    onDescriptionChanged = { description = it }
+                    onDescriptionChanged = { description = it },
+                    hashTagText = hashTagText,
+                    onAddHashTag = { tag ->
+                        if (!hashTagText.contains(tag)) {
+                            hashTagText = hashTagText + tag
+                        }
+                    },
+                    onRemoveHashTag = { tag ->
+                        hashTagText = hashTagText.filter { it != tag }
+                    }
                 )
                 ParticipantCounter(
                     maxParticipants = maxParticipants,
@@ -131,12 +148,12 @@ fun BookingCreate(navController: NavController, appViewModel: AppViewModel, isbn
 
                 )
                 CreateBookingButton(
-                    bookIsbn = "",
+                    bookIsbn = "${isbn}",
                     meetingTitle = meetingTitle.text, // TextFieldValue에서 String으로 변환
                     description = description.text,
                     maxParticipants = maxParticipants,
                     // 이거랑 isbn 하드코딩.
-                    hashtagList = listOf("공포", "스릴러")
+                    hashtagList = hashTagText,
                 )
             }
         }
@@ -164,7 +181,7 @@ fun TopBar(
                     .size(40.dp) // 아이콘의 크기를 설정합니다.
                     .padding(end = 4.dp) // 아이콘과 텍스트 사이의 간격을 설정합니다
                     .clickable {
-                        navController.navigate("main"){
+                        navController.navigate("main") {
                             popUpTo("main") { inclusive = true }
                         } // 뒤로가기 버튼
                     }
@@ -248,7 +265,10 @@ fun TextFieldsSection(
     meetingTitle: TextFieldValue,
     onMeetingTitleChanged: (TextFieldValue) -> Unit,
     description: TextFieldValue,
-    onDescriptionChanged: (TextFieldValue) -> Unit
+    onDescriptionChanged: (TextFieldValue) -> Unit,
+    hashTagText: List<String>,
+    onAddHashTag: (String) -> Unit,
+    onRemoveHashTag: (String) -> Unit
 
 ) {
 
@@ -274,11 +294,12 @@ fun TextFieldsSection(
     Spacer(modifier = Modifier.height(24.dp))
     Text(text = "해시 태그")
     Spacer(modifier = Modifier.height(12.dp))
-//    OutlinedTextField(
-//        value = hashTagText,
-//        onValueChange = { hashTagText = it },
-//        placeholder = { Text("해시태그") }
-//    )
+    HashTagEditor(
+        hashTagText = hashTagText,
+        onAddHashTag = onAddHashTag,
+        onRemoveHashTag = onRemoveHashTag
+    )
+
     Spacer(modifier = Modifier.height(24.dp))
 }
 @Composable
@@ -346,6 +367,55 @@ fun ParticipantCounter(
             enabled = maxParticipants < 6
         ) {
             Text("+")
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun HashTagEditor(
+    hashTagText: List<String>,
+    onAddHashTag: (String) -> Unit,
+    onRemoveHashTag: (String) -> Unit
+) {
+    var text by remember { mutableStateOf(TextFieldValue("")) }
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+    Column {
+        OutlinedTextField(
+            value = text,
+            onValueChange = { newText ->
+                if (newText.text.length <= 5) {
+                    text = newText
+                }
+            },
+            singleLine = true,
+            label = { Text("해시태그") },
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+            modifier = Modifier
+                .fillMaxWidth()
+                .onKeyEvent { keyEvent ->
+                    if (keyEvent.key == Key.Enter && text.text.isNotBlank() && text.text.length <= 5) {
+                        onAddHashTag(text.text.trim())
+                        text = TextFieldValue("") // Reset text field
+                        keyboardController?.hide()
+                        true // Event consumed
+                    } else false
+                }
+        )
+        Row(
+            Modifier
+                .padding(top = 10.dp)
+        ) {
+            hashTagText.forEach { tag ->
+                Button(
+                    modifier = Modifier.padding(end = 10.dp),
+                    shape = RoundedCornerShape(4.dp),
+                    onClick = { onRemoveHashTag(tag) },
+                ){
+                    Text(text = "#$tag")
+                }
+            }
         }
     }
 }

@@ -62,14 +62,11 @@ import com.ssafy.booking.viewmodel.BookingViewModel
 import com.ssafy.data.repository.token.TokenDataSource
 import com.ssafy.domain.model.DeviceToken
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Main(
     navController: NavController, appViewModel: AppViewModel
 ) {
-
-
 
     val bookingViewModel: BookingViewModel = hiltViewModel()
     // ViewModel의 LiveData를 State로 변환
@@ -82,14 +79,28 @@ fun Main(
     val tokenDataSource = TokenDataSource(context)
     val deviceToken : String? = tokenDataSource.getDeviceToken()
 
+    val userInfoState = bookingViewModel.getUserInfoResponse.observeAsState()
     // LaunchedEffect를 사용하여 한 번만 API 호출
     LaunchedEffect(Unit) {
         bookingViewModel.postDeivceToken(DeviceToken(deviceToken))
+
+        // 메인 화면 가자마자 userInfo 조회
+//        val tokenDataSource = TokenDataSource(context)
+//        bookingViewModel.getUserInfo(tokenDataSource.getLoginId()!!)
+//
+//        userInfoState?.let {
+//            tokenDataSource.putNickName(it.value!!.body()!!.nickname)
+//            tokenDataSource.putProfileImage(it.value!!.body()!!.profileImage)
+//
+//        }
+
+
+
+        //////////////////// 지헌 테스트 코드 //////////////////////////////
         bookingViewModel.getBookingAllList()
         bookingViewModel.getBookingDetail(1) // 실제 meetingId로 교체 필요
         bookingViewModel.getParticipants(1) // 실제 meetingId로 교체 필요
         bookingViewModel.getWaitingList(1) // 실제 meetingId로 교체 필요
-//
         bookingAllListState.value?.let { response ->
             Log.d("API CALL", "Booking All List: ${response.isSuccessful}")
         }
@@ -104,8 +115,7 @@ fun Main(
         }
 
     }
-
-    ////////////////////////// 위쪽 : 지헌 TEST 코드 작성 //////////////////////////
+    //////////////////////////////////////////////////////////////////////////////
 
     Scaffold (
         topBar = {

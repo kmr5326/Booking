@@ -149,6 +149,7 @@ private fun onLoginSuccess(
                     tokenDataSource.putDeviceToken(token)
                 }
 
+
                 navController.navigate(AppNavItem.Main.route) {
                     popUpTo("login") { inclusive = true }
                     launchSingleTop = true
