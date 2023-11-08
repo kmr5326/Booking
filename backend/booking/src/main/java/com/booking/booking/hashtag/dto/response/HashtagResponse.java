@@ -4,7 +4,6 @@ import com.booking.booking.hashtag.domain.Hashtag;
 
 public record HashtagResponse (
         long hashtagId,
-
         String content
 ) {
     public HashtagResponse(Hashtag hashtag) {
