@@ -29,12 +29,13 @@ public class KafkaMessage implements Serializable {
     private LocalDateTime sendTime;
     private String senderName;
 
-    public Map<String, String> extractData() {
+    public Map<String, String> extractData(Long chatroomId) {
         Map<String, String> data = new HashMap<>();
 
         data.put("message", this.message);
         data.put("senderId", String.valueOf(this.senderId));
         data.put("sendTime", String.valueOf(this.sendTime));
+        data.put("chatroomId", String.valueOf(chatroomId));
         data.put("senderName", senderName);
 
         return data;
