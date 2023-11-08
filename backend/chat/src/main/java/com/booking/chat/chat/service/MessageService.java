@@ -40,12 +40,13 @@ public class MessageService {
                        .flatMapMany(chatroom -> {
                            String meetingTitle = chatroom.getMeetingTitle();
                            String message = kafkaMessage.getMessage();
+                           String memberName = kafkaMessage.getSenderName();
                            List<Long> notificationList = new ArrayList<>(chatroom.getMemberList());
                            notificationList.remove(kafkaMessage.getSenderId());
 
                            // flux로 stream list 만들기
                            return Flux.fromIterable(notificationList)
-                                      .flatMap(memberId -> notificationService.sendChattingNotification(new NotificationResponse(meetingTitle, message, memberId)))
+                                      .flatMap(memberId -> notificationService.sendChattingNotification(new NotificationResponse(meetingTitle, message, memberName ,memberId)))
                                       .thenMany(Flux.just(chatroom)); // flux로 이어가기
                        })
                        .then() // On completion of all notifications, continue to send the message to Kafka
