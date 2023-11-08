@@ -144,7 +144,7 @@ fun BottomNav(
                         navController.navigate(route) {
                             launchSingleTop = true // 현재 탑 레벨 데스티네이션을 재시작하지 않음.
                             restoreState = true // 상태를 복원합니다 (예: 스크롤 위치).
-                            popUpTo(navController.graph.startDestinationId) {
+                            popUpTo(AppNavItem.Main.route) {
                                 saveState = true // 데스티네이션을 pop할 때 상태를 저장
                             }
                         }

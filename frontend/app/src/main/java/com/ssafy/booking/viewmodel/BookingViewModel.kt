@@ -1,9 +1,12 @@
 package com.ssafy.booking.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ssafy.data.repository.FirebaseRepositoryImpl
+import com.ssafy.domain.model.DeviceToken
 import com.ssafy.domain.model.booking.BookingAll
 import com.ssafy.domain.model.booking.BookingCreateRequest
 import com.ssafy.domain.model.booking.BookingDetail
@@ -21,6 +24,7 @@ import javax.inject.Inject
 @HiltViewModel
 class BookingViewModel @Inject constructor(
     private val bookingUseCase: BookingUseCase,
+    private val firebaseRepositoryImpl: FirebaseRepositoryImpl,
     private val myPageUseCase: MyPageUseCase
 ) : ViewModel() {
     private val _postCreateBookingResponse = MutableLiveData<Response<Unit>>()
@@ -28,6 +32,21 @@ class BookingViewModel @Inject constructor(
     fun postCreateBooking(request: BookingCreateRequest) =
         viewModelScope.launch {
             _postCreateBookingResponse.value = bookingUseCase.postBookingCreate(request)
+        }
+
+    // POST - 디바이스 토큰 전송
+    fun postDeivceToken(deviceToken: DeviceToken) =
+        viewModelScope.launch {
+            try {
+                val response = firebaseRepositoryImpl.postDeviceToken(deviceToken)
+                if(response.isSuccessful) {
+                    Log.d("DEVICE_TOKEN", "SUCCESS ${response}")
+                } else {
+                    Log.d("DEVICE_TOKEN", "ELSE ${response}")
+                }
+            } catch(e : Exception) {
+                Log.e("DEVICE_TOKEN", "ERROR")
+            }
         }
 
     // GET - 모임 전체 목록 조회

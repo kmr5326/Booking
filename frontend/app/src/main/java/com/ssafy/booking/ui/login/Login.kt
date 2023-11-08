@@ -89,7 +89,10 @@ import com.kakao.sdk.common.util.Utility
 import com.ssafy.booking.utils.Utils.BASE_URL
 import com.google.android.gms.tasks.Task
 import com.ssafy.booking.ui.LocalNavigation
+import com.ssafy.booking.utils.MyFirebaseMessagingService
+import com.ssafy.data.repository.FirebaseRepositoryImpl
 import com.ssafy.data.repository.token.TokenDataSource
+import com.ssafy.domain.model.DeviceToken
 
 import retrofit2.http.Body
 import retrofit2.http.Headers
@@ -105,6 +108,7 @@ interface LoginService {
     @POST("/api/members/login")
     fun login(@Body loginInfo: LoginInfo): Call<ResponseBody>
 }
+
 // 데이터 정의
 data class LoginInfo(val loginId: String)
 
@@ -117,7 +121,12 @@ val retrofit = Retrofit.Builder()
 val loginService = retrofit.create(LoginService::class.java)
 
 // 로그인 API 호출
-private fun onLoginSuccess(context: Context, loginId: String, navController: NavController,kakaoNickName:String) {
+private fun onLoginSuccess(
+    context: Context,
+    loginId: String,
+    navController: NavController,
+    kakaoNickName:String
+) {
     val loginInfo = LoginInfo(loginId = loginId) // 실제 로그인 ID로 변경해야 함
 //    val loginInfo = LoginInfo(loginId = "kakao_3143286573")
     val call = loginService.login(loginInfo)
@@ -135,10 +144,17 @@ private fun onLoginSuccess(context: Context, loginId: String, navController: Nav
                 val asdf = tokenDataSource.getLoginId()
                 Log.d("asdf", "로그인 아이디: $asdf")
 
+                MyFirebaseMessagingService.getFirebaseToken { token ->
+                    val tokenDataSource = TokenDataSource(context)
+                    tokenDataSource.putDeviceToken(token)
+                }
+
+
                 navController.navigate(AppNavItem.Main.route) {
                     popUpTo("login") { inclusive = true }
                     launchSingleTop = true
                 }
+
             } else {
                 // 오류 처리
                 val errorCode = response.code()
@@ -160,8 +176,6 @@ private fun onLoginSuccess(context: Context, loginId: String, navController: Nav
         }
     })
 }
-
-
 @Composable
 fun Greeting(
     navController: NavController,

@@ -52,8 +52,6 @@ class SocketViewModel @Inject constructor(
         messages = messageDao.getLatestMessage(chatId.toInt())
     }
 
-
-
     fun connectToChat(chatId: String) {
         stompConnection = stomp.connect().subscribe {
             when (it.type) {
