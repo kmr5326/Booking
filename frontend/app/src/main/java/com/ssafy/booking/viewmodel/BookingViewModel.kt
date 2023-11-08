@@ -4,19 +4,13 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ssafy.booking.model.UserProfileState
-import com.ssafy.booking.ui.profile.ProfileData
 import com.ssafy.domain.model.booking.BookingAll
 import com.ssafy.domain.model.booking.BookingCreateRequest
 import com.ssafy.domain.model.booking.BookingDetail
 import com.ssafy.domain.model.booking.BookingParticipants
 import com.ssafy.domain.model.booking.BookingWaiting
-import com.ssafy.domain.model.mypage.AddressnModifyRequest
-import com.ssafy.domain.model.mypage.UserDeleteRequest
-import com.ssafy.domain.model.mypage.UserFollowersResponse
-import com.ssafy.domain.model.mypage.UserFollowingsResponse
+import com.ssafy.domain.model.booking.SearchResponse
 import com.ssafy.domain.model.mypage.UserInfoResponse
-import com.ssafy.domain.model.mypage.UserModifyRequest
 import com.ssafy.domain.usecase.BookingUseCase
 import com.ssafy.domain.usecase.MyPageUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -76,6 +70,15 @@ class BookingViewModel @Inject constructor(
     fun getUserInfo(loginId: String) =
         viewModelScope.launch {
             _getUserInfoResponse.value = myPageUseCase.getUserInfo(loginId)
+        }
+
+    // GET - 네이버 검색 API
+    private val _getSearchListResponse = MutableLiveData<Response<SearchResponse>>()
+    val getSearchListResponse: LiveData<Response<SearchResponse>> get() = _getSearchListResponse
+
+    fun getSearchList(query:String,display:Int,start:Int,sort:String) =
+        viewModelScope.launch {
+            _getSearchListResponse.value = bookingUseCase.getSearchList(query,display,start,sort)
         }
 }
 

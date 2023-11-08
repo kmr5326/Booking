@@ -1,16 +1,12 @@
 package com.ssafy.domain.usecase
 
-import com.ssafy.domain.model.ChatCreateRequest
-import com.ssafy.domain.model.ChatExitRequest
-import com.ssafy.domain.model.ChatJoinRequest
 import com.ssafy.domain.model.booking.BookingAll
 import com.ssafy.domain.model.booking.BookingCreateRequest
 import com.ssafy.domain.model.booking.BookingDetail
 import com.ssafy.domain.model.booking.BookingParticipants
 import com.ssafy.domain.model.booking.BookingWaiting
-import com.ssafy.domain.model.mypage.UserInfoResponse
+import com.ssafy.domain.model.booking.SearchResponse
 import com.ssafy.domain.repository.BookingRepository
-import com.ssafy.domain.repository.ChatRepository
 import retrofit2.Response
 import javax.inject.Inject
 
@@ -29,5 +25,9 @@ class BookingUseCase @Inject constructor(private val repository: BookingReposito
     }
     suspend fun getWaitingList(meetingId:Long) : Response<List<BookingWaiting>> {
         return repository.getWaitingList(meetingId)}
+
+    suspend fun getSearchList(query: String, display: Int, start: Int, sort: String): Response<SearchResponse> {
+        return repository.getSearchList(query, display, start, sort)
+    }
 }
 
