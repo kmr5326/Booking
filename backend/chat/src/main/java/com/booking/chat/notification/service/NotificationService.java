@@ -2,6 +2,7 @@ package com.booking.chat.notification.service;
 
 import com.booking.chat.notification.domain.NotificationInformation;
 import com.booking.chat.notification.dto.request.DeviceTokenInitRequest;
+import com.booking.chat.notification.dto.response.NotificationResponse;
 import com.booking.chat.notification.repository.NotificationInformationRepository;
 import com.google.api.core.ApiFuture;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -65,6 +66,26 @@ public class NotificationService {
                                                                              .build();
 
                                                     return send(message);
+                                                })
+                                                .then();
+    }
+
+    public Mono<Void> sendChattingNotification(NotificationResponse notificationResponse) {
+        return notificationInformationRepository.findByMemberId(notificationResponse.memberId())
+                                                .flatMap(info -> {
+                                                    log.info("Notification send to {} member", notificationResponse.memberId());
+
+                                                    Notification notification = Notification.builder()
+                                                                                            .setBody(notificationResponse.body())
+                                                                                            .setTitle(notificationResponse.title())
+                                                                                            .build();
+
+                                                    Message message = Message.builder()
+                                                                             .setNotification(notification)
+                                                                             .setToken(info.getDeviceToken())
+                                                                             .build();
+
+                                                    return send(message).then();
                                                 })
                                                 .then();
     }
