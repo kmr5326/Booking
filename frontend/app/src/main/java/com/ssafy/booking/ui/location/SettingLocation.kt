@@ -30,17 +30,17 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-
 @Preview
 @Composable
 fun PreviewSettingLocation() {
     SettingLocation()
 }
+
 // 최상단 컴포저블
 @Composable
 fun SettingLocation() {
     Column {
-        Text(text="내 동네 설정")
+        Text(text = "내 동네 설정")
         SearchInput()
         SetCurrentLocation()
         // 이 밑에 지도 띄우고 현재 위치 띄우면 되지 않을까?
@@ -58,7 +58,7 @@ fun SearchInput() {
     OutlinedTextField(
         value = title, // 이 부분을 뷰모델의 상태로 연결하거나 필요에 따라 변경
         onValueChange = { title = it },
-        placeholder = {Text("지번, 도로명, 건물명으로 검색",fontSize = 11.sp,color = Color.Gray)},
+        placeholder = { Text("지번, 도로명, 건물명으로 검색", fontSize = 11.sp, color = Color.Gray) },
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
@@ -69,19 +69,19 @@ fun SearchInput() {
         singleLine = true,
         colors = TextFieldDefaults.outlinedTextFieldColors(
             focusedBorderColor = Color(0xFF12BD7E),
-            unfocusedBorderColor = Color.White,
+            unfocusedBorderColor = Color.White
         ),
-        textStyle = TextStyle(color=Color.Gray,fontSize = 11.sp, baselineShift = BaselineShift.None),
-        leadingIcon = { Icon(Icons.Outlined.Search, contentDescription = null, tint = Color(0xFF12BD7E) )}
+        textStyle = TextStyle(color = Color.Gray, fontSize = 11.sp, baselineShift = BaselineShift.None),
+        leadingIcon = { Icon(Icons.Outlined.Search, contentDescription = null, tint = Color(0xFF12BD7E)) }
     )
 }
 
 // 현재 위치로 설정
 @Composable
 fun SetCurrentLocation() {
-    Row{
-        Icon(Icons.Outlined.LocationOn, contentDescription = null, tint = Color(0xFF12BD7E) )
-        Text(text="현재 내 위치로 설정")
+    Row {
+        Icon(Icons.Outlined.LocationOn, contentDescription = null, tint = Color(0xFF12BD7E))
+        Text(text = "현재 내 위치로 설정")
         Icon(Icons.Outlined.KeyboardArrowRight, contentDescription = null, tint = Color(0xFF12BD7E))
     }
 }

@@ -8,20 +8,12 @@ import android.content.Intent
 import android.media.RingtoneManager
 import android.os.Build
 import android.util.Log
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.NotificationCompat
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.ssafy.booking.R
 import com.ssafy.booking.ui.MainActivity
-import com.ssafy.data.repository.FirebaseRepositoryImpl
-import com.ssafy.data.repository.token.TokenDataSource
-import com.ssafy.domain.model.DeviceToken
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 class MyFirebaseMessagingService : FirebaseMessagingService() {
     /** 푸시 알림으로 보낼 수 있는 메세지는 2가지
@@ -52,7 +44,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         }
     }
 
-//		  //동기방식
+// 		  //동기방식
 //        FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
 //                if (!task.isSuccessful) {
 //                    Log.d(TAG, "Fetching FCM registration token failed ${task.exception}")
@@ -71,12 +63,11 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         // remoteMessage.notification?.body!! 여기에 내용이 저장되있음
 //        Log.d(TAG, "Notification Message Body: " + remoteMessage.notification?.body!!)
 
-        if (remoteMessage.notification!=null) {
-            //알림생성
+        if (remoteMessage.notification != null) {
+            // 알림생성
             sendNotification(remoteMessage)
-            Log.d(TAG, "${remoteMessage.notification?.title.toString()}")
-            Log.d(TAG, "${remoteMessage.notification?.body.toString()}")
-
+            Log.d(TAG, "${remoteMessage.notification?.title}")
+            Log.d(TAG, "${remoteMessage.notification?.body}")
         } else {
             Log.e(TAG, "data가 비어있습니다. 메시지를 수신하지 못했습니다.")
         }
@@ -84,7 +75,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
     /** 알림 생성 메서드 */
     private fun sendNotification(remoteMessage: RemoteMessage) {
-        //channel 설정
+        // channel 설정
         val channelId = "C206" // 알림 채널 이름
         val channelName = "Booking"
         val channelDescription = "북킹 알림"
@@ -109,8 +100,8 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             }
         }
 
-        //23.05.22 Android 최신버전 대응 (FLAG_MUTABLE, FLAG_IMMUTABLE)
-        //PendingIntent.FLAG_MUTABLE은 PendingIntent의 내용을 변경할 수 있도록 허용, PendingIntent.FLAG_IMMUTABLE은 PendingIntent의 내용을 변경할 수 없음
+        // 23.05.22 Android 최신버전 대응 (FLAG_MUTABLE, FLAG_IMMUTABLE)
+        // PendingIntent.FLAG_MUTABLE은 PendingIntent의 내용을 변경할 수 있도록 허용, PendingIntent.FLAG_IMMUTABLE은 PendingIntent의 내용을 변경할 수 없음
         val pendingIntentFlags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
         } else {

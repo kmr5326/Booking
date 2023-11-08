@@ -6,12 +6,11 @@ import com.naver.maps.map.NaverMapSdk
 import com.ssafy.data.repository.token.TokenDataSource
 import dagger.hilt.android.HiltAndroidApp
 
-
 @HiltAndroidApp
 class App : Application() {
     companion object {
         private lateinit var application: App
-        fun getInstance() : App = application
+        fun getInstance(): App = application
 
         lateinit var prefs: TokenDataSource
     }

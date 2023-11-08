@@ -11,11 +11,8 @@ open class AppViewModel(application: Application) : AndroidViewModel(application
     // 메인화면 진입시 초기화
     fun init() {
         viewModelScope.launch(Dispatchers.Main) {
-
         }
     }
-
 }
-
 
 class DummyAppViewModel : AppViewModel(Application())

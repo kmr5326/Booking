@@ -22,27 +22,18 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.ssafy.booking.R
 import com.ssafy.booking.ui.AppNavItem
 import com.ssafy.booking.ui.LocalNavigation
-import com.ssafy.booking.ui.booking.BookItem
-import com.ssafy.booking.ui.booking.BookList
-import com.ssafy.booking.ui.booking.bookItemsList
 import com.ssafy.booking.ui.common.BottomNav
 import com.ssafy.booking.ui.common.TopBar
 import com.ssafy.booking.viewmodel.AppViewModel
-import com.ssafy.booking.viewmodel.MyPageViewModel
-import com.ssafy.domain.model.ChatRoom
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -99,8 +90,8 @@ fun HistoryItem(
             .clickable(onClick = {
                 onRowClick(historyItem)
                 navController.navigate(AppNavItem.HistoryDetail.route)
-            }),
-        ) {
+            })
+    ) {
         Image(
             painter = painterResource(id = historyItem.imageResId),
             contentDescription = "Book Image",
@@ -149,7 +140,6 @@ fun HistoryItem(
         }
     }
 }
-
 
 data class HistoryData(
     val imageResId: Int,

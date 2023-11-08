@@ -7,7 +7,7 @@ data class UserModifyRequest (
 )
 
 data class AddressnModifyRequest (
-    val loginId :String,
+//    val loginId :String,
     val address : String
 )
 

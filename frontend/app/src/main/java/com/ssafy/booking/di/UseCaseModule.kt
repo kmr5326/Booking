@@ -3,7 +3,6 @@ package com.ssafy.booking.di
 import com.ssafy.domain.repository.BookSearchRepository
 import com.ssafy.domain.repository.BookingRepository
 import com.ssafy.domain.repository.ChatRepository
-import com.ssafy.domain.repository.FirebaseRepository
 import com.ssafy.domain.repository.GoogleRepository
 import com.ssafy.domain.repository.MemberRepository
 import com.ssafy.domain.repository.MyPageRepository
@@ -19,18 +18,17 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
-
 @Module
 @InstallIn(SingletonComponent::class)
 class UseCaseModule {
 
     @Provides
     @Singleton
-    fun provideGetTokenRepoUseCase(repository : GoogleRepository) = GetTokenRepoUseCase(repository)
+    fun provideGetTokenRepoUseCase(repository: GoogleRepository) = GetTokenRepoUseCase(repository)
 
     @Provides
     @Singleton
-    fun provideSignInUseCase(repository : MemberRepository) = SignInUseCase(repository)
+    fun provideSignInUseCase(repository: MemberRepository) = SignInUseCase(repository)
 
     @Provides
     @Singleton

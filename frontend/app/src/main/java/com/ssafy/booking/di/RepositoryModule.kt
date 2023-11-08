@@ -10,8 +10,8 @@ import com.ssafy.data.repository.BookSearchRepositoryImpl
 import com.ssafy.data.repository.BookingRepositoryImpl
 import com.ssafy.data.repository.ChatRepositoryImpl
 import com.ssafy.data.repository.FirebaseRepositoryImpl
-import com.ssafy.data.repository.GoogleRepositoryImpl
 import com.ssafy.data.repository.GoogleDataSourceImpl
+import com.ssafy.data.repository.GoogleRepositoryImpl
 import com.ssafy.data.repository.MemberRepositoryImpl
 import com.ssafy.data.repository.MyPageRepositoryImpl
 import com.ssafy.domain.repository.BookSearchRepository
@@ -27,7 +27,6 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
-
 @Module
 @InstallIn(SingletonComponent::class)
 class RepositoryModule {
@@ -35,8 +34,8 @@ class RepositoryModule {
     @Provides
     @Singleton
     fun provideMainRepository(
-        googleDataSourceImpl : GoogleDataSourceImpl
-    ) : GoogleRepository {
+        googleDataSourceImpl: GoogleDataSourceImpl
+    ): GoogleRepository {
         return GoogleRepositoryImpl(
             googleDataSourceImpl
         )
@@ -77,5 +76,4 @@ class RepositoryModule {
     fun provideFirebaseRepository(api: FirebaseApi): FirebaseRepository {
         return FirebaseRepositoryImpl(api)
     }
-
 }

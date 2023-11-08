@@ -1,15 +1,12 @@
 package com.ssafy.booking.ui.login
 
 import android.Manifest
-import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,23 +14,17 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSizeIn
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.material3.Button
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -48,28 +39,24 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.ssafy.booking.ui.AppNavItem
 import com.ssafy.booking.ui.LocalNavigation
-import com.ssafy.booking.ui.common.TopBar
 import com.ssafy.booking.viewmodel.SignInViewModel
 import com.ssafy.data.repository.token.TokenDataSource
 import com.ssafy.domain.model.SignInRequest
 import retrofit2.Response
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignInScreen(
-    loginId:String = "",
-    kakaoNickName:String = ""
+    loginId: String = "",
+    kakaoNickName: String = ""
 ) {
     val context = LocalContext.current
     var permissionsGranted by remember { mutableStateOf(false) }
@@ -86,21 +73,20 @@ fun SignInScreen(
             val tokenDataSource = TokenDataSource(context)
             tokenDataSource.putToken(signInResponse?.body())
             tokenDataSource.putLoginId(loginId)
-            Log.i("token","${tokenDataSource.getToken()}")
-            Log.i("token","${loginId}")
-            Log.i("token","${tokenDataSource.getLoginId()}")
+            Log.i("token", "${tokenDataSource.getToken()}")
+            Log.i("token", "$loginId")
+            Log.i("token", "${tokenDataSource.getLoginId()}")
             navController.navigate(AppNavItem.Main.route) {
                 popUpTo("signIn") { inclusive = true }
                 launchSingleTop = true
             }
         } else {
             // 에러 처리
-            Log.i("token","${signInResponse?.code()}")
-            if(signInResponse?.code() == 400) {
+            Log.i("token", "${signInResponse?.code()}")
+            if (signInResponse?.code() == 400) {
                 // 닉네임 중복
                 setIsNickNameError(true)
             }
-
         }
     }
 
@@ -133,14 +119,14 @@ fun SignInScreen(
         }
     }
 
-    var email :String by remember { mutableStateOf("") }
-    var nickName :String by remember { mutableStateOf(kakaoNickName) }
-    var name :String by remember { mutableStateOf("") }
+    var email: String by remember { mutableStateOf("") }
+    var nickName: String by remember { mutableStateOf(kakaoNickName) }
+    var name: String by remember { mutableStateOf("") }
     var isError by remember { mutableStateOf(false) }
 
-    val years = (2013 downTo 1900).map {it.toString()}
-    val months = (1..12).map {it.toString()}
-    val days = (1..31).map {it.toString()}
+    val years = (2013 downTo 1900).map { it.toString() }
+    val months = (1..12).map { it.toString() }
+    val days = (1..31).map { it.toString() }
 
     val genderOptions = listOf("FEMALE", "MALE")
 
@@ -173,13 +159,13 @@ fun SignInScreen(
             label = {
                 Text("이메일")
             },
-            onValueChange = {email = it},
+            onValueChange = { email = it },
             maxLines = 1,
             singleLine = true
         )
         Spacer(modifier = Modifier.height(16.dp))
 
-        if(isNickNameError) {
+        if (isNickNameError) {
             Text("닉네임이 중복되었습니다.", color = Color.Red)
         }
 
@@ -191,7 +177,7 @@ fun SignInScreen(
             onValueChange = {
                 nickName = it
                 isError = it.isEmpty()
-                            },
+            },
             maxLines = 1,
             singleLine = true,
             isError = isError
@@ -203,7 +189,7 @@ fun SignInScreen(
             label = {
                 Text("이름")
             },
-            onValueChange = {name = it},
+            onValueChange = { name = it },
             maxLines = 1,
             singleLine = true
         )
@@ -254,9 +240,10 @@ fun SignInScreen(
                                     Text(text = year)
                                 },
                                 onClick = {
-                                setSelectedYear(year)
-                                isDropdownExpandedYear = false
-                            })
+                                    setSelectedYear(year)
+                                    isDropdownExpandedYear = false
+                                }
+                            )
                         }
                     }
                     Text(text = "년")
@@ -270,7 +257,8 @@ fun SignInScreen(
                 ) {
                     Text(
                         text = selectedMonth,
-                        modifier = Modifier.clickable { isDropdownExpandedMonth = true })
+                        modifier = Modifier.clickable { isDropdownExpandedMonth = true }
+                    )
 
                     DropdownMenu(
                         expanded = isDropdownExpandedMonth,
@@ -285,11 +273,12 @@ fun SignInScreen(
                                 onClick = {
                                     setSelectedMonth(month)
                                     isDropdownExpandedMonth = false
-                                })
+                                }
+                            )
                         }
                     }
 
-                Text(text = "월")
+                    Text(text = "월")
                 }
             }
 
@@ -313,29 +302,29 @@ fun SignInScreen(
                                 onClick = {
                                     setSelectedDay(day)
                                     isDropdownExpandedDay = false
-                                })
+                                }
+                            )
                         }
                     }
-                Text(text = "일")
+                    Text(text = "일")
                 }
             }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Log.d("lastLocation","??? : $permissionsGranted")
+        Log.d("lastLocation", "??? : $permissionsGranted")
         // 2. Launch the permissions request when needed
         if (permissionsGranted) {
-
             LaunchedEffect(Unit) {
-                Log.d("lastLocation","????????")
+                Log.d("lastLocation", "????????")
                 if (ActivityCompat.checkSelfPermission(
                         context,
                         Manifest.permission.ACCESS_FINE_LOCATION
                     ) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                        context,
-                        Manifest.permission.ACCESS_COARSE_LOCATION
-                    ) == PackageManager.PERMISSION_GRANTED
+                            context,
+                            Manifest.permission.ACCESS_COARSE_LOCATION
+                        ) == PackageManager.PERMISSION_GRANTED
                 ) {
                     fusedLocationClient.requestLocationUpdates(
                         locationRequest,
@@ -357,7 +346,7 @@ fun SignInScreen(
                 if (!isError) {
                     Button(onClick = {
                         val request = SignInRequest(
-                            loginId= loginId,
+                            loginId = loginId,
                             address = myLocation,
                             age = 2023 - selectedYear.toInt(),
                             email = email,
@@ -368,7 +357,6 @@ fun SignInScreen(
                             provider = "kakao"
                         )
                         viewModel.signIn(request)
-
                     }) {
                         Text(text = "회원 가입")
                     }
@@ -386,11 +374,8 @@ fun SignInScreen(
                 Text(text = "위치 인증 체크")
             }
         }
-
-
     }
 }
-
 
 @Preview
 @Composable

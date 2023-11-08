@@ -26,7 +26,6 @@ android {
         }
     }
 
-
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -94,10 +93,10 @@ dependencies {
     implementation(OkHttp.OKHTTP)
     implementation(OkHttp.LOGGING_INTERCEPTOR)
 
-    //coroutines
+    // coroutines
     implementation(Coroutines.COROUTINES)
 
-    //by viewModel
+    // by viewModel
     implementation(AndroidX.ACTIVITY)
     implementation(AndroidX.FRAGMENT)
 
@@ -123,14 +122,14 @@ dependencies {
     // google
     implementation(Google.GOOGLE_AUTH)
 
-    implementation ("androidx.compose.runtime:runtime:1.3.3")
-    implementation ("androidx.compose.runtime:runtime-livedata:1.3.3")
-    implementation ("androidx.compose.runtime:runtime-rxjava2:1.3.3")
+    implementation("androidx.compose.runtime:runtime:1.3.3")
+    implementation("androidx.compose.runtime:runtime-livedata:1.3.3")
+    implementation("androidx.compose.runtime:runtime-rxjava2:1.3.3")
 
-    implementation ("com.google.android.gms:play-services-location:21.0.1")
+    implementation("com.google.android.gms:play-services-location:21.0.1")
 
     // Paging
-    implementation ("androidx.paging:paging-runtime:3.1.1")
+    implementation("androidx.paging:paging-runtime:3.1.1")
 
     // Room
     implementation(Room.ROOM_RUNTIME)
@@ -148,24 +147,23 @@ dependencies {
     implementation("com.google.firebase:firebase-messaging-ktx")
 
     // 카카오 로그인
-    implementation ("com.kakao.sdk:v2-user:2.17.0") // 카카오 로그인
+    implementation("com.kakao.sdk:v2-user:2.17.0") // 카카오 로그인
 
-    //STOMP
-    implementation ("com.github.bishoybasily:stomp:2.0.5")
+    // STOMP
+    implementation("com.github.bishoybasily:stomp:2.0.5")
 
     // serialize
-    implementation ("com.fasterxml.jackson.core:jackson-databind:2.12.3") // 버전은 적절하게 조절
-    implementation ("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.12.3")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.12.3") // 버전은 적절하게 조절
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.12.3")
 
     // m3
     implementation("androidx.compose.material3:material3-window-size-class:1.0.1")
     implementation("androidx.compose.material3:material3:1.0.1")
 
     // 네이버 지도
-    implementation ("io.github.fornewid:naver-map-location:21.0.1")
-    implementation ("io.github.fornewid:naver-map-compose:1.5.1")
-    implementation ("com.naver.maps:map-sdk:3.17.0")
-
+    implementation("io.github.fornewid:naver-map-location:21.0.1")
+    implementation("io.github.fornewid:naver-map-compose:1.5.1")
+    implementation("com.naver.maps:map-sdk:3.17.0")
 }
 
 // Allow references to generated code
@@ -176,5 +174,3 @@ kapt {
 ksp {
     arg("moshi.kotlin.codegen.metadata", "true")
 }
-
-

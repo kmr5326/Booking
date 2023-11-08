@@ -19,7 +19,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -33,38 +32,36 @@ import coil.compose.AsyncImage
 import com.ssafy.booking.ui.LocalNavigation
 import com.ssafy.booking.viewmodel.BookSearchViewModel
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BookDetail(isbn: String) {
-
     val navController = LocalNavigation.current
 
-    val viewModel : BookSearchViewModel = hiltViewModel()
+    val viewModel: BookSearchViewModel = hiltViewModel()
 
     val getBookSearchByIsbnResponse by viewModel.getBookSearchByIsbnResponse.observeAsState()
 
     LaunchedEffect(Unit) {
         viewModel.getBookSearchByIsbn(isbn)
-        Log.d("test","$isbn")
+        Log.d("test", "$isbn")
     }
 
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                 title = { Text(text = "도서") },
-                 navigationIcon = {
-                     IconButton(onClick = { navController.popBackStack() }) {
-                         Icon(
-                             imageVector = Icons.Filled.ArrowBack,
-                             contentDescription = "뒤로가기"
-                         )
-                     }
-                 },
-             )
+                title = { Text(text = "도서") },
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(
+                            imageVector = Icons.Filled.ArrowBack,
+                            contentDescription = "뒤로가기"
+                        )
+                    }
+                }
+            )
         },
         modifier = Modifier.fillMaxSize()
-    ) {paddingValues ->
+    ) { paddingValues ->
         getBookSearchByIsbnResponse?.let {
             val bookDetail = it.body()
             Column(
@@ -87,7 +84,8 @@ fun BookDetail(isbn: String) {
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
                             .height(250.dp)
-                            .fillMaxWidth())
+                            .fillMaxWidth()
+                    )
                 }
                 // 제목
                 Text(text = "${bookDetail!!.title}")
