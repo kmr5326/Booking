@@ -30,7 +30,7 @@ public class SttController {
     }
     @PostMapping("/summary")
     public Mono<ResponseEntity<SummaryResponse>> summary(@RequestBody SummaryControllerDto reqDto) {
-        log.info("{}",reqDto);
+        log.info("요약 요청 {}",reqDto.getContent());
         return sttService.summary(reqDto)
                 .map(resp->ResponseEntity.ok().body(resp));
     }

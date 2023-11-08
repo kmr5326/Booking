@@ -64,7 +64,7 @@ public class SttServiceImpl implements SttService{
                     }).then(Mono.error(new RuntimeException("Server error")));
                 })
                 .bodyToMono(SttResponseDto.class)
-                .flatMap(sttResponseDto -> saveTranscription(sttResponseDto).thenReturn(sttResponseDto))
+                .flatMap(sttResponseDto -> saveTranscription(sttResponseDto,requestDto.fileName()).thenReturn(sttResponseDto))
                 .doOnNext(resp-> log.info("stt 결과 {}",resp));
     }
 
@@ -92,8 +92,8 @@ public class SttServiceImpl implements SttService{
                 .bodyToMono(SummaryResponse.class);
     }
 
-    private Mono<Transcription> saveTranscription(SttResponseDto sttResponseDto) {
-        Transcription transcription = Transcription.of(sttResponseDto);
+    private Mono<Transcription> saveTranscription(SttResponseDto sttResponseDto,String fileName) {
+        Transcription transcription = Transcription.of(sttResponseDto,fileName);
         return transcriptionRepository.save(transcription);
     }
 }
