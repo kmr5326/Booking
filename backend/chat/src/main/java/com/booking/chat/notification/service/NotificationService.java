@@ -73,24 +73,29 @@ public class NotificationService {
     public Mono<Void> sendChattingNotification(NotificationResponse notificationResponse) {
         return notificationInformationRepository.findByMemberId(notificationResponse.memberId())
                                                 .flatMap(info -> {
+                                                    if (info.getDeviceToken() == null || info.getDeviceToken().trim().isEmpty()) {
+                                                        log.error("Device token is null or empty for member {}", notificationResponse.memberId());
+                                                        return Mono.error(new IllegalArgumentException("Device token is null or empty"));
+                                                    }
                                                     log.info("Notification send to {} member", notificationResponse.memberId());
-//                                                    Notification notification = Notification.builder()
-//                                                                                            .setBody(notificationResponse.body())
-//                                                                                            .setTitle("%s\n%s".formatted(notificationResponse.title(),notificationResponse.memberName()))
-//                                                                                            .build();
-//
-//                                                    Message message = Message.builder()
-//                                                                             .setNotification(notification)
-//                                                                             .setToken(info.getDeviceToken())
-//                                                                             .build();
 
-                                                    return send(Message.builder()
-                                                                       .setNotification(Notification.builder()
-                                                                                                    .setBody(notificationResponse.body())
-                                                                                                    .setTitle("%s\n%s".formatted(notificationResponse.title(),notificationResponse.memberName()))
-                                                                                                    .build())
-                                                                       .setToken(info.getDeviceToken())
-                                                                       .build()).then();
+                                                    Notification notification = Notification.builder()
+                                                                                            .setBody(notificationResponse.body())
+                                                                                            .setTitle("%s\n%s".formatted(notificationResponse.title(),notificationResponse.memberName()))
+                                                                                            .build();
+
+                                                    Message message = Message.builder()
+                                                                             .setNotification(notification)
+                                                                             .setToken(info.getDeviceToken())
+                                                                             .build();
+
+                                                    return send(message).then();
+                                                })
+                                                .onErrorResume(e -> {
+                                                    // Log the error or take some action
+                                                    log.error("Error sending chatting notification: {}", e.getMessage());
+                                                    // Return an empty Mono to swallow the error
+                                                    return Mono.empty();
                                                 })
                                                 .then();
     }
