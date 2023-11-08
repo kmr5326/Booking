@@ -61,3 +61,4 @@ services:
       - booking_chat_network
     ports:
       - '9002:9002'
+

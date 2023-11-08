@@ -12,6 +12,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 @Getter
 @NoArgsConstructor
@@ -20,18 +21,19 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection = "member_books")
 public class MemberBook {
 
-    @Transient
-    public static final String SEQUENCE_NAME = "memberbook_sequence";
-
     @Id
-    private Long _id;
+    private String _id;
 
-    private Long memberId;
+    @Field
+    private String memberNickname;
 
+    @Field
     private String bookIsbn;
 
+    @Field
     private List<Note> notes;
 
+    @Field
     @CreatedDate
     private LocalDateTime createdAt;
 
@@ -39,12 +41,12 @@ public class MemberBook {
 
        return MemberBook.builder()
            .bookIsbn(memberBookRegistRequest.bookIsbn())
-           .memberId(memberBookRegistRequest.memberId())
+           .memberNickname(memberBookRegistRequest.nickname())
            .notes(new ArrayList<>())
            .build();
     }
 
-    public void setAutoIncrementId(Long id) {
-        this._id = id;
-    }
+//    public void setAutoIncrementId(Long id) {
+//        this._id = id;
+//    }
 }
