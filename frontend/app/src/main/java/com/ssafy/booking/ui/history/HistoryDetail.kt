@@ -46,15 +46,13 @@ import com.ssafy.domain.model.ChatRoom
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HistoryHome(
+fun HistoryDetail(
     navController: NavController,
     appViewModel: AppViewModel
 ) {
-//    val viewModel : HistoryViewModel = hiltViewModel()
-
     Scaffold(
         topBar = {
-            TopBar("이전 독서 모임")
+            TopBar("독서모임1")
         },
         bottomBar = {
             BottomNav(navController, appViewModel)
@@ -67,42 +65,23 @@ fun HistoryHome(
                 .padding(paddingValues)
                 .fillMaxHeight()
         ) {
-            HistoryList(navController, appViewModel)
-        }
-    }
-}
-
-@Composable
-fun HistoryList(navController: NavController, appViewModel: AppViewModel) {
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .fillMaxHeight()
-            .padding(horizontal = 8.dp, vertical = 15.dp)
-    ) {
-        items(historyTempList) { history ->
-            HistoryItem(history) {}
+            HistoryItem()
+//            녹음
+//            탭
         }
     }
 }
 
 @Composable
 fun HistoryItem(
-    historyItem: HistoryData,
-    onRowClick: (HistoryData) -> Unit
 ) {
-    val navController = LocalNavigation.current
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(12.dp)
-            .clickable(onClick = {
-                onRowClick(historyItem)
-                navController.navigate(AppNavItem.HistoryDetail.route)
-            }),
-        ) {
+    ) {
         Image(
-            painter = painterResource(id = historyItem.imageResId),
+            painter = painterResource(id = R.drawable.book1),
             contentDescription = "Book Image",
             modifier = Modifier
                 .size(80.dp, 100.dp)
@@ -112,10 +91,10 @@ fun HistoryItem(
         Column(
             modifier = Modifier.weight(1f)
         ) {
-            Text(text = historyItem.title, fontWeight = FontWeight.ExtraBold, fontSize = 16.sp)
+            Text(text = "독서모임1", fontWeight = FontWeight.ExtraBold, fontSize = 16.sp)
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = historyItem.leaderId,
+                text = "사용자1",
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
                 fontWeight = FontWeight.Medium,
@@ -123,7 +102,7 @@ fun HistoryItem(
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = historyItem.meetingTime,
+                text = "2023.10.17 PM 3:00",
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
                 fontWeight = FontWeight.Medium,
@@ -131,7 +110,7 @@ fun HistoryItem(
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = historyItem.meetingPlace,
+                text = "광주광역시 광산구 수완동",
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
                 fontWeight = FontWeight.Medium,
@@ -139,7 +118,7 @@ fun HistoryItem(
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = historyItem.meetingPay,
+                text = "5,000원",
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
                 fontWeight = FontWeight.Medium,
@@ -149,23 +128,3 @@ fun HistoryItem(
         }
     }
 }
-
-
-data class HistoryData(
-    val imageResId: Int,
-    val title: String,
-    val leaderId: String,
-    val meetingTime: String,
-    val meetingPlace: String,
-    val meetingPay: String
-)
-
-val historyTempList = listOf(
-    HistoryData(R.drawable.book1, "독서모임1", "사용자1", "2023.10.17 PM 3:00", "광주광역시 광산구 수완동", "5,000원"),
-    HistoryData(R.drawable.book2, "독서모임2", "사용자2", "2023.10.17 PM 4:00", "광주광역시 광산구 수완동", "5,000원"),
-    HistoryData(R.drawable.book5, "독서모임3", "사용자3", "2023.10.17 PM 5:00", "광주광역시 광산구 수완동", "5,000원"),
-    HistoryData(R.drawable.book4, "독서모임4", "사용자4", "2023.10.17 PM 6:00", "광주광역시 광산구 수완동", "5,000원"),
-    HistoryData(R.drawable.book5, "독서모임5", "사용자5", "2023.10.17 PM 7:00", "광주광역시 광산구 수완동", "5,000원"),
-    HistoryData(R.drawable.book1, "독서모임6", "사용자6", "2023.10.17 PM 8:00", "광주광역시 광산구 수완동", "5,000원"),
-    HistoryData(R.drawable.book7, "독서모임7", "사용자7", "2023.10.17 PM 9:00", "광주광역시 광산구 수완동", "5,000원")
-)

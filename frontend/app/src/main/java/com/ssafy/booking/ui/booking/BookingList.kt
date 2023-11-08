@@ -33,11 +33,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import com.ssafy.booking.R
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Search
@@ -52,25 +49,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.navigation.compose.rememberNavController
-import com.ssafy.booking.ui.AppNavItem
-import com.ssafy.booking.ui.common.TopBar
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.graphics.Color.Companion.White
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.BaselineShift
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ssafy.booking.viewmodel.BookingViewModel
 import com.ssafy.data.repository.token.TokenDataSource
-
+import com.ssafy.domain.model.DeviceToken
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -84,20 +74,25 @@ fun Main(
     val bookingDetailState = bookingViewModel.getBookingDetail.observeAsState()
     val participantsState = bookingViewModel.getParticipants.observeAsState()
     val waitingListState = bookingViewModel.getWaitingList.observeAsState()
+
+    val context = LocalContext.current
+    val tokenDataSource = TokenDataSource(context)
+    val deviceToken : String? = tokenDataSource.getDeviceToken()
+
     val userInfoState = bookingViewModel.getUserInfoResponse.observeAsState()
-    var context = LocalContext.current
     // LaunchedEffect를 사용하여 한 번만 API 호출
     LaunchedEffect(Unit) {
+        bookingViewModel.postDeivceToken(DeviceToken(deviceToken))
 
         // 메인 화면 가자마자 userInfo 조회
-        val tokenDataSource = TokenDataSource(context)
-        bookingViewModel.getUserInfo(tokenDataSource.getLoginId()!!)
-
-        userInfoState?.let {
-            tokenDataSource.putNickName(it.value!!.body()!!.nickname)
-            tokenDataSource.putProfileImage(it.value!!.body()!!.profileImage)
-
-        }
+//        val tokenDataSource = TokenDataSource(context)
+//        bookingViewModel.getUserInfo(tokenDataSource.getLoginId()!!)
+//
+//        userInfoState?.let {
+//            tokenDataSource.putNickName(it.value!!.body()!!.nickname)
+//            tokenDataSource.putProfileImage(it.value!!.body()!!.profileImage)
+//
+//        }
 
 
 
@@ -325,8 +320,6 @@ val bookItemsList = listOf(
     Book(R.drawable.book2, "인간실격", "데미안에 대해 읽고 같이 토론하실 분","하남동",4,6),
     Book(R.drawable.book4, "나미야 잡화점의 기적", "데미안에 대해 읽고 같이 토론하실 분","하남동",3,6),
     Book(R.drawable.book5, "데미안", "데미안에 대해 읽고 같이 토론하실 분","하남동",6,6),
-
-
 )
 
 

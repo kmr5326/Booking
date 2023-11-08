@@ -22,6 +22,22 @@
           }
         },
         {
+          "client_id": "159905672958-eq49qa70mprr2vt1bbpav5dbh2ni24jb.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ssafy.booking",
+            "certificate_hash": "d9bf0ad271fa90cf72e87c090de1b1472eb91703"
+          }
+        },
+        {
+          "client_id": "159905672958-udjjg5penp5rbq86a5nh3cvlj3nts35r.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ssafy.booking",
+            "certificate_hash": "10c6e6add5c40bf4ec0462b85c1237adf784ec94"
+          }
+        },
+        {
           "client_id": "159905672958-ibnf6ml28nh3s7ntteoeafj2m516lrl2.apps.googleusercontent.com",
           "client_type": 3
         }
