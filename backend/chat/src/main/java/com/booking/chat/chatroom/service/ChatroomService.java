@@ -73,4 +73,9 @@ public class ChatroomService {
     public Mono<Chatroom> save(Chatroom chatroom) {
         return chatroomRepository.save(chatroom);
     }
+
+    public Mono<String> getChatroomMeetingTitle(Long chatroomId) {
+        return chatroomRepository.findById(chatroomId)
+                                 .map(Chatroom::getMeetingTitle);
+    }
 }
