@@ -1,0 +1,49 @@
+package com.booking.booking.stt.domain;
+
+import com.booking.booking.stt.dto.SttResponseDto;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
+
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
+@Document(collection = "transcriptions")
+public class Transcription {
+
+    @Id
+    private String id;
+
+    @Field("segments")
+    private List<Segment> segments;
+
+    @Field("text")
+    private String text;
+
+    @Field("speakers")
+    private List<Speaker> speakers;
+
+    @Field("created_at")
+    @CreatedDate
+    private LocalDateTime createdAt;
+
+    @Field("filename")
+    private String fileName;
+
+    public static Transcription of(SttResponseDto dto,String fileName) {
+        Transcription transcription = new Transcription();
+        transcription.segments=dto.getSegments();
+        transcription.speakers=dto.getSpeakers();
+//        transcription.text=dto.getText();
+        transcription.text = dto.getSegments().stream()
+                .map(Segment::getText)
+                .filter(Objects::nonNull) // null이 아닌 text 필드만 필터링
+                .collect(Collectors.joining("\n"));
+        transcription.fileName=fileName;
+        return transcription;
+    }
+}

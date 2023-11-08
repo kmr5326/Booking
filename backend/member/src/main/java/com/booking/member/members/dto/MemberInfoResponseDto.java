@@ -13,7 +13,8 @@ public record MemberInfoResponseDto(
         Double lgt,
         String profileImage,
         String provider,
-        Integer memberPk
+        Integer memberPk,
+        Integer point
 ) {
     public static MemberInfoResponseDto of(Member member){
         MemberInfoResponseDto memberInfoResponseDto = new MemberInfoResponseDto(
@@ -27,7 +28,8 @@ public record MemberInfoResponseDto(
                 member.getLgt() == null ? -1 : member.getLgt(),
                 member.getProfileImage(),
                 member.getProvider(),
-                member.getId()
+                member.getId(),
+                member.getPoint()
         );
         return memberInfoResponseDto;
     }
