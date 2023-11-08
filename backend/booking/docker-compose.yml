@@ -44,8 +44,8 @@ services:
     command:
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_unicode_ci
-    expose:
-    - "3306"
+    ports:
+      - '3370:3306'
 
   booking_booking_server:
     restart: on-failure
