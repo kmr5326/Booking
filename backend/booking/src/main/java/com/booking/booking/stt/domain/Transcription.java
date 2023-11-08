@@ -2,11 +2,11 @@ package com.booking.booking.stt.domain;
 
 import com.booking.booking.stt.dto.SttResponseDto;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-import javax.persistence.Id;
-import javax.persistence.PrePersist;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
