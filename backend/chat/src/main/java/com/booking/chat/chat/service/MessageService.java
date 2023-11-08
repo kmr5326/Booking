@@ -64,14 +64,22 @@ public class MessageService {
     }
     public Mono<Void> save(KafkaMessage message, Long chatroomId) {
 
-        Message saveMessage = Message.builder()
-                                     .chatroomId(chatroomId)
-                                     .memberId(message.getSenderId()) // sender가 member_id라고 가정
-                                     .content(message.getMessage())
-                                     .build();
+        return chatroomService.findByChatroomId(chatroomId)
+                              .flatMap(chatroom -> {
+                                  Long idx = chatroom.getMessageIndex();
+                                  Message saveMessage = Message.builder()
+                                                               .chatroomId(chatroomId)
+                                                               .messageId(idx)
+                                                               .memberId(message.getSenderId())
+                                                               .content(message.getMessage())
+                                                               .build();
+                                  chatroom.updateIndex();
 
-
-        return messageRepository.save(saveMessage).then();
+                                  return Mono.zip(
+                                      chatroomService.save(chatroom),
+                                      messageRepository.save(saveMessage)
+                                  ).then();
+                              }).then();
     }
 
     public Flux<Message> findAllByRoomId(Long roomId) {

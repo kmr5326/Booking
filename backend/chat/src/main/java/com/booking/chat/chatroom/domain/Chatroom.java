@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Getter
@@ -18,6 +19,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @AllArgsConstructor
 @Document(collection = "chatroom")
 public class Chatroom {
+
+    @Transient
+    public Long messageIndex = 1L;
 
     @Id
     private Long _id;
@@ -46,6 +50,10 @@ public class Chatroom {
                        .meetingTitle(initChatroomRequest.meetingTitle())
                        .lastMessageReceivedTime(LocalDateTime.now())
                        .build();
+    }
+
+    public void updateIndex() {
+        this.messageIndex++;
     }
 
     public void updateListMessageReceived() {

@@ -8,7 +8,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Getter
@@ -18,13 +17,12 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection = "chats")
 public class Message {
 
-    @Transient
-    public static final String SEQUENCE_NAME = "message_sequence";
-
     @Id
-    private Long _id;
+    private String _id;
 
     private Long chatroomId;
+
+    private Long messageId;
 
     private Long memberId;
 
@@ -34,8 +32,6 @@ public class Message {
     private LocalDateTime timestamp;
 
 
-    public void setAutoIncrementId(Long id) {
-        this._id = id;
-    }
+    public void setAutoIncrementId() {}
 
 }

@@ -19,7 +19,7 @@ public class MessageIncrementListener extends AbstractMongoEventListener<Message
 
     @Override
     public void onBeforeConvert(BeforeConvertEvent<Message> event) {
-        event.getSource().setAutoIncrementId(sequenceGeneratorService.generateSequence(Message.SEQUENCE_NAME));
+
     }
 
     @Override
