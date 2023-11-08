@@ -93,9 +93,12 @@ public class NotificationService {
                                                                                             .build();
 
                                                     Message message = Message.builder()
+                                                                             .putAllData(notificationResponse.data())
                                                                              .setNotification(notification)
                                                                              .setToken(info.getDeviceToken())
                                                                              .build();
+
+
 
                                                     return send(message).then();
                                                 })

@@ -6,6 +6,8 @@ import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,4 +28,16 @@ public class KafkaMessage implements Serializable {
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime sendTime;
     private String senderName;
+
+    public Map<String, String> extractData() {
+        Map<String, String> data = new HashMap<>();
+
+        data.put("message", this.message);
+        data.put("senderId", String.valueOf(this.senderId));
+        data.put("sendTime", String.valueOf(this.sendTime));
+        data.put("senderName", senderName);
+
+        return data;
+
+    }
 }

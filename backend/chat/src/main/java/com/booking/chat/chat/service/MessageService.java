@@ -7,8 +7,6 @@ import com.booking.chat.chatroom.service.ChatroomService;
 import com.booking.chat.kafka.domain.KafkaMessage;
 import com.booking.chat.notification.dto.response.NotificationResponse;
 import com.booking.chat.notification.service.NotificationService;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,22 +37,15 @@ public class MessageService {
     private void proceedMessageSendProcess(KafkaMessage kafkaMessage, Long chatroomId) {
         chatroomService.findByChatroomId(chatroomId)
                        .flatMapMany(chatroom -> {
-                           ObjectMapper objectMapper = new ObjectMapper();
                            String meetingTitle = chatroom.getMeetingTitle();
-                           String message = null;
-                           try {
-                               message = objectMapper.writeValueAsString(kafkaMessage);
-                           } catch (JsonProcessingException e) {
-                               throw new RuntimeException(e);
-                           }
+                           String message = kafkaMessage.getMessage();
                            String memberName = kafkaMessage.getSenderName();
                            List<Long> notificationList = new ArrayList<>(chatroom.getMemberList());
                            notificationList.remove(kafkaMessage.getSenderId());
 
-                           String kafkaBody = message;
                            // flux로 stream list 만들기
                            return Flux.fromIterable(notificationList)
-                                      .flatMap(memberId -> notificationService.sendChattingNotification(new NotificationResponse(meetingTitle, kafkaBody, memberName ,memberId)), 5)
+                                      .flatMap(memberId -> notificationService.sendChattingNotification(new NotificationResponse(meetingTitle, message, memberName ,memberId, kafkaMessage.extractData())), 5)
                                       .thenMany(Flux.just(chatroom)); // flux로 이어가기
                        })
                        .then() // On completion of all notifications, continue to send the message to Kafka
