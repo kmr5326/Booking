@@ -1,15 +1,15 @@
 package com.booking.booking.participant.service;
 
-import com.booking.booking.global.exception.ErrorCode;
+import com.booking.booking.global.utils.MemberUtil;
 import com.booking.booking.meeting.domain.Meeting;
-import com.booking.booking.meeting.exception.MeetingException;
 import com.booking.booking.participant.domain.Participant;
+import com.booking.booking.participant.dto.response.ParticipantResponse;
 import com.booking.booking.participant.repository.ParticipantRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -17,41 +17,61 @@ import reactor.core.scheduler.Schedulers;
 public class ParticipantService {
     private final ParticipantRepository participantRepository;
 
-    public Mono<Void> addParticipant(Meeting meeting) {
-        return Mono
-                .fromCallable(() -> buildParticipant(meeting))
-                        .flatMap(participant -> Mono.fromRunnable(() -> participantRepository.save(participant))
-                            .subscribeOn(Schedulers.boundedElastic())
-                            .then()
-                        )
+    public Mono<Integer> countAllByMeetingId(Long meetingId) {
+        return participantRepository.countAllByMeetingId(meetingId);
+    }
+
+    public Mono<Void> addParticipant(Meeting meeting, Integer memberId) {
+        log.info("Booking Server Participant - addParticipant({}, {})", meeting, memberId);
+        
+        // TODO status 확인 - preparing 상태일 때만 추가 가능
+        return participantRepository.countAllByMeetingId(meeting.getMeetingId())
+                .flatMap(count -> {
+                    if (count >= meeting.getMaxParticipants()) {
+                        return Mono.error(new RuntimeException("풀방"));
+                    }
+                    return participantRepository.save(
+                            Participant.builder()
+                                    .memberId(memberId).meetingId(meeting.getMeetingId())
+                                    .attendanceStatus(false).paymentStatus(false)
+                                    .build());
+                })
+                .then()
                 .doOnError(error -> {
                     log.error("Error during addParticipant : {}", error.toString());
-                    throw new MeetingException(ErrorCode.ADD_PARTICIPANT_FAILURE);
+                    throw new RuntimeException("참가자 추가 실패");
                 });
     }
 
-    private Participant buildParticipant(Meeting meeting) {
-        return Participant.builder()
-                .meeting(meeting)
-                .memberId(meeting.getLeaderId())
-                .attendanceStatus(false)
-                .paymentStatus(false)
-                .build();
+    public Flux<ParticipantResponse> findAllByMeetingId(Long meetingId) {
+        log.info("Booking Server Participant - findAllByMeetingId({})", meetingId);
+
+        return participantRepository.findAllByMeetingId(meetingId)
+                .flatMap(participant -> MemberUtil.getMemberInfoByPk(participant.getMemberId())
+                        .flatMap(member -> Mono.just(new ParticipantResponse(member, participant))))
+                .onErrorResume(error -> {
+                    log.error("Error during findAllByMeetingId : {}", error.toString());
+                    return Flux.error(new RuntimeException("참가자 목록 조회 실패"));
+                });
     }
 
-//    public Flux<Participant> findAllMemberByMeeting(Meeting meeting) {
-//        return Mono
-//                .fromCallable(() -> participantRepository.findAllByMeeting(meeting))
-//                .subscribeOn(Schedulers.boundedElastic())
-//                .flatMapMany(Flux::fromIterable);
+    public Mono<Boolean> existsByMeetingIdAndMemberId(Long meetingId, Integer memberId) {
+        log.info("Booking Server Participant - existsByMeetingIdAndMemberId({}, {})", meetingId, memberId);
+
+        return participantRepository.existsByMeetingIdAndMemberId(meetingId, memberId);
+    }
+
+    //    public Flux<ParticipantResponse> findAllByMeetingId(Long meetingId) {
+//        log.info("Booking Server Participant - findAllByMeetingId({})", meetingId);
+//
+//        return Mono.fromCallable(() -> participantRepository.findAllByMeetingMeetingId(meetingId))
+//                .flatMapMany(Flux::fromIterable)
+//                .flatMap(participant -> MemberUtil.getMemberInfoByPk(participant.getMemberId())
+//                        .flatMap(memberInfo -> Mono.just(new ParticipantResponse(memberInfo, participant))))
+//                .onErrorResume(error -> {
+//                    log.error("Booking Server Participant - Error during findAllByMeetingId : {}", error.getMessage());
+//                    return Flux.error(new RuntimeException("참가자 목록 조회 실패"));
+//                })
+//                .subscribeOn(Schedulers.boundedElastic());
 //    }
-
-    public Mono<Boolean> existsParticipantByMeetingAndMemberId(Meeting meeting, String memberId) {
-        log.info("existsParticipantByMeetingAndMemberId inside");
-        return Mono
-                .fromCallable(() -> participantRepository.existsParticipantByMeetingAndMemberId(meeting, memberId))
-                .subscribeOn(Schedulers.boundedElastic());
-    }
-
-
 }
