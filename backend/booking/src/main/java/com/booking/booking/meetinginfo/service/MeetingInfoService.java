@@ -19,6 +19,8 @@ public class MeetingInfoService {
     public Mono<Void> createMeetingInfo(String userEmail, MeetingInfoRequest meetingInfoRequest) {
         log.info("Booking Server MeetingInfo - createMeetingDetail({}, {})", userEmail, meetingInfoRequest);
 
+        // TODO 여러 개 만들면 안 되는데
+
         // TODO 방장 맞는지 확인, 미팅 있는지 확인
 //        return meetingService.findByMeetingId(meetingInfoRequest.meetingId())
 //                .flatMap(meetingResponse -> meetingInfoRepository.save(meetingInfoRequest.toEntity()))
