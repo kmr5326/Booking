@@ -10,5 +10,4 @@ public interface ChatroomRepository extends ReactiveMongoRepository<Chatroom, Lo
 
    Flux<Chatroom> findByMemberListContainsOrderByLastMessageReceivedTimeDesc(Long memberId);
 
-
 }
