@@ -39,7 +39,6 @@ public class SttResponseDto {
         private int priority;
         private UserData userdata;
 
-        // Standard getters and setters
     }
 
     @Data
@@ -48,7 +47,6 @@ public class SttResponseDto {
         private int speakerCountMin;
         private int speakerCountMax;
 
-        // Standard getters and setters
     }
 
     @Data
@@ -65,7 +63,6 @@ public class SttResponseDto {
         @JsonProperty("_ncp_TraceId")
         private String ncpTraceId;
 
-        // Standard getters and setters
     }
 
 //    @Data

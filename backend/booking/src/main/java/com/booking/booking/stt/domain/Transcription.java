@@ -31,7 +31,10 @@ public class Transcription {
     @CreatedDate
     private LocalDateTime createdAt;
 
-    public static Transcription of(SttResponseDto dto) {
+    @Field("filename")
+    private String fileName;
+
+    public static Transcription of(SttResponseDto dto,String fileName) {
         Transcription transcription = new Transcription();
         transcription.segments=dto.getSegments();
         transcription.speakers=dto.getSpeakers();
@@ -40,6 +43,7 @@ public class Transcription {
                 .map(Segment::getText)
                 .filter(Objects::nonNull) // null이 아닌 text 필드만 필터링
                 .collect(Collectors.joining("\n"));
+        transcription.fileName=fileName;
         return transcription;
     }
 }
