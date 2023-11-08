@@ -68,10 +68,7 @@ public class MessageService {
         return chatroomService.findByChatroomId(chatroomId)
                               .flatMap(chatroom -> {
                                   Long idx = chatroom.getMessageIndex();
-                                  log.info("now idx = {}", idx);
                                   chatroom.updateIndex();
-                                  idx = chatroom.getMessageIndex();
-                                  log.info("then idx = {} ", idx);
                                   return chatroomService.save(chatroom)
                                                         .then(Mono.just(Message.builder()
                                                                                .chatroomId(chatroomId)

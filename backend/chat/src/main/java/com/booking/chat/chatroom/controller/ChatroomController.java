@@ -1,5 +1,6 @@
 package com.booking.chat.chatroom.controller;
 
+import com.booking.chat.chat.domain.Message;
 import com.booking.chat.chatroom.dto.request.ExitChatroomRequest;
 import com.booking.chat.chatroom.dto.request.InitChatroomRequest;
 import com.booking.chat.chatroom.dto.request.JoinChatroomRequest;
@@ -11,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -71,6 +73,13 @@ public class ChatroomController {
         Long memberId = JwtUtil.getMemberIdByToken(token);
         log.info(" {} member request chatroomList ", memberId);
         return chatroomService.getChatroomListByMemberIdOrderByDesc(memberId);
+    }
+
+    @GetMapping("/{chatroomId}")
+    public Flux<Message> enterChatroom(@PathVariable Long chatroomId, @RequestHeader(AUTHORIZATION) String token){
+        Long memberId = JwtUtil.getMemberIdByToken(token);
+
+        return Flux.just();
     }
 
 
