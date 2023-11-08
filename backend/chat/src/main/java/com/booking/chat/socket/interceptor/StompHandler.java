@@ -1,8 +1,11 @@
 package com.booking.chat.socket.interceptor;
 
 import com.booking.chat.global.jwt.JwtUtil;
+import java.util.List;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.stomp.StompCommand;
@@ -15,16 +18,37 @@ import org.springframework.stereotype.Component;
 @Component
 public class StompHandler implements ChannelInterceptor {
 
+    private final RedisTemplate<String, List<Long>> redisTemplate;
+
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
 
         if(accessor.getCommand() == StompCommand.CONNECT) {
             String token = accessor.getFirstNativeHeader("Authorization");
+            Long chatroomId = Long.valueOf(Objects.requireNonNull(accessor.getFirstNativeHeader("chatroomId")));
             Long memberId = JwtUtil.getMemberIdByToken(token);
 
+            String chatroomKey = "chatroom-%d".formatted(chatroomId);
+
+            if(Boolean.FALSE.equals(redisTemplate.hasKey(chatroomKey))) {
+                storeMemberStatusWithCreateKey(chatroomKey, memberId);
+            }else {
+                storeMemberStatus(chatroomKey, memberId);
+            }
         }
 
         return message;
+    }
+
+    private void storeMemberStatusWithCreateKey(String chatroomKey, Long memberId) {
+        List<Long> memberList = List.of(memberId);
+        redisTemplate.opsForValue().set(chatroomKey, memberList);
+    }
+
+    private void storeMemberStatus(String chatroomKey, Long memberId) {
+        List<Long> memberList = redisTemplate.opsForValue().get(chatroomKey);
+        memberList.add(memberId);
+        redisTemplate.opsForValue().set(chatroomKey, memberList);
     }
 }

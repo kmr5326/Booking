@@ -30,8 +30,8 @@ public class ReactiveRedisConfiguration {
     }
 
     @Bean
-    public RedisTemplate<String, List<Integer>> redisTemplate() {
-        RedisTemplate<String, List<Integer>> redisTemplate = new RedisTemplate<>();
+    public RedisTemplate<String, List<Long>> redisTemplate() {
+        RedisTemplate<String, List<Long>> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(redisConnectionFactory());
         redisTemplate.setKeySerializer(new StringRedisSerializer());
         redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer<>(List.class));
