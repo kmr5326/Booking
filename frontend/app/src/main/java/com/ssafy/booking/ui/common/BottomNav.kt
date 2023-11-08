@@ -25,8 +25,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.colorResource
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.ssafy.booking.R
 import com.ssafy.booking.ui.AppNavItem
 import com.ssafy.booking.viewmodel.AppViewModel
 
@@ -57,8 +59,8 @@ fun BottomNav(
     )
     // 선택된 아이템과 선택되지 않은 아이템의 색상을 정의
     val selectedColor = Color(0xFF00C68E)
-    val unselectedColor = Color.DarkGray
-    NavigationBar(containerColor = Color.White) {
+    val unselectedColor = colorResource(id = R.color.font_color)
+    NavigationBar(containerColor = colorResource(id = R.color.background_color)) {
         items.forEach { item ->
             NavigationBarItem(
                 icon = {
@@ -105,7 +107,7 @@ fun BottomNav(
                     }
                 },
                 colors = NavigationBarItemDefaults.colors(
-                    indicatorColor = Color.White, // 인디케이터 색상을 투명하게 설정합니다.
+                    indicatorColor = colorResource(id = R.color.second_background_color), // 인디케이터 색상을 투명하게 설정합니다.
                     selectedIconColor = selectedColor,
                     unselectedIconColor = unselectedColor,
                     selectedTextColor = selectedColor,
