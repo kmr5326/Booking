@@ -30,6 +30,7 @@ public class MessageService {
 
     public void processAndSend(KafkaMessage kafkaMessage, Long chatroomId) {
         save(kafkaMessage, chatroomId)
+            .retry(3L)
             .then(Mono.fromRunnable(() -> proceedMessageSendProcess(kafkaMessage, chatroomId)))
             .subscribe();
     }
@@ -62,24 +63,25 @@ public class MessageService {
         // test
         // notificationService.sendChattingNotification(kafkaMessage.getSenderId()).subscribe();
     }
-    public Mono<Void> save(KafkaMessage message, Long chatroomId) {
 
+    public Mono<Void> save(KafkaMessage message, Long chatroomId) {
         return chatroomService.findByChatroomId(chatroomId)
                               .flatMap(chatroom -> {
                                   Long idx = chatroom.getMessageIndex();
-                                  Message saveMessage = Message.builder()
-                                                               .chatroomId(chatroomId)
-                                                               .messageId(idx)
-                                                               .memberId(message.getSenderId())
-                                                               .content(message.getMessage())
-                                                               .build();
+                                  log.info("now idx = {}", idx);
                                   chatroom.updateIndex();
-
-                                  return Mono.zip(
-                                      chatroomService.save(chatroom),
-                                      messageRepository.save(saveMessage)
-                                  ).then();
-                              }).then();
+                                  idx = chatroom.getMessageIndex();
+                                  log.info("then idx = {} ", idx);
+                                  return chatroomService.save(chatroom)
+                                                        .then(Mono.just(Message.builder()
+                                                                               .chatroomId(chatroomId)
+                                                                               .messageId(idx)
+                                                                               .memberId(message.getSenderId())
+                                                                               .content(message.getMessage())
+                                                                               .build()))
+                                                        .flatMap(messageRepository::save);
+                              })
+                              .then();
     }
 
     public Flux<Message> findAllByRoomId(Long roomId) {

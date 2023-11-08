@@ -10,7 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.Transient;
+import org.springframework.data.annotation.Version;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Getter
@@ -20,8 +20,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection = "chatroom")
 public class Chatroom {
 
-    @Transient
-    public Long messageIndex = 1L;
+    private Long messageIndex = 1L;
 
     @Id
     private Long _id;
@@ -39,8 +38,8 @@ public class Chatroom {
 
     private LocalDateTime lastMessageReceivedTime;
 
-    //TODO : lastMessage를 보여주면 좋을 듯 / 이벤트리스너 & 테일러블
-
+    @Version // optimistic lock
+    private Long version;
 
     public static Chatroom createWithLeader(InitChatroomRequest initChatroomRequest) {
         return Chatroom.builder()
