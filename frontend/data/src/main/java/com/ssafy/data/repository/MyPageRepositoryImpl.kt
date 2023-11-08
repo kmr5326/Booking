@@ -2,7 +2,6 @@ package com.ssafy.data.repository
 
 import com.ssafy.data.remote.api.MyPageApi
 import com.ssafy.domain.model.mypage.AddressnModifyRequest
-import com.ssafy.domain.model.mypage.UserDeleteRequest
 import com.ssafy.domain.model.mypage.UserFollowersResponse
 import com.ssafy.domain.model.mypage.UserFollowingsResponse
 import com.ssafy.domain.model.mypage.UserInfoResponse
@@ -25,8 +24,8 @@ class MyPageRepositoryImpl @Inject constructor(
     override suspend fun patchUserAddress(request: AddressnModifyRequest) : Response<Unit> {
         return myPageApi.patchUserAddress(request)
     }
-    override suspend fun deleteUser(request: UserDeleteRequest) : Response<Unit> {
-        return myPageApi.deleteUser(request)
+    override suspend fun deleteUser(loginId: String) : Response<Unit> {
+        return myPageApi.deleteUser(loginId)
     }
     override suspend fun getUserFollowers(nickname : String) : Response<UserFollowersResponse> {
         return myPageApi.getUserFollowers(nickname)

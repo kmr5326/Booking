@@ -13,4 +13,5 @@
     <color name="booking_2">#FF0dc9ba</color>
     <color name="background_color">#FFFAFAFA</color>
     <color name="font_color">#FF000000</color>
+    <color name="second_background_color">#FFFAFAFA</color>
 </resources>

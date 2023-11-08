@@ -1,7 +1,6 @@
 package com.ssafy.domain.usecase
 
 import com.ssafy.domain.model.mypage.AddressnModifyRequest
-import com.ssafy.domain.model.mypage.UserDeleteRequest
 import com.ssafy.domain.model.mypage.UserFollowersResponse
 import com.ssafy.domain.model.mypage.UserFollowingsResponse
 import com.ssafy.domain.model.mypage.UserInfoResponse
@@ -28,8 +27,8 @@ class MyPageUseCase @Inject constructor(
     suspend fun patchUserAddress(request: AddressnModifyRequest) : Response<Unit> {
         return repository.patchUserAddress(request)
     }
-    suspend fun deleteUser(request: UserDeleteRequest) : Response<Unit> {
-        return repository.deleteUser(request)
+    suspend fun deleteUser(loginId: String) : Response<Unit> {
+        return repository.deleteUser(loginId)
     }
     suspend fun getUserFollowers(nickname: String) : Response<UserFollowersResponse> {
         return repository.getUserFollowers(nickname)

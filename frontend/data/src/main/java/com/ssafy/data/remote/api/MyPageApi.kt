@@ -1,7 +1,6 @@
 package com.ssafy.data.remote.api
 
 import com.ssafy.domain.model.mypage.AddressnModifyRequest
-import com.ssafy.domain.model.mypage.UserDeleteRequest
 import com.ssafy.domain.model.mypage.UserFollowersResponse
 import com.ssafy.domain.model.mypage.UserFollowingsResponse
 import com.ssafy.domain.model.mypage.UserInfoResponse
@@ -29,8 +28,8 @@ interface MyPageApi {
     @PATCH("/api/members/location")
     suspend fun patchUserAddress(@Body request: AddressnModifyRequest) : Response<Unit>
     @Headers("Content-Type: application/json;charset=UTF-8")
-    @DELETE("/api/members/deletion")
-    suspend fun deleteUser(@Body request: UserDeleteRequest) : Response<Unit>
+    @DELETE("/api/members/deletion/{loginId}")
+    suspend fun deleteUser(@Path("loginId") loginId: String) : Response<Unit>
     @Headers("Content-Type: application/json;charset=UTF-8")
     @GET("/api/follows/followers/{nickname}")
     suspend fun getUserFollowers(@Path("nickname") nickname: String) : Response<UserFollowersResponse>
