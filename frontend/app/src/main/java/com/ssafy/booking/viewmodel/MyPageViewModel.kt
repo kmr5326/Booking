@@ -2,6 +2,7 @@ package com.ssafy.booking.viewmodel
 
 import android.util.Log
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -9,7 +10,6 @@ import com.ssafy.booking.model.UserInfoChangeResult
 import com.ssafy.booking.model.UserProfileState
 import com.ssafy.booking.ui.profile.ProfileData
 import com.ssafy.domain.model.mypage.AddressnModifyRequest
-import com.ssafy.domain.model.mypage.UserDeleteRequest
 import com.ssafy.domain.model.mypage.UserFollowersResponse
 import com.ssafy.domain.model.mypage.UserFollowingsResponse
 import com.ssafy.domain.model.mypage.UserInfoResponse
@@ -82,9 +82,9 @@ class MyPageViewModel @Inject constructor(
     private val _postUserDeleteResponse = MutableLiveData<Response<Unit>>()
     val postUserDeleteResponse: LiveData<Response<Unit>> get() = _postUserDeleteResponse
 
-    fun postUserDelete(request: UserDeleteRequest) =
+    fun postUserDelete(loginId: String) =
         viewModelScope.launch {
-            _postUserDeleteResponse.value = myPageUseCase.deleteUser(request)
+            _postUserDeleteResponse.value = myPageUseCase.deleteUser(loginId)
         }
 
     // GET - 팔로워 수 요청 로직
@@ -175,6 +175,27 @@ class MyPageViewModel @Inject constructor(
             }
         } catch (e: Exception) {
             _profileState.value = UserProfileState.Error(e.message ?: "Unknown error occurred")
+        }
+    }
+
+    val combinedUserFollowData = MediatorLiveData<Pair<UserFollowersResponse?, UserFollowingsResponse?>>().apply {
+        var followersResponse: UserFollowersResponse? = null
+        var followingsResponse: UserFollowingsResponse? = null
+
+        fun update() {
+            if (followersResponse != null && followingsResponse != null) {
+                this.value = Pair(followersResponse, followingsResponse)
+            }
+        }
+
+        addSource(getUserFollowersResponse) { response ->
+            followersResponse = response.body()
+            update()
+        }
+
+        addSource(getUserFollowingsResponse) { response ->
+            followingsResponse = response.body()
+            update()
         }
     }
 }

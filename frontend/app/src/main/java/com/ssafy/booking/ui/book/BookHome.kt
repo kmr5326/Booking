@@ -130,7 +130,7 @@ fun BookHome(
                         isFirstChange = false
                     }
                 },
-                placeholder = { Text("찾는 도서가 있나요?", fontSize = 11.sp, color = Color.Gray) },
+                placeholder = { Text("찾는 도서가 있나요?", fontSize = 14.sp, color = Color.Gray) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
@@ -141,7 +141,7 @@ fun BookHome(
                 colors = TextFieldDefaults.outlinedTextFieldColors(
                     focusedBorderColor = Color(0xFF12BD7E)
                 ),
-                textStyle = TextStyle(color = Color.Gray, fontSize = 11.sp, baselineShift = BaselineShift.None),
+                textStyle = TextStyle(color = Color.Gray, fontSize = 14.sp, baselineShift = BaselineShift.None),
                 leadingIcon = { Icon(Icons.Outlined.Search, contentDescription = null, tint = Color(0xFF12BD7E)) },
                 trailingIcon = {
                     IconButton(onClick = {

@@ -10,7 +10,3 @@ data class AddressnModifyRequest (
 //    val loginId :String,
     val address : String
 )
-
-data class UserDeleteRequest (
-    val loginId : String
-)

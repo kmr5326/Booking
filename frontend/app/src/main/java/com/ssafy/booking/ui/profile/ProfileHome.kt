@@ -203,7 +203,12 @@ fun ProfileView(
 
 @Composable
 fun LoadingView() {
-    Text("로딩중...")
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text("로딩중...")
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
