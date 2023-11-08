@@ -26,7 +26,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class BookingViewModel @Inject constructor(
-    private val bookingUseCase: BookingUseCase
+    private val bookingUseCase: BookingUseCase,
+    private val myPageUseCase: MyPageUseCase
 ) : ViewModel() {
     private val _postCreateBookingResponse = MutableLiveData<Response<Unit>>()
     val postCreateBookingResponse: LiveData<Response<Unit>> get() = _postCreateBookingResponse
@@ -66,6 +67,15 @@ class BookingViewModel @Inject constructor(
     fun getWaitingList(meetingId: Long) =
         viewModelScope.launch {
             _getWaitingListResponse.value = bookingUseCase.getWaitingList(meetingId)
+        }
+
+    // GET - 유저 정보 요청 로직
+    private val _getUserInfoResponse = MutableLiveData<Response<UserInfoResponse>>()
+    val getUserInfoResponse: LiveData<Response<UserInfoResponse>> get() = _getUserInfoResponse
+
+    fun getUserInfo(loginId: String) =
+        viewModelScope.launch {
+            _getUserInfoResponse.value = myPageUseCase.getUserInfo(loginId)
         }
 }
 

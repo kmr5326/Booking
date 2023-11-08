@@ -134,6 +134,7 @@ private fun onLoginSuccess(context: Context, loginId: String, navController: Nav
                 tokenDataSource.putLoginId(loginId)
                 val asdf = tokenDataSource.getLoginId()
                 Log.d("asdf", "로그인 아이디: $asdf")
+
                 navController.navigate(AppNavItem.Main.route) {
                     popUpTo("login") { inclusive = true }
                     launchSingleTop = true

@@ -64,10 +64,12 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.BaselineShift
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ssafy.booking.viewmodel.BookingViewModel
+import com.ssafy.data.repository.token.TokenDataSource
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -82,14 +84,28 @@ fun Main(
     val bookingDetailState = bookingViewModel.getBookingDetail.observeAsState()
     val participantsState = bookingViewModel.getParticipants.observeAsState()
     val waitingListState = bookingViewModel.getWaitingList.observeAsState()
-
+    val userInfoState = bookingViewModel.getUserInfoResponse.observeAsState()
+    var context = LocalContext.current
     // LaunchedEffect를 사용하여 한 번만 API 호출
     LaunchedEffect(Unit) {
+
+        // 메인 화면 가자마자 userInfo 조회
+        val tokenDataSource = TokenDataSource(context)
+        bookingViewModel.getUserInfo(tokenDataSource.getLoginId()!!)
+
+        userInfoState?.let {
+            tokenDataSource.putNickName(it.value!!.body()!!.nickname)
+            tokenDataSource.putProfileImage(it.value!!.body()!!.profileImage)
+
+        }
+
+
+
+        //////////////////// 지헌 테스트 코드 //////////////////////////////
         bookingViewModel.getBookingAllList()
         bookingViewModel.getBookingDetail(1) // 실제 meetingId로 교체 필요
         bookingViewModel.getParticipants(1) // 실제 meetingId로 교체 필요
         bookingViewModel.getWaitingList(1) // 실제 meetingId로 교체 필요
-//
         bookingAllListState.value?.let { response ->
             Log.d("API CALL", "Booking All List: ${response.isSuccessful}")
         }
@@ -104,8 +120,7 @@ fun Main(
         }
 
     }
-
-    ////////////////////////// 위쪽 : 지헌 TEST 코드 작성 //////////////////////////
+    //////////////////////////////////////////////////////////////////////////////
 
     Scaffold (
         topBar = {
