@@ -46,7 +46,7 @@ public class MessageService {
 
                            // flux로 stream list 만들기
                            return Flux.fromIterable(notificationList)
-                                      .flatMap(memberId -> notificationService.sendChattingNotification(new NotificationResponse(meetingTitle, message, memberName ,memberId)))
+                                      .flatMap(memberId -> notificationService.sendChattingNotification(new NotificationResponse(meetingTitle, message, memberName ,memberId)), 5)
                                       .thenMany(Flux.just(chatroom)); // flux로 이어가기
                        })
                        .then() // On completion of all notifications, continue to send the message to Kafka
