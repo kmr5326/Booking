@@ -1,5 +1,7 @@
 package com.ssafy.booking.ui.history
 
+import android.media.MediaPlayer
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -35,7 +37,8 @@ import com.ssafy.booking.viewmodel.AppViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HistoryDetail(
-    navController: NavController, appViewModel: AppViewModel
+    navController: NavController,
+    appViewModel: AppViewModel
 ) {
     Scaffold(topBar = {
         TopBar("독서모임1")
@@ -46,12 +49,14 @@ fun HistoryDetail(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .fillMaxHeight()
                 .padding(paddingValues)
         ) {
             Column {
                 HistoryItem()
-                VoiceRecordController()
+//                녹음파일 있으면
+//                VoiceRecordController()
+//                녹음파일 없으면
+//                UploadVoiceRecord()
                 HorizontalDivider()
                 val tempPk = 1
                 TabBar(

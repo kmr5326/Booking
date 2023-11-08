@@ -11,6 +11,11 @@
     <!-- Include only if your app benefits from precise location access. -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
+    <!--  플레이어 애플리케이션에서 화면이 어두워지는 것이나 프로세서의 절전 모드를 방지해야 한다면
+    또는 MediaPlayer.setScreenOnWhilePlaying()이나 MediaPlayer.setWakeMode() 메서드를
+    사용한다면 이 권한을 요청해야 합니다. -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
     <application
         android:name=".di.App"
         android:allowBackup="true"

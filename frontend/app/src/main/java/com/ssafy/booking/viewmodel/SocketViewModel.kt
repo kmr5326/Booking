@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.gmail.bishoybasily.stomp.lib.Event
 import com.gmail.bishoybasily.stomp.lib.StompClient
 import com.google.gson.GsonBuilder
+import com.ssafy.booking.di.App
 import com.ssafy.data.room.dao.MessageDao
 import com.ssafy.data.room.entity.MessageEntity
 import com.ssafy.data.utils.LocalDateTimeDeserializer
@@ -40,6 +41,8 @@ class SocketViewModel @Inject constructor(
         .registerTypeAdapter(LocalDateTime::class.java, LocalDateTimeDeserializer())
         .create()
 
+    val accessToken = App.prefs.getToken()
+    val tem = App.prefs.getLoginId()
     var messages: LiveData<List<MessageEntity>> = MutableLiveData(emptyList())
 //    fun updateMessages(chatId: String) {
 //        viewModelScope.launch {
