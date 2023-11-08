@@ -1,6 +1,5 @@
 package com.booking.booking.meetinginfo.dto.request;
 
-import com.booking.booking.meeting.domain.Meeting;
 import com.booking.booking.meetinginfo.domain.MeetingInfo;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -13,9 +12,9 @@ public record MeetingInfoRequest(
     String location,
     Integer fee
 ) {
-    public MeetingInfo toEntity(Meeting meeting) {
+    public MeetingInfo toEntity() {
         return MeetingInfo.builder()
-                .meeting(meeting)
+                .meetingId(meetingId)
                 .date(date)
                 .location(location)
                 .fee(fee)

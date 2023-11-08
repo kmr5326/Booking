@@ -1,18 +1,18 @@
 package com.booking.booking.participant.dto.response;
 
-import com.booking.booking.global.dto.MemberInfoResponse;
+import com.booking.booking.global.dto.response.MemberResponse;
 import com.booking.booking.participant.domain.Participant;
 
 public record ParticipantResponse(
+        Integer memberPk,
         String loginId,
         String nickname,
         String profileImage,
-        Integer memberPk,
         Boolean attendanceStatus,
         Boolean paymentStatus
 ) {
-    public ParticipantResponse(MemberInfoResponse memberInfoResponse, Participant participant) {
-        this(memberInfoResponse.loginId(), memberInfoResponse.nickname(), memberInfoResponse.profileImage(),
-                memberInfoResponse.memberPk(), participant.getAttendanceStatus(), participant.getPaymentStatus());
+    public ParticipantResponse(MemberResponse member, Participant participant) {
+        this(member.memberPk(), member.loginId(), member.nickname(), member.profileImage(),
+                participant.getAttendanceStatus(), participant.getPaymentStatus());
     }
 }

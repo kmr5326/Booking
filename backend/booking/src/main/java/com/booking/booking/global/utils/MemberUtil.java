@@ -1,6 +1,6 @@
 package com.booking.booking.global.utils;
 
-import com.booking.booking.global.dto.MemberInfoResponse;
+import com.booking.booking.global.dto.response.MemberResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -20,7 +20,7 @@ public class MemberUtil {
         MemberUtil.GATEWAY_URL = gatewayUrl;
     }
 
-    public static Mono<MemberInfoResponse> getMemberInfoByEmail(String userEmail) {
+    public static Mono<MemberResponse> getMemberInfoByEmail(String userEmail) {
         log.info("Booking Server MemberUtil - getMemberInfoByEmail({})", userEmail);
 
         WebClient webClient = WebClient.builder().build();
@@ -33,10 +33,10 @@ public class MemberUtil {
                         response -> Mono.error(new RuntimeException("회원정보 응답 에러")))
                 .onStatus(HttpStatus::is5xxServerError,
                         response -> Mono.error(new RuntimeException("회원정보 응답 에러")))
-                .bodyToMono(MemberInfoResponse.class);
+                .bodyToMono(MemberResponse.class);
     }
 
-    public static Mono<MemberInfoResponse> getMemberInfoByPk(Integer memberPk) {
+    public static Mono<MemberResponse> getMemberInfoByPk(Integer memberPk) {
         log.info("Booking Server MemberUtil - getMemberInfoByPk({})", memberPk);
 
         WebClient webClient = WebClient.builder().build();
@@ -49,6 +49,6 @@ public class MemberUtil {
                         response -> Mono.error(new RuntimeException("회원정보 응답 에러")))
                 .onStatus(HttpStatus::is5xxServerError,
                         response -> Mono.error(new RuntimeException("회원정보 응답 에러")))
-                .bodyToMono(MemberInfoResponse.class);
+                .bodyToMono(MemberResponse.class);
     }
 }
