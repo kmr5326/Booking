@@ -1,5 +1,7 @@
 package com.booking.booking.stt.dto;
 
+import com.booking.booking.stt.domain.Segment;
+import com.booking.booking.stt.domain.Speaker;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
@@ -37,7 +39,6 @@ public class SttResponseDto {
         private int priority;
         private UserData userdata;
 
-        // Standard getters and setters
     }
 
     @Data
@@ -46,7 +47,6 @@ public class SttResponseDto {
         private int speakerCountMin;
         private int speakerCountMax;
 
-        // Standard getters and setters
     }
 
     @Data
@@ -63,28 +63,27 @@ public class SttResponseDto {
         @JsonProperty("_ncp_TraceId")
         private String ncpTraceId;
 
-        // Standard getters and setters
     }
 
-    @Data
-    public static class Segment {
-        private int start;
-        private int end;
-        private String text;
-        private double confidence;
-        private Diarization diarization;
-        private Speaker speaker;
-        private List<List<Object>> words; // This could be a list of lists or a custom class if more structure is needed
-        private String textEdited;
-    }
+//    @Data
+//    public static class Segment {
+//        private int start;
+//        private int end;
+//        private String text;
+//        private double confidence;
+//        private Diarization diarization;
+//        private Speaker speaker;
+//        private List<List<Object>> words; // This could be a list of lists or a custom class if more structure is needed
+//        private String textEdited;
+//    }
 
-    @Data
-    public static class Speaker {
-        private String label;
-        private String name;
-        private boolean edited;
-
-    }
+//    @Data
+//    public static class Speaker {
+//        private String label;
+//        private String name;
+//        private boolean edited;
+//
+//    }
 }
 
 
