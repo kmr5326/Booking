@@ -1,15 +1,6 @@
 package com.ssafy.booking.ui.booking
 
 import android.util.Log
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.sp
-import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import com.ssafy.booking.ui.common.BottomNav
-import com.ssafy.booking.viewmodel.AppViewModel
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -24,14 +15,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.style.TextOverflow
-import com.ssafy.booking.R
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -45,19 +31,33 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.BaselineShift
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+import com.ssafy.booking.R
+import com.ssafy.booking.ui.common.BottomNav
+import com.ssafy.booking.viewmodel.AppViewModel
 import com.ssafy.booking.viewmodel.BookingViewModel
 import com.ssafy.data.repository.token.TokenDataSource
 import com.ssafy.domain.model.DeviceToken
@@ -65,68 +65,71 @@ import com.ssafy.domain.model.DeviceToken
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Main(
-    navController: NavController, appViewModel: AppViewModel
+    navController: NavController,
+    appViewModel: AppViewModel
 ) {
-
     val bookingViewModel: BookingViewModel = hiltViewModel()
     // ViewModel의 LiveData를 State로 변환
-    val bookingAllListState = bookingViewModel.getBookingAllList.observeAsState()
-    val bookingDetailState = bookingViewModel.getBookingDetail.observeAsState()
-    val participantsState = bookingViewModel.getParticipants.observeAsState()
-    val waitingListState = bookingViewModel.getWaitingList.observeAsState()
+    val bookingAllListState by bookingViewModel.getBookingAllList.observeAsState()
+    val bookingDetailState by bookingViewModel.getBookingDetail.observeAsState()
+    val participantsState by bookingViewModel.getParticipants.observeAsState()
+    val waitingListState by bookingViewModel.getWaitingList.observeAsState()
 
     val context = LocalContext.current
     val tokenDataSource = TokenDataSource(context)
-    val deviceToken : String? = tokenDataSource.getDeviceToken()
+    val deviceToken: String? = tokenDataSource.getDeviceToken()
 
-    val userInfoState = bookingViewModel.getUserInfoResponse.observeAsState()
+    val userInfoState by bookingViewModel.getUserInfoResponse.observeAsState()
+    val loginId = tokenDataSource.getLoginId()
     // LaunchedEffect를 사용하여 한 번만 API 호출
     LaunchedEffect(Unit) {
         bookingViewModel.postDeivceToken(DeviceToken(deviceToken))
 
         // 메인 화면 가자마자 userInfo 조회
-//        val tokenDataSource = TokenDataSource(context)
-//        bookingViewModel.getUserInfo(tokenDataSource.getLoginId()!!)
-//
-//        userInfoState?.let {
-//            tokenDataSource.putNickName(it.value!!.body()!!.nickname)
-//            tokenDataSource.putProfileImage(it.value!!.body()!!.profileImage)
-//
-//        }
+        Log.d("test1", "${tokenDataSource.getLoginId()}")
+        Log.d("test2", "$loginId")
+        bookingViewModel.getUserInfo(loginId!!)
 
-
-
-        //////////////////// 지헌 테스트 코드 //////////////////////////////
+        // ////////////////// 지헌 테스트 코드 //////////////////////////////
         bookingViewModel.getBookingAllList()
         bookingViewModel.getBookingDetail(1) // 실제 meetingId로 교체 필요
         bookingViewModel.getParticipants(1) // 실제 meetingId로 교체 필요
         bookingViewModel.getWaitingList(1) // 실제 meetingId로 교체 필요
-        bookingAllListState.value?.let { response ->
-            Log.d("API CALL", "Booking All List: ${response.isSuccessful}")
-        }
-        bookingDetailState.value?.let { response ->
-            Log.d("API CALL", "Booking Detail: ${response.isSuccessful}")
-        }
-        participantsState.value?.let { response ->
-            Log.d("API CALL", "Participants: ${response.isSuccessful}")
-        }
-        waitingListState.value?.let { response ->
-            Log.d("API CALL", "Waiting List: ${response.isSuccessful}")
-        }
-
+        Log.d("APICALL", "Booking All List: ${bookingAllListState?.body()}")
+//        bookingAllListState.value?.let { response ->
+//        }
+//        bookingDetailState.value?.let { response ->
+//            Log.d("APICALL", "Booking Detail: ${response.isSuccessful}")
+//        }
+//        participantsState.value?.let { response ->
+//            Log.d("APICALL", "Participants: ${response.isSuccessful}")
+//        }
+//        waitingListState.value?.let { response ->
+//            Log.d("APICALL", "Waiting List: ${response.isSuccessful}")
+//        }
     }
-    //////////////////////////////////////////////////////////////////////////////
 
-    Scaffold (
+    LaunchedEffect(userInfoState) {
+        userInfoState?.body()?.let {
+            tokenDataSource.putNickName(it.nickname)
+            tokenDataSource.putProfileImage(it.profileImage)
+            Log.d("test33", "$it")
+            Log.d("test3", "${it.nickname}")
+        }
+    }
+
+    // ////////////////////////////////////////////////////////////////////////////
+
+    Scaffold(
         topBar = {
-            HomeTopBar(navController,  appViewModel )
+            HomeTopBar(navController, appViewModel)
 //            TopBar("하남동")
         },
         bottomBar = {
             BottomNav(navController, appViewModel)
         },
         floatingActionButton = {
-            MyFloatingActionButton(navController,appViewModel)
+            MyFloatingActionButton(navController, appViewModel)
         },
         modifier = Modifier.fillMaxSize()
     ) { paddingValues ->
@@ -154,12 +157,13 @@ fun BookList(navController: NavController, appViewModel: AppViewModel) {
         }
     }
 }
+
 @Composable
 fun BookItem(book: Book) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(12.dp),
+            .padding(12.dp)
     ) {
         Image(
             painter = painterResource(id = book.imageResId),
@@ -182,10 +186,8 @@ fun BookItem(book: Book) {
                 fontSize = 12.sp
             )
             Spacer(modifier = Modifier.height(8.dp))
-            Row(verticalAlignment = Alignment.CenterVertically)
-
-            {
-                Icon(Icons.Outlined.LocationOn, contentDescription = "locate",modifier = Modifier.size(12.dp), tint = Color.Gray)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Outlined.LocationOn, contentDescription = "locate", modifier = Modifier.size(12.dp), tint = Color.Gray)
                 Text(
                     text = book.locate,
                     fontWeight = FontWeight.Medium,
@@ -208,26 +210,30 @@ fun BookItem(book: Book) {
                     text = "${book.currentPeople}/${book.maxPeople}명",
                     fontWeight = FontWeight.Normal,
                     fontSize = 12.sp,
-                    modifier = Modifier.padding(start = 2.dp), color = Color.Gray
+                    modifier = Modifier.padding(start = 2.dp),
+                    color = Color.Gray
                 )
             }
-            }
         }
-        Divider(color = Color.LightGray, thickness = 0.4.dp, modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 8.dp))
     }
-
+    Divider(
+        color = Color.LightGray,
+        thickness = 0.4.dp,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp)
+    )
+}
 
 // 모임 생성 버튼
 @Composable
 fun MyFloatingActionButton(navController: NavController, appViewModel: AppViewModel) {
     FloatingActionButton(
-        onClick = {navController.navigate("create/booking/isbn")},
+        onClick = { navController.navigate("create/booking/isbn") },
         modifier = Modifier
             .padding(end = 16.dp, bottom = 10.dp)
-            .size(65.dp)
-        , containerColor = Color(0xFF12BD7E),
+            .size(65.dp),
+        containerColor = Color(0xFF12BD7E),
         shape = CircleShape
         // 그냥 동그라미할지, + 모임생성할지 고민.
 
@@ -241,7 +247,6 @@ fun MyFloatingActionButton(navController: NavController, appViewModel: AppViewMo
         )
     }
 }
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -273,11 +278,9 @@ fun HomeTopBar(navController: NavController, appViewModel: AppViewModel) {
                 Icons.Rounded.Settings,
                 contentDescription = null,
                 modifier = Modifier
-                    .align(Alignment.CenterEnd)
-                ,
+                    .align(Alignment.CenterEnd),
                 tint = Color(0xFFffffff)
             )
-
         }
         // 검색 창
         var title by rememberSaveable(stateSaver = TextFieldValue.Saver) {
@@ -286,7 +289,7 @@ fun HomeTopBar(navController: NavController, appViewModel: AppViewModel) {
         OutlinedTextField(
             value = title, // 이 부분을 뷰모델의 상태로 연결하거나 필요에 따라 변경
             onValueChange = { title = it },
-            placeholder = {Text("찾는 도서가 있나요?",fontSize = 11.sp,color = Color.Gray)},
+            placeholder = { Text("찾는 도서가 있나요?", fontSize = 11.sp, color = Color.Gray) },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp)
@@ -297,31 +300,26 @@ fun HomeTopBar(navController: NavController, appViewModel: AppViewModel) {
             singleLine = true,
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 focusedBorderColor = Color(0xFF12BD7E),
-                unfocusedBorderColor = Color.White,
+                unfocusedBorderColor = Color.White
             ),
-            textStyle = TextStyle(color=Color.Gray,fontSize = 11.sp, baselineShift = BaselineShift.None),
-            leadingIcon = { Icon(Icons.Outlined.Search, contentDescription = null, tint = Color(0xFF12BD7E) )}
+            textStyle = TextStyle(color = Color.Gray, fontSize = 11.sp, baselineShift = BaselineShift.None),
+            leadingIcon = { Icon(Icons.Outlined.Search, contentDescription = null, tint = Color(0xFF12BD7E)) }
         )
     }
 }
 
-
-data class Book(val imageResId: Int, val bookName: String, val title: String, val locate:String, val currentPeople:Int, val maxPeople:Int )
+data class Book(val imageResId: Int, val bookName: String, val title: String, val locate: String, val currentPeople: Int, val maxPeople: Int)
 
 val bookItemsList = listOf(
-    Book(R.drawable.book1, "데미안", "데미안에 대해 읽고 같이 토론하실 분","하남동",3,6),
-    Book(R.drawable.book2, "인간실격", "인간실격에 대해 읽고 같이 토론하실 분","장덕동",2,2),
-    Book(R.drawable.book5, "불편한 편의점", "불편한 편의점 대해 읽고 같이 토론하실 분","수완동",3,3),
-    Book(R.drawable.book4, "나미야 잡화점의 기적", "데미안에 대해 읽고 같이 토론하실 분","하남동",1,5),
-    Book(R.drawable.book5, "불편한 편의점", "데미안에 대해 읽고 같이 토론하실 분","하남동",5,6),
-    Book(R.drawable.book1, "데미안", "데미안에 대해 읽고 같이 토론하실 분","장덕동",2,6),
-    Book(R.drawable.book7, "불편한 편의점2", "데미안에 대해 읽고 같이 토론하실 분","하남동",1,6),
-    Book(R.drawable.book5, "불편한 편의점1", "데미안에 대해 읽고 같이 토론하실 분","하남동",1,6),
-    Book(R.drawable.book2, "인간실격", "데미안에 대해 읽고 같이 토론하실 분","하남동",4,6),
-    Book(R.drawable.book4, "나미야 잡화점의 기적", "데미안에 대해 읽고 같이 토론하실 분","하남동",3,6),
-    Book(R.drawable.book5, "데미안", "데미안에 대해 읽고 같이 토론하실 분","하남동",6,6),
+    Book(R.drawable.book1, "데미안", "데미안에 대해 읽고 같이 토론하실 분", "하남동", 3, 6),
+    Book(R.drawable.book2, "인간실격", "인간실격에 대해 읽고 같이 토론하실 분", "장덕동", 2, 2),
+    Book(R.drawable.book5, "불편한 편의점", "불편한 편의점 대해 읽고 같이 토론하실 분", "수완동", 3, 3),
+    Book(R.drawable.book4, "나미야 잡화점의 기적", "데미안에 대해 읽고 같이 토론하실 분", "하남동", 1, 5),
+    Book(R.drawable.book5, "불편한 편의점", "데미안에 대해 읽고 같이 토론하실 분", "하남동", 5, 6),
+    Book(R.drawable.book1, "데미안", "데미안에 대해 읽고 같이 토론하실 분", "장덕동", 2, 6),
+    Book(R.drawable.book7, "불편한 편의점2", "데미안에 대해 읽고 같이 토론하실 분", "하남동", 1, 6),
+    Book(R.drawable.book5, "불편한 편의점1", "데미안에 대해 읽고 같이 토론하실 분", "하남동", 1, 6),
+    Book(R.drawable.book2, "인간실격", "데미안에 대해 읽고 같이 토론하실 분", "하남동", 4, 6),
+    Book(R.drawable.book4, "나미야 잡화점의 기적", "데미안에 대해 읽고 같이 토론하실 분", "하남동", 3, 6),
+    Book(R.drawable.book5, "데미안", "데미안에 대해 읽고 같이 토론하실 분", "하남동", 6, 6)
 )
-
-
-
-

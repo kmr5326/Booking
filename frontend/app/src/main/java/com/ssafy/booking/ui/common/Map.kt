@@ -1,10 +1,5 @@
 
-import android.content.Context
-import android.location.LocationListener
-import android.location.LocationManager
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -17,15 +12,8 @@ import com.naver.maps.map.compose.ExperimentalNaverMapApi
 import com.naver.maps.map.compose.MapProperties
 import com.naver.maps.map.compose.MapUiSettings
 import com.naver.maps.map.compose.NaverMap
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.text.BasicTextField
-//import androidx.compose.material.Button
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.platform.LocalContext
+// import androidx.compose.material.Button
 import androidx.compose.ui.unit.dp
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.CameraPosition
@@ -37,12 +25,12 @@ import com.naver.maps.map.compose.rememberCameraPositionState
 @Preview
 @Composable
 fun previewSetting() {
-    Map(0.1,0.1,0.1,0.1)
+    Map(0.1, 0.1, 0.1, 0.1)
 }
 
 @OptIn(ExperimentalNaverMapApi::class)
 @Composable
-fun Map(CurLng:Double,CurLat:Double,MarkerLng:Double, MarkerLat:Double) {
+fun Map(CurLng: Double, CurLat: Double, MarkerLng: Double, MarkerLat: Double) {
     var mapProperties by remember {
         mutableStateOf(
             MapProperties(maxZoom = 20.0, minZoom = 5.0)
@@ -54,7 +42,7 @@ fun Map(CurLng:Double,CurLat:Double,MarkerLng:Double, MarkerLat:Double) {
         )
     }
     // 현재 위치 설정
-    val currentLocation = LatLng(33.532600,127.024612)
+    val currentLocation = LatLng(33.532600, 127.024612)
     val cameraPositionState: CameraPositionState = rememberCameraPositionState {
         // 카메라 초기 위치를 설정합니다.
         position = CameraPosition(currentLocation, 20.0)
@@ -73,5 +61,4 @@ fun Map(CurLng:Double,CurLat:Double,MarkerLng:Double, MarkerLat:Double) {
             )
         }
     }
-
 }

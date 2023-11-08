@@ -2,17 +2,13 @@ import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.*
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.Alignment
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
-//import androidx.compose.foundation.gestures.ModifierLocalScrollableContainerProvider.value
+// import androidx.compose.foundation.gestures.ModifierLocalScrollableContainerProvider.value
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -23,18 +19,15 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -45,39 +38,31 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
-import com.google.android.material.chip.Chip
 import com.ssafy.booking.ui.LocalNavigation
 import com.ssafy.booking.ui.common.TopBar
 import com.ssafy.booking.viewmodel.AppViewModel
 import com.ssafy.booking.viewmodel.BookSearchViewModel
 import com.ssafy.booking.viewmodel.BookingViewModel
-import com.ssafy.booking.viewmodel.DummyAppViewModel
-import com.ssafy.booking.viewmodel.SignInViewModel
-import com.ssafy.domain.model.SignInRequest
 import com.ssafy.domain.model.booking.BookingCreateRequest
 import com.ssafy.domain.model.booksearch.BookSearchResponse
 import retrofit2.Response
 
-//@Preview(showBackground = true)
-//@Composable
-//fun preview() {
+// @Preview(showBackground = true)
+// @Composable
+// fun preview() {
 //    BookingCreate(navController = rememberNavController(),
 //        appViewModel = DummyAppViewModel()
 //    )
-//}
+// }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BookingCreate(navController: NavController, appViewModel: AppViewModel, isbn : String?) {
-
+fun BookingCreate(navController: NavController, appViewModel: AppViewModel, isbn: String?) {
     // 상태값들 최상단에 정의
     var meetingTitle by rememberSaveable(stateSaver = TextFieldValue.Saver) {
         mutableStateOf(TextFieldValue(""))
@@ -95,7 +80,7 @@ fun BookingCreate(navController: NavController, appViewModel: AppViewModel, isbn
     val postCreateBookingResponse by viewModel.postCreateBookingResponse.observeAsState()
 
     // isbn 으로 데이터 불러오기
-    val bookSearchViewModel : BookSearchViewModel = hiltViewModel()
+    val bookSearchViewModel: BookSearchViewModel = hiltViewModel()
     val getBookSearchByIsbnResponse by bookSearchViewModel.getBookSearchByIsbnResponse.observeAsState()
 
     LaunchedEffect(Unit) {
@@ -105,18 +90,21 @@ fun BookingCreate(navController: NavController, appViewModel: AppViewModel, isbn
     }
 
     Log.d(
-        "모임생성",postCreateBookingResponse?.code().toString()
+        "모임생성",
+        postCreateBookingResponse?.code().toString()
     )
 
-    Scaffold (
+    Scaffold(
         topBar = {
         },
         bottomBar = {
         }
-    ){padingValues->
-        Box(modifier = Modifier
-            .fillMaxSize()
-            .padding(padingValues)){
+    ) { padingValues ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padingValues)
+        ) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -148,19 +136,17 @@ fun BookingCreate(navController: NavController, appViewModel: AppViewModel, isbn
 
                 )
                 CreateBookingButton(
-                    bookIsbn = "${isbn}",
+                    bookIsbn = "$isbn",
                     meetingTitle = meetingTitle.text, // TextFieldValue에서 String으로 변환
                     description = description.text,
                     maxParticipants = maxParticipants,
                     // 이거랑 isbn 하드코딩.
-                    hashtagList = hashTagText,
+                    hashtagList = hashTagText
                 )
             }
         }
-
     }
-    }
-
+}
 
 @Composable
 fun TopBar(
@@ -169,8 +155,7 @@ fun TopBar(
     Column {
         Row(
             modifier = Modifier
-                .fillMaxWidth() // Row가 부모의 최대 너비를 채우도록 설정합니다.
-                    ,
+                .fillMaxWidth(), // Row가 부모의 최대 너비를 채우도록 설정합니다.
             // 자식 요소들을 수평 방향으로 중앙에 배치합니다.
             verticalAlignment = Alignment.CenterVertically // 자식 요소들을 세로 방향으로 중앙에 배치합니다.
         ) {
@@ -188,24 +173,25 @@ fun TopBar(
             )
             Text(
                 text = "독서 모임 생성하기",
-                style = MaterialTheme.typography.bodyLarge,
+                style = MaterialTheme.typography.bodyLarge
                 // 여기에는 weight나 wrapContentWidth를 사용하지 않습니다.
 
             )
-
         }
         Divider(
-            color = Color.LightGray, thickness = 0.8.dp, modifier = Modifier
+            color = Color.LightGray,
+            thickness = 0.8.dp,
+            modifier = Modifier
                 .fillMaxWidth()
         )
     }
     Spacer(modifier = Modifier.height(40.dp))
 }
+
 @Composable
 fun BookSearch(
-    getBookSearchByIsbnResponse : Response<BookSearchResponse>?
+    getBookSearchByIsbnResponse: Response<BookSearchResponse>?
 ) {
-
     val navController = LocalNavigation.current
 
     Column(
@@ -213,7 +199,7 @@ fun BookSearch(
             .background(Color.Transparent)
             .fillMaxWidth()
             .wrapContentHeight(),
-        horizontalAlignment = Alignment.CenterHorizontally,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Box(
             contentAlignment = Alignment.Center,
@@ -223,19 +209,19 @@ fun BookSearch(
                 .height(210.dp)
                 .clickable {
                     navController.navigate("book/false")
-                },
+                }
         ) {
-        // 왼쪽의 도서 등록 칸
-        getBookSearchByIsbnResponse?.let {
-            val book = it.body()
-            AsyncImage(
-                model = book!!.coverImage,
-                contentDescription = "북 커버",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .fillMaxSize()
-            )
-        } ?: run {
+            // 왼쪽의 도서 등록 칸
+            getBookSearchByIsbnResponse?.let {
+                val book = it.body()
+                AsyncImage(
+                    model = book!!.coverImage,
+                    contentDescription = "북 커버",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxSize()
+                )
+            } ?: run {
                 Icon(
                     imageVector = Icons.Default.Add,
                     contentDescription = null,
@@ -259,6 +245,7 @@ fun BookSearch(
         Spacer(modifier = Modifier.height(25.dp))
     }
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TextFieldsSection(
@@ -271,7 +258,6 @@ fun TextFieldsSection(
     onRemoveHashTag: (String) -> Unit
 
 ) {
-
     Text(text = "모임 제목")
     Spacer(modifier = Modifier.height(12.dp))
     OutlinedTextField(
@@ -288,7 +274,7 @@ fun TextFieldsSection(
         value = description,
         onValueChange = onDescriptionChanged,
         placeholder = { Text("모임 소개") },
-        maxLines = 6,  // 최대 6줄 입력 가능
+        maxLines = 6, // 최대 6줄 입력 가능
         modifier = Modifier.height(192.dp)
     )
     Spacer(modifier = Modifier.height(24.dp))
@@ -302,9 +288,10 @@ fun TextFieldsSection(
 
     Spacer(modifier = Modifier.height(24.dp))
 }
+
 @Composable
 fun CreateBookingButton(
-    bookIsbn : String,
+    bookIsbn: String,
     meetingTitle: String,
     description: String,
     maxParticipants: Int,
@@ -314,7 +301,7 @@ fun CreateBookingButton(
     Button(
         onClick = {
             val request = BookingCreateRequest(
-                bookIsbn= bookIsbn,
+                bookIsbn = bookIsbn,
                 meetingTitle = meetingTitle,
                 description = description,
                 maxParticipants = maxParticipants,
@@ -324,15 +311,15 @@ fun CreateBookingButton(
         },
         modifier = Modifier
             .fillMaxWidth()
-            .height(50.dp)
+            .height(50.dp),
 //            .offset(y = 30.dp)
-        ,
         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00C68E)),
-                shape = RoundedCornerShape(4.dp) // 모서리의 라운드를 4.dp로 설정합니다.
+        shape = RoundedCornerShape(4.dp) // 모서리의 라운드를 4.dp로 설정합니다.
     ) {
         Text(text = "모임 생성하기")
     }
 }
+
 @Composable
 fun ParticipantCounter(
     maxParticipants: Int,
@@ -348,9 +335,9 @@ fun ParticipantCounter(
     ) {
         // 참가자 수를 줄이는 버튼
         Button(
-            onClick = { if (maxParticipants > 1)onMaxParticipantsChanged(maxParticipants - 1)},
+            onClick = { if (maxParticipants > 1)onMaxParticipantsChanged(maxParticipants - 1) },
             shape = CircleShape,
-            enabled = maxParticipants > 1, // 1보다 작아질 수 없도록 비활성화,
+            enabled = maxParticipants > 1 // 1보다 작아질 수 없도록 비활성화,
         ) {
             Text("-")
         }
@@ -362,7 +349,7 @@ fun ParticipantCounter(
         )
         // 참가자 수를 늘리는 버튼
         Button(
-            onClick = { if (maxParticipants < 6 ) onMaxParticipantsChanged(maxParticipants + 1)  },
+            onClick = { if (maxParticipants < 6) onMaxParticipantsChanged(maxParticipants + 1) },
             shape = CircleShape,
             enabled = maxParticipants < 6
         ) {
@@ -400,7 +387,9 @@ fun HashTagEditor(
                         text = TextFieldValue("") // Reset text field
                         keyboardController?.hide()
                         true // Event consumed
-                    } else false
+                    } else {
+                        false
+                    }
                 }
         )
         Row(
@@ -411,8 +400,8 @@ fun HashTagEditor(
                 Button(
                     modifier = Modifier.padding(end = 10.dp),
                     shape = RoundedCornerShape(4.dp),
-                    onClick = { onRemoveHashTag(tag) },
-                ){
+                    onClick = { onRemoveHashTag(tag) }
+                ) {
                     Text(text = "#$tag")
                 }
             }

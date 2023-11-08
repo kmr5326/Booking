@@ -41,33 +41,28 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.ssafy.booking.R
+import com.ssafy.booking.ui.LocalNavigation
 import com.ssafy.booking.ui.common.BottomNav
 import com.ssafy.booking.ui.common.TopBar
 import com.ssafy.booking.viewmodel.AppViewModel
-import com.ssafy.booking.ui.LocalNavigation
-import com.ssafy.booking.ui.profile.ProfileData
 import com.ssafy.booking.viewmodel.ChatViewModel
 import com.ssafy.booking.viewmodel.MyPageViewModel
-import com.ssafy.booking.viewmodel.SocketViewModel
 import com.ssafy.data.repository.token.TokenDataSource
 import com.ssafy.domain.model.ChatCreateRequest
-import com.ssafy.domain.model.ChatExitRequest
 import com.ssafy.domain.model.ChatJoinRequest
 import com.ssafy.domain.model.ChatRoom
-import com.ssafy.domain.model.mypage.UserInfoResponse
-import retrofit2.Response
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatHome(
     navController: NavController,
-    appViewModel: AppViewModel,
+    appViewModel: AppViewModel
 ) {
     val navController = LocalNavigation.current
     val chatViewModel: ChatViewModel = hiltViewModel()
     val myPageViewModel: MyPageViewModel = hiltViewModel()
 
-    var chatId by remember {mutableStateOf("")}
+    var chatId by remember { mutableStateOf("") }
 
     // 유저 정보 불러오기
     val context = LocalContext.current
@@ -78,18 +73,18 @@ fun ChatHome(
     chatViewModel.loadChatList()
     LaunchedEffect(loginId) {
         val result = loginId?.let {
-            Log.d("CHAT","$loginId")
+            Log.d("CHAT", "$loginId")
             myPageViewModel.getUserInfo(loginId)
         }
     }
     LaunchedEffect(getUserInfoResponse) {
-        if(getUserInfoResponse != null) {
-            Log.d("CHAT","${getUserInfoResponse!!.body()}")
+        if (getUserInfoResponse != null) {
+            Log.d("CHAT", "${getUserInfoResponse!!.body()}")
             memId = getUserInfoResponse!!.body()?.memberPk
         }
     }
 
-    Scaffold (
+    Scaffold(
         topBar = {
             TopBar("채팅")
         },
@@ -97,19 +92,19 @@ fun ChatHome(
             BottomNav(navController, appViewModel)
         },
         modifier = Modifier.fillMaxSize()
-    ) {paddingValues->
-        Column (
+    ) { paddingValues ->
+        Column(
             modifier = Modifier
                 .padding(paddingValues)
                 .fillMaxSize()
-        ){
+        ) {
             Box {
                 Column {
                     Row {
                         TextField(
                             value = chatId,
                             onValueChange = { chatId = it },
-                            placeholder = { Text("채팅방 번호") },
+                            placeholder = { Text("채팅방 번호") }
                         )
                         Button(
                             onClick = {
@@ -124,7 +119,7 @@ fun ChatHome(
                         Button(
                             onClick = {
                                 val request = ChatJoinRequest(chatId.toInt(), memId)
-                                Log.d("CHAT", "${request}")
+                                Log.d("CHAT", "$request")
                                 chatViewModel.joinChatRoom(request)
                             }
                         ) {
@@ -134,7 +129,6 @@ fun ChatHome(
                     ChatList()
                 }
             }
-
         }
     }
 }
@@ -149,16 +143,14 @@ fun ChatList() {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+            .padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
         items(chatList) { chat ->
             ChatItem(chat) {
-
             }
         }
     }
 }
-
 
 @Composable
 fun ChatItem(
@@ -175,7 +167,7 @@ fun ChatItem(
                 navController.navigate("chatDetail/${chat.chatroomId}")
             })
     ) {
-        if(chat.memberList.size <= 1) {
+        if (chat.memberList.size <= 1) {
             Image(
                 painter = painterResource(id = R.drawable.chat3),
                 contentDescription = "Chat Image",
@@ -193,17 +185,18 @@ fun ChatItem(
         }
         Spacer(modifier = Modifier.width(16.dp))
         Column(
-            modifier = Modifier.width(200.dp),
+            modifier = Modifier.width(200.dp)
         ) {
-            Row (verticalAlignment = Alignment.CenterVertically) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    text = chat.meetingTitle, maxLines = 1,
+                    text = chat.meetingTitle,
+                    maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     fontWeight = FontWeight.ExtraBold,
                     fontSize = 16.sp
                 )
                 Spacer(modifier = Modifier.width(4.dp))
-                if(chat.memberList.size > 1) {
+                if (chat.memberList.size > 1) {
                     Text(
                         text = "${chat.memberList.size}",
                         maxLines = 2,
@@ -216,13 +209,13 @@ fun ChatItem(
             }
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = chat.lastMessage?.let{
-                           chat.lastMessage
+                text = chat.lastMessage?.let {
+                    chat.lastMessage
                 } ?: "",
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
                 fontWeight = FontWeight.Medium,
-                fontSize=12.sp
+                fontSize = 12.sp
             )
             Spacer(modifier = Modifier.height(4.dp))
         }

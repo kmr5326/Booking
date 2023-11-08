@@ -6,8 +6,8 @@ import com.squareup.moshi.JsonClass
 @JsonClass(generateAdapter = true)
 data class GoogleUserModel(
 
-    @Json(name="name")
+    @Json(name = "name")
     val name: String?,
-    @Json(name="email")
+    @Json(name = "email")
     val email: String?
 )

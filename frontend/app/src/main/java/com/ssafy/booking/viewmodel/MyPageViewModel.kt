@@ -1,9 +1,11 @@
 package com.ssafy.booking.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ssafy.booking.model.UserInfoChangeResult
 import com.ssafy.booking.model.UserProfileState
 import com.ssafy.booking.ui.profile.ProfileData
 import com.ssafy.domain.model.mypage.AddressnModifyRequest
@@ -11,9 +13,14 @@ import com.ssafy.domain.model.mypage.UserDeleteRequest
 import com.ssafy.domain.model.mypage.UserFollowersResponse
 import com.ssafy.domain.model.mypage.UserFollowingsResponse
 import com.ssafy.domain.model.mypage.UserInfoResponse
+import com.ssafy.domain.model.mypage.UserInfoResponseByNickname
+import com.ssafy.domain.model.mypage.UserInfoResponseByPk
 import com.ssafy.domain.model.mypage.UserModifyRequest
 import com.ssafy.domain.usecase.MyPageUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import retrofit2.Response
 import javax.inject.Inject
@@ -37,13 +44,30 @@ class MyPageViewModel @Inject constructor(
         }
 
     // PATCH - 회원 정보 수정 요청 로직
-        private val _patchUserInfoResponse = MutableLiveData<Response<Unit>>()
+    private val _patchUserInfoResponse = MutableLiveData<Response<Unit>>()
     val patchUserInfoResponse: LiveData<Response<Unit>> get() = _patchUserInfoResponse
 
-    fun patchUserinfo(request: UserModifyRequest) =
+    // StateFlow를 사용하여 UI 계층에 상태 전달
+    private val _userInfoChangeResult = MutableStateFlow<UserInfoChangeResult?>(null)
+    val userInfoChangeResult: StateFlow<UserInfoChangeResult?> = _userInfoChangeResult.asStateFlow()
+
+    fun userInfoChange(nick: String, pImg: String, loginId: String) {
+        val requestInfo = UserModifyRequest(loginId = loginId, nickname = nick, profileImage = pImg)
+        Log.d("requestInfo", "$requestInfo")
+
         viewModelScope.launch {
-            _patchUserInfoResponse.value = myPageUseCase.patchUserInfo(request)
+            myPageUseCase.patchUserInfo(requestInfo).collect { response ->
+                Log.d("requestInfo", "$response")
+                if (response.isSuccessful) {
+                    // 성공 상태를 StateFlow에 업데이트
+                    _userInfoChangeResult.value = UserInfoChangeResult.Success(nick, pImg, "profile")
+                } else {
+                    // 실패 상태를 StateFlow에 업데이트
+                    _userInfoChangeResult.value = UserInfoChangeResult.Error(true)
+                }
+            }
         }
+    }
 
     // PATCH - 회원 위치 정보 수정 요청 로직
     private val _patchUserAddressResponse = MutableLiveData<Response<Unit>>()
@@ -53,7 +77,6 @@ class MyPageViewModel @Inject constructor(
         viewModelScope.launch {
             _patchUserAddressResponse.value = myPageUseCase.patchUserAddress(request)
         }
-
 
     // POST - 회원 탈퇴 요청 로직
     private val _postUserDeleteResponse = MutableLiveData<Response<Unit>>()
@@ -82,6 +105,41 @@ class MyPageViewModel @Inject constructor(
             _getUserFollowingsResponse.value = myPageUseCase.getUserFollowings(nickname)
         }
 
+    // GET - memberPk 로 유저정보 가져오기
+    private val _getUserInfoResponseByPk = MutableLiveData<Response<UserInfoResponseByPk>>()
+    val getUserInfoResponseByPk: LiveData<Response<UserInfoResponseByPk>> get() = _getUserInfoResponseByPk
+
+    fun getUserInfoResponseByPk(memberPk: Int) =
+        viewModelScope.launch {
+            _getUserInfoResponseByPk.value = myPageUseCase.getUserInfoByPk(memberPk)
+        }
+
+    // GET - nickname 으로 유저정보 가져오기
+    private val _getUserInfoResponseByNickname = MutableLiveData<Response<UserInfoResponseByNickname>>()
+    val getUserInfoResponseByNickname: LiveData<Response<UserInfoResponseByNickname>> get() = _getUserInfoResponseByNickname
+
+    fun getUserInfoResponseByNickname(nickname: String) =
+        viewModelScope.launch {
+            _getUserInfoResponseByNickname.value = myPageUseCase.getUserInfoByNickname(nickname)
+        }
+
+    // POST - follow 요청하기
+    private val _postFollow = MutableLiveData<Response<Unit>>()
+    val postFollow: LiveData<Response<Unit>> get() = _postFollow
+
+    fun postFollow(nickname: String) =
+        viewModelScope.launch {
+            _postFollow.value = myPageUseCase.postFollow(nickname)
+        }
+
+    // DELETE - unfollow 요청하기
+    private val _deleteFollow = MutableLiveData<Response<Unit>>()
+    val deleteFollow: LiveData<Response<Unit>> get() = _deleteFollow
+
+    fun deleteFollow(nickname: String) =
+        viewModelScope.launch {
+            _deleteFollow.value = myPageUseCase.deleteFollow(nickname)
+        }
 
     // 최종 마이페이지 작업 로직
     fun getMyPage(loginId: String) = viewModelScope.launch {
@@ -95,8 +153,9 @@ class MyPageViewModel @Inject constructor(
                     val userFollowersResponse = myPageUseCase.getUserFollowers(nickname)
                     val userFollowingsResponse = myPageUseCase.getUserFollowings(nickname)
 
-                    if (userFollowersResponse.isSuccessful && userFollowingsResponse.isSuccessful
-                        && userFollowersResponse.body() != null && userFollowingsResponse.body() != null) {
+                    if (userFollowersResponse.isSuccessful && userFollowingsResponse.isSuccessful &&
+                        userFollowersResponse.body() != null && userFollowingsResponse.body() != null
+                    ) {
                         val profileData = ProfileData(
                             myProfile = userInfoResponse.body(),
                             followers = userFollowersResponse.body(),
@@ -118,5 +177,4 @@ class MyPageViewModel @Inject constructor(
             _profileState.value = UserProfileState.Error(e.message ?: "Unknown error occurred")
         }
     }
-
 }

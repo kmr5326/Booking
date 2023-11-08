@@ -1,68 +1,19 @@
 package com.ssafy.booking.ui.common
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.Button
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontFamily.Companion.Serif
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
-import androidx.navigation.NavGraph.Companion.findStartDestination
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
-import com.ssafy.booking.R
-import com.ssafy.booking.ui.AppNavItem
-import com.ssafy.booking.viewmodel.AppViewModel
-
-
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.DateRange
-
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.DateRange
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material.icons.outlined.Send
 import androidx.compose.material.icons.rounded.AccountCircle
 import androidx.compose.material.icons.rounded.DateRange
 import androidx.compose.material.icons.rounded.Home
-import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.rounded.Send
 import androidx.compose.material3.BottomAppBarDefaults.containerColor
 import androidx.compose.material3.Icon
@@ -70,19 +21,23 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.Color
+import androidx.navigation.NavController
+import androidx.navigation.compose.currentBackStackEntryAsState
+import com.ssafy.booking.ui.AppNavItem
+import com.ssafy.booking.viewmodel.AppViewModel
 
 enum class NavItem(val route: String, val title: String) {
-    Book("book","book"),
+    Book("book", "book"),
     History("history", "History"),
     Main("main", "Home"),
     Chat("chat", "Chat"),
     Profile("profile", "Profile")
 }
+
 @Composable
 fun BottomNav(
     navController: NavController,
@@ -104,7 +59,6 @@ fun BottomNav(
     val selectedColor = Color(0xFF00C68E)
     val unselectedColor = Color.DarkGray
     NavigationBar(containerColor = Color.White) {
-
         items.forEach { item ->
             NavigationBarItem(
                 icon = {
@@ -136,7 +90,7 @@ fun BottomNav(
                 selected = currentRoute == item.route,
                 onClick = {
                     if (currentRoute != item.route) {
-                        val route = when(item) {
+                        val route = when (item) {
                             AppNavItem.Book -> "book/true"
                             else -> item.route
                         }
@@ -155,26 +109,25 @@ fun BottomNav(
                     selectedIconColor = selectedColor,
                     unselectedIconColor = unselectedColor,
                     selectedTextColor = selectedColor,
-                    unselectedTextColor = unselectedColor,
+                    unselectedTextColor = unselectedColor
                 )
             )
         }
     }
 }
 
-
-//@Composable
-//fun BottomNav(
+// @Composable
+// fun BottomNav(
 //    navController: NavController, appViewModel: AppViewModel
-//) {
+// ) {
 //    Btn(navController, appViewModel)
-//}
+// }
 //
-//@Composable
-//fun Btn(
+// @Composable
+// fun Btn(
 //    navController: NavController,
 //    appViewModel: AppViewModel,
-//) {
+// ) {
 //    val imgLength = 30
 //    val horPadVal = 20
 //    Row(
@@ -270,12 +223,12 @@ fun BottomNav(
 //                .height(imgLength.dp))
 //        }
 //    }
-//}
+// }
 
 //
-//// 홈 스크린
-//@Composable
-//fun HomeScreen() {
+// // 홈 스크린
+// @Composable
+// fun HomeScreen() {
 //    Box(
 //        modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
 //    ) {
@@ -283,11 +236,11 @@ fun BottomNav(
 //            text = "Home Screen", fontFamily = Serif, fontSize = 22.sp
 //        )
 //    }
-//}
+// }
 //
-//// 프로필
-//@Composable
-//fun ProfileScreen() {
+// // 프로필
+// @Composable
+// fun ProfileScreen() {
 //    Box(
 //        modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
 //    ) {
@@ -295,11 +248,11 @@ fun BottomNav(
 //            text = "Profile Screen", fontFamily = Serif, fontSize = 22.sp
 //        )
 //    }
-//}
+// }
 //
-//// 설정
-//@Composable
-//fun SettingScreen() {
+// // 설정
+// @Composable
+// fun SettingScreen() {
 //    Box(
 //        modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
 //    ) {
@@ -307,4 +260,4 @@ fun BottomNav(
 //            text = "Setting Screen", fontFamily = Serif, fontSize = 22.sp
 //        )
 //    }
-//}
+// }

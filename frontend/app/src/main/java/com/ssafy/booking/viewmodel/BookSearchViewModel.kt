@@ -65,7 +65,7 @@ class BookSearchViewModel @Inject constructor(
     private val _getBookSearchByIsbnResponse = MutableLiveData<Response<BookSearchResponse>>()
     val getBookSearchByIsbnResponse: LiveData<Response<BookSearchResponse>> get() = _getBookSearchByIsbnResponse
 
-    fun getBookSearchByIsbn(isbn : String) =
+    fun getBookSearchByIsbn(isbn: String) =
         viewModelScope.launch {
             _getBookSearchByIsbnResponse.value = bookSearchUseCase.getBookSearchByIsbn(isbn)
         }
@@ -87,5 +87,4 @@ class BookSearchViewModel @Inject constructor(
                 _bookSearchState.value = BookSearchState.Error(e.message ?: "Unknown error occurred")
             }
         }
-
 }

@@ -1,13 +1,10 @@
 package com.ssafy.booking.ui.booking
 
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.ssafy.booking.ui.common.TabBar
 
-
-val tabTitles = listOf("모임 정보","참가자","게시판")
-
+val tabTitles = listOf("모임 정보", "참가자", "게시판")
 
 @Preview(showBackground = true)
 @Composable

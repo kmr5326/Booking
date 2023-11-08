@@ -10,15 +10,14 @@ import com.gmail.bishoybasily.stomp.lib.StompClient
 import com.google.gson.GsonBuilder
 import com.ssafy.data.room.dao.MessageDao
 import com.ssafy.data.room.entity.MessageEntity
-import com.ssafy.domain.model.KafkaMessage
 import com.ssafy.data.utils.LocalDateTimeDeserializer
 import com.ssafy.data.utils.LocalDateTimeSerializer
+import com.ssafy.domain.model.KafkaMessage
 import com.ssafy.domain.usecase.OkhttpService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.disposables.Disposable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.sql.Timestamp
 import java.time.LocalDateTime
 import java.util.logging.Logger
 import javax.inject.Inject
@@ -56,7 +55,7 @@ class SocketViewModel @Inject constructor(
         stompConnection = stomp.connect().subscribe {
             when (it.type) {
                 Event.Type.OPENED -> {
-                    Log.d("STOMP", "${it} OPENED!!!")
+                    Log.d("STOMP", "$it OPENED!!!")
                     topic = stomp.join("/subscribe/$chatId")
                         .subscribe(
                             { stompMessage ->
@@ -92,11 +91,11 @@ class SocketViewModel @Inject constructor(
                 }
 
                 Event.Type.CLOSED -> {
-                    Log.d("STOMP", "${it} CLOSED!!!")
+                    Log.d("STOMP", "$it CLOSED!!!")
                 }
 
                 Event.Type.ERROR -> {
-                    Log.d("STOMP", "${it} ERROR!!!")
+                    Log.d("STOMP", "$it ERROR!!!")
                 }
 
                 else -> {
@@ -108,10 +107,10 @@ class SocketViewModel @Inject constructor(
 
     fun sendMessage(message: KafkaMessage, chatId: Long?) {
         val jsonMessage = gson.toJson(message)
-        stomp.send("/publish/message/${chatId}", jsonMessage)
+        stomp.send("/publish/message/$chatId", jsonMessage)
             .subscribe { success ->
                 if (success) {
-                    Log.d("STOMP", "chatting send is successful ${jsonMessage}")
+                    Log.d("STOMP", "chatting send is successful $jsonMessage")
                 } else {
                     Log.d("STOMP", "failed to send message")
                 }
@@ -119,8 +118,7 @@ class SocketViewModel @Inject constructor(
     }
 
     fun disconnectChat() {
-        topic.dispose()  // 구독 해지
-        stompConnection.dispose()  // STOMP 연결 해지
+        topic.dispose() // 구독 해지
+        stompConnection.dispose() // STOMP 연결 해지
     }
-
 }
