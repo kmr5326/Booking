@@ -6,10 +6,11 @@ import java.util.List;
 public record ChatroomListResponse(
     Long chatroomId,
     String meetingTitle,
+    String lastMessage,
     List<Long> memberList
 
 ) {
     public static ChatroomListResponse from(Chatroom chatroom) {
-        return new ChatroomListResponse(chatroom.get_id(), chatroom.getMeetingTitle(), chatroom.getMemberList());
+        return new ChatroomListResponse(chatroom.get_id(), chatroom.getMeetingTitle(), chatroom.getLastMessage(), chatroom.getMemberList());
     }
 }
