@@ -1,4 +1,4 @@
-package com.booking.booking.meeting.dto.request;
+package com.booking.booking.global.dto.request;
 
 import com.booking.booking.meeting.domain.Meeting;
 

@@ -2,7 +2,8 @@ package com.booking.booking.meeting.controller;
 
 import com.booking.booking.global.utils.JwtUtil;
 import com.booking.booking.meeting.dto.request.MeetingRequest;
-import com.booking.booking.meeting.dto.response.MeetingResponse;
+import com.booking.booking.meeting.dto.response.MeetingDetailResponse;
+import com.booking.booking.meeting.dto.response.MeetingListResponse;
 import com.booking.booking.meeting.service.MeetingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,34 +28,41 @@ public class MeetingController {
     private final MeetingService meetingService;
     private static final String AUTHORIZATION = "Authorization";
 
+//    @GetMapping("/test")
+//    public Mono<ResponseEntity<Void>> test() {
+//        return meetingService.deleteByMeetingId(3L)
+//                .thenReturn(ResponseEntity.ok().<Void>build());
+//    }
+
     @PostMapping("/")
     public Mono<ResponseEntity<Long>> createMeeting
             (@RequestHeader(AUTHORIZATION) String token, @RequestBody MeetingRequest meetingRequest) {
         String userEmail = JwtUtil.getLoginEmailByToken(token);
 
+        // TODO 채팅방 생성 요청 실패했는데 200
         return meetingService.createMeeting(userEmail, meetingRequest)
-                .map(meetingId -> ResponseEntity.ok().body(meetingId))
-                .onErrorResume(error ->
-                        Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, error.getMessage())));
-    }
-
-    @GetMapping("/{meetingId}")
-    public Mono<ResponseEntity<MeetingResponse>> findById(@PathVariable("meetingId") Long meetingId) {
-        return meetingService.findById(meetingId)
-                .map(meeting -> ResponseEntity.ok().body(meeting))
+                .map(meeting -> ResponseEntity.ok().body(meeting.getMeetingId()))
                 .onErrorResume(error ->
                         Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, error.getMessage())));
     }
 
     @GetMapping("/")
-    public ResponseEntity<Flux<MeetingResponse>> findAllByLocation(@RequestHeader(AUTHORIZATION) String token) {
+    public ResponseEntity<Flux<MeetingListResponse>> findAllByLocation(@RequestHeader(AUTHORIZATION) String token) {
         String userEmail = JwtUtil.getLoginEmailByToken(token);
 
-        Flux<MeetingResponse> meetingResponseFlux = meetingService.findAllByLocation(userEmail)
+        Flux<MeetingListResponse> meetingResponseFlux = meetingService.findAllByLocation(userEmail)
                 .onErrorResume(error ->
                         Flux.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, error.getMessage())));
 
         return ResponseEntity.ok().body(meetingResponseFlux);
+    }
+
+    @GetMapping("/{meetingId}")
+    public Mono<ResponseEntity<MeetingDetailResponse>> findById(@PathVariable("meetingId") Long meetingId) {
+        return meetingService.findByMeetingId(meetingId)
+                .map(meeting -> ResponseEntity.ok().body(meeting))
+                .onErrorResume(error ->
+                        Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, error.getMessage())));
     }
 
     @PostMapping("/{meetingId}/waiting")
