@@ -1,7 +1,6 @@
 package com.booking.booking.meetinginfo.controller;
 
-
-import com.booking.booking.global.jwt.JwtUtil;
+import com.booking.booking.global.utils.JwtUtil;
 import com.booking.booking.meetinginfo.dto.request.MeetingInfoRequest;
 import com.booking.booking.meetinginfo.service.MeetingInfoService;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +15,7 @@ import reactor.core.publisher.Mono;
 
 @Slf4j
 @RequiredArgsConstructor
-@RequestMapping("/api/booking/meetinginfo")
+@RequestMapping("/api/booking/meeting/info")
 @RestController
 public class MeetingInfoController {
     private final MeetingInfoService meetingInfoService;
@@ -24,10 +23,12 @@ public class MeetingInfoController {
     private static final String AUTHORIZATION = "Authorization";
 
     @PostMapping("/")
-    public Mono<ResponseEntity<Void>> createDetailedMeeting(@RequestHeader(AUTHORIZATION) String token, @RequestBody MeetingInfoRequest meetingInfoRequest) {
+    public Mono<ResponseEntity<Void>> createDetailedMeeting
+            (@RequestHeader(AUTHORIZATION) String token, @RequestBody MeetingInfoRequest meetingInfoRequest) {
         String userEmail = JwtUtil.getLoginEmailByToken(token);
 
-        return meetingInfoService.createMeeting(userEmail, meetingInfoRequest)
+        // TODO 에러 처리
+        return meetingInfoService.createMeetingInfo(userEmail, meetingInfoRequest)
                 .thenReturn(ResponseEntity.noContent().build());
     }
 }

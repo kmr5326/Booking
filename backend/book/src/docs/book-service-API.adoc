@@ -1,0 +1,2 @@
+=== Book
+include::controller/Book.adoc[]
