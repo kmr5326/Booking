@@ -3,6 +3,7 @@ package com.booking.chat.chat.service;
 
 import com.booking.chat.chat.domain.Message;
 import com.booking.chat.chat.repository.MessageRepository;
+import com.booking.chat.chatroom.domain.Chatroom;
 import com.booking.chat.chatroom.service.ChatroomService;
 import com.booking.chat.kafka.domain.KafkaMessage;
 import com.booking.chat.notification.dto.response.NotificationResponse;
@@ -69,6 +70,7 @@ public class MessageService {
                               .flatMap(chatroom -> {
                                   Long idx = chatroom.getMessageIndex();
                                   chatroom.updateIndex();
+                                  // int readCount = getReadCount(chatroom, message.getSenderId()).block();
                                   return chatroomService.save(chatroom)
                                                         .then(Mono.just(Message.builder()
                                                                                .chatroomId(chatroomId)
@@ -84,5 +86,14 @@ public class MessageService {
     public Flux<Message> findAllByRoomId(Long roomId) {
 
         return messageRepository.findByChatRoomId(roomId);
+    }
+
+    // TODO : redis
+    private Mono<Integer> getReadCount(Chatroom chatroom, Long senderId) {
+
+        int totalMemberNumber = chatroom.getMemberList().size() - 1;
+        int cachingChatroomMember = 0; // do something
+
+        return Mono.just(totalMemberNumber - cachingChatroomMember);
     }
 }

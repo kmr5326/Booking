@@ -4,6 +4,7 @@ import com.booking.chat.chat.domain.Message;
 import com.booking.chat.chatroom.dto.request.ExitChatroomRequest;
 import com.booking.chat.chatroom.dto.request.InitChatroomRequest;
 import com.booking.chat.chatroom.dto.request.JoinChatroomRequest;
+import com.booking.chat.chatroom.dto.request.LastMessageRequest;
 import com.booking.chat.chatroom.dto.response.ChatroomListResponse;
 import com.booking.chat.chatroom.service.ChatroomService;
 import com.booking.chat.global.jwt.JwtUtil;
@@ -75,10 +76,10 @@ public class ChatroomController {
         return chatroomService.getChatroomListByMemberIdOrderByDesc(memberId);
     }
 
-    @GetMapping("/{chatroomId}")
-    public Flux<Message> enterChatroom(@PathVariable Long chatroomId, @RequestHeader(AUTHORIZATION) String token){
+    @PostMapping("/{chatroomId}")
+    public Flux<Message> enterChatroom(@PathVariable Long chatroomId, @RequestHeader(AUTHORIZATION) String token, @RequestBody LastMessageRequest lastMessageRequest){
         Long memberId = JwtUtil.getMemberIdByToken(token);
-
+        log.info(" {} member request enter chatroom : {} ", memberId, chatroomId);
         return Flux.just();
     }
 

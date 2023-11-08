@@ -28,6 +28,8 @@ public class Message {
 
     private String content;
 
+    private Integer readCount;
+
     @CreatedDate
     private LocalDateTime timestamp;
 
