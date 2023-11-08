@@ -92,6 +92,7 @@ import com.ssafy.booking.ui.LocalNavigation
 import com.ssafy.booking.utils.MyFirebaseMessagingService
 import com.ssafy.data.repository.FirebaseRepositoryImpl
 import com.ssafy.data.repository.token.TokenDataSource
+import com.ssafy.domain.model.DeviceToken
 
 import retrofit2.http.Body
 import retrofit2.http.Headers
@@ -120,7 +121,12 @@ val retrofit = Retrofit.Builder()
 val loginService = retrofit.create(LoginService::class.java)
 
 // 로그인 API 호출
-private fun onLoginSuccess(context: Context, loginId: String, navController: NavController,kakaoNickName:String) {
+private fun onLoginSuccess(
+    context: Context,
+    loginId: String,
+    navController: NavController,
+    kakaoNickName:String
+) {
     val loginInfo = LoginInfo(loginId = loginId) // 실제 로그인 ID로 변경해야 함
 //    val loginInfo = LoginInfo(loginId = "kakao_3143286573")
     val call = loginService.login(loginInfo)
@@ -137,11 +143,16 @@ private fun onLoginSuccess(context: Context, loginId: String, navController: Nav
                 tokenDataSource.putLoginId(loginId)
                 val asdf = tokenDataSource.getLoginId()
                 Log.d("asdf", "로그인 아이디: $asdf")
+
+                MyFirebaseMessagingService.getFirebaseToken { token ->
+                    val tokenDataSource = TokenDataSource(context)
+                    tokenDataSource.putDeviceToken(token)
+                }
+
                 navController.navigate(AppNavItem.Main.route) {
                     popUpTo("login") { inclusive = true }
                     launchSingleTop = true
                 }
-                MyFirebaseMessagingService.getFirebaseToken()
 
             } else {
                 // 오류 처리
@@ -164,8 +175,6 @@ private fun onLoginSuccess(context: Context, loginId: String, navController: Nav
         }
     })
 }
-
-
 @Composable
 fun Greeting(
     navController: NavController,

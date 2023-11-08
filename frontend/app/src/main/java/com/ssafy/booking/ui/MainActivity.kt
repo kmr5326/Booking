@@ -16,8 +16,11 @@ import com.kakao.sdk.common.KakaoSdk
 import com.kakao.sdk.common.util.Utility
 import android.Manifest
 import android.content.pm.PackageManager
+import android.os.Build
 import android.util.TypedValue
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.core.view.WindowCompat
 import com.google.android.gms.location.LocationServices
 import com.ssafy.booking.R
 import com.ssafy.booking.ui.BookingApp
@@ -47,6 +50,9 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+//        WindowCompat.setDecorFitsSystemWindows(window, false)
+
         /** KakaoSDK init */
         KakaoSdk.init(this, "c983af9ff87c243a4acecc793d087699")
         var keyHash = Utility.getKeyHash(this)
@@ -70,5 +76,38 @@ class MainActivity : ComponentActivity() {
         }
         fusedLocationClient.lastLocation.addOnSuccessListener {  }
     }
+
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission(),
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            // FCM SDK (and your app) can post notifications.
+        } else {
+            // TODO: Inform user that that your app will not show notifications.
+        }
+    }
+    private fun askNotificationPermission() {
+        try {
+            // This is only necessary for API level >= 33 (TIRAMISU)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                if (ContextCompat.checkSelfPermission(
+                        this, Manifest.permission.POST_NOTIFICATIONS
+                    ) == PackageManager.PERMISSION_GRANTED
+                ) {
+                    // FCM SDK (and your app) can post notifications.
+                } else if (shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS)) {
+                    // TODO: Display an educational UI to the user
+                } else {
+                    // Directly ask for the permission
+                    requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                }
+            }
+        } catch (e: Exception) {
+            // Handle the exception
+            e.printStackTrace()
+            // TODO: Inform the user about the error, possibly retry or log
+        }
+    }
+
 }
 

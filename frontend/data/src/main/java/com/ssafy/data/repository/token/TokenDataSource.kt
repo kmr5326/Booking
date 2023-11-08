@@ -3,6 +3,7 @@ package com.ssafy.data.repository.token
 import android.content.Context
 import android.content.SharedPreferences
 import com.google.gson.Gson
+import com.ssafy.domain.model.DeviceToken
 import com.ssafy.domain.model.google.AccountInfo
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
@@ -13,6 +14,7 @@ class TokenDataSource @Inject constructor(
     companion object {
         private const val ACCESS_TOKEN = "access_token"
         private const val LOGIN_ID = "login_id"
+        private const val DEVICE_TOKEN = "device_token"
     }
     private fun getTokenPreference(context: Context) : SharedPreferences {
         return context.getSharedPreferences(ACCESS_TOKEN, Context.MODE_PRIVATE)
@@ -69,6 +71,16 @@ class TokenDataSource @Inject constructor(
 
     fun removeLoginId() {
         putString(LOGIN_ID, null)
+    }
+
+    fun putDeviceToken(s: String) {
+        putString(DEVICE_TOKEN, s)
+    }
+    fun getDeviceToken() : String? {
+        return getString(DEVICE_TOKEN)
+    }
+    fun removeDeviceToken() {
+        return putString(DEVICE_TOKEN, null)
     }
 
 }

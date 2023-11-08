@@ -8,6 +8,6 @@ import retrofit2.http.POST
 
 interface FirebaseApi {
     @Headers("Content-Type: application/json")
-    @POST("/api/notification")
+    @POST("/api/notification/init")
     suspend fun postDeviceToken(@Body request: DeviceToken): Response<Unit>
 }

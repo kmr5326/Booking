@@ -1,5 +1,6 @@
 package com.ssafy.booking.ui.booking
 
+import android.util.Log
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -32,11 +33,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import com.ssafy.booking.R
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Search
@@ -51,18 +49,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.navigation.compose.rememberNavController
-import com.ssafy.booking.ui.AppNavItem
-import com.ssafy.booking.ui.common.TopBar
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.graphics.Color.Companion.White
-import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.BaselineShift
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.ssafy.booking.viewmodel.BookingViewModel
+import com.ssafy.data.repository.token.TokenDataSource
+import com.ssafy.domain.model.DeviceToken
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -70,6 +68,45 @@ import androidx.compose.ui.text.style.BaselineShift
 fun Main(
     navController: NavController, appViewModel: AppViewModel
 ) {
+
+
+
+    val bookingViewModel: BookingViewModel = hiltViewModel()
+    // ViewModel의 LiveData를 State로 변환
+    val bookingAllListState = bookingViewModel.getBookingAllList.observeAsState()
+    val bookingDetailState = bookingViewModel.getBookingDetail.observeAsState()
+    val participantsState = bookingViewModel.getParticipants.observeAsState()
+    val waitingListState = bookingViewModel.getWaitingList.observeAsState()
+
+    val context = LocalContext.current
+    val tokenDataSource = TokenDataSource(context)
+    val deviceToken : String? = tokenDataSource.getDeviceToken()
+
+    // LaunchedEffect를 사용하여 한 번만 API 호출
+    LaunchedEffect(Unit) {
+        bookingViewModel.postDeivceToken(DeviceToken(deviceToken))
+        bookingViewModel.getBookingAllList()
+        bookingViewModel.getBookingDetail(1) // 실제 meetingId로 교체 필요
+        bookingViewModel.getParticipants(1) // 실제 meetingId로 교체 필요
+        bookingViewModel.getWaitingList(1) // 실제 meetingId로 교체 필요
+//
+        bookingAllListState.value?.let { response ->
+            Log.d("API CALL", "Booking All List: ${response.isSuccessful}")
+        }
+        bookingDetailState.value?.let { response ->
+            Log.d("API CALL", "Booking Detail: ${response.isSuccessful}")
+        }
+        participantsState.value?.let { response ->
+            Log.d("API CALL", "Participants: ${response.isSuccessful}")
+        }
+        waitingListState.value?.let { response ->
+            Log.d("API CALL", "Waiting List: ${response.isSuccessful}")
+        }
+
+    }
+
+    ////////////////////////// 위쪽 : 지헌 TEST 코드 작성 //////////////////////////
+
     Scaffold (
         topBar = {
             HomeTopBar(navController,  appViewModel )
@@ -176,7 +213,7 @@ fun BookItem(book: Book) {
 @Composable
 fun MyFloatingActionButton(navController: NavController, appViewModel: AppViewModel) {
     FloatingActionButton(
-        onClick = {navController.navigate(AppNavItem.CreateBooking.route)},
+        onClick = {navController.navigate("create/booking/isbn")},
         modifier = Modifier
             .padding(end = 16.dp, bottom = 10.dp)
             .size(65.dp)

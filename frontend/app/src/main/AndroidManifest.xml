@@ -55,6 +55,10 @@
             </intent-filter>
         </service>
 
+        <meta-data
+            android:name="com.naver.maps.map.CLIENT_ID"
+            android:value="aCoZnAym6gdpl1cAQpUm" />
+
     </application>
 
 </manifest>

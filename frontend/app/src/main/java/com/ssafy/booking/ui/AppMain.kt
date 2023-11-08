@@ -18,6 +18,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.ssafy.booking.ui.book.BookDetail
 import com.ssafy.booking.ui.book.BookHome
 import com.ssafy.booking.ui.chat.ChatDetail
 import com.ssafy.booking.ui.chat.ChatHome
@@ -39,7 +40,8 @@ import com.ssafy.booking.viewmodel.SocketViewModel
 sealed class AppNavItem(
     val route: String
 ) {
-    object Book: AppNavItem("book")
+    object Book: AppNavItem("book/{checkBoolean}")
+    object BookDetail: AppNavItem("bookDetail/{isbn}")
     object History: AppNavItem("history")
     object HistoryDetail: AppNavItem("history/detail")
     object Main: AppNavItem("main")
@@ -47,7 +49,7 @@ sealed class AppNavItem(
     object ChatDetail: AppNavItem("chatDetail/{chatId}")
     object Profile: AppNavItem("profile")
     object Login: AppNavItem("login")
-    object CreateBooking : AppNavItem("create/booking")
+    object CreateBooking : AppNavItem("create/booking/{isbn}")
     object SignIn: AppNavItem("signIn/{loginId}/{kakaoNickName}"){
         fun createRoute(loginId: String, kakaoNickName: String): String {
             return "signIn/$loginId/$kakaoNickName"
@@ -65,7 +67,8 @@ fun BookingApp(googleSignInClient: GoogleSignInClient) {
 
     BookingTheme {
         Scaffold {
-            Box(Modifier.padding(it)) {
+            Box(modifier = Modifier
+                .padding(it)) {
                 Route(googleSignInClient)
             }
         }
@@ -92,8 +95,15 @@ fun Route(googleSignInClient: GoogleSignInClient) {
                 val context = LocalContext.current
                 Greeting(navController, mainViewModel, appViewModel,context,googleSignInClient)
             }
-            composable("book") {
-                BookHome(navController, appViewModel)
+            composable("book/{checkBoolean}") {navBackStackEntry->
+                val checkBoolean = navBackStackEntry.arguments?.getString("checkBoolean")?.toBoolean() ?: true
+                BookHome(navController, appViewModel, checkBoolean)
+            }
+            composable("bookDetail/{isbn}") {navBackStackEntry ->
+                val isbn = navBackStackEntry.arguments?.getString("isbn")
+                isbn?.let {
+                    BookDetail(isbn = it)
+                }
             }
             composable("history") {
                 HistoryHome(navController, appViewModel)
@@ -113,8 +123,13 @@ fun Route(googleSignInClient: GoogleSignInClient) {
             composable("profile") {
                 ProfileHome(navController, appViewModel)
             }
-            composable("create/booking") {
-                BookingCreate(navController, appViewModel)
+            composable("create/booking/{isbn}") {navBackStackEntry ->
+                val isbn = navBackStackEntry.arguments?.getString("isbn")
+                if (isbn == "isbn") {
+                    BookingCreate(navController, appViewModel, isbn=null)
+                } else {
+                    BookingCreate(navController, appViewModel, isbn)
+                }
             }
             composable("signIn/{loginId}/{kakaoNickName}") { navBackStackEntry ->
                 // 여기에서 loginId와 nickName을 추출합니다.

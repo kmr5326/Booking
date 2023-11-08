@@ -1,10 +1,7 @@
 package com.ssafy.data.repository
 
 import com.ssafy.data.remote.api.FirebaseApi
-import com.ssafy.domain.model.ChatCreateRequest
-import com.ssafy.domain.model.ChatRoom
 import com.ssafy.domain.model.DeviceToken
-import com.ssafy.domain.repository.ChatRepository
 import com.ssafy.domain.repository.FirebaseRepository
 import retrofit2.Response
 import javax.inject.Inject

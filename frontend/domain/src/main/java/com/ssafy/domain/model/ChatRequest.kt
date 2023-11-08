@@ -6,7 +6,7 @@ data class ChatCreateRequest (
     @SerializedName("meetingId")
     val meetingId : Int,
     @SerializedName("leaderId")
-    val leaderId : Int,
+    val leaderId : Long?,
     @SerializedName("meetingTitle")
     val meetingTitle : String,
 )
@@ -15,12 +15,12 @@ data class ChatJoinRequest (
     @SerializedName("meetingId")
     val meetingId : Int,
     @SerializedName("memberId")
-    val memberId : Int,
+    val memberId : Long?,
 )
 
-data class ChatExitRequest (
+data class ChatExitRequest(
     @SerializedName("meetingId")
-    val meetingId : Int,
+    val meetingId: String?,
     @SerializedName("memberId")
-    val memberId : Int,
+    val memberId: Long?,
 )

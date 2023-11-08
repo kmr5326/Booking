@@ -3,12 +3,10 @@ package com.ssafy.booking.ui.chat
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -18,7 +16,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
@@ -35,9 +32,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -48,12 +45,16 @@ import com.ssafy.booking.ui.common.BottomNav
 import com.ssafy.booking.ui.common.TopBar
 import com.ssafy.booking.viewmodel.AppViewModel
 import com.ssafy.booking.ui.LocalNavigation
+import com.ssafy.booking.ui.profile.ProfileData
 import com.ssafy.booking.viewmodel.ChatViewModel
+import com.ssafy.booking.viewmodel.MyPageViewModel
 import com.ssafy.booking.viewmodel.SocketViewModel
+import com.ssafy.data.repository.token.TokenDataSource
 import com.ssafy.domain.model.ChatCreateRequest
 import com.ssafy.domain.model.ChatExitRequest
 import com.ssafy.domain.model.ChatJoinRequest
 import com.ssafy.domain.model.ChatRoom
+import com.ssafy.domain.model.mypage.UserInfoResponse
 import retrofit2.Response
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -62,9 +63,31 @@ fun ChatHome(
     navController: NavController,
     appViewModel: AppViewModel,
 ) {
+    val navController = LocalNavigation.current
     val chatViewModel: ChatViewModel = hiltViewModel()
+    val myPageViewModel: MyPageViewModel = hiltViewModel()
 
-    var chatId by remember {mutableStateOf("1")}
+    var chatId by remember {mutableStateOf("")}
+
+    // 유저 정보 불러오기
+    val context = LocalContext.current
+    val tokenDataSource = TokenDataSource(context)
+    var memId by remember { mutableStateOf<Long?>(null) }
+    val loginId: String? = tokenDataSource.getLoginId()
+    val getUserInfoResponse by myPageViewModel.getUserInfoResponse.observeAsState()
+    chatViewModel.loadChatList()
+    LaunchedEffect(loginId) {
+        val result = loginId?.let {
+            Log.d("CHAT","$loginId")
+            myPageViewModel.getUserInfo(loginId)
+        }
+    }
+    LaunchedEffect(getUserInfoResponse) {
+        if(getUserInfoResponse != null) {
+            Log.d("CHAT","${getUserInfoResponse!!.body()}")
+            memId = getUserInfoResponse!!.body()?.memberPk
+        }
+    }
 
     Scaffold (
         topBar = {
@@ -87,36 +110,25 @@ fun ChatHome(
                             value = chatId,
                             onValueChange = { chatId = it },
                             placeholder = { Text("채팅방 번호") },
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                            singleLine = true,
                         )
                         Button(
                             onClick = {
-                                val request = ChatCreateRequest(chatId.toInt(), 7001, "${chatId}번 채팅")
+                                val request = ChatCreateRequest(chatId.toInt(), memId, "${chatId}번 채팅")
                                 chatViewModel.createChatRoom(request)
                             }
                         ) {
-                            Text("채팅방 생성 API")
+                            Text("방 생성")
                         }
                     }
                     Row {
                         Button(
                             onClick = {
-                                val request = ChatJoinRequest(chatId.toInt(), 7001)
+                                val request = ChatJoinRequest(chatId.toInt(), memId)
                                 Log.d("CHAT", "${request}")
                                 chatViewModel.joinChatRoom(request)
                             }
                         ) {
-                            Text("채팅방 참가 API")
-                        }
-                        Button(
-                            onClick = {
-                                val request = ChatExitRequest(chatId.toInt(), 7001)
-                                Log.d("CHAT", "${request}")
-                                chatViewModel.exitChatRoom(request)
-                            }
-                        ) {
-                            Text("채팅방 나가기 API")
+                            Text("채팅방 참가")
                         }
                     }
                     ChatList()
@@ -137,7 +149,7 @@ fun ChatList() {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .padding(horizontal = 16.dp, vertical = 8.dp),
     ) {
         items(chatList) { chat ->
             ChatItem(chat) {
@@ -204,7 +216,9 @@ fun ChatItem(
             }
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = chat.meetingTitle,
+                text = chat.lastMessage?.let{
+                           chat.lastMessage
+                } ?: "",
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
                 fontWeight = FontWeight.Medium,

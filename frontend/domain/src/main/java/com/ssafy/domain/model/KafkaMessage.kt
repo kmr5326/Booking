@@ -6,8 +6,9 @@ data class KafkaMessage(
     @SerializedName("message")
     val message: String,
     @SerializedName("senderId")
-    val senderId: Long,
+    val senderId: Long?,
     @SerializedName("sendTime")
-    val sendTime: LocalDateTime
-) {
-}
+    val sendTime: LocalDateTime,
+    @SerializedName("senderName")
+    val senderName: String,
+)

@@ -1,11 +1,13 @@
 package com.ssafy.booking.di
 
+import com.ssafy.domain.repository.BookSearchRepository
 import com.ssafy.domain.repository.BookingRepository
 import com.ssafy.domain.repository.ChatRepository
 import com.ssafy.domain.repository.FirebaseRepository
 import com.ssafy.domain.repository.GoogleRepository
 import com.ssafy.domain.repository.MemberRepository
 import com.ssafy.domain.repository.MyPageRepository
+import com.ssafy.domain.usecase.BookSearchUseCase
 import com.ssafy.domain.usecase.BookingUseCase
 import com.ssafy.domain.usecase.ChatUseCase
 import com.ssafy.domain.usecase.GetTokenRepoUseCase
@@ -37,6 +39,10 @@ class UseCaseModule {
     @Provides
     @Singleton
     fun provideMyPageUseCase(repository: MyPageRepository) = MyPageUseCase(repository)
+
+    @Provides
+    @Singleton
+    fun provideBookSearchUseCase(repository: BookSearchRepository) = BookSearchUseCase(repository)
 
     @Provides
     @Singleton

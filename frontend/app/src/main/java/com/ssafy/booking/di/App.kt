@@ -2,6 +2,7 @@ package com.ssafy.booking.di
 
 import android.app.Application
 import com.kakao.sdk.common.KakaoSdk
+import com.naver.maps.map.NaverMapSdk
 import com.ssafy.data.repository.token.TokenDataSource
 import dagger.hilt.android.HiltAndroidApp
 
@@ -19,7 +20,8 @@ class App : Application() {
         super.onCreate()
         KakaoSdk.init(this, "c983af9ff87c243a4acecc793d087699")
         application = this
-
         prefs = TokenDataSource(applicationContext)
+        NaverMapSdk.getInstance(this).client =
+            NaverMapSdk.NaverCloudPlatformClient("kwq60wy3gv")
     }
 }
