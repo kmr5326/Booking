@@ -14,5 +14,14 @@ public interface MeetingRepository extends R2dbcRepository<Meeting, Long> {
             "FROM meetings GROUP BY meeting_id HAVING distance <= :radius ORDER BY distance ASC")
     Flux<Meeting> findAllByRadius(@Param("lat") double lat, @Param("lgt") double lgt, @Param("radius") double radius);
 
+    @Query(value = "SELECT m.*, " +
+            "( 6371 * acos( cos( radians(:lat) ) * cos( radians( m.lat ) ) * cos( radians( m.lgt ) " +
+            "- radians(:lgt) ) + sin( radians(:lat) ) * sin( radians( m.lat ) ) ) ) AS distance " +
+            "FROM meetings m " +
+            "INNER JOIN hashtag_meeting hm ON m.meeting_id = hm.meeting_id " +
+            "WHERE hm.hashtag_id = :hashtagId " +
+            "GROUP BY m.meeting_id HAVING distance <= :radius ORDER BY distance ASC")
+    Flux<Meeting> findAllByHashtagId(@Param("lat") double lat, @Param("lgt") double lgt, @Param("radius") double radius, @Param("hashtagId") long hashtagId);
+
     Mono<Meeting> findByMeetingId(Long meetingId);
 }

@@ -39,13 +39,7 @@ public class MeetingService {
     private final ParticipantService participantService;
     private final WaitlistService waitlistService;
 
-//    @Value("${gateway.url}")
-//    private String GATEWAY_URL;
-
-//    public Flux<Long> test() {
-//
-//        return hashtagMeetingService.findMeetingIdByHashtagId(2L);
-//    }
+    private final static double RADIUS = 10.0;
 
     public Mono<Meeting> createMeeting(String userEmail, MeetingRequest meetingRequest) {
         log.info("Booking Server Meeting - createMeeting({}, {})", userEmail, meetingRequest);
@@ -86,8 +80,6 @@ public class MeetingService {
     public Flux<MeetingListResponse> findAllByLocation(String userEmail) {
         log.info("Booking Server Meeting - findAllByLocation({})", userEmail);
 
-        final double RADIUS = 10.0;
-
         return MemberUtil.getMemberInfoByEmail(userEmail)
                 .flatMapMany(member -> meetingRepository.findAllByRadius(member.lat(), member.lgt(), RADIUS))
                 .flatMap(meeting -> {
@@ -107,10 +99,33 @@ public class MeetingService {
                 });
     }
 
+    public Flux<MeetingListResponse> findAllByHashtagId(String userEmail, Long hashtagId) {
+        log.info("Booking Server Meeting - findAllByHashtagId({})", userEmail);
+
+        return MemberUtil.getMemberInfoByEmail(userEmail)
+                .flatMapMany(member -> meetingRepository.findAllByHashtagId(member.lat(), member.lgt(), RADIUS, hashtagId))
+                .flatMap(meeting -> {
+                    Mono<BookResponse> bookResponseMono = BookUtil.getBookByIsbn(meeting.getBookIsbn());
+                    Mono<Integer> curPartipantsMono = participantService.countAllByMeetingId(meeting.getMeetingId());
+                    Mono<List<HashtagResponse>> hashtagResponseFlux =
+                            hashtagMeetingService.findHashtagByMeetingId(meeting.getMeetingId())
+                                    .flatMap(hashtag -> Mono.just(new HashtagResponse(hashtag)))
+                                    .collectList();
+
+                    return Mono.zip(bookResponseMono, curPartipantsMono, hashtagResponseFlux)
+                            .map(tuple -> new MeetingListResponse(meeting, tuple.getT1(), tuple.getT2(), tuple.getT3()));
+                })
+                .onErrorResume(error -> {
+                    log.error("Booking Server Meeting - Error during findAllByHashtagId : {}", error.getMessage());
+                    return Mono.error(error);
+                });
+    }
+
     public Mono<MeetingDetailResponse> findByMeetingId(Long meetingId) {
         log.info("Booking Server Meeting - findByMeetingId({})", meetingId);
 
         return meetingRepository.findByMeetingId(meetingId)
+                .switchIfEmpty(Mono.error(new RuntimeException("미팅 없음")))
                 .flatMap(meeting -> {
                     Mono<BookResponse> bookResponseMono = BookUtil.getBookByIsbn(meeting.getBookIsbn());
                     Mono<List<ParticipantResponse>> participantResponseMono =

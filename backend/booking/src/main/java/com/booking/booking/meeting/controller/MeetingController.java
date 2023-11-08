@@ -57,6 +57,18 @@ public class MeetingController {
         return ResponseEntity.ok().body(meetingResponseFlux);
     }
 
+    @GetMapping("/hashtag/{hashtagId}")
+    public ResponseEntity<Flux<MeetingListResponse>> findAllByHashtagId
+            (@RequestHeader(AUTHORIZATION) String token, @PathVariable("hashtagId") Long hashtagId) {
+        String userEmail = JwtUtil.getLoginEmailByToken(token);
+
+        Flux<MeetingListResponse> meetingListResponseFlux = meetingService.findAllByHashtagId(userEmail, hashtagId)
+                .onErrorResume(error ->
+                        Flux.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, error.getMessage())));
+
+        return ResponseEntity.ok().body(meetingListResponseFlux);
+    }
+
     @GetMapping("/{meetingId}")
     public Mono<ResponseEntity<MeetingDetailResponse>> findById(@PathVariable("meetingId") Long meetingId) {
         return meetingService.findByMeetingId(meetingId)
