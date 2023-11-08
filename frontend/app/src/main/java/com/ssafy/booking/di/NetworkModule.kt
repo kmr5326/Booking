@@ -6,10 +6,10 @@ import com.ssafy.booking.utils.Utils.BASE_URL
 import com.ssafy.data.remote.api.BookSearchApi
 import com.ssafy.data.remote.api.BookingApi
 import com.ssafy.data.remote.api.ChatApi
+import com.ssafy.data.remote.api.FirebaseApi
 import com.ssafy.data.remote.api.GoogleApi
 import com.ssafy.data.remote.api.MemberApi
 import com.ssafy.data.remote.api.MyPageApi
-import com.ssafy.data.remote.api.FirebaseApi
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -25,23 +25,24 @@ import java.io.IOException
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
-
 @Module
 @InstallIn(SingletonComponent::class)
 class NetworkModule {
 
     @Provides
     @Singleton
-    fun okHttpClient(interceptor : AppInterceptor) : OkHttpClient {
+    fun okHttpClient(interceptor: AppInterceptor): OkHttpClient {
         return OkHttpClient.Builder()
             .readTimeout(10, TimeUnit.SECONDS)
             .connectTimeout(10, TimeUnit.SECONDS)
             .writeTimeout(15, TimeUnit.SECONDS)
             .addInterceptor(interceptor)
             .addInterceptor(getLoggingInterceptor())
-            .addInterceptor(HttpLoggingInterceptor().apply {
-                level = HttpLoggingInterceptor.Level.BODY
-            })
+            .addInterceptor(
+                HttpLoggingInterceptor().apply {
+                    level = HttpLoggingInterceptor.Level.BODY
+                }
+            )
             .build()
     }
 
@@ -58,10 +59,10 @@ class NetworkModule {
 
     class AppInterceptor : Interceptor {
         @Throws(IOException::class)
-        override fun intercept(chain: Interceptor.Chain) : Response = with(chain) {
+        override fun intercept(chain: Interceptor.Chain): Response = with(chain) {
             val accessToken = App.prefs.getToken() // ViewModel에서 지정한 key로 JWT 토큰을 가져온다.
             val newRequest = request().newBuilder()
-                .addHeader("authorization", "Bearer ${accessToken}") // 헤더에 authorization라는 key로 JWT 를 넣어준다.
+                .addHeader("authorization", "Bearer $accessToken") // 헤더에 authorization라는 key로 JWT 를 넣어준다.
                 .build()
             proceed(newRequest)
         }
@@ -69,8 +70,8 @@ class NetworkModule {
 
     @Provides
     @Singleton
-    fun provideConverterFactory() : GsonConverterFactory {
-        val gson : Gson = GsonBuilder()
+    fun provideConverterFactory(): GsonConverterFactory {
+        val gson: Gson = GsonBuilder()
             .setLenient()
             .create()
 
@@ -79,7 +80,7 @@ class NetworkModule {
 
     @Provides
     @Singleton
-    fun provideGoogleApiService(retrofit: Retrofit) : GoogleApi {
+    fun provideGoogleApiService(retrofit: Retrofit): GoogleApi {
         return retrofit.create(GoogleApi::class.java)
     }
 
@@ -119,7 +120,6 @@ class NetworkModule {
         return retrofit.create(FirebaseApi::class.java)
     }
 
-
 //    @Provides
 //    @Singleton
 //    fun providePostChatCreateApi(retrofit: Retrofit): PostChatCreateApi {
@@ -137,7 +137,6 @@ class NetworkModule {
 //    fun providePostChatExitApi(retrofit: Retrofit): PostChatExitApi {
 //        return retrofit.create(PostChatExitApi::class.java)
 //    }
-
 
     private fun getLoggingInterceptor(): HttpLoggingInterceptor =
         HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BODY }

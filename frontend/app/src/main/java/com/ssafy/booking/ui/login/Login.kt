@@ -1,104 +1,61 @@
 package com.ssafy.booking.ui.login
 
 import android.app.Activity
-import android.app.Application
-import android.content.Context
 import android.content.ContentValues.TAG
-import android.content.SharedPreferences
-import android.os.Bundle
+import android.content.Context
 import android.util.Log
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.ssafy.booking.ui.theme.BookingTheme
-import androidx.compose.ui.graphics.Color
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.graphics.BlendMode.Companion.Screen
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
-import com.kakao.sdk.auth.model.OAuthToken
-import com.kakao.sdk.common.KakaoSdk
-import com.kakao.sdk.common.KakaoSdk.keyHash
-import com.kakao.sdk.common.model.ClientError
-import com.kakao.sdk.common.model.ClientErrorCause
-import com.kakao.sdk.user.UserApiClient
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
-import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
-import com.squareup.moshi.Moshi
-import com.ssafy.booking.R
-import com.ssafy.booking.google.GoogleApiContract
-import com.ssafy.booking.google.GoogleUserModel
-import com.ssafy.booking.google.SignInGoogleViewModel
-import com.ssafy.booking.google.SignInGoogleViewModelFactory
+import com.kakao.sdk.auth.model.OAuthToken
+import com.kakao.sdk.common.model.ClientError
+import com.kakao.sdk.common.model.ClientErrorCause
+import com.kakao.sdk.user.UserApiClient
 import com.ssafy.booking.ui.AppNavItem
-import com.ssafy.booking.viewmodel.AppViewModel
-import com.ssafy.booking.viewmodel.MainViewModel
-import okhttp3.ResponseBody
-import retrofit2.Call
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
-import com.ssafy.data.repository.google.PreferenceDataSource
-import retrofit2.http.GET
-
-import retrofit2.Callback
-import retrofit2.Response
-
-import com.kakao.sdk.common.util.Utility
-import com.ssafy.booking.utils.Utils.BASE_URL
-import com.google.android.gms.tasks.Task
 import com.ssafy.booking.ui.LocalNavigation
 import com.ssafy.booking.utils.MyFirebaseMessagingService
-import com.ssafy.data.repository.FirebaseRepositoryImpl
+import com.ssafy.booking.viewmodel.AppViewModel
+import com.ssafy.booking.viewmodel.MainViewModel
 import com.ssafy.data.repository.token.TokenDataSource
-import com.ssafy.domain.model.DeviceToken
-
+import com.ssafy.domain.model.google.AccountInfo
+import okhttp3.ResponseBody
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
 import retrofit2.http.Headers
 import retrofit2.http.POST
-import com.ssafy.domain.model.google.AccountInfo
-import dagger.hilt.android.qualifiers.ApplicationContext
 
 val TAG1 = "KakaoLogin"
 
@@ -125,7 +82,7 @@ private fun onLoginSuccess(
     context: Context,
     loginId: String,
     navController: NavController,
-    kakaoNickName:String
+    kakaoNickName: String
 ) {
     val loginInfo = LoginInfo(loginId = loginId) // 실제 로그인 ID로 변경해야 함
 //    val loginInfo = LoginInfo(loginId = "kakao_3143286573")
@@ -149,16 +106,14 @@ private fun onLoginSuccess(
                     tokenDataSource.putDeviceToken(token)
                 }
 
-
                 navController.navigate(AppNavItem.Main.route) {
                     popUpTo("login") { inclusive = true }
                     launchSingleTop = true
                 }
-
             } else {
                 // 오류 처리
                 val errorCode = response.code()
-                Log.d("kakao","$errorCode")
+                Log.d("kakao", "$errorCode")
                 when (errorCode) {
                     // 에러 코드가 400이면 회원가입이 필요한 상태 -> 회원가입으로 라우트
                     400 -> {
@@ -176,6 +131,7 @@ private fun onLoginSuccess(
         }
     })
 }
+
 @Composable
 fun Greeting(
     navController: NavController,
@@ -187,7 +143,8 @@ fun Greeting(
 ) {
     val navController = navController
     Box(
-        modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center
+        modifier = modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
     ) {
         Column(
             modifier = Modifier.align(Alignment.Center),
@@ -198,7 +155,7 @@ fun Greeting(
                 fontWeight = FontWeight.SemiBold,
                 modifier = modifier.padding(bottom = 24.dp),
                 color = Color(0xFF00C68E),
-                style = TextStyle(fontSize = 40.sp),
+                style = TextStyle(fontSize = 40.sp)
             )
 
             KakaoLoginButton(context, navController)
@@ -208,6 +165,7 @@ fun Greeting(
         }
     }
 }
+
 @Composable
 fun TempLoginButton(navController: NavController) {
     Button(
@@ -253,11 +211,10 @@ fun GoogleLoginButton(
 
     if (accountInfo != null) {
         navController.navigate(AppNavItem.Main.route) {
-            popUpTo("login")
-            { inclusive = true }
+            popUpTo("login") { inclusive = true }
             launchSingleTop = true
         }
-        Log.i("UserInfo","정보들 : $accountInfo")
+        Log.i("UserInfo", "정보들 : $accountInfo")
     } else {
         Button(
             onClick = { startForResult.launch(googleSignInClient.signInIntent) },
@@ -312,7 +269,6 @@ fun TestButton(onClick: () -> Unit) {
             contentColor = Color(0xFFffffff)
         )
 
-
     ) {
         Text(
             "테스트 버튼",
@@ -321,7 +277,7 @@ fun TestButton(onClick: () -> Unit) {
     }
 }
 
-///////
+// /////
 
 private fun loginCallback(
     context: Context,
@@ -337,19 +293,19 @@ private fun loginCallback(
                 Log.e("asdf", "사용자 정보 요청 실패", error)
             } else if (user != null) {
                 val loginId = "kakao_" + user.id.toString()
-                onLoginSuccess(context, loginId, navController,user.kakaoAccount?.profile?.nickname.toString())
+                onLoginSuccess(context, loginId, navController, user.kakaoAccount?.profile?.nickname.toString())
                 Log.i(
-                    "loginInfo", "사용자 정보 요청 성공" +
-                            "\n회원번호: ${user.id}" +
-                            "\n이메일: ${user.kakaoAccount?.email}" +
-                            "\n닉네임: ${user.kakaoAccount?.profile?.nickname}" +
-                            "\n프로필사진: ${user.kakaoAccount?.profile?.thumbnailImageUrl}"
+                    "loginInfo",
+                    "사용자 정보 요청 성공" +
+                        "\n회원번호: ${user.id}" +
+                        "\n이메일: ${user.kakaoAccount?.email}" +
+                        "\n닉네임: ${user.kakaoAccount?.profile?.nickname}" +
+                        "\n프로필사진: ${user.kakaoAccount?.profile?.thumbnailImageUrl}"
                 )
             }
         }
     }
 }
-
 
 @Composable
 fun KakaoLoginButton(context: Context, navController: NavController) {
@@ -386,16 +342,16 @@ fun KakaoLoginButton(context: Context, navController: NavController) {
                         UserApiClient.instance.me { user, error ->
                             if (error != null) {
                                 Log.e(TAG, "사용자 정보 요청 실패", error)
-                            }
-                            else if (user != null) {
-                                Log.i("UserInfo", "사용자 정보 요청 성공" +
+                            } else if (user != null) {
+                                Log.i(
+                                    "UserInfo",
+                                    "사용자 정보 요청 성공" +
 //                                        "\n회원번호: ${user.id}" +
 //                                        "\n이메일: ${user.kakaoAccount?.email}" +
-                                            "\n닉네임: ${user.kakaoAccount?.profile?.nickname}"
+                                        "\n닉네임: ${user.kakaoAccount?.profile?.nickname}"
                                 )
 //                                        "\n프로필사진: ${user.kakaoAccount?.profile?.thumbnailImageUrl}")
-                                onLoginSuccess(context, user.id.toString(), navController,user.kakaoAccount?.profile?.nickname.toString())
-
+                                onLoginSuccess(context, user.id.toString(), navController, user.kakaoAccount?.profile?.nickname.toString())
                             }
                         }
                     }
@@ -425,9 +381,8 @@ fun KakaoLoginButton(context: Context, navController: NavController) {
 fun SignInBtn() {
     val navController = LocalNavigation.current
 
-    Button(onClick = {navController.navigate(AppNavItem.SignIn.route)}) {
+    Button(onClick = { navController.navigate(AppNavItem.SignIn.route) }) {
         Text(text = "회원가입페이지 연결")
     }
 }
-////
-
+// //

@@ -20,42 +20,44 @@ import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.ssafy.booking.ui.book.BookDetail
 import com.ssafy.booking.ui.book.BookHome
+import com.ssafy.booking.ui.booking.Main
 import com.ssafy.booking.ui.chat.ChatDetail
 import com.ssafy.booking.ui.chat.ChatHome
-import com.ssafy.booking.ui.history.HistoryHome
-import com.ssafy.booking.ui.login.Greeting
-import com.ssafy.booking.ui.theme.BookingTheme
-import com.ssafy.booking.viewmodel.AppViewModel
-import com.ssafy.booking.ui.booking.Main
-import com.ssafy.booking.ui.profile.ProfileHome
-import com.ssafy.booking.viewmodel.MainViewModel
-import dagger.hilt.android.lifecycle.HiltViewModel
-import com.ssafy.booking.ui.booking.MyFloatingActionButton
 import com.ssafy.booking.ui.common.SettingPage
 import com.ssafy.booking.ui.history.HistoryDetail
+import com.ssafy.booking.ui.history.HistoryHome
+import com.ssafy.booking.ui.login.Greeting
 import com.ssafy.booking.ui.login.SignInScreen
+import com.ssafy.booking.ui.profile.ProfileFollowScreen
+import com.ssafy.booking.ui.profile.ProfileHome
+import com.ssafy.booking.ui.profile.ProfileModifierScreen
+import com.ssafy.booking.ui.theme.BookingTheme
+import com.ssafy.booking.viewmodel.AppViewModel
 import com.ssafy.booking.viewmodel.ChatViewModel
+import com.ssafy.booking.viewmodel.MainViewModel
 import com.ssafy.booking.viewmodel.SocketViewModel
 
 sealed class AppNavItem(
     val route: String
 ) {
-    object Book: AppNavItem("book/{checkBoolean}")
-    object BookDetail: AppNavItem("bookDetail/{isbn}")
-    object History: AppNavItem("history")
-    object HistoryDetail: AppNavItem("history/detail")
-    object Main: AppNavItem("main")
-    object Chat: AppNavItem("chat")
-    object ChatDetail: AppNavItem("chatDetail/{chatId}")
-    object Profile: AppNavItem("profile")
-    object Login: AppNavItem("login")
+    object Book : AppNavItem("book/{checkBoolean}")
+    object BookDetail : AppNavItem("bookDetail/{isbn}")
+    object History : AppNavItem("history")
+    object HistoryDetail : AppNavItem("history/detail")
+    object Main : AppNavItem("main")
+    object Chat : AppNavItem("chat")
+    object ChatDetail : AppNavItem("chatDetail/{chatId}")
+    object Profile : AppNavItem("profile")
+    object Login : AppNavItem("login")
     object CreateBooking : AppNavItem("create/booking/{isbn}")
-    object SignIn: AppNavItem("signIn/{loginId}/{kakaoNickName}"){
+    object SignIn : AppNavItem("signIn/{loginId}/{kakaoNickName}") {
         fun createRoute(loginId: String, kakaoNickName: String): String {
             return "signIn/$loginId/$kakaoNickName"
         }
     }
-    object Setting: AppNavItem("setting")
+    object Setting : AppNavItem("setting")
+    object ProfileFollow : AppNavItem("profile/follow/{nickname}")
+    object ProfileModifier : AppNavItem("profile/modifier")
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -67,8 +69,10 @@ fun BookingApp(googleSignInClient: GoogleSignInClient) {
 
     BookingTheme {
         Scaffold {
-            Box(modifier = Modifier
-                .padding(it)) {
+            Box(
+                modifier = Modifier
+                    .padding(it)
+            ) {
                 Route(googleSignInClient)
             }
         }
@@ -88,18 +92,18 @@ fun Route(googleSignInClient: GoogleSignInClient) {
 //    val histroyViewModel = hiltViewModel<HistoryViewModel>(viewModelStoreOwner)
 
     CompositionLocalProvider(
-        LocalNavigation provides navController,
+        LocalNavigation provides navController
     ) {
         NavHost(navController = navController, startDestination = AppNavItem.Login.route) {
             composable("login") {
                 val context = LocalContext.current
-                Greeting(navController, mainViewModel, appViewModel,context,googleSignInClient)
+                Greeting(navController, mainViewModel, appViewModel, context, googleSignInClient)
             }
-            composable("book/{checkBoolean}") {navBackStackEntry->
+            composable("book/{checkBoolean}") { navBackStackEntry ->
                 val checkBoolean = navBackStackEntry.arguments?.getString("checkBoolean")?.toBoolean() ?: true
                 BookHome(navController, appViewModel, checkBoolean)
             }
-            composable("bookDetail/{isbn}") {navBackStackEntry ->
+            composable("bookDetail/{isbn}") { navBackStackEntry ->
                 val isbn = navBackStackEntry.arguments?.getString("isbn")
                 isbn?.let {
                     BookDetail(isbn = it)
@@ -123,10 +127,10 @@ fun Route(googleSignInClient: GoogleSignInClient) {
             composable("profile") {
                 ProfileHome(navController, appViewModel)
             }
-            composable("create/booking/{isbn}") {navBackStackEntry ->
+            composable("create/booking/{isbn}") { navBackStackEntry ->
                 val isbn = navBackStackEntry.arguments?.getString("isbn")
                 if (isbn == "isbn") {
-                    BookingCreate(navController, appViewModel, isbn=null)
+                    BookingCreate(navController, appViewModel, isbn = null)
                 } else {
                     BookingCreate(navController, appViewModel, isbn)
                 }
@@ -135,13 +139,18 @@ fun Route(googleSignInClient: GoogleSignInClient) {
                 // 여기에서 loginId와 nickName을 추출합니다.
                 val loginId = navBackStackEntry.arguments?.getString("loginId") ?: ""
                 val kakaoNickName = navBackStackEntry.arguments?.getString("kakaoNickName") ?: ""
-                SignInScreen(loginId,kakaoNickName)
+                SignInScreen(loginId, kakaoNickName)
             }
             composable("setting") {
                 SettingPage()
             }
+            composable("profile/follow/{nickname}") { navBackStackEntry ->
+                val nickname = navBackStackEntry.arguments?.getString("nickname") ?: ""
+                ProfileFollowScreen(nickname)
+            }
+            composable("profile/modifier") {
+                ProfileModifierScreen()
+            }
         }
     }
 }
-
-

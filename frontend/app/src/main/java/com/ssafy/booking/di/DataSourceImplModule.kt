@@ -16,8 +16,8 @@ class DataSourceImplModule {
     @Provides
     @Singleton
     fun provideMainDataSource(
-        googleApi : GoogleApi
-    ) : GoogleDataSource {
+        googleApi: GoogleApi
+    ): GoogleDataSource {
         return GoogleDataSourceImpl(
             googleApi
         )

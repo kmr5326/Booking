@@ -39,12 +39,12 @@ class BookingViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val response = firebaseRepositoryImpl.postDeviceToken(deviceToken)
-                if(response.isSuccessful) {
-                    Log.d("DEVICE_TOKEN", "SUCCESS ${response}")
+                if (response.isSuccessful) {
+                    Log.d("DEVICE_TOKEN", "SUCCESS $response")
                 } else {
-                    Log.d("DEVICE_TOKEN", "ELSE ${response}")
+                    Log.d("DEVICE_TOKEN", "ELSE $response")
                 }
-            } catch(e : Exception) {
+            } catch (e: Exception) {
                 Log.e("DEVICE_TOKEN", "ERROR")
             }
         }
@@ -95,9 +95,8 @@ class BookingViewModel @Inject constructor(
     private val _getSearchListResponse = MutableLiveData<Response<SearchResponse>>()
     val getSearchListResponse: LiveData<Response<SearchResponse>> get() = _getSearchListResponse
 
-    fun getSearchList(query:String,display:Int,start:Int,sort:String) =
+    fun getSearchList(query: String, display: Int, start: Int, sort: String) =
         viewModelScope.launch {
-            _getSearchListResponse.value = bookingUseCase.getSearchList(query,display,start,sort)
+            _getSearchListResponse.value = bookingUseCase.getSearchList(query, display, start, sort)
         }
 }
-

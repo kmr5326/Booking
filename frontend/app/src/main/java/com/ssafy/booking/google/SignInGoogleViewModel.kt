@@ -28,7 +28,7 @@ class SignInGoogleViewModel(application: Application) : AndroidViewModel(applica
         viewModelScope.launch {
             _userState.value = GoogleUserModel(
                 email = email,
-                name = name,
+                name = name
             )
         }
 
@@ -42,7 +42,7 @@ class SignInGoogleViewModel(application: Application) : AndroidViewModel(applica
         if (gsa != null) {
             _userState.value = GoogleUserModel(
                 email = gsa.email,
-                name = gsa.displayName,
+                name = gsa.displayName
             )
         }
 

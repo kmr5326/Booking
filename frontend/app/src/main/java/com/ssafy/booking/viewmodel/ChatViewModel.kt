@@ -17,7 +17,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ChatViewModel @Inject constructor(
-    private val chatRepository: ChatRepository,
+    private val chatRepository: ChatRepository
 ) : ViewModel() {
     var chatListState = mutableStateOf<List<ChatRoom>>(listOf())
     var errorMessage = mutableStateOf("")
@@ -27,10 +27,10 @@ class ChatViewModel @Inject constructor(
             try {
                 val response = chatRepository.postChatCreate(request)
                 if (response.isSuccessful) {
-                    Log.d("CHAT", "Chat room created successfully: ${response}")
+                    Log.d("CHAT", "Chat room created successfully: $response")
                     loadChatList()
                 } else {
-                    Log.e("CHAT", "Error creating chat room: ${response}")
+                    Log.e("CHAT", "Error creating chat room: $response")
                 }
             } catch (e: Exception) {
                 Log.e("CHAT", "Exception creating chat room", e)
@@ -43,10 +43,10 @@ class ChatViewModel @Inject constructor(
             try {
                 val response = chatRepository.postChatJoin(request)
                 if (response.isSuccessful) {
-                    Log.d("CHAT", "Chat room joined successfully: ${response}")
+                    Log.d("CHAT", "Chat room joined successfully: $response")
                     loadChatList()
                 } else {
-                    Log.e("CHAT", "Error joining chat room: ${response}")
+                    Log.e("CHAT", "Error joining chat room: $response")
                 }
             } catch (e: Exception) {
                 Log.e("CHAT", "Exception joining chat room", e)
@@ -58,11 +58,11 @@ class ChatViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val response = chatRepository.postChatExit(request)
-                if (response.isSuccessful ) {
-                    Log.d("CHAT", "Chat room exited successfully: ${response}")
+                if (response.isSuccessful) {
+                    Log.d("CHAT", "Chat room exited successfully: $response")
                     loadChatList()
                 } else {
-                    Log.e("CHAT", "Error exiting chat room: ${response}")
+                    Log.e("CHAT", "Error exiting chat room: $response")
                 }
             } catch (e: Exception) {
                 Log.e("CHAT", "Exception exiting chat room", e)
@@ -74,7 +74,7 @@ class ChatViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 chatListState.value = chatRepository.getChatList()
-                Log.d("CHAT", "Get Chat room List ${chatListState}")
+                Log.d("CHAT", "Get Chat room List $chatListState")
             } catch (e: HttpException) {
                 errorMessage.value = "네트워크 에러: ${e.code()} ${e.message}"
                 Log.d("CHAT", "$errorMessage.value")

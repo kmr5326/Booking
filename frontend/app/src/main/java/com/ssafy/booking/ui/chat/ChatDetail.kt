@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.exclude
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -28,8 +27,6 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
@@ -37,7 +34,6 @@ import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
@@ -142,7 +138,7 @@ fun ChatDetail(
                 Button(
                     onClick = {
                         val request = ChatExitRequest(chatId, memberId)
-                        Log.d("CHAT", "${request}")
+                        Log.d("CHAT", "$request")
                         chatViewModel.exitChatRoom(request)
                         navController.popBackStack()
                     }
@@ -210,7 +206,6 @@ fun MessageList(
     messages: List<MessageEntity>,
     memberId: Long?
 ) {
-
     Box(
         modifier = modifier
             .background(Color(0xFF9bbbd4))
@@ -234,7 +229,6 @@ fun MessageList(
                 listState.animateScrollToItem(index = messages.size - 1)
             }
         }
-
     }
 }
 
@@ -260,7 +254,6 @@ fun MessageItem(
 
         ) {
             if (isOwnMessage) {
-
             } else if (previousMessage?.senderId != message.senderId) {
                 AsyncImage(
                     model = R.drawable.basic_profile,
@@ -282,7 +275,7 @@ fun MessageItem(
                 // 이름을 표시하는 조건
                 if (!isOwnMessage && previousMessage?.senderId != message.senderId) {
                     Text(
-                        text = "${message.senderName}",
+                        text = "${message.senderName}"
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Spacer(modifier = Modifier.height(4.dp))
@@ -294,8 +287,12 @@ fun MessageItem(
                 ) {
                     // 자신의 메시지인 경우, 시간을 먼저 표시
                     if (isOwnMessage &&
-                        (nextMessage == null || (nextMessage.sendTime?.hour != message.sendTime?.hour ||
-                                nextMessage.sendTime?.minute != message.sendTime?.minute) || nextMessage.senderId != message.senderId)
+                        (
+                            nextMessage == null || (
+                                nextMessage.sendTime?.hour != message.sendTime?.hour ||
+                                    nextMessage.sendTime?.minute != message.sendTime?.minute
+                                ) || nextMessage.senderId != message.senderId
+                            )
                     ) {
                         Text(
                             text = message.sendTime?.let {
@@ -318,13 +315,17 @@ fun MessageItem(
                             )
                             .padding(8.dp)
                             .widthIn(max = 220.dp),
-                        color = Color.Black,
+                        color = Color.Black
                     )
 
                     // 다른 사람의 메시지인 경우, 메시지 뒤에 시간을 표시
                     if (!isOwnMessage &&
-                        (nextMessage == null || (nextMessage.sendTime?.hour != message.sendTime?.hour ||
-                                nextMessage.sendTime?.minute != message.sendTime?.minute) || nextMessage.senderId != message.senderId)
+                        (
+                            nextMessage == null || (
+                                nextMessage.sendTime?.hour != message.sendTime?.hour ||
+                                    nextMessage.sendTime?.minute != message.sendTime?.minute
+                                ) || nextMessage.senderId != message.senderId
+                            )
                     ) {
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
@@ -399,7 +400,5 @@ fun InputText(
             }
 
         )
-
-
     }
 }

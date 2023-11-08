@@ -11,7 +11,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -20,17 +19,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ssafy.booking.R
-import com.ssafy.booking.ui.AppNavItem
 import com.ssafy.booking.ui.LocalNavigation
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -49,7 +44,7 @@ fun SettingPage() {
                             contentDescription = "뒤로가기"
                         )
                     }
-                },
+                }
 //                actions = {
 //                    IconButton(onClick = {}) {
 //                        Icon(
@@ -61,18 +56,18 @@ fun SettingPage() {
             )
         },
         modifier = Modifier.fillMaxSize()
-    ) {paddingValues->
+    ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues),
+                .padding(paddingValues)
 //            verticalArrangement = Arrangement.Center,
 //            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(20.dp),
+                    .padding(20.dp)
             ) {
                 Text("알림")
                 Column(
@@ -171,7 +166,7 @@ fun SettingPage() {
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center
                 ) {
-                    Text(text = "기타 문의사항은 lovesay00@gmail.com 으로 보내주세요.", color=Color.Gray, fontSize = 10.sp)
+                    Text(text = "기타 문의사항은 lovesay00@gmail.com 으로 보내주세요.", color = Color.Gray, fontSize = 10.sp)
                 }
                 Row(
                     modifier = Modifier
@@ -180,8 +175,8 @@ fun SettingPage() {
                     horizontalArrangement = Arrangement.Center
                 ) {
                     Button(
-                        onClick = {  },
-                        modifier = Modifier.fillMaxWidth(),
+                        onClick = { },
+                        modifier = Modifier.fillMaxWidth()
                     ) {
                         Text(text = "로그아웃", color = Color.Gray)
                     }
@@ -193,14 +188,13 @@ fun SettingPage() {
                     horizontalArrangement = Arrangement.Center
                 ) {
                     Button(
-                        onClick = {  },
-                        modifier = Modifier.fillMaxWidth(),
+                        onClick = { },
+                        modifier = Modifier.fillMaxWidth()
                     ) {
                         Text(text = "회원 탈퇴", color = Color.Red)
                     }
                 }
             }
-
         }
     }
 }
