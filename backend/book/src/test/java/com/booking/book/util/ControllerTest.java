@@ -3,6 +3,7 @@ package com.booking.book.util;
 import com.booking.book.book.controller.BookController;
 import com.booking.book.book.repository.BookRepository;
 import com.booking.book.book.service.BookService;
+import com.booking.book.global.WebConfig;
 import com.booking.book.global.mongo.MemberBookIncrementListener;
 import com.booking.book.global.mongo.SequenceGeneratorService;
 import com.booking.book.memberbook.controller.MemberBookController;
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.mongodb.core.convert.MappingMongoConverter;
 import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.restdocs.RestDocumentationExtension;
@@ -27,6 +29,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
     BookController.class,
     MemberBookController.class
 })
+@Import(WebConfig.class)
 public class ControllerTest {
 
     @Autowired protected RestDocumentationContextProvider restDocumentation;
