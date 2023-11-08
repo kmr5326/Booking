@@ -25,8 +25,7 @@ fun ProfileFollowScreen(
     nickname: String
 ) {
     val viewModel: MyPageViewModel = hiltViewModel()
-    val userFollowingsResponse by viewModel.getUserFollowingsResponse.observeAsState()
-    val userFollowersResponse by viewModel.getUserFollowersResponse.observeAsState()
+    val combinedData by viewModel.combinedUserFollowData.observeAsState()
 
     LaunchedEffect(Unit) {
         viewModel.getUserFollowers(nickname)
@@ -44,10 +43,12 @@ fun ProfileFollowScreen(
                 .padding(paddingValues)
                 .fillMaxSize()
         ) {
-            userFollowingsResponse?.let {
-                IsSuccessView(userFollowingsResponse!!.body()!!, userFollowersResponse!!.body()!!)
-            } ?: run {
-                IsLoadingView()
+            combinedData?.let { (followers, followings) ->
+                if (followers != null && followings != null) {
+                    IsSuccessView(followings, followers)
+                } else {
+                    IsLoadingView()
+                }
             }
         }
     }
@@ -80,8 +81,15 @@ fun FollowerListScreen(
     userFollowersResponse: UserFollowersResponse
 ) {
     Column(
-        modifier = Modifier.padding(20.dp)
+        modifier = Modifier.padding(24.dp)
     ) {
+        if(userFollowersResponse.followersCnt == 0) {
+            Text(text = "팔로워가 없어요..")
+        } else {
+            // lazyColumn 으로 팔로워 목록 구성하고
+            // 해당 유저 클릭 시 해당 유저 프로필 페이지로 이동하기
+
+        }
     }
 }
 
@@ -89,4 +97,14 @@ fun FollowerListScreen(
 fun FollowingListScreen(
     userFollowingsResponse: UserFollowingsResponse
 ) {
+    Column(
+        modifier = Modifier.padding(24.dp)
+    ) {
+        if(userFollowingsResponse.followingsCnt == 0) {
+            Text(text = "팔로잉이 없어요..")
+        } else {
+            // lazyColumn 으로 팔로잉 목록 구성하고
+            // 해당 유저 클릭 시 해당 유저 프로필 페이지로 이동하기
+        }
+    }
 }
