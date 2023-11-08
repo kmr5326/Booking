@@ -42,6 +42,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        askNotificationPermission() // 알림 권한 요청
 //        WindowCompat.setDecorFitsSystemWindows(window, false)
 
         /** KakaoSDK init */

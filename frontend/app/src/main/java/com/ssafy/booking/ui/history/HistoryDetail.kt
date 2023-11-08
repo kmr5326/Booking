@@ -27,33 +27,43 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.ssafy.booking.R
 import com.ssafy.booking.ui.common.BottomNav
+import com.ssafy.booking.ui.common.HorizontalDivider
+import com.ssafy.booking.ui.common.TabBar
 import com.ssafy.booking.ui.common.TopBar
 import com.ssafy.booking.viewmodel.AppViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HistoryDetail(
-    navController: NavController,
-    appViewModel: AppViewModel
+    navController: NavController, appViewModel: AppViewModel
 ) {
-    Scaffold(
-        topBar = {
-            TopBar("독서모임1")
-        },
-        bottomBar = {
-            BottomNav(navController, appViewModel)
-        },
-        modifier = Modifier.fillMaxSize()
+    Scaffold(topBar = {
+        TopBar("독서모임1")
+    }, bottomBar = {
+        BottomNav(navController, appViewModel)
+    }, modifier = Modifier.fillMaxSize()
     ) { paddingValues ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
                 .fillMaxHeight()
+                .padding(paddingValues)
         ) {
-            HistoryItem()
-//            녹음
-//            탭
+            Column {
+                HistoryItem()
+                VoiceRecordController()
+                HorizontalDivider()
+                val tempPk = 1
+                TabBar(
+                    listOf("녹음 기록 분석", "독서 모임 요약"),
+                    contentForTab = { index ->
+                        when (index) {
+                            0 -> HistoryRecord()
+                            1 -> HistorySummary(tempPk)
+                        }
+                    }
+                )
+            }
         }
     }
 }
@@ -76,8 +86,6 @@ fun HistoryItem() {
         Column(
             modifier = Modifier.weight(1f)
         ) {
-            Text(text = "독서모임1", fontWeight = FontWeight.ExtraBold, fontSize = 16.sp)
-            Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = "사용자1",
                 maxLines = 2,
