@@ -72,6 +72,14 @@ public class NotificationService {
 
     public Mono<Void> sendChattingNotification(NotificationResponse notificationResponse) {
         return notificationInformationRepository.findByMemberId(notificationResponse.memberId())
+                                                .doOnNext(info -> {
+                                                    // 데이터가 방출될 때 info 객체를 로깅
+                                                    if (info.getDeviceToken() == null || info.getDeviceToken().isEmpty()) {
+                                                        log.error("Device token is null or empty for member {}", notificationResponse.memberId());
+                                                    } else {
+                                                        log.info("Device token for member {} is present: {}", notificationResponse.memberId(), info.getDeviceToken());
+                                                    }
+                                                })
                                                 .flatMap(info -> {
                                                     if (info.getDeviceToken() == null || info.getDeviceToken().trim().isEmpty()) {
                                                         log.error("Device token is null or empty for member {}", notificationResponse.memberId());
