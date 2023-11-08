@@ -83,6 +83,10 @@ dependencies {
     //micrometer,prometheus
     implementation group: 'io.micrometer', name: 'micrometer-registry-prometheus', version: '1.11.1'
     implementation group: 'io.micrometer', name: 'micrometer-core', version: '1.11.1'
+
+	//firebase
+	implementation 'com.google.firebase:firebase-admin:9.2.0'
+
 }
 
 dependencyManagement {

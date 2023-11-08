@@ -16,6 +16,6 @@ public class MemberBookIncrementListener extends AbstractMongoEventListener<Memb
 
     @Override
     public void onBeforeConvert(BeforeConvertEvent<MemberBook> event) {
-        event.getSource().setAutoIncrementId(sequenceGeneratorService.generateSequence(MemberBook.SEQUENCE_NAME));
+//        event.getSource().setAutoIncrementId(sequenceGeneratorService.generateSequence(MemberBook.SEQUENCE_NAME));
     }
 }

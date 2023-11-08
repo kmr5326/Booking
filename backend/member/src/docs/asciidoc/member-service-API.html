@@ -554,11 +554,11 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 
 </div>
 <div class="sect2">
-<h3 id="_apimembers">/api/members</h3>
+<h3 id="_1_apimembers">1. /api/members</h3>
 
 </div>
 <div class="sect2">
-<h3 id="_로그인">로그인</h3>
+<h3 id="_1_로그인">1. 로그인</h3>
 <div class="sect3">
 <h4 id="_http_request">HTTP Request</h4>
 <div class="listingblock">
@@ -609,7 +609,7 @@ token: JWT 토큰</code></pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_회원_가입">회원 가입</h3>
+<h3 id="_2_회원_가입">2. 회원 가입</h3>
 <div class="sect3">
 <h4 id="_http_requesst">HTTP Requesst</h4>
 <div class="listingblock">
@@ -708,7 +708,7 @@ token:JWT 토큰</code></pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_회원_수정">회원 수정</h3>
+<h3 id="_3_회원_수정">3. 회원 수정</h3>
 <div class="sect3">
 <h4 id="_http_request_2">HTTP Request</h4>
 <div class="listingblock">
@@ -768,7 +768,7 @@ Host: localhost:8080
 </div>
 </div>
 <div class="sect2">
-<h3 id="_회원_정보_조회">회원 정보 조회</h3>
+<h3 id="_4_회원_정보_조회">4. 회원 정보 조회</h3>
 <div class="sect3">
 <h4 id="_http_request_3">HTTP Request</h4>
 <div class="listingblock">
@@ -804,7 +804,7 @@ Host: localhost:8080</code></pre>
 <div class="content">
 <pre class="CodeRay highlight nowrap"><code data-lang="http">HTTP/1.1 200 OK
 Content-Type: application/json;charset=UTF-8
-Content-Length: 246
+Content-Length: 267
 
 {
   &quot;loginId&quot; : &quot;1234&quot;,
@@ -817,14 +817,15 @@ Content-Length: 246
   &quot;lgt&quot; : 1.1,
   &quot;profileImage&quot; : &quot;profileImg&quot;,
   &quot;provider&quot; : &quot;google&quot;,
-  &quot;memberPk&quot; : 1
+  &quot;memberPk&quot; : 1,
+  &quot;point&quot; : 100000
 }</code></pre>
 </div>
 </div>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_회원_탈퇴">회원 탈퇴</h3>
+<h3 id="_5_회원_탈퇴">5. 회원 탈퇴</h3>
 <div class="sect3">
 <h4 id="_http_request_4">HTTP Request</h4>
 <div class="listingblock">
@@ -871,7 +872,7 @@ Host: localhost:8080
 </div>
 </div>
 <div class="sect2">
-<h3 id="_회원_위치_수정">회원 위치 수정</h3>
+<h3 id="_6_회원_위치_수정">6. 회원 위치 수정</h3>
 <div class="sect3">
 <h4 id="_http_request_5">HTTP Request</h4>
 <div class="listingblock">
@@ -919,7 +920,122 @@ Host: localhost:8080
 </div>
 </div>
 <div class="sect2">
-<h3 id="_apipayments">/api/payments</h3>
+<h3 id="_7_회원_조회_pk">7. 회원 조회 PK</h3>
+<div class="sect3">
+<h4 id="_http_request_6">HTTP Request</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="http">GET /api/members/memberInfo-pk/1 HTTP/1.1
+Content-Type: application/json;charset=UTF-8
+Host: localhost:8080</code></pre>
+</div>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 2. /api/members/memberInfo-pk/{memberPk}</caption>
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Parameter</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>memberPk</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">pk: Integer</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_http_response_7">HTTP Response</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="http">HTTP/1.1 200 OK
+Content-Type: application/json;charset=UTF-8
+Content-Length: 267
+
+{
+  &quot;loginId&quot; : &quot;1234&quot;,
+  &quot;email&quot; : &quot;email&quot;,
+  &quot;age&quot; : 10,
+  &quot;gender&quot; : &quot;MALE&quot;,
+  &quot;nickname&quot; : &quot;mono&quot;,
+  &quot;fullname&quot; : &quot;monono&quot;,
+  &quot;lat&quot; : 1.1,
+  &quot;lgt&quot; : 1.1,
+  &quot;profileImage&quot; : &quot;profileImg&quot;,
+  &quot;provider&quot; : &quot;google&quot;,
+  &quot;memberPk&quot; : 1,
+  &quot;point&quot; : 100000
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_8_회원_조회_닉네임">8. 회원 조회 닉네임</h3>
+<div class="sect3">
+<h4 id="_http_request_7">HTTP Request</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="http">GET /api/members/memberInfo-nick/%EB%8B%89%EB%84%A4%EC%9E%84 HTTP/1.1
+Content-Type: application/json;charset=UTF-8
+Host: localhost:8080</code></pre>
+</div>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 3. /api/members/memberInfo-nick/{nickname}</caption>
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Parameter</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>nickname</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">닉네임: string</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_http_response_8">HTTP Response</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="http">HTTP/1.1 200 OK
+Content-Type: application/json;charset=UTF-8
+Content-Length: 267
+
+{
+  &quot;loginId&quot; : &quot;1234&quot;,
+  &quot;email&quot; : &quot;email&quot;,
+  &quot;age&quot; : 10,
+  &quot;gender&quot; : &quot;MALE&quot;,
+  &quot;nickname&quot; : &quot;mono&quot;,
+  &quot;fullname&quot; : &quot;monono&quot;,
+  &quot;lat&quot; : 1.1,
+  &quot;lgt&quot; : 1.1,
+  &quot;profileImage&quot; : &quot;profileImg&quot;,
+  &quot;provider&quot; : &quot;google&quot;,
+  &quot;memberPk&quot; : 1,
+  &quot;point&quot; : 100000
+}</code></pre>
+</div>
+</div>
+<hr>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_2_apipayments">2. /api/payments</h3>
 
 </div>
 <div class="sect2">
@@ -965,7 +1081,7 @@ Host: localhost:8080
 <div class="sect2">
 <h3 id="_결제_승인">결제 승인</h3>
 <div class="sect3">
-<h4 id="_http_request_6">HTTP Request</h4>
+<h4 id="_http_request_8">HTTP Request</h4>
 <div class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight nowrap"><code data-lang="http">GET /api/payments/success?pg_token=pgToken HTTP/1.1
@@ -975,7 +1091,7 @@ Host: localhost:8080</code></pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_http_response_7">HTTP Response</h4>
+<h4 id="_http_response_9">HTTP Response</h4>
 <div class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight nowrap"><code data-lang="http">HTTP/1.1 200 OK
@@ -1025,7 +1141,7 @@ Content-Length: 990
 <div class="sect2">
 <h3 id="_포인트_송금">포인트 송금</h3>
 <div class="sect3">
-<h4 id="_http_request_7">HTTP Request</h4>
+<h4 id="_http_request_9">HTTP Request</h4>
 <div class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight nowrap"><code data-lang="http">POST /api/payments/send HTTP/1.1
@@ -1068,16 +1184,17 @@ Host: localhost:8080
 </table>
 </div>
 <div class="sect3">
-<h4 id="_http_response_8">HTTP Response</h4>
+<h4 id="_http_response_10">HTTP Response</h4>
 <div class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight nowrap"><code data-lang="http">HTTP/1.1 200 OK</code></pre>
 </div>
 </div>
+<hr>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_apifollows">/api/follows</h3>
+<h3 id="_3_apifollows">3. /api/follows</h3>
 
 </div>
 <div class="sect2">
@@ -1090,7 +1207,7 @@ Host: localhost:8080</code></pre>
 </div>
 </div>
 <table class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 2. /api/follows/{nickname}</caption>
+<caption class="title">Table 4. /api/follows/{nickname}</caption>
 <colgroup>
 <col style="width: 50%;">
 <col style="width: 50%;">
@@ -1119,7 +1236,7 @@ Host: localhost:8080</code></pre>
 </div>
 </div>
 <table class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 3. /api/follows/{nickname}</caption>
+<caption class="title">Table 5. /api/follows/{nickname}</caption>
 <colgroup>
 <col style="width: 50%;">
 <col style="width: 50%;">
@@ -1141,7 +1258,7 @@ Host: localhost:8080</code></pre>
 <div class="sect2">
 <h3 id="_팔로워_조회">팔로워 조회</h3>
 <div class="sect3">
-<h4 id="_http_request_8">HTTP Request</h4>
+<h4 id="_http_request_10">HTTP Request</h4>
 <div class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight nowrap"><code data-lang="http">GET /api/follows/followers/nick HTTP/1.1
@@ -1149,7 +1266,7 @@ Host: localhost:8080</code></pre>
 </div>
 </div>
 <table class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 4. /api/follows/followers/{nickname}</caption>
+<caption class="title">Table 6. /api/follows/followers/{nickname}</caption>
 <colgroup>
 <col style="width: 50%;">
 <col style="width: 50%;">
@@ -1169,7 +1286,7 @@ Host: localhost:8080</code></pre>
 </table>
 </div>
 <div class="sect3">
-<h4 id="_http_response_9">HTTP Response</h4>
+<h4 id="_http_response_11">HTTP Response</h4>
 <div class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight nowrap"><code data-lang="http">HTTP/1.1 200 OK
@@ -1229,7 +1346,7 @@ Content-Length: 175
 <div class="sect2">
 <h3 id="_팔로잉_조회">팔로잉 조회</h3>
 <div class="sect3">
-<h4 id="_http_request_9">HTTP Request</h4>
+<h4 id="_http_request_11">HTTP Request</h4>
 <div class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight nowrap"><code data-lang="http">GET /api/follows/followings/nick HTTP/1.1
@@ -1238,7 +1355,7 @@ Host: localhost:8080</code></pre>
 </div>
 </div>
 <table class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 5. /api/follows/followings/{nickname}</caption>
+<caption class="title">Table 7. /api/follows/followings/{nickname}</caption>
 <colgroup>
 <col style="width: 50%;">
 <col style="width: 50%;">
@@ -1258,7 +1375,7 @@ Host: localhost:8080</code></pre>
 </table>
 </div>
 <div class="sect3">
-<h4 id="_http_response_10">HTTP Response</h4>
+<h4 id="_http_response_12">HTTP Response</h4>
 <div class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight nowrap"><code data-lang="http">HTTP/1.1 200 OK
@@ -1313,12 +1430,13 @@ Content-Length: 177
 </tr>
 </tbody>
 </table>
+<hr>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2023-11-03 10:01:20 +0900
+Last updated 2023-11-07 16:38:43 +0900
 </div>
 </div>
 <script>
