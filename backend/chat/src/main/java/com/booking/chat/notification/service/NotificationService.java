@@ -77,7 +77,7 @@ public class NotificationService {
 
                                                     Notification notification = Notification.builder()
                                                                                             .setBody(notificationResponse.body())
-                                                                                            .setTitle(notificationResponse.title())
+                                                                                            .setTitle("%s\n%s".formatted(notificationResponse.title(),notificationResponse.memberName()))
                                                                                             .build();
 
                                                     Message message = Message.builder()
