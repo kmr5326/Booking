@@ -29,6 +29,7 @@ public class MessageIncrementListener extends AbstractMongoEventListener<Message
                        .publishOn(Schedulers.boundedElastic())
                        .doOnNext(chatroom -> {
             chatroom.updateListMessageReceived();
+            chatroom.updateLastMessage(event.getSource().getContent());
             chatroomService.save(chatroom).subscribe();
         }).subscribe();
     }
