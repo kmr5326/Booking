@@ -93,4 +93,13 @@ public class MemberController {
                 .map(response -> ResponseEntity.ok().body(response))
                 .switchIfEmpty(Mono.just(ResponseEntity.notFound().build()));
     }
+
+    @GetMapping("/memberInfo-nick/{nickname}")
+    Mono<ResponseEntity<MemberInfoResponseDto>> loadMemberByNickname(@PathVariable String nickname) {
+        log.info("유저 정보 조회 member nickname={}", nickname);
+
+        return memberService.loadMemberInfoByNickname(nickname)
+                .map(response -> ResponseEntity.ok().body(response))
+                .switchIfEmpty(Mono.just(ResponseEntity.notFound().build()));
+    }
 }

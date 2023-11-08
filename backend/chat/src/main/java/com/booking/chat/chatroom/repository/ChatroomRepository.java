@@ -7,6 +7,7 @@ import reactor.core.publisher.Flux;
 public interface ChatroomRepository extends ReactiveMongoRepository<Chatroom, Long> {
 
    Flux<Chatroom> findByMemberListContains(Long memberId);
+
    Flux<Chatroom> findByMemberListContainsOrderByLastMessageReceivedTimeDesc(Long memberId);
 
 }
