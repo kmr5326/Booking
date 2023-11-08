@@ -26,6 +26,9 @@ public class StompHandler implements ChannelInterceptor {
 
         if(accessor.getCommand() == StompCommand.CONNECT) {
             String token = accessor.getFirstNativeHeader("Authorization");
+            if(token == null) {
+                throw new RuntimeException("token not found");
+            }
             Long chatroomId = Long.valueOf(Objects.requireNonNull(accessor.getFirstNativeHeader("chatroomId")));
             Long memberId = JwtUtil.getMemberIdByToken(token);
 
@@ -42,11 +45,13 @@ public class StompHandler implements ChannelInterceptor {
     }
 
     private void storeMemberStatusWithCreateKey(String chatroomKey, Long memberId) {
+        log.info(" {} member connected {} " , memberId, chatroomKey);
         List<Long> memberList = List.of(memberId);
         redisTemplate.opsForValue().set(chatroomKey, memberList);
     }
 
     private void storeMemberStatus(String chatroomKey, Long memberId) {
+        log.info(" {} member connected {} " , memberId, chatroomKey);
         List<Long> memberList = redisTemplate.opsForValue().get(chatroomKey);
         memberList.add(memberId);
         redisTemplate.opsForValue().set(chatroomKey, memberList);
