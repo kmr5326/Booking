@@ -21,11 +21,8 @@ import org.springframework.data.mongodb.core.mapping.Field;
 @Document(collection = "member_books")
 public class MemberBook {
 
-    @Transient
-    public static final String SEQUENCE_NAME = "memberbook_sequence";
-
     @Id
-    private Long _id;
+    private String _id;
 
     @Field
     private String memberNickname;
@@ -36,6 +33,7 @@ public class MemberBook {
     @Field
     private List<Note> notes;
 
+    @Field
     @CreatedDate
     private LocalDateTime createdAt;
 
@@ -48,7 +46,7 @@ public class MemberBook {
            .build();
     }
 
-    public void setAutoIncrementId(Long id) {
-        this._id = id;
-    }
+//    public void setAutoIncrementId(Long id) {
+//        this._id = id;
+//    }
 }

@@ -3,6 +3,7 @@ package com.booking.book.memberbook.controller;
 import com.booking.book.book.exception.BookException;
 import com.booking.book.global.jwt.JwtUtil;
 import com.booking.book.memberbook.dto.request.MemberBookRegistRequest;
+import com.booking.book.memberbook.dto.request.RegisterNoteRequest;
 import com.booking.book.memberbook.dto.response.MemberBookListResponse;
 import com.booking.book.memberbook.dto.response.MemberBookResponse;
 import com.booking.book.memberbook.service.MemberBookService;
@@ -53,4 +54,13 @@ public class MemberBookController {
     }
 
     //TODO : 메모 추가하기
+
+    @PostMapping("/note")
+    public Mono<ResponseEntity<String>> registerNote(@RequestHeader(AUTHORIZATION) String token,
+                                                @RequestBody RegisterNoteRequest request) {
+        log.info("한줄평 등록 요청 {}",request.toString());
+        return memberBookService.registerNote(request)
+                .flatMap(resp->Mono.just(ResponseEntity.ok().body(resp)))
+                .onErrorResume(e-> Mono.just(ResponseEntity.badRequest().body(e.getMessage())));
+    }
 }
