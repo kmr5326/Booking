@@ -12,6 +12,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 @Getter
 @NoArgsConstructor
@@ -26,10 +27,13 @@ public class MemberBook {
     @Id
     private Long _id;
 
-    private Long memberId;
+    @Field
+    private String memberNickname;
 
+    @Field
     private String bookIsbn;
 
+    @Field
     private List<Note> notes;
 
     @CreatedDate
@@ -39,7 +43,7 @@ public class MemberBook {
 
        return MemberBook.builder()
            .bookIsbn(memberBookRegistRequest.bookIsbn())
-           .memberId(memberBookRegistRequest.memberId())
+           .memberNickname(memberBookRegistRequest.nickname())
            .notes(new ArrayList<>())
            .build();
     }

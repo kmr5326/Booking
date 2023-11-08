@@ -7,8 +7,8 @@ import reactor.core.publisher.Mono;
 
 public interface MemberBookRepository extends ReactiveMongoRepository<MemberBook, Long> {
 
-    Flux<MemberBook> findAllByMemberIdOrderByCreatedAtDesc(Long memberId);
+    Flux<MemberBook> findAllByMemberNicknameOrderByCreatedAtDesc(String nickname);
 
-    Mono<MemberBook> findByMemberIdAndBookIsbn(Long memberId, String isbn);
+    Mono<MemberBook> findByMemberNicknameAndBookIsbn(String nickname, String isbn);
 
 }

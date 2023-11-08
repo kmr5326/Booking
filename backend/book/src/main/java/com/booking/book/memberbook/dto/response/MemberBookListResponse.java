@@ -1,17 +1,18 @@
 package com.booking.book.memberbook.dto.response;
 
 import com.booking.book.book.domain.Book;
+import com.booking.book.book.dto.response.BookResponse;
+
+import java.time.LocalDate;
 
 public record MemberBookListResponse(
-    String bookIsbn,
-    String title,
-    String coverImg
+        BookResponse bookInfo,
+        String memberNickname
 ) {
-    public MemberBookListResponse(Book book) {
+    public MemberBookListResponse(Book book,String nickname) {
         this(
-            book.getIsbn(),
-            book.getTitle(),
-            book.getCoverImage()
+                new BookResponse(book),
+                nickname
         );
     }
 }
