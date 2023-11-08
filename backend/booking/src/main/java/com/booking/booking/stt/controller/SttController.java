@@ -1,8 +1,9 @@
 package com.booking.booking.stt.controller;
 
-import com.booking.booking.stt.dto.GptResponseDto;
 import com.booking.booking.stt.dto.SttRequestDto;
 import com.booking.booking.stt.dto.SttResponseDto;
+import com.booking.booking.stt.dto.SummaryControllerDto;
+import com.booking.booking.stt.dto.SummaryResponse;
 import com.booking.booking.stt.service.SttService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,10 +28,10 @@ public class SttController {
         return sttService.speachToText(requestDto)
                 .map(resp->ResponseEntity.ok().body(resp));
     }
-    @PostMapping("/gpt")
-    public Mono<ResponseEntity<GptResponseDto>> gpt() {
-        log.info("gpt");
-        return sttService.gpt()
+    @PostMapping("/summary")
+    public Mono<ResponseEntity<SummaryResponse>> summary(@RequestBody SummaryControllerDto reqDto) {
+        log.info("{}",reqDto);
+        return sttService.summary(reqDto)
                 .map(resp->ResponseEntity.ok().body(resp));
     }
 }
