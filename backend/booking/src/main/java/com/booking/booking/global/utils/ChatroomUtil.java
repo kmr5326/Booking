@@ -23,7 +23,7 @@ public class ChatroomUtil {
     }
 
     public static Mono<Void> initializeChatroom(InitChatroomRequest initChatroomRequest){
-        log.info("Booking Server Meeting - initializeChatroom({})", initChatroomRequest);
+        log.info("[Booking:Meeting] initializeChatroom({})", initChatroomRequest);
 
         WebClient webClient = WebClient.builder().build();
         URI uri = URI.create(GATEWAY_URL + "/api/chat/room/");
@@ -41,7 +41,7 @@ public class ChatroomUtil {
     }
 
     public static Mono<Void> joinChatroom(JoinChatroomRequest joinChatroomRequest){
-        log.info("Booking Server Meeting - joinChatroom({})", joinChatroomRequest);
+        log.info("[Booking:Meeting] joinChatroom({})", joinChatroomRequest);
 
         WebClient webClient = WebClient.builder().build();
         URI uri = URI.create(GATEWAY_URL + "/api/chat/room/join");
