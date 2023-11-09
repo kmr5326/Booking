@@ -60,7 +60,7 @@ services:
       - booking_chat_network
     environment:
       - REDIS_PASSWORD=booking123!!
-    command: redis-server --requirepass ${REDIS_PASSWORD}
+    command: redis-server --requirepass booking123!!
   booking_chat_server:
     restart: on-failure
     depends_on:
