@@ -245,7 +245,8 @@ public class MeetingService {
         log.info("[Booking:Meeting] updateMeeting({}, {})", userEmail, meetingUpdateRequest);
 
         return Mono.zip(MemberUtil.getMemberInfoByEmail(userEmail),
-                        meetingRepository.findByMeetingId(meetingUpdateRequest.meetingId()))
+                        meetingRepository.findByMeetingId(meetingUpdateRequest.meetingId())
+                                .switchIfEmpty(Mono.error(new RuntimeException("존재하지 않는 미팅"))))
                 .flatMap(tuple -> {
                     MemberResponse member = tuple.getT1();
                     Meeting meeting = tuple.getT2();
@@ -263,7 +264,6 @@ public class MeetingService {
                     log.error("[Booking:Meeting ERROR] updateMeeting : {}", error.getMessage());
                     return Mono.error(new RuntimeException("미팅 수정 실패"));
                 });
-
     }
 
     private Mono<Void> handleUpdateMeeting(Meeting meeting, MeetingUpdateRequest meetingUpdateRequest) {
@@ -274,6 +274,45 @@ public class MeetingService {
                 .onErrorResume(error -> {
                     log.error("[Booking:Meeting ERROR] handleCreateMeeting : {}", error.getMessage());
                     return Mono.error(error);
+                })
+                .then();
+    }
+
+    @Transactional
+    public Mono<Void> deleteMeeting(String userEmail, Long meetingId) {
+        log.info("[Booking:Meeting] deleteMeeting({}, {})", userEmail, meetingId);
+
+        return Mono.zip(MemberUtil.getMemberInfoByEmail(userEmail),
+                        meetingRepository.findByMeetingId(meetingId)
+                                .switchIfEmpty(Mono.error(new RuntimeException("존재하지 않는 미팅"))))
+                .flatMap(tuple -> {
+                    MemberResponse member = tuple.getT1();
+                    Meeting meeting = tuple.getT2();
+
+                    if (!member.memberPk().equals(meeting.getLeaderId())) {
+                        return Mono.error(new RuntimeException("미팅 삭제 권한 없음"));
+                    } else if (!meeting.getMeetingState().equals(MeetingState.PREPARING)) {
+                        return Mono.error(new RuntimeException("진행 된 미팅 삭제 불가"));
+                    }
+                    return handleDeleteMeeting(meetingId);
+                })
+                .onErrorResume(error -> {
+                        log.error("[Booking:Meeting ERROR] deleteMeeting : {}", error.getMessage());
+                        return Mono.error(new RuntimeException("미팅 삭제 실패"));
+                    });
+    }
+
+    private Mono<Void> handleDeleteMeeting(Long meetingId) {
+        log.info("[Booking:Meeting] handleDeleteMeeting({})", meetingId);
+
+        // TODO post 삭제
+        return participantService.deleteAllByMeetingId(meetingId)
+                .then(waitlistService.deleteAllByMeetingId(meetingId))
+                .then(hashtagMeetingService.deleteAllByMeetingId(meetingId))
+                .then(meetingRepository.deleteByMeetingId(meetingId))
+                .onErrorResume(error -> {
+                    log.error("[Booking:Meeting ERROR] handleDeleteMeeting : {}", error.getMessage());
+                    return Mono.error(new RuntimeException("미팅 삭제 실패"));
                 })
                 .then();
     }

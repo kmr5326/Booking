@@ -55,4 +55,14 @@ public class WaitlistService {
                     return Flux.error(new RuntimeException("대기자 목록 조회 실패"));
                 });
     }
+
+    public Mono<Void> deleteAllByMeetingId(Long meetingId) {
+        log.info("[Booking:Waitlist] deleteAllByMeetingId({})", meetingId);
+
+        return waitlistRepository.deleteAllByMeetingId(meetingId)
+                .onErrorResume(error -> {
+                    log.info("[Booking:Waitlist ERROR] deleteAllByMeetingId : {}", error.getMessage());
+                    return Mono.error(new RuntimeException("대기자 목록 삭제 실패"));
+                });
+    }
 }

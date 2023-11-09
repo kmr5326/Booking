@@ -34,4 +34,6 @@ public interface MeetingRepository extends R2dbcRepository<Meeting, Long> {
             "FROM meetings m JOIN participants p ON m.meeting_id = p.meeting_id " +
             "WHERE p.member_id = :memberId AND m.meeting_state = 'FINISH'")
     Flux<Meeting> findFinishByMemberId(@Param("memberId") Integer memberId);
+
+    Mono<Void> deleteByMeetingId(Long meetingId);
 }

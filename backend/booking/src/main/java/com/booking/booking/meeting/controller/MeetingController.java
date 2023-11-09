@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -134,6 +135,17 @@ public class MeetingController {
         String userEmail = JwtUtil.getLoginEmailByToken(token);
 
         return meetingService.updateMeeting(userEmail, meetingUpdateRequest)
+                .thenReturn(ResponseEntity.ok().<Void>build())
+                .onErrorResume(error ->
+                        Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, error.getMessage())));
+    }
+
+    @DeleteMapping("/{meetingId}")
+    public Mono<ResponseEntity<Void>> deleteMeeting(@RequestHeader(AUTHORIZATION) String token,
+                                                    @PathVariable("meetingId") Long meetingId) {
+        String userEmail = JwtUtil.getLoginEmailByToken(token);
+
+        return meetingService.deleteMeeting(userEmail, meetingId)
                 .thenReturn(ResponseEntity.ok().<Void>build())
                 .onErrorResume(error ->
                         Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, error.getMessage())));

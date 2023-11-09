@@ -66,4 +66,10 @@ public class ParticipantService {
 
         return participantRepository.existsByMeetingIdAndMemberId(meetingId, memberId);
     }
+
+    public Mono<Void> deleteAllByMeetingId(Long meetingId) {
+        log.info("[Booking:Participant] deleteAllByMeetingId({})", meetingId);
+
+        return participantRepository.deleteAllByMeetingId(meetingId);
+    }
 }
