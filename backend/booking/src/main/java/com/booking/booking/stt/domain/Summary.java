@@ -8,7 +8,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.LocalDateTime;
 
-@Document(collection = "transcriptions")
+@Document(collection = "summaries")
 @Getter
 public class Summary {
     @Id
@@ -25,11 +25,11 @@ public class Summary {
     @CreatedDate
     private LocalDateTime createdAt;
 
-    public Summary of(String text,String transcriptionId){
+    public static Summary of(String text,String transcriptionId){
         return new Summary(text,transcriptionId);
     }
 
-    Summary (String text,String transcriptionId){
+    public Summary (String text,String transcriptionId){
         this.text=text;
         this.transcriptionId=transcriptionId;
     }

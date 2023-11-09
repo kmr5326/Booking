@@ -1,5 +1,6 @@
 package com.booking.booking.stt.service;
 
+import com.booking.booking.stt.domain.Summary;
 import com.booking.booking.stt.domain.Transcription;
 import com.booking.booking.stt.dto.request.SttRequestDto;
 import com.booking.booking.stt.dto.request.SummaryControllerDto;
@@ -103,7 +104,9 @@ public class SttServiceImpl implements SttService{
                         log.error("5xx error: {}", body);
                     }).then(Mono.error(new RuntimeException("Server error")));
                 })
-                .bodyToMono(CreateSummaryResponse.class);
+                .bodyToMono(CreateSummaryResponse.class)
+                .flatMap(createSummaryResponse -> saveSummary(createSummaryResponse,req).thenReturn(createSummaryResponse))
+                .doOnNext(resp-> log.info("summary result : {}",resp));
     }
 
     public Mono<LoadSummaryResponse> findFirstByTranscriptionId(String transcriptionId) {
@@ -114,5 +117,10 @@ public class SttServiceImpl implements SttService{
     private Mono<Transcription> saveTranscription(SttResponseDto sttResponseDto,String fileName) {
         Transcription transcription = Transcription.of(sttResponseDto,fileName);
         return transcriptionRepository.save(transcription);
+    }
+
+    private Mono<Summary> saveSummary(CreateSummaryResponse createSummaryResponse,SummaryControllerDto summaryControllerDto) {
+        Summary summary= Summary.of(createSummaryResponse.getSummary(),summaryControllerDto.getTranscriptionId());
+        return summaryRepository.save(summary);
     }
 }
