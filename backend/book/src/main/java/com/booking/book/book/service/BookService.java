@@ -69,7 +69,11 @@ public class BookService {
         return bookRepository.findById(isbn)
                              .switchIfEmpty(
                                  Mono.error(new BookException(ErrorCode.BOOK_NOT_FOUND))
-                             );
+                             )
+                .onErrorResume(e->{
+                    log.error("없는 책");
+                    return Mono.error(new BookException(ErrorCode.BOOK_NOT_FOUND));
+                });
     }
 
     public Flux<BookResponse> loadLatestBooks(Pageable pageable) {

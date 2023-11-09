@@ -43,15 +43,30 @@ public class MemberBookService {
     }
 
     public Mono<MemberBook> registerMemberBook(MemberBookRegistRequest memberBookRegistRequest) {
-        return bookService.findByIsbn(memberBookRegistRequest.bookIsbn())
-                .flatMap(book -> {
-                    MemberBook memberBook = MemberBook.from(memberBookRegistRequest);
-                    return memberBookRepository.save(memberBook);
+        String nickname= memberBookRegistRequest.nickname();
+        String isbn=memberBookRegistRequest.bookIsbn();
+        return memberBookRepository.findByMemberNicknameAndBookIsbn(nickname,isbn)
+                .flatMap(exist -> {
+                    log.error("내 서재 등록 요청 에러 : 이미 등록된 책");
+                    return Mono.<MemberBook>error(new RuntimeException("이미 등록된 책"));
                 })
+                .switchIfEmpty(
+                        bookService.findByIsbn(isbn)
+                                .flatMap(book -> {
+                                    MemberBook memberBook=MemberBook.from(memberBookRegistRequest);
+                                    return memberBookRepository.save(memberBook);
+                                })
+                )
                 .onErrorResume(e->{
-                    log.error("없는 책");
-                    return Mono.error(new BookException(ErrorCode.BOOK_NOT_FOUND));
+                    if(e instanceof BookException){
+                        log.error("없는 책");
+                        return Mono.error(new BookException(ErrorCode.BOOK_NOT_FOUND));
+                    }
+                    else {
+                        return Mono.error(new RuntimeException("이미 등록된 책"));
+                    }
                 });
+
     }
 
     public Mono<String> registerNote(RegisterNoteRequest request) {
