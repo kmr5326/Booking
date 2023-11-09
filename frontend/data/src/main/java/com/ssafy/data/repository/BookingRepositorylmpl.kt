@@ -1,11 +1,13 @@
 package com.ssafy.data.repository
 import com.ssafy.data.remote.api.BookingApi
-import com.ssafy.data.remote.api.MyPageApi
+import com.ssafy.domain.model.booking.BookingAcceptRequest
 import com.ssafy.domain.model.booking.BookingAll
 import javax.inject.Inject
 import com.ssafy.domain.model.booking.BookingCreateRequest
 import com.ssafy.domain.model.booking.BookingDetail
+import com.ssafy.domain.model.booking.BookingJoinRequest
 import com.ssafy.domain.model.booking.BookingParticipants
+import com.ssafy.domain.model.booking.BookingStartRequest
 import com.ssafy.domain.model.booking.BookingWaiting
 import com.ssafy.domain.model.booking.SearchResponse
 import com.ssafy.domain.repository.BookingRepository
@@ -32,6 +34,17 @@ class BookingRepositoryImpl @Inject constructor(
 
     override suspend fun getSearchList(query:String,display:Int,start:Int,sort:String): Response<SearchResponse> {
         return bookingApi.getSearchList(query,display,start,sort)
+    }
+
+    override suspend fun postBookingJoin(meetingId: Long,request: BookingJoinRequest): Response<Unit> {
+        return bookingApi.postBookingJoin(meetingId,request)
+    }
+
+    override suspend fun postBookingAccept(meetingId: Long,memberId:Int,request: BookingAcceptRequest): Response<Unit> {
+        return bookingApi.postBookingAccept(meetingId,memberId,request)
+    }
+    override suspend fun postBookingStart(request: BookingStartRequest): Response<Unit> {
+        return bookingApi.postBookingStart(request)
     }
 }
 
