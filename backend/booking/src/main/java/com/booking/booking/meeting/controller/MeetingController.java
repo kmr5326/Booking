@@ -118,6 +118,18 @@ public class MeetingController {
                         Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, error.getMessage())));
     }
 
+    @PostMapping("/{meetingId}/reject/{memberId}")
+    public Mono<ResponseEntity<Void>> rejectMeeting(@RequestHeader(AUTHORIZATION) String token,
+                                                    @PathVariable("meetingId") Long meetingId,
+                                                    @PathVariable("memberId") Integer memberId) {
+        String userEmail = JwtUtil.getLoginEmailByToken(token);
+
+        return meetingService.rejectMeeting(userEmail, meetingId, memberId)
+                .thenReturn(ResponseEntity.ok().<Void>build())
+                .onErrorResume(error ->
+                        Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, error.getMessage())));
+    }
+
     @PostMapping("/info/")
     public Mono<ResponseEntity<Void>> createDetailedMeeting(@RequestHeader(AUTHORIZATION) String token,
                                                             @RequestBody MeetingInfoRequest meetingInfoRequest) {

@@ -214,6 +214,41 @@ public class MeetingService {
     }
 
     @Transactional
+    public Mono<Void> rejectMeeting(String userEmail, Long meetingId, Integer memberId) {
+        log.info("[Booking:Meeting] rejectMeeting({}, {}, {})", userEmail, meetingId, memberId);
+
+        return Mono.zip(meetingRepository.findByMeetingId(meetingId)
+                                .switchIfEmpty(Mono.error(new RuntimeException("존재하지 않는 모임"))),
+                        MemberUtil.getMemberInfoByEmail(userEmail))
+                .flatMap(tuple -> {
+                    Meeting meeting = tuple.getT1();
+                    Integer leaderId = tuple.getT2().memberPk();
+
+                    if (!meeting.getLeaderId().equals(leaderId)) {
+                        return Mono.error(new RuntimeException("모임 거절 권한 없음"));
+                    }
+                    return handleRejectMeeting(meeting, memberId);
+                })
+                .onErrorResume(error -> {
+                    log.error("[Booking:Meeting ERROR] acceptMeeting : {}", error.getMessage());
+                    return Mono.error(error);
+                });
+    }
+
+    private Mono<Void> handleRejectMeeting(Meeting meeting, Integer memberId) {
+        log.info("[Booking:Meeting] handleRejecttMeeting({}, {})", meeting, memberId);
+
+        return waitlistService.existsByMeetingIdAndMemberId(meeting.getMeetingId(), memberId)
+                .flatMap(exist -> {
+                    if (!exist) {
+                        return Mono.error(new RuntimeException("대기 목록에 없는 회원"));
+                    }
+                    return waitlistService.deleteByMeetingIdAndMemberId(meeting.getMeetingId(), memberId);
+                })
+                .then();
+    }
+
+    @Transactional
     public Mono<Void> createMeetingInfo(String userEmail, MeetingInfoRequest meetingInfoRequest) {
         log.info("[Booking:Meeting] createMeetingInfo({}, {})", userEmail, meetingInfoRequest);
 
