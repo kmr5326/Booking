@@ -40,8 +40,7 @@ public class WaitlistService {
                 .onErrorResume(error -> {
                     log.info("[Booking:Waitlist ERROR] deleteByMeetingIdAndMemberId : {}", error.getMessage());
                     return Mono.error(new RuntimeException("대기 목록 삭제 실패"));
-                })
-                .then();
+                });
     }
 
     public Flux<WaitlistResponse> findAllByMeetingMeetingId(Long meetingId) {

@@ -1,11 +1,13 @@
 package com.booking.booking.meeting.service;
 
+import com.booking.booking.global.dto.request.EnrollNotificationRequest;
 import com.booking.booking.global.dto.request.InitChatroomRequest;
 import com.booking.booking.global.dto.request.JoinChatroomRequest;
 import com.booking.booking.global.dto.response.MemberResponse;
 import com.booking.booking.global.utils.BookUtil;
 import com.booking.booking.global.utils.ChatroomUtil;
 import com.booking.booking.global.utils.MemberUtil;
+import com.booking.booking.global.utils.NotificationUtil;
 import com.booking.booking.hashtag.dto.response.HashtagResponse;
 import com.booking.booking.hashtag.service.HashtagService;
 import com.booking.booking.hashtagmeeting.service.HashtagMeetingService;
@@ -168,7 +170,8 @@ public class MeetingService {
                             } else if (tuple2.getT2()) {
                                 return Mono.error(new RuntimeException("이미 대기 중인 회원"));
                             }
-                            return waitlistService.enrollMeeting(meetingId, tuple.getT2().memberPk());
+                            return waitlistService.enrollMeeting(meetingId, tuple.getT2().memberPk())
+                                    .then(NotificationUtil.enrollNotification(new EnrollNotificationRequest(meetingId, tuple.getT1().getMeetingTitle())));
                         }))
                 .onErrorResume(error -> {
                     log.error("[Booking:Meeting ERROR] enrollMeeting : {}", error.getMessage());
@@ -236,7 +239,7 @@ public class MeetingService {
     }
 
     private Mono<Void> handleRejectMeeting(Meeting meeting, Integer memberId) {
-        log.info("[Booking:Meeting] handleRejecttMeeting({}, {})", meeting, memberId);
+        log.info("[Booking:Meeting] handleRejectMeeting({}, {})", meeting, memberId);
 
         return waitlistService.existsByMeetingIdAndMemberId(meeting.getMeetingId(), memberId)
                 .flatMap(exist -> {
@@ -244,8 +247,36 @@ public class MeetingService {
                         return Mono.error(new RuntimeException("대기 목록에 없는 회원"));
                     }
                     return waitlistService.deleteByMeetingIdAndMemberId(meeting.getMeetingId(), memberId);
-                })
-                .then();
+                });
+    }
+
+    public Mono<Void> exitMeeting(String userEmail, Long meetingId) {
+        log.info("[Booking:Meeting] exitMeeting({}, {})", userEmail, meetingId);
+
+        return Mono.zip(meetingRepository.findByMeetingId(meetingId)
+                                .switchIfEmpty(Mono.error(new RuntimeException("존재하지 않는 모임"))),
+                        MemberUtil.getMemberInfoByEmail(userEmail))
+                .flatMap(tuple -> handleExitMeeting(tuple.getT1(), tuple.getT2().memberPk()))
+                .onErrorResume(error -> {
+                    log.error("[Booking:Meeting ERROR] acceptMeeting : {}", error.getMessage());
+                    return Mono.error(error);
+                });
+    }
+
+    private Mono<Void> handleExitMeeting(Meeting meeting, Integer memberId) {
+        log.info("[Booking:Meeting] handleExitMeeting({}, {})", meeting, memberId);
+
+        return waitlistService.existsByMeetingIdAndMemberId(meeting.getMeetingId(), memberId)
+                .flatMap(exist -> {
+                    if (exist) {
+                        return waitlistService.deleteByMeetingIdAndMemberId(meeting.getMeetingId(), memberId);
+                    } else if (meeting.getMeetingState().equals(MeetingState.ONGOING)) {
+                        return Mono.error(new RuntimeException("모임 진행 중"));
+                    } else if (meeting.getLeaderId().equals(memberId)) {
+                        return Mono.error(new RuntimeException("방장은 나갈 수 없음"));
+                    }
+                    return participantService.deleteByMeetingIdAndMemberId(meeting.getMeetingId(), memberId);
+                });
     }
 
     @Transactional

@@ -130,6 +130,17 @@ public class MeetingController {
                         Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, error.getMessage())));
     }
 
+    @DeleteMapping("/{meetingId}/exit")
+    public Mono<ResponseEntity<Void>> exitMeeting(@RequestHeader(AUTHORIZATION) String token,
+                                                  @PathVariable("meetingId") Long meetingId) {
+        String userEmail = JwtUtil.getLoginEmailByToken(token);
+
+        return meetingService.exitMeeting(userEmail, meetingId)
+                .thenReturn(ResponseEntity.ok().<Void>build())
+                .onErrorResume(error ->
+                        Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, error.getMessage())));
+    }
+
     @PostMapping("/info/")
     public Mono<ResponseEntity<Void>> createDetailedMeeting(@RequestHeader(AUTHORIZATION) String token,
                                                             @RequestBody MeetingInfoRequest meetingInfoRequest) {
