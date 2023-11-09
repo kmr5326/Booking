@@ -2,6 +2,7 @@ package com.booking.booking.participant.service;
 
 import com.booking.booking.global.utils.MemberUtil;
 import com.booking.booking.meeting.domain.Meeting;
+import com.booking.booking.meeting.domain.MeetingState;
 import com.booking.booking.participant.domain.Participant;
 import com.booking.booking.participant.dto.response.ParticipantResponse;
 import com.booking.booking.participant.repository.ParticipantRepository;
@@ -18,13 +19,18 @@ public class ParticipantService {
     private final ParticipantRepository participantRepository;
 
     public Mono<Integer> countAllByMeetingId(Long meetingId) {
+        log.info("[Booking:Participant] countAllByMeetingId({})", meetingId);
+
         return participantRepository.countAllByMeetingId(meetingId);
     }
 
     public Mono<Void> addParticipant(Meeting meeting, Integer memberId) {
-        log.info("Booking Server Participant - addParticipant({}, {})", meeting, memberId);
+        log.info("[Booking:Participant] addParticipant({}, {})", meeting, memberId);
         
-        // TODO status 확인 - preparing 상태일 때만 추가 가능
+        if (!meeting.getMeetingState().equals(MeetingState.PREPARING)) {
+            return Mono.error(new RuntimeException("모임 진행 중에는 참여 불가"));
+        }
+
         return participantRepository.countAllByMeetingId(meeting.getMeetingId())
                 .flatMap(count -> {
                     if (count >= meeting.getMaxParticipants()) {
@@ -38,40 +44,32 @@ public class ParticipantService {
                 })
                 .then()
                 .doOnError(error -> {
-                    log.error("Error during addParticipant : {}", error.toString());
+                    log.error("[Booking:Participant ERROR] addParticipant : {}", error.getMessage());
                     throw new RuntimeException("참가자 추가 실패");
                 });
     }
 
     public Flux<ParticipantResponse> findAllByMeetingId(Long meetingId) {
-        log.info("Booking Server Participant - findAllByMeetingId({})", meetingId);
+        log.info("[Booking:Participant] findAllByMeetingId({})", meetingId);
 
         return participantRepository.findAllByMeetingId(meetingId)
                 .flatMap(participant -> MemberUtil.getMemberInfoByPk(participant.getMemberId())
                         .flatMap(member -> Mono.just(new ParticipantResponse(member, participant))))
                 .onErrorResume(error -> {
-                    log.error("Error during findAllByMeetingId : {}", error.toString());
+                    log.error("[Booking:Participant ERROR] findAllByMeetingId : {}", error.getMessage());
                     return Flux.error(new RuntimeException("참가자 목록 조회 실패"));
                 });
     }
 
     public Mono<Boolean> existsByMeetingIdAndMemberId(Long meetingId, Integer memberId) {
-        log.info("Booking Server Participant - existsByMeetingIdAndMemberId({}, {})", meetingId, memberId);
+        log.info("[Booking:Participant] existsByMeetingIdAndMemberId({}, {})", meetingId, memberId);
 
         return participantRepository.existsByMeetingIdAndMemberId(meetingId, memberId);
     }
 
-    //    public Flux<ParticipantResponse> findAllByMeetingId(Long meetingId) {
-//        log.info("Booking Server Participant - findAllByMeetingId({})", meetingId);
-//
-//        return Mono.fromCallable(() -> participantRepository.findAllByMeetingMeetingId(meetingId))
-//                .flatMapMany(Flux::fromIterable)
-//                .flatMap(participant -> MemberUtil.getMemberInfoByPk(participant.getMemberId())
-//                        .flatMap(memberInfo -> Mono.just(new ParticipantResponse(memberInfo, participant))))
-//                .onErrorResume(error -> {
-//                    log.error("Booking Server Participant - Error during findAllByMeetingId : {}", error.getMessage());
-//                    return Flux.error(new RuntimeException("참가자 목록 조회 실패"));
-//                })
-//                .subscribeOn(Schedulers.boundedElastic());
-//    }
+    public Mono<Void> deleteAllByMeetingId(Long meetingId) {
+        log.info("[Booking:Participant] deleteAllByMeetingId({})", meetingId);
+
+        return participantRepository.deleteAllByMeetingId(meetingId);
+    }
 }

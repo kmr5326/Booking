@@ -28,10 +28,15 @@ public class Chatroom {
 
     private String meetingTitle;
 
+    private String lastMessage;
+
     @CreatedDate
     private LocalDateTime createdAt;
 
     private LocalDateTime lastMessageReceivedTime;
+
+    //TODO : lastMessage를 보여주면 좋을 듯 / 이벤트리스너 & 테일러블
+
 
     public static Chatroom createWithLeader(InitChatroomRequest initChatroomRequest) {
         return Chatroom.builder()
@@ -45,5 +50,9 @@ public class Chatroom {
 
     public void updateListMessageReceived() {
         this.lastMessageReceivedTime = LocalDateTime.now();
+    }
+
+    public void updateLastMessage(String msg) {
+        this.lastMessage = msg;
     }
 }
