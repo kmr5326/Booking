@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -20,7 +19,6 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.Card
@@ -71,7 +69,7 @@ import com.ssafy.domain.model.booksearch.BookSearchResponse
 fun BookHome(
     navController: NavController,
     appViewModel: AppViewModel,
-    checkBoolean: Boolean
+    checkNum: String
 ) {
     val viewModel: BookSearchViewModel = hiltViewModel()
 
@@ -85,12 +83,12 @@ fun BookHome(
 
     LaunchedEffect(Unit) {
         viewModel.getBookLatest(1, 16)
-        Log.d("booktest", "$checkBoolean")
+        Log.d("booktest", "$checkNum")
     }
 
     Scaffold(
         topBar = {
-            if (checkBoolean) {
+            if (checkNum == "0") {
                 TopBar(title = "도서 검색")
             } else {
                 CenterAlignedTopAppBar(
@@ -107,7 +105,7 @@ fun BookHome(
             }
         },
         bottomBar = {
-            if (checkBoolean) {
+            if (checkNum == "0") {
                 BottomNav(navController, appViewModel)
             }
         },
@@ -141,8 +139,18 @@ fun BookHome(
                 colors = TextFieldDefaults.outlinedTextFieldColors(
                     focusedBorderColor = Color(0xFF12BD7E)
                 ),
-                textStyle = TextStyle(color = Color.Gray, fontSize = 14.sp, baselineShift = BaselineShift.None),
-                leadingIcon = { Icon(Icons.Outlined.Search, contentDescription = null, tint = Color(0xFF12BD7E)) },
+                textStyle = TextStyle(
+                    color = Color.Gray,
+                    fontSize = 14.sp,
+                    baselineShift = BaselineShift.None
+                ),
+                leadingIcon = {
+                    Icon(
+                        Icons.Outlined.Search,
+                        contentDescription = null,
+                        tint = Color(0xFF12BD7E)
+                    )
+                },
                 trailingIcon = {
                     IconButton(onClick = {
                         viewModel.setBookTitle("")
@@ -178,10 +186,11 @@ fun BookHome(
                         navController,
                         appViewModel,
                         viewModel,
-                        checkBoolean
+                        checkNum
                     )
+
                     is BookSearchState.Error -> BookErrorView(message = (bookSearchState as BookSearchState.Error).message)
-                    else -> BookInitView(checkBoolean)
+                    else -> BookInitView(checkNum)
                 }
             }
         }
@@ -205,7 +214,7 @@ fun BookSuccessView(
     navController: NavController,
     appViewModel: AppViewModel,
     viewModel: BookSearchViewModel,
-    checkBoolean: Boolean
+    checkNum: String
 ) {
     if (data.isEmpty()) {
         Text("검색 결과가 없습니다.")
@@ -217,14 +226,14 @@ fun BookSuccessView(
                 .padding(10.dp)
         ) {
             items(data.size) { index ->
-                BookSearchItem(book = data[index], checkBoolean)
+                BookSearchItem(book = data[index], checkNum)
             }
         }
     }
 }
 
 @Composable
-fun BookSearchItem(book: BookSearchResponse, checkBoolean: Boolean) {
+fun BookSearchItem(book: BookSearchResponse, checkNum: String) {
     val navController = LocalNavigation.current
 
     Card(
@@ -232,10 +241,12 @@ fun BookSearchItem(book: BookSearchResponse, checkBoolean: Boolean) {
             .padding(4.dp)
             .fillMaxWidth()
             .clickable {
-                if (checkBoolean) {
+                if (checkNum == "0") {
                     navController.navigate("bookDetail/${book.isbn}")
-                } else {
+                } else if (checkNum == "1") {
                     navController.navigate("create/booking/${book.isbn}")
+                } else {
+                    navController.navigate("profile/book/${book.isbn}")
                 }
             },
         colors = CardDefaults.cardColors(
@@ -271,7 +282,7 @@ fun BookErrorView(message: String) {
 }
 
 @Composable
-fun BookInitView(checkBoolean: Boolean) {
+fun BookInitView(checkNum: String) {
     val viewModel: BookSearchViewModel = hiltViewModel()
 
     val getBookLatestResponse by viewModel.getBookLatestResponse.observeAsState()
@@ -284,14 +295,14 @@ fun BookInitView(checkBoolean: Boolean) {
                 .padding(horizontal = 8.dp, vertical = 15.dp)
         ) {
             items(it.body()!!) { book ->
-                BookInitItem(book, checkBoolean)
+                BookInitItem(book, checkNum)
             }
         }
     }
 }
 
 @Composable
-fun BookInitItem(book: BookSearchResponse, checkBoolean: Boolean) {
+fun BookInitItem(book: BookSearchResponse, checkNum: String) {
     val navController = LocalNavigation.current
 
     Column(
@@ -299,10 +310,12 @@ fun BookInitItem(book: BookSearchResponse, checkBoolean: Boolean) {
             .width(150.dp)
             .padding(12.dp)
             .clickable {
-                if (checkBoolean) {
+                if (checkNum == "0") {
                     navController.navigate("bookDetail/${book.isbn}")
-                } else {
+                } else if (checkNum == "1") {
                     navController.navigate("create/booking/${book.isbn}")
+                } else {
+                    navController.navigate("profile/book/${book.isbn}")
                 }
             }
     ) {

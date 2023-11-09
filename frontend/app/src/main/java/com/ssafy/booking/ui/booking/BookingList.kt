@@ -62,7 +62,6 @@ import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
 import com.ssafy.booking.R
 import com.ssafy.booking.ui.common.BottomNav
-import com.ssafy.booking.ui.profile.BookingList
 import com.ssafy.booking.viewmodel.AppViewModel
 import com.ssafy.booking.viewmodel.BookingViewModel
 import com.ssafy.data.repository.token.TokenDataSource
@@ -92,7 +91,7 @@ fun Main(
     LaunchedEffect(Unit) {
         bookingViewModel.postDeivceToken(DeviceToken(deviceToken))
 
-        // 메인 화면 가자마자 userInfo 조회
+        // 메인 화면 가자마자 userInfo 조회n
         Log.d("test1", "${tokenDataSource.getLoginId()}")
         Log.d("test2", "$loginId")
         bookingViewModel.getUserInfo(loginId!!)
