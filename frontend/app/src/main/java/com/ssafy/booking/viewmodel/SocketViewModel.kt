@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.gmail.bishoybasily.stomp.lib.Event
 import com.gmail.bishoybasily.stomp.lib.StompClient
 import com.google.gson.GsonBuilder
+import com.ssafy.booking.di.App
 import com.ssafy.data.room.dao.MessageDao
 import com.ssafy.data.room.entity.MessageEntity
 import com.ssafy.data.utils.LocalDateTimeDeserializer
@@ -50,6 +51,9 @@ class SocketViewModel @Inject constructor(
     fun loadLatestMessages(chatId: String) {
         messages = messageDao.getLatestMessage(chatId.toInt())
     }
+
+    val headers = HashMap<String, String>()
+    val accessToken = App.prefs.getToken()
 
     fun connectToChat(chatId: String) {
         stompConnection = stomp.connect().subscribe {
