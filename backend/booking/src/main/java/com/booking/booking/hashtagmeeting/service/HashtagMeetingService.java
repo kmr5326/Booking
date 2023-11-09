@@ -43,4 +43,16 @@ public class HashtagMeetingService {
                 })
                 .then();
     }
+
+    public Mono<Void> updateHashtags(Long meetingId, List<String> hashtagList) {
+        log.info("[Booking:HashtagMeeting] updateHashtags({}, {})", meetingId, hashtagList);
+
+        return hashtagMeetingRepository.deleteAllByMeetingId(meetingId)
+                .then(saveHashtags(meetingId, hashtagList))
+                .onErrorResume(error -> {
+                    log.error("[Booking:HashtagMeeting ERROR] updateHashtags : {}", error.getMessage());
+                    return Mono.error(error);
+                })
+                .then();
+    }
 }

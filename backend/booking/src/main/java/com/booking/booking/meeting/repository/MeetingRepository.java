@@ -24,4 +24,14 @@ public interface MeetingRepository extends R2dbcRepository<Meeting, Long> {
                                      @Param("radius") double radius, @Param("hashtagId") long hashtagId);
 
     Mono<Meeting> findByMeetingId(Long meetingId);
+
+    @Query("SELECT * " +
+            "FROM meetings m JOIN participants p ON m.meeting_id = p.meeting_id " +
+            "WHERE p.member_id = :memberId AND m.meeting_state IN ('PREPARING', 'ONGOING')")
+    Flux<Meeting> findOngoingByMemberId(@Param("memberId") Integer memberId);
+
+    @Query("SELECT * " +
+            "FROM meetings m JOIN participants p ON m.meeting_id = p.meeting_id " +
+            "WHERE p.member_id = :memberId AND m.meeting_state = 'FINISH'")
+    Flux<Meeting> findFinishByMemberId(@Param("memberId") Integer memberId);
 }

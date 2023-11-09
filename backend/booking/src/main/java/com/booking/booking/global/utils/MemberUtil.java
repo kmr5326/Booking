@@ -51,4 +51,20 @@ public class MemberUtil {
                         response -> Mono.error(new RuntimeException("회원정보 응답 에러")))
                 .bodyToMono(MemberResponse.class);
     }
+
+    public static Mono<MemberResponse> getMemberInfoByNickname(String nickname) {
+        log.info("[Booking:MemberUtil] getMemberInfoByNickname({})", nickname);
+
+        WebClient webClient = WebClient.builder().build();
+        URI uri = URI.create(GATEWAY_URL + "/api/members/memberInfo-nick/" + nickname);
+
+        return webClient.get()
+                .uri(uri)
+                .retrieve()
+                .onStatus(HttpStatus::is4xxClientError,
+                        response -> Mono.error(new RuntimeException("회원정보 응답 에러 4xx")))
+                .onStatus(HttpStatus::is5xxServerError,
+                        response -> Mono.error(new RuntimeException("회원정보 응답 에러 5xx")))
+                .bodyToMono(MemberResponse.class);
+    }
 }

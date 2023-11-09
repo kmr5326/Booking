@@ -1,5 +1,6 @@
 package com.booking.booking.meeting.domain;
 
+import com.booking.booking.meeting.dto.request.MeetingUpdateRequest;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -44,6 +45,20 @@ public class Meeting {
                 .description(description)
                 .maxParticipants(maxParticipants)
                 .meetingState(state)
+                .build();
+    }
+
+    public Meeting updateMeeting(MeetingUpdateRequest meetingUpdateRequest) {
+        return Meeting.builder()
+                .meetingId(meetingId)
+                .leaderId(leaderId)
+                .lat(lat)
+                .lgt(lgt)
+                .bookIsbn(bookIsbn)
+                .meetingTitle(meetingUpdateRequest.meetingTitle())
+                .description(meetingUpdateRequest.description())
+                .maxParticipants(meetingUpdateRequest.maxParticipants())
+                .meetingState(meetingState)
                 .build();
     }
 }

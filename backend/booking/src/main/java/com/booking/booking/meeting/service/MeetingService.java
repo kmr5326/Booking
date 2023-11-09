@@ -12,6 +12,7 @@ import com.booking.booking.hashtagmeeting.service.HashtagMeetingService;
 import com.booking.booking.meeting.domain.Meeting;
 import com.booking.booking.meeting.domain.MeetingState;
 import com.booking.booking.meeting.dto.request.MeetingRequest;
+import com.booking.booking.meeting.dto.request.MeetingUpdateRequest;
 import com.booking.booking.meeting.dto.response.MeetingDetailResponse;
 import com.booking.booking.meeting.dto.response.MeetingListResponse;
 import com.booking.booking.meeting.repository.MeetingRepository;
@@ -89,6 +90,30 @@ public class MeetingService {
                 .flatMap(this::buildMeetingListResponse)
                 .onErrorResume(error -> {
                     log.error("[Booking:Meeting Error] findAllByHashtagId : {}", error.getMessage());
+                    return Mono.error(error);
+                });
+    }
+
+    public Flux<MeetingListResponse> findOngoingByNickname(String nickname) {
+        log.info("[Booking:Meeting] - findOngoingByNickname({})", nickname);
+
+        return MemberUtil.getMemberInfoByNickname(nickname)
+                .flatMapMany(member -> meetingRepository.findOngoingByMemberId(member.memberPk()))
+                .flatMap(this::buildMeetingListResponse)
+                .onErrorResume(error -> {
+                    log.error("[Booking:Meeting Error] findOngoingByNickname : {}", error.getMessage());
+                    return Mono.error(error);
+                });
+    }
+
+    public Flux<MeetingListResponse> findFinishByNickname(String nickname) {
+        log.info("[Booking:Meeting] - findFinishByNickname({})", nickname);
+
+        return MemberUtil.getMemberInfoByNickname(nickname)
+                .flatMapMany(member -> meetingRepository.findFinishByMemberId(member.memberPk()))
+                .flatMap(this::buildMeetingListResponse)
+                .onErrorResume(error -> {
+                    log.error("[Booking:Meeting Error] findFinishByNickname : {}", error.getMessage());
                     return Mono.error(error);
                 });
     }
@@ -213,5 +238,43 @@ public class MeetingService {
                     log.error("[Booking:Meeting ERROR] createMeetingInfo : {}", error.getMessage());
                     return Mono.error(error);
                 });
+    }
+
+    @Transactional
+    public Mono<Void> updateMeeting(String userEmail, MeetingUpdateRequest meetingUpdateRequest) {
+        log.info("[Booking:Meeting] updateMeeting({}, {})", userEmail, meetingUpdateRequest);
+
+        return Mono.zip(MemberUtil.getMemberInfoByEmail(userEmail),
+                        meetingRepository.findByMeetingId(meetingUpdateRequest.meetingId()))
+                .flatMap(tuple -> {
+                    MemberResponse member = tuple.getT1();
+                    Meeting meeting = tuple.getT2();
+
+                    if (!member.memberPk().equals(meeting.getLeaderId())) {
+                        return Mono.error(new RuntimeException("미팅 수정 권한 없음"));
+                    } else if(meeting.getMeetingState().equals(MeetingState.ONGOING)) {
+                        return Mono.error(new RuntimeException("진행 중에는 미팅 수정 불가"));
+                    } else if(meeting.getMeetingState().equals(MeetingState.FINISH)) {
+                        return Mono.error(new RuntimeException("종료 후에는 미팅 수정 불가"));
+                    }
+                    return handleUpdateMeeting(meeting, meetingUpdateRequest);
+                })
+                .onErrorResume(error -> {
+                    log.error("[Booking:Meeting ERROR] updateMeeting : {}", error.getMessage());
+                    return Mono.error(new RuntimeException("미팅 수정 실패"));
+                });
+
+    }
+
+    private Mono<Void> handleUpdateMeeting(Meeting meeting, MeetingUpdateRequest meetingUpdateRequest) {
+        log.info("[Booking:Meeting] handleUpdateMeeting({}, {})", meeting, meetingUpdateRequest);
+
+        return meetingRepository.save(meeting.updateMeeting(meetingUpdateRequest))
+                .then(hashtagMeetingService.updateHashtags(meeting.getMeetingId(), meetingUpdateRequest.hashtagList()))
+                .onErrorResume(error -> {
+                    log.error("[Booking:Meeting ERROR] handleCreateMeeting : {}", error.getMessage());
+                    return Mono.error(error);
+                })
+                .then();
     }
 }
