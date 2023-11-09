@@ -93,7 +93,7 @@ fun BottomNav(
                 onClick = {
                     if (currentRoute != item.route) {
                         val route = when (item) {
-                            AppNavItem.Book -> "book/true"
+                            AppNavItem.Book -> "book/0"
                             else -> item.route
                         }
 

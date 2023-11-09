@@ -9,6 +9,7 @@ import com.ssafy.data.remote.api.ChatApi
 import com.ssafy.data.remote.api.FirebaseApi
 import com.ssafy.data.remote.api.GoogleApi
 import com.ssafy.data.remote.api.MemberApi
+import com.ssafy.data.remote.api.MyBookApi
 import com.ssafy.data.remote.api.MyPageApi
 import dagger.Module
 import dagger.Provides
@@ -118,6 +119,12 @@ class NetworkModule {
     @Singleton
     fun provideDeviceTokenApi(retrofit: Retrofit): FirebaseApi {
         return retrofit.create(FirebaseApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideMyBookApi(retrofit: Retrofit) : MyBookApi {
+        return retrofit.create(MyBookApi::class.java)
     }
 
 //    @Provides
