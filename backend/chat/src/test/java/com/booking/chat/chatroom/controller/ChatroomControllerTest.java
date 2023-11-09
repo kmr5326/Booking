@@ -125,10 +125,10 @@ class ChatroomControllerTest extends ControllerTest {
     @Test
     void getChatroomListTest() throws Exception {
 
-        ChatroomListResponse chatroomListResponse = new ChatroomListResponse(1L, "미팅 이름", "last",
+        ChatroomListResponse chatroomListResponse = new ChatroomListResponse(1L, 1L, "meetingTitle","lastMessage",
             List.of(1L, 2L, 3L));
 
-        ChatroomListResponse chatroomListResponse2 = new ChatroomListResponse(2L, "미팅 이름2", "last",
+        ChatroomListResponse chatroomListResponse2 = new ChatroomListResponse(2L, 1L, "meetingTitle2","lastMessage2",
             List.of(1L, 2L, 3L));
 
         when(chatroomService.getChatroomListByMemberIdOrderByDesc(any())).thenReturn(
@@ -153,5 +153,11 @@ class ChatroomControllerTest extends ControllerTest {
                                                              .description("채팅방 멤버들 PK 배열")
                          )
                      ));
+    }
+
+    @DisplayName("회원 채팅방 입장하면, 마지막 읽은 메세지부터 전송한다")
+    @Test
+    void enterChatroomTest() throws Exception {
+
     }
 }
