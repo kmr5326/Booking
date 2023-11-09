@@ -1,6 +1,7 @@
 package com.booking.chat.chatroom.service;
 
 import com.booking.chat.chat.domain.Message;
+import com.booking.chat.chat.repository.MessageRepository;
 import com.booking.chat.chatroom.domain.Chatroom;
 import com.booking.chat.chatroom.dto.request.ExitChatroomRequest;
 import com.booking.chat.chatroom.dto.request.InitChatroomRequest;
@@ -28,6 +29,7 @@ import reactor.core.scheduler.Schedulers;
 public class ChatroomService {
 
     private final ChatroomRepository chatroomRepository;
+    private final MessageRepository messageRepository;
     private final ReactiveRedisTemplate<String, List<Long>> reactiveRedisTemplate;
 
     public Mono<Chatroom> initializeChatroom(InitChatroomRequest initChatroomRequest) {
@@ -87,10 +89,20 @@ public class ChatroomService {
 
     public Flux<Message> enterChatroom(Long chatroomId, Long memberId, LastMessageRequest lastMessageRequest) {
 
+        // 1. 입장할 시, 레디스에 저장
         String chatroomKey = "chatroom-%d".formatted(chatroomId);
-        redisManager(chatroomKey, memberId).subscribe();
+        Mono<Void> redisUpdateMono = redisManager(chatroomKey, memberId);
+        // 2. 마지막 읽은 메세지부터, 마지막 메세지까지 불러오면서, readCount-- 및 읽은 사람 목록에 추가
 
-        return Flux.empty();
+        Flux<Message> updatedMessagesFlux = messageRepository.findByChatroomIdAndMessageIdGreaterThanEqual(chatroomId, lastMessageRequest.lastMessageIndex())
+                                                             .flatMap(message -> {
+                                                                 message.getReadMemberList().add(memberId);
+                                                                 message.decreaseReadCount();
+                                                                 return messageRepository.save(message);
+                                                             });
+
+        // 레디스 업데이트 후 메시지 스트림 반환
+        return redisUpdateMono.thenMany(updatedMessagesFlux);
     }
 
     public Mono<Void> disconnectChatroom(Long chatroomId, Long memberId) {

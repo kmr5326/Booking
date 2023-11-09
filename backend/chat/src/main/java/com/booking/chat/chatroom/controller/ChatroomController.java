@@ -81,7 +81,7 @@ public class ChatroomController {
     public Flux<Message> enterChatroom(@PathVariable Long chatroomId, @RequestHeader(AUTHORIZATION) String token, @RequestBody LastMessageRequest lastMessageRequest){
         Long memberId = JwtUtil.getMemberIdByToken(token);
         log.info(" {} member request enter chatroom : {} ", memberId, chatroomId);
-        return Flux.just();
+        return chatroomService.enterChatroom(chatroomId, memberId, lastMessageRequest);
     }
 
     @DeleteMapping("/{chatroomId}")

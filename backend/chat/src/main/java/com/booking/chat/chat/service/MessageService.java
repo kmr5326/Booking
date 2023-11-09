@@ -76,7 +76,10 @@ public class MessageService {
                                                                                .chatroomId(chatroomId)
                                                                                .messageId(idx)
                                                                                .memberId(message.getSenderId())
+                                                                               .memberList(chatroom.getMemberList())
+                                                                               .readMemberList(new ArrayList<>())
                                                                                .content(message.getMessage())
+                                                                               .readCount(9909999)
                                                                                .build()))
                                                         .flatMap(messageRepository::save);
                               })

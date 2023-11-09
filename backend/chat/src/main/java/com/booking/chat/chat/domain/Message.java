@@ -1,6 +1,7 @@
 package com.booking.chat.chat.domain;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -30,10 +31,19 @@ public class Message {
 
     private Integer readCount;
 
+    // 메세지가 발행될 때, 그 방에 있던 사람 목록
+    private List<Long> memberList;
+    // 읽은 사람 목록
+    private List<Long> readMemberList;
+
     @CreatedDate
     private LocalDateTime timestamp;
 
 
     public void setAutoIncrementId() {}
+
+    public void decreaseReadCount() {
+        this.readCount--;
+    }
 
 }
