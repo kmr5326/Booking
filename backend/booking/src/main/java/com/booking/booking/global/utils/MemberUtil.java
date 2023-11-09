@@ -21,7 +21,7 @@ public class MemberUtil {
     }
 
     public static Mono<MemberResponse> getMemberInfoByEmail(String userEmail) {
-        log.info("Booking Server MemberUtil - getMemberInfoByEmail({})", userEmail);
+        log.info("[Booking:MemberUtil] getMemberInfoByEmail({})", userEmail);
 
         WebClient webClient = WebClient.builder().build();
         URI uri = URI.create(GATEWAY_URL + "/api/members/memberInfo/" + userEmail);
@@ -37,7 +37,7 @@ public class MemberUtil {
     }
 
     public static Mono<MemberResponse> getMemberInfoByPk(Integer memberPk) {
-        log.info("Booking Server MemberUtil - getMemberInfoByPk({})", memberPk);
+        log.info("[Booking:MemberUtil] getMemberInfoByPk({})", memberPk);
 
         WebClient webClient = WebClient.builder().build();
         URI uri = URI.create(GATEWAY_URL + "/api/members/memberInfo-pk/" + memberPk);
@@ -49,6 +49,20 @@ public class MemberUtil {
                         response -> Mono.error(new RuntimeException("회원정보 응답 에러")))
                 .onStatus(HttpStatus::is5xxServerError,
                         response -> Mono.error(new RuntimeException("회원정보 응답 에러")))
+                .bodyToMono(MemberResponse.class);
+    }
+
+    public static Mono<MemberResponse> getMemberInfoByNickname(String nickname) {
+        log.info("[Booking:MemberUtil] getMemberInfoByNickname({})", nickname);
+
+        return WebClient.create(GATEWAY_URL + "/api/members/memberInfo-nick")
+                .get()
+                .uri("/{nickname}", nickname)
+                .retrieve()
+                .onStatus(HttpStatus::is4xxClientError,
+                        response -> Mono.error(new RuntimeException("회원정보 응답 에러 4xx")))
+                .onStatus(HttpStatus::is5xxServerError,
+                        response -> Mono.error(new RuntimeException("회원정보 응답 에러 5xx")))
                 .bodyToMono(MemberResponse.class);
     }
 }
