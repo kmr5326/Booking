@@ -10,6 +10,7 @@ import com.booking.book.memberbook.dto.request.RegisterNoteRequest;
 import com.booking.book.memberbook.dto.response.MemberBookListResponse;
 import com.booking.book.memberbook.dto.response.MemberBookResponse;
 import com.booking.book.memberbook.repository.MemberBookRepository;
+import javassist.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -75,10 +76,18 @@ public class MemberBookService {
                     memberBook.getNotes().add(new Note(request.content(), LocalDateTime.now()));
                     return memberBookRepository.save(memberBook);
                 })
-                .thenReturn("")
+                .thenReturn("created")
                 .onErrorResume(e->{
                     log.error(e.getMessage());
                     return Mono.error(new RuntimeException(e.getMessage()));
                 });
+    }
+
+    public Mono<String> deleteMemberBook(String memberBookId) {
+        return memberBookRepository.findBy_id(memberBookId)
+                .flatMap(memberBookRepository::delete)
+                .switchIfEmpty(Mono.error(new NotFoundException("Not found memberBook")))
+                .thenReturn("deleted");
+
     }
 }
