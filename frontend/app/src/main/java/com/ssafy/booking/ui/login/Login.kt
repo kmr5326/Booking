@@ -218,7 +218,7 @@ fun KakaoLoginButton(
                     // 로그인 성공 부분
                     else if (token != null) {
                         Log.e(TAG1, "로그인 성공 ${token.accessToken}")
-                        navController.navigate(AppNavItem.Main.route)
+//                        navController.navigate(AppNavItem.Main.route)
 
                         // 사용자 정보 요청 (기본)
                         UserApiClient.instance.me { user, error ->
