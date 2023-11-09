@@ -21,7 +21,7 @@ public class BookUtil {
     }
 
     public static Mono<BookResponse> getBookByIsbn(String isbn) {
-        log.info("Booking Server BookUtil - getBookByIsbn({})", isbn);
+        log.info("[Booking:BookUtil] getBookByIsbn({})", isbn);
 
         WebClient webClient = WebClient.builder().build();
         URI uri = URI.create(GATEWAY_URL + "/api/book/searchByIsbn?isbn=" + isbn);
