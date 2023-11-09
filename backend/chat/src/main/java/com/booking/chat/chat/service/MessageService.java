@@ -10,6 +10,7 @@ import com.booking.chat.notification.dto.response.NotificationResponse;
 import com.booking.chat.notification.service.NotificationService;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
@@ -49,16 +50,23 @@ public class MessageService {
                            List<Long> notificationList = new ArrayList<>(chatroom.getMemberList());
                            notificationList.remove(kafkaMessage.getSenderId());
 
-                           // flux로 stream list 만들기
-                           return Flux.fromIterable(notificationList)
-                                      .flatMap(memberId -> notificationService.sendChattingNotification(new NotificationResponse(meetingTitle, message, memberName ,memberId, kafkaMessage.extractData(chatroomId))), 5)
-                                      .thenMany(Flux.just(chatroom)); // flux로 이어가기
+                           String chatroomKey = "chatroom-%d".formatted(chatroomId);
+                           return reactiveRedisTemplate.opsForValue().get(chatroomKey)
+                                                       .switchIfEmpty(Mono.just(new HashSet<>())) // 키가 없으면 빈 해시셋 반환
+                                                       .map(onlineMembers -> {
+                                                           Set<Long> onlineMemberSet = new HashSet<>(onlineMembers);
+                                                           notificationList.removeIf(onlineMemberSet::contains); // 접속 중인 사용자 제외
+                                                           return notificationList;
+                                                       })
+                                                       // 필터링된 멤버리스트를 Flux로 변환하여 알림 전송
+                                                       .flatMapMany(Flux::fromIterable)
+                                                       .flatMap(memberId -> notificationService.sendChattingNotification(new NotificationResponse(meetingTitle, message, memberName, memberId, kafkaMessage.extractData(chatroomId))), 5)
+                                                       .thenMany(Flux.just(chatroom)); // 작업을 이어갈 Flux 반환
                        })
-                       .then() // On completion of all notifications, continue to send the message to Kafka
+                       .then() // 모든 알림이 완료되면 Kafka로 메시지 전송을 계속함
                        .doOnSuccess(aVoid -> sendMessageToKafka(kafkaMessage, chatroomId))
                        .subscribe();
     }
-
     private void sendMessageToKafka(KafkaMessage kafkaMessage, Long chatroomId) {
         // Kafka로 메세지와 함께 채팅방 ID를 헤더에 추가하여 전달
         ProducerRecord<String, KafkaMessage> record = new ProducerRecord<>("Chatroom-" + chatroomId, null, null, kafkaMessage);
