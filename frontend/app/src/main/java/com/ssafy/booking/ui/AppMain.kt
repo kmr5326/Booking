@@ -1,6 +1,7 @@
 package com.ssafy.booking.ui
 
 import BookingCreate
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -29,6 +30,7 @@ import com.ssafy.booking.ui.history.HistoryDetail
 import com.ssafy.booking.ui.history.HistoryHome
 import com.ssafy.booking.ui.login.Greeting
 import com.ssafy.booking.ui.login.SignInScreen
+import com.ssafy.booking.ui.profile.MyBookRegister
 import com.ssafy.booking.ui.profile.ProfileFollowScreen
 import com.ssafy.booking.ui.profile.ProfileHome
 import com.ssafy.booking.ui.profile.ProfileModifierScreen
@@ -42,7 +44,7 @@ import com.ssafy.domain.model.booking.BookingDetail
 sealed class AppNavItem(
     val route: String
 ) {
-    object Book : AppNavItem("book/{checkBoolean}")
+    object Book : AppNavItem("book/{checkNum}")
     object BookDetail : AppNavItem("bookDetail/{isbn}")
     object History : AppNavItem("history")
     object HistoryDetail : AppNavItem("history/detail")
@@ -61,6 +63,7 @@ sealed class AppNavItem(
     object ProfileFollow : AppNavItem("profile/follow/{nickname}")
     object ProfileModifier : AppNavItem("profile/modifier")
     object BookingDetail : AppNavItem("bookingDetail/{meetingId}")
+    object MyBookRegister : AppNavItem("profile/book/{isbn}")
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -102,9 +105,12 @@ fun Route(googleSignInClient: GoogleSignInClient) {
                 val context = LocalContext.current
                 Greeting(navController, mainViewModel, appViewModel, context, googleSignInClient)
             }
-            composable("book/{checkBoolean}") { navBackStackEntry ->
-                val checkBoolean = navBackStackEntry.arguments?.getString("checkBoolean")?.toBoolean() ?: true
-                BookHome(navController, appViewModel, checkBoolean)
+            composable("book/{checkNum}") { navBackStackEntry ->
+                val checkNum = navBackStackEntry.arguments?.getString("checkNum") ?: "0"
+                Log.d("test1234","$navBackStackEntry")
+                Log.d("test1234","${navBackStackEntry.arguments}")
+                Log.d("test123","$checkNum")
+                BookHome(navController, appViewModel, checkNum)
             }
             composable("bookDetail/{isbn}") { navBackStackEntry ->
                 val isbn = navBackStackEntry.arguments?.getString("isbn")
@@ -160,6 +166,11 @@ fun Route(googleSignInClient: GoogleSignInClient) {
                 val meetingIdString = navBackStackEntry.arguments?.getString("meetingId") ?: "0"
                 val meetingId = meetingIdString.toLongOrNull() ?: 0L // 만약 변환이 실패하면 0L로 대체
                 BookingDetail(meetingId = meetingId) // 이제 meetingId는 Long 타입
+            }
+            composable("profile/book/{isbn}") {navBackStackEntry->
+                val isbn = navBackStackEntry.arguments?.getString("isbn") ?: ""
+                Log.d("test","$isbn")
+                MyBookRegister(isbn)
             }
         }
     }

@@ -73,23 +73,25 @@ fun SignInScreen(
     val (isNickNameError, setIsNickNameError) = remember { mutableStateOf(false) }
 
     LaunchedEffect(signInResponse) {
-        if (signInResponse?.body() != null) {
-            val tokenDataSource = TokenDataSource(context)
-            tokenDataSource.putToken(signInResponse?.body())
-            tokenDataSource.putLoginId(loginId)
-            Log.i("token", "${tokenDataSource.getToken()}")
-            Log.i("token", "$loginId")
-            Log.i("token", "${tokenDataSource.getLoginId()}")
-            navController.navigate(AppNavItem.Main.route) {
-                popUpTo("signIn") { inclusive = true }
-                launchSingleTop = true
-            }
-        } else {
-            // 에러 처리
-            Log.i("token", "${signInResponse?.code()}")
-            if (signInResponse?.code() == 400) {
-                // 닉네임 중복
-                setIsNickNameError(true)
+        signInResponse?.let {
+            if (signInResponse!!.isSuccessful) {
+                val tokenDataSource = TokenDataSource(context)
+                tokenDataSource.putToken(signInResponse?.body())
+                tokenDataSource.putLoginId(loginId)
+                Log.i("token", "${tokenDataSource.getToken()}")
+                Log.i("token", "$loginId")
+                Log.i("token", "${tokenDataSource.getLoginId()}")
+                navController.navigate(AppNavItem.Main.route) {
+                    popUpTo("login") { inclusive = true }
+                    launchSingleTop = true
+                }
+            } else {
+                // 에러 처리
+                Log.i("token", "${signInResponse?.code()}")
+                if (signInResponse?.code() == 400) {
+                    // 닉네임 중복
+                    setIsNickNameError(true)
+                }
             }
         }
     }

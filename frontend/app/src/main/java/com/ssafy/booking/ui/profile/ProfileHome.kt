@@ -51,6 +51,7 @@ import com.ssafy.domain.model.mypage.UserFollowingsResponse
 import com.ssafy.domain.model.mypage.UserInfoResponse
 import androidx.compose.runtime.livedata.observeAsState
 import com.ssafy.booking.ui.LocalNavigation
+import com.ssafy.booking.viewmodel.MyBookViewModel
 
 @Composable
 fun MyProfile(profileData: ProfileData) {
@@ -106,30 +107,6 @@ fun MyProfile(profileData: ProfileData) {
     }
 }
 
-@Composable
-fun MyBook() {
-    Column(
-        modifier = Modifier
-            .padding(32.dp)
-            .fillMaxWidth()
-            .fillMaxHeight()
-    ) {
-        Text("내 서재")
-    }
-}
-
-// 북킹 Composable
-@Composable
-fun BookingList() {
-    Column(
-        modifier = Modifier
-            .padding(32.dp)
-            .fillMaxWidth()
-            .fillMaxHeight()
-    ) {
-        Text("북킹")
-    }
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -140,7 +117,9 @@ fun ProfileHome(
     val context = LocalContext.current
     val tokenDataSource = TokenDataSource(context)
     val loginId: String? = tokenDataSource.getLoginId()
+    val nickname: String? = tokenDataSource.getNickName()
     val viewModel: MyPageViewModel = hiltViewModel()
+    val myBookViewModel: MyBookViewModel = hiltViewModel()
 
     // 상태 관찰
     val profileState by viewModel.profileState.observeAsState()
@@ -152,12 +131,15 @@ fun ProfileHome(
         } ?: run {
             // 로그인 페이지로 이동시키는 버튼이 있는 화면 띄우기
         }
+        nickname?.let {
+            myBookViewModel.getMyBookResponse(nickname)
+        }
     }
 
     // 화면 표시
     when (profileState) {
         is UserProfileState.Loading -> LoadingView()
-        is UserProfileState.Success -> ProfileView(data = (profileState as UserProfileState.Success).data, navController = navController, appViewModel = appViewModel)
+        is UserProfileState.Success -> ProfileView(data = (profileState as UserProfileState.Success).data, navController = navController, appViewModel = appViewModel, myBookViewModel = myBookViewModel)
         is UserProfileState.Error -> ErrorView(message = (profileState as UserProfileState.Error).message, navController = navController, appViewModel = appViewModel)
         else -> GuestView(navController = navController, appViewModel = appViewModel)
     }
@@ -168,8 +150,11 @@ fun ProfileHome(
 fun ProfileView(
     data: ProfileData,
     navController: NavController,
-    appViewModel: AppViewModel
+    appViewModel: AppViewModel,
+    myBookViewModel : MyBookViewModel
 ) {
+    val myBookState by myBookViewModel.myBookState.observeAsState()
+
     Scaffold(
         topBar = {
             TopBar("프로필")
@@ -188,12 +173,12 @@ fun ProfileView(
             // 인자로 첫번째는 title 리스트, 두번째는 각 탭에 해당하는 @composable
             // 현재는 테스트용으로 하드코딩 해뒀음.
             TabBar(
-                tabTitles = listOf("내 서재", "북킹"),
+                tabTitles = listOf("내 서재", "내 북킹"),
                 contentForTab = { index ->
                     // 인덱스 마다 @composable 함수 넣으면 됨.
                     when (index) {
-                        0 -> MyBook()
-                        1 -> BookingList()
+                        0 -> MyBook(myBookState = myBookState)
+                        1 -> MyBookingList()
                     }
                 }
             )
