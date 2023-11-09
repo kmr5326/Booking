@@ -42,7 +42,6 @@ public class SttServiceImpl implements SttService{
     private final WebClient naverWebClient= WebClient.create("https://naveropenapi.apigw.ntruss.com");
     @Override
     public Mono<SttResponseDto> speachToText(SttRequestDto requestDto) {
-//        log.info("qwogjqpboeopebm{}",invokeUrl);
         Map<String, Object> requestBody = new HashMap<>();
         //음성 001.m4a
         requestBody.put("dataKey","recording/"+requestDto.fileName());
@@ -60,13 +59,11 @@ public class SttServiceImpl implements SttService{
                 .retrieve()
                 .onStatus(HttpStatus::is4xxClientError, clientResponse -> {
                     return clientResponse.bodyToMono(String.class).doOnNext(body -> {
-                        // 로그에 오류 본문을 출력
                         log.error("4xx error: {}", body);
                     }).then(Mono.error(new RuntimeException("Client error")));
                 })
                 .onStatus(HttpStatus::is5xxServerError, clientResponse -> {
                     return clientResponse.bodyToMono(String.class).doOnNext(body -> {
-                        // 로그에 오류 본문을 출력
                         log.error("5xx error: {}", body);
                     }).then(Mono.error(new RuntimeException("Server error")));
                 })
