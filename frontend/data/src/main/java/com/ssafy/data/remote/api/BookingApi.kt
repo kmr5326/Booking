@@ -25,7 +25,7 @@ interface BookingApi {
     suspend fun getAllBooking(): Response<List<BookingAll>>
 
     @Headers("Content-Type: application/json;charset=UTF-8")
-    @GET("/api/booking/meeting/{meetingId}")
+    @GET("/api/booking/meeting/detail/{meetingId}")
     suspend fun getEachBooking(@Path("meetingId") meetingId: Long): Response<BookingDetail>
 
     @Headers("Content-Type: application/json;charset=UTF-8")
