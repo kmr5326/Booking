@@ -1,6 +1,7 @@
 package com.booking.chat.chatroom.service;
 
 import com.booking.chat.chat.domain.Message;
+import com.booking.chat.chat.dto.response.MessageResponse;
 import com.booking.chat.chat.repository.MessageRepository;
 import com.booking.chat.chatroom.domain.Chatroom;
 import com.booking.chat.chatroom.dto.request.ExitChatroomRequest;
@@ -88,7 +89,7 @@ public class ChatroomService {
                                  .map(Chatroom::getMeetingTitle);
     }
 
-    public Flux<Message> enterChatroom(Long chatroomId, Long memberId, LastMessageRequest lastMessageRequest) {
+    public Flux<MessageResponse> enterChatroom(Long chatroomId, Long memberId, LastMessageRequest lastMessageRequest) {
 
         // 1. 입장할 시, 레디스에 저장
         String chatroomKey = "chatroom-%d".formatted(chatroomId);
@@ -104,7 +105,7 @@ public class ChatroomService {
                                                              });
 
         // 레디스 업데이트 후 메시지 스트림 반환
-        return redisUpdateMono.thenMany(updatedMessagesFlux);
+        return redisUpdateMono.thenMany(updatedMessagesFlux).map(MessageResponse::new);
     }
 
     public Mono<Void> disconnectChatroom(Long chatroomId, Long memberId) {
