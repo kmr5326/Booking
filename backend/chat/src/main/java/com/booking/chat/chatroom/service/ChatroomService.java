@@ -11,6 +11,7 @@ import com.booking.chat.global.exception.ErrorCode;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -23,6 +24,7 @@ import reactor.core.publisher.Mono;
 public class ChatroomService {
 
     private final ChatroomRepository chatroomRepository;
+    private final ReactiveRedisTemplate<String, List<Long>> redisTemplate;
 
     public Mono<Chatroom> initializeChatroom(InitChatroomRequest initChatroomRequest) {
         return chatroomRepository.findById(initChatroomRequest.meetingId())
@@ -77,5 +79,16 @@ public class ChatroomService {
     public Mono<String> getChatroomMeetingTitle(Long chatroomId) {
         return chatroomRepository.findById(chatroomId)
                                  .map(Chatroom::getMeetingTitle);
+    }
+
+    public Mono<Void> disconnectChatroom(Long chatroomId, Long memberId) {
+
+//        String chatroom = "chatroom-%d".formatted(chatroomId);
+//        List<Long> memberList = redisTemplate.opsForValue().get(chatroom);
+//        Objects.requireNonNull(memberList).remove(memberId);
+
+       // if(memberList.)
+
+        return null;
     }
 }

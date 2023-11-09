@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -81,6 +82,14 @@ public class ChatroomController {
         Long memberId = JwtUtil.getMemberIdByToken(token);
         log.info(" {} member request enter chatroom : {} ", memberId, chatroomId);
         return Flux.just();
+    }
+
+    @DeleteMapping("/{chatroomId}")
+    public Mono<ResponseEntity<Void>> disconnectChatroom(@PathVariable Long chatroomId, @RequestHeader(AUTHORIZATION) String token) {
+        Long memberId = JwtUtil.getMemberIdByToken(token);
+        log.info(" {} member request disconnect chatroom : {} ", memberId, chatroomId);
+
+        return Mono.empty();
     }
 
 
