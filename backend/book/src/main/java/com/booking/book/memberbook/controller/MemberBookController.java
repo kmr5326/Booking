@@ -53,8 +53,6 @@ public class MemberBookController {
                 });
     }
 
-    //TODO : 메모 추가하기
-
     @PostMapping("/note")
     public Mono<ResponseEntity<String>> registerNote(@RequestHeader(AUTHORIZATION) String token,
                                                 @RequestBody RegisterNoteRequest request) {
@@ -62,5 +60,17 @@ public class MemberBookController {
         return memberBookService.registerNote(request)
                 .flatMap(resp->Mono.just(ResponseEntity.ok().body(resp)))
                 .onErrorResume(e-> Mono.just(ResponseEntity.badRequest().body(e.getMessage())));
+    }
+
+    @DeleteMapping("/{memberBookId}")
+    public Mono<ResponseEntity<String>> deleteMemberBook(@RequestHeader(AUTHORIZATION) String token,
+                                                    @PathVariable String memberBookId) {
+        log.info("내 서재 책 삭제 요청 : {}",memberBookId);
+        return memberBookService.deleteMemberBook(memberBookId)
+                .flatMap(resp -> Mono.just(ResponseEntity.ok().body(resp)))
+                .onErrorResume(e->{
+                    log.error("내 서재 책 삭제 요청 에러 : {}",e.getMessage());
+                    return Mono.just(ResponseEntity.badRequest().body(e.getMessage()));
+                });
     }
 }
