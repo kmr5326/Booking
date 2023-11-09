@@ -1,4 +1,4 @@
-package com.booking.booking.stt.dto;
+package com.booking.booking.stt.dto.request;
 
 import lombok.Data;
 

@@ -1,7 +1,12 @@
 package com.booking.booking.stt.service;
 
 import com.booking.booking.stt.domain.Transcription;
-import com.booking.booking.stt.dto.*;
+import com.booking.booking.stt.dto.request.SttRequestDto;
+import com.booking.booking.stt.dto.request.SummaryControllerDto;
+import com.booking.booking.stt.dto.request.SummaryRequest;
+import com.booking.booking.stt.dto.response.SttResponseDto;
+import com.booking.booking.stt.dto.response.SummaryResponse;
+import com.booking.booking.stt.dto.response.TranscriptionResponse;
 import com.booking.booking.stt.repository.TranscriptionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,7 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,7 +39,7 @@ public class SttServiceImpl implements SttService{
     private final WebClient naverWebClient= WebClient.create("https://naveropenapi.apigw.ntruss.com");
     @Override
     public Mono<SttResponseDto> speachToText(SttRequestDto requestDto) {
-
+//        log.info("qwogjqpboeopebm{}",invokeUrl);
         Map<String, Object> requestBody = new HashMap<>();
         //음성 001.m4a
         requestBody.put("dataKey","recording/"+requestDto.fileName());
@@ -66,6 +70,14 @@ public class SttServiceImpl implements SttService{
                 .bodyToMono(SttResponseDto.class)
                 .flatMap(sttResponseDto -> saveTranscription(sttResponseDto,requestDto.fileName()).thenReturn(sttResponseDto))
                 .doOnNext(resp-> log.info("stt 결과 {}",resp));
+    }
+
+    @Override
+    public Mono<TranscriptionResponse> findTranscriptionByFileName(String fileName) {
+        return transcriptionRepository.findByFileName(fileName)
+                .flatMap(transcription -> Mono.just(new TranscriptionResponse(transcription)))
+                .switchIfEmpty(Mono.error(new RuntimeException("Not found Transcription")));
+
     }
 
     public Mono<SummaryResponse> summary(SummaryControllerDto req) {
