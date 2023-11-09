@@ -2,6 +2,7 @@ package com.booking.chat.notification.service;
 
 import com.booking.chat.notification.domain.NotificationInformation;
 import com.booking.chat.notification.dto.request.DeviceTokenInitRequest;
+import com.booking.chat.notification.dto.request.EnrollNotificationRequest;
 import com.booking.chat.notification.dto.response.NotificationResponse;
 import com.booking.chat.notification.repository.NotificationInformationRepository;
 import com.google.api.core.ApiFuture;
@@ -94,6 +95,48 @@ public class NotificationService {
 
                                                     Message message = Message.builder()
                                                                              .putAllData(notificationResponse.data())
+                                                                             .setNotification(notification)
+                                                                             .setToken(info.getDeviceToken())
+                                                                             .build();
+
+
+
+                                                    return send(message).then();
+                                                })
+                                                .onErrorResume(e -> {
+                                                    // Log the error or take some action
+                                                    log.error("Error sending chatting notification: {}", e.getMessage());
+                                                    // Return an empty Mono to swallow the error
+                                                    return Mono.empty();
+                                                })
+                                                .then();
+    }
+
+    public Mono<Void> sendEnrollNotification(EnrollNotificationRequest enrollNotificationRequest) {
+        return notificationInformationRepository.findByMemberId(enrollNotificationRequest.memberId())
+                                                .doOnNext(info -> {
+                                                    // 데이터가 방출될 때 info 객체를 로깅
+                                                    if (info.getDeviceToken() == null || info.getDeviceToken().isEmpty()) {
+                                                        log.error("Device token is null or empty for member {}", enrollNotificationRequest.memberId());
+                                                    } else {
+                                                        log.info("Device token for member {} is present: {}", enrollNotificationRequest.memberId(), info.getDeviceToken());
+                                                    }
+                                                })
+                                                .flatMap(info -> {
+                                                    if (info.getDeviceToken() == null || info.getDeviceToken().trim().isEmpty()) {
+                                                        log.error("Device token is null or empty for member {}", enrollNotificationRequest.memberId());
+                                                        return Mono.error(new IllegalArgumentException("Device token is null or empty"));
+                                                    }
+                                                    log.info("Notification send to {} member", enrollNotificationRequest.memberId());
+
+                                                    String body = "%s 모임에 가입 신청이 들어왔습니다.".formatted(enrollNotificationRequest.meetingTitle());
+
+                                                    Notification notification = Notification.builder()
+                                                                                            .setBody(body)
+                                                                                            .setTitle("BOOKING ")
+                                                                                            .build();
+
+                                                    Message message = Message.builder()
                                                                              .setNotification(notification)
                                                                              .setToken(info.getDeviceToken())
                                                                              .build();
