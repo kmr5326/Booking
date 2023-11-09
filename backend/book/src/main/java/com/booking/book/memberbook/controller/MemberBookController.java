@@ -48,9 +48,7 @@ public class MemberBookController {
             .flatMap(memberBook -> {
                 return Mono.just(new ResponseEntity<Void>(HttpStatus.CREATED));
             })
-                .onErrorResume(e -> {
-                    return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).build());
-                });
+                .onErrorResume(e -> Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).build()));
     }
 
     //TODO : 메모 추가하기
@@ -61,6 +59,9 @@ public class MemberBookController {
         log.info("한줄평 등록 요청 {}",request.toString());
         return memberBookService.registerNote(request)
                 .flatMap(resp->Mono.just(ResponseEntity.ok().body(resp)))
-                .onErrorResume(e-> Mono.just(ResponseEntity.badRequest().body(e.getMessage())));
+                .onErrorResume(e->{
+                    log.error(e.getMessage());
+                    return Mono.just(ResponseEntity.badRequest().body(e.getMessage()));
+                });
     }
 }
