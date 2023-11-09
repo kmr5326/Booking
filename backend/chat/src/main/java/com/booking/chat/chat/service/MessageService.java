@@ -14,6 +14,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -28,6 +29,8 @@ public class MessageService {
     private final ChatroomService chatroomService;
     private final KafkaTemplate<String, KafkaMessage> kafkaTemplate;
     private final NotificationService notificationService;
+    private final ReactiveRedisTemplate<String, List<Long>> reactiveRedisTemplate;
+
 
     public void processAndSend(KafkaMessage kafkaMessage, Long chatroomId) {
         save(kafkaMessage, chatroomId)
@@ -70,18 +73,20 @@ public class MessageService {
                               .flatMap(chatroom -> {
                                   Long idx = chatroom.getMessageIndex();
                                   chatroom.updateIndex();
-                                  // int readCount = getReadCount(chatroom, message.getSenderId()).block();
-                                  return chatroomService.save(chatroom)
-                                                        .then(Mono.just(Message.builder()
-                                                                               .chatroomId(chatroomId)
-                                                                               .messageId(idx)
-                                                                               .memberId(message.getSenderId())
-                                                                               .memberList(chatroom.getMemberList())
-                                                                               .readMemberList(new ArrayList<>())
-                                                                               .content(message.getMessage())
-                                                                               .readCount(9909999)
-                                                                               .build()))
-                                                        .flatMap(messageRepository::save);
+                                  return getReadCount(chatroom, message.getSenderId())
+                                      .flatMap(readCount ->
+                                          chatroomService.save(chatroom)
+                                                         .then(Mono.just(Message.builder()
+                                                                                .chatroomId(chatroomId)
+                                                                                .messageId(idx)
+                                                                                .memberId(message.getSenderId())
+                                                                                .memberList(chatroom.getMemberList())
+                                                                                .readMemberList(new ArrayList<>())
+                                                                                .content(message.getMessage())
+                                                                                .readCount(readCount)
+                                                                                .build()))
+                                                         .flatMap(messageRepository::save)
+                                      );
                               })
                               .then();
     }
@@ -93,10 +98,18 @@ public class MessageService {
 
     // TODO : redis
     private Mono<Integer> getReadCount(Chatroom chatroom, Long senderId) {
-
-        int totalMemberNumber = chatroom.getMemberList().size() - 1;
-        int cachingChatroomMember = 0; // do something
-
-        return Mono.just(totalMemberNumber - cachingChatroomMember);
+        String chatroomKey = "chatroom-%d".formatted(chatroom.get_id());
+        return reactiveRedisTemplate.opsForValue().get(chatroomKey)
+                                    .flatMap(memberList -> {
+                                        if (memberList != null) {
+                                            long count = memberList.stream()
+                                                                   .filter(memberId -> !memberId.equals(senderId))
+                                                                   .count();
+                                            return Mono.just((int) count);
+                                        } else {
+                                            return Mono.just(chatroom.getMemberList().size() - 1);
+                                        }
+                                    })
+                                    .defaultIfEmpty(chatroom.getMemberList().size() - 1);
     }
 }
