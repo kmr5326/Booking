@@ -2,7 +2,7 @@ package com.booking.chat.redis.configuration;
 
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.List;
+import java.util.Set;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -35,20 +35,21 @@ public class ReactiveRedisConfiguration {
 
     @Bean
     @Qualifier
-    public ReactiveRedisTemplate<String, List<Long>> reactiveRedisTemplate(){
+    public ReactiveRedisTemplate<String, Set<Long>> reactiveRedisSetTemplate() {
         RedisSerializer<String> stringSerializer = new StringRedisSerializer();
 
         ObjectMapper objectMapper = new ObjectMapper();
-        JavaType type = objectMapper.getTypeFactory().constructCollectionType(List.class, Long.class);
-        Jackson2JsonRedisSerializer<List<Long>> listJsonSerializer = new Jackson2JsonRedisSerializer<>(type);
+        JavaType type = objectMapper.getTypeFactory().constructCollectionType(Set.class, Long.class);
+        Jackson2JsonRedisSerializer<Set<Long>> setJsonSerializer = new Jackson2JsonRedisSerializer<>(type);
 
-        RedisSerializationContext<String, List<Long>> serializationContext = RedisSerializationContext
-            .<String, List<Long>>newSerializationContext(stringSerializer)
+        RedisSerializationContext<String, Set<Long>> serializationContext = RedisSerializationContext
+            .<String, Set<Long>>newSerializationContext(stringSerializer)
             .key(stringSerializer)
-            .value(listJsonSerializer)
+            .value(setJsonSerializer)
             .hashKey(stringSerializer)
-            .hashValue(listJsonSerializer)
+            .hashValue(setJsonSerializer)
             .build();
+
         return new ReactiveRedisTemplate<>(reactiveRedisConnectionFactory(), serializationContext);
     }
 }

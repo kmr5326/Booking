@@ -11,6 +11,7 @@ import com.booking.chat.notification.service.NotificationService;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -29,7 +30,7 @@ public class MessageService {
     private final ChatroomService chatroomService;
     private final KafkaTemplate<String, KafkaMessage> kafkaTemplate;
     private final NotificationService notificationService;
-    private final ReactiveRedisTemplate<String, List<Long>> reactiveRedisTemplate;
+    private final ReactiveRedisTemplate<String, Set<Long>> reactiveRedisTemplate;
 
 
     public void processAndSend(KafkaMessage kafkaMessage, Long chatroomId) {
@@ -81,7 +82,7 @@ public class MessageService {
                                                                                 .messageId(idx)
                                                                                 .memberId(message.getSenderId())
                                                                                 .memberList(chatroom.getMemberList())
-                                                                                .readMemberList(new ArrayList<>())
+                                                                                .readMemberList(Set.of(message.getSenderId()))
                                                                                 .content(message.getMessage())
                                                                                 .readCount(readCount)
                                                                                 .build()))

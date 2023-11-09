@@ -11,8 +11,9 @@ import com.booking.chat.chatroom.dto.response.ChatroomListResponse;
 import com.booking.chat.chatroom.exception.ChatroomException;
 import com.booking.chat.chatroom.repository.ChatroomRepository;
 import com.booking.chat.global.exception.ErrorCode;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
@@ -30,7 +31,7 @@ public class ChatroomService {
 
     private final ChatroomRepository chatroomRepository;
     private final MessageRepository messageRepository;
-    private final ReactiveRedisTemplate<String, List<Long>> reactiveRedisTemplate;
+    private final ReactiveRedisTemplate<String, Set<Long>> reactiveRedisTemplate;
 
     public Mono<Chatroom> initializeChatroom(InitChatroomRequest initChatroomRequest) {
         return chatroomRepository.findById(initChatroomRequest.meetingId())
@@ -96,8 +97,9 @@ public class ChatroomService {
 
         Flux<Message> updatedMessagesFlux = messageRepository.findByChatroomIdAndMessageIdGreaterThanEqual(chatroomId, lastMessageRequest.lastMessageIndex())
                                                              .flatMap(message -> {
-                                                                 message.getReadMemberList().add(memberId);
-                                                                 message.decreaseReadCount();
+                                                                 if(message.getReadMemberList().add(memberId)){
+                                                                    message.decreaseReadCount();
+                                                                 }
                                                                  return messageRepository.save(message);
                                                              });
 
@@ -146,7 +148,7 @@ public class ChatroomService {
 
     private Mono<Boolean> storeMemberStatusWithCreateKey(String chatroomKey, Long memberId) {
         log.info(" {} member connected {} and stored by redis", memberId, chatroomKey);
-        List<Long> memberList = List.of(memberId);
+        Set<Long> memberList = Set.of(memberId);
         return reactiveRedisTemplate.opsForValue()
                                     .set(chatroomKey, memberList);
     }
@@ -155,7 +157,7 @@ public class ChatroomService {
         log.info(" {} member connected {} by redis", memberId, chatroomKey);
         return reactiveRedisTemplate.opsForValue()
                                     .get(chatroomKey)
-                                    .defaultIfEmpty(new ArrayList<>())
+                                    .defaultIfEmpty(new HashSet<>())
                                     .doOnNext(memberList -> memberList.add(memberId))
                                     .flatMap(memberList -> reactiveRedisTemplate.opsForValue()
                                                                                 .set(chatroomKey, memberList));
