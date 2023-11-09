@@ -108,10 +108,11 @@ fun Greeting(
                 modifier = modifier.padding(bottom = 24.dp),
                 color = Color(0xFF00C68E),
                 style = TextStyle(fontSize = 40.sp)
+
             )
 
             KakaoLoginButton(context, navController, loginViewModel)
-            TempLoginButton(navController)
+//            TempLoginButton(navController)
 //            GoogleLoginButton(mainViewModel, googleSignInClient, navController, loginViewModel)
 //            SignInBtn()
         }

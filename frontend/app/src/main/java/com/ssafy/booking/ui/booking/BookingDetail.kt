@@ -65,7 +65,7 @@ fun BookingJoinRequestButton(meetingId:Long) {
         val request = BookingJoinRequest(meetingId = meetingId)
         Log.d("test334", "$request")
         bookingViewModel.postBookingJoin(meetingId,request)
-        Toast.makeText(context, "참가신청 버튼 뜨냐?", Toast.LENGTH_LONG).show()
+        Toast.makeText(context, "참가신청이 완료됐습니다.", Toast.LENGTH_LONG).show()
     },
         modifier = Modifier
             .fillMaxWidth()
@@ -73,6 +73,6 @@ fun BookingJoinRequestButton(meetingId:Long) {
     )
 
     {
-        Text("모임 참여 신청하기")
+        Text("모임 참가 신청하기")
     }
 }
