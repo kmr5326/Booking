@@ -1,9 +1,10 @@
 package com.booking.booking.stt.controller;
 
 import com.booking.booking.stt.dto.request.SttRequestDto;
+import com.booking.booking.stt.dto.response.LoadSummaryResponse;
 import com.booking.booking.stt.dto.response.SttResponseDto;
 import com.booking.booking.stt.dto.request.SummaryControllerDto;
-import com.booking.booking.stt.dto.response.SummaryResponse;
+import com.booking.booking.stt.dto.response.CreateSummaryResponse;
 import com.booking.booking.stt.dto.response.TranscriptionResponse;
 import com.booking.booking.stt.service.SttService;
 import lombok.RequiredArgsConstructor;
@@ -30,8 +31,8 @@ public class SttController {
                 .map(resp->ResponseEntity.ok().body(resp));
     }
     @PostMapping("/summary")
-    public Mono<ResponseEntity<SummaryResponse>> summary(@RequestHeader(AUTH) String token,
-                                                         @RequestBody SummaryControllerDto reqDto) {
+    public Mono<ResponseEntity<CreateSummaryResponse>> summary(@RequestHeader(AUTH) String token,
+                                                               @RequestBody SummaryControllerDto reqDto) {
         log.info("요약 요청 {}",reqDto.getContent());
         return sttService.summary(reqDto)
                 .map(resp->ResponseEntity.ok().body(resp));
@@ -46,5 +47,12 @@ public class SttController {
                     log.error("Load Transcription Error: {}",e.getMessage());
                     return Mono.just(ResponseEntity.badRequest().build());
                 });
+    }
+
+    @GetMapping("/summary")
+    public Mono<ResponseEntity<LoadSummaryResponse>> loadLatestSummaryByTranscriptionId(@RequestParam("transcriptionId") String transcriptionId) {
+        log.info("Load latest summary by transcriptionId : {}",transcriptionId);
+        return sttService.findFirstByTranscriptionId(transcriptionId)
+                .flatMap(resp -> Mono.just(ResponseEntity.ok().body(resp)));
     }
 }

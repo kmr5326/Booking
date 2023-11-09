@@ -4,9 +4,11 @@ import com.booking.booking.stt.domain.Transcription;
 import com.booking.booking.stt.dto.request.SttRequestDto;
 import com.booking.booking.stt.dto.request.SummaryControllerDto;
 import com.booking.booking.stt.dto.request.SummaryRequest;
+import com.booking.booking.stt.dto.response.LoadSummaryResponse;
 import com.booking.booking.stt.dto.response.SttResponseDto;
-import com.booking.booking.stt.dto.response.SummaryResponse;
+import com.booking.booking.stt.dto.response.CreateSummaryResponse;
 import com.booking.booking.stt.dto.response.TranscriptionResponse;
+import com.booking.booking.stt.repository.SummaryRepository;
 import com.booking.booking.stt.repository.TranscriptionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +36,7 @@ public class SttServiceImpl implements SttService{
     private String naverKey;
 
     private final TranscriptionRepository transcriptionRepository;
-
+    private final SummaryRepository summaryRepository;
     private final WebClient sttWebClient= WebClient.create(invokeUrl);
     private final WebClient naverWebClient= WebClient.create("https://naveropenapi.apigw.ntruss.com");
     @Override
@@ -80,7 +82,7 @@ public class SttServiceImpl implements SttService{
 
     }
 
-    public Mono<SummaryResponse> summary(SummaryControllerDto req) {
+    public Mono<CreateSummaryResponse> summary(SummaryControllerDto req) {
         SummaryRequest request=new SummaryRequest(req.getContent());
         return naverWebClient.post()
                 .uri("/text-summary/v1/summarize")
@@ -101,7 +103,12 @@ public class SttServiceImpl implements SttService{
                         log.error("5xx error: {}", body);
                     }).then(Mono.error(new RuntimeException("Server error")));
                 })
-                .bodyToMono(SummaryResponse.class);
+                .bodyToMono(CreateSummaryResponse.class);
+    }
+
+    public Mono<LoadSummaryResponse> findFirstByTranscriptionId(String transcriptionId) {
+        return summaryRepository.findFirstByTranscriptionIdOrderByCreatedAtDesc(transcriptionId)
+                .flatMap(summary -> Mono.just(new LoadSummaryResponse(summary)));
     }
 
     private Mono<Transcription> saveTranscription(SttResponseDto sttResponseDto,String fileName) {
