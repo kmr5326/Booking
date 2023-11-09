@@ -29,6 +29,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -69,6 +70,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.ssafy.booking.R
+import com.ssafy.booking.di.App
 import com.ssafy.booking.ui.common.TopBarChat
 import com.ssafy.booking.viewmodel.ChatViewModel
 import com.ssafy.booking.viewmodel.MyPageViewModel
@@ -77,6 +79,7 @@ import com.ssafy.data.repository.token.TokenDataSource
 import com.ssafy.data.room.entity.MessageEntity
 import com.ssafy.domain.model.ChatExitRequest
 import com.ssafy.domain.model.KafkaMessage
+import com.ssafy.domain.model.mypage.UserInfoResponseByPk
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 
@@ -88,13 +91,11 @@ fun ChatDetail(
 ) {
     val chatId = navController.currentBackStackEntry?.arguments?.getString("chatId")
     val chatViewModel: ChatViewModel = hiltViewModel()
+    val myPageViewModel: MyPageViewModel = hiltViewModel()
     var memberId by remember { mutableStateOf<Long?>(null) }
     var nickname by remember { mutableStateOf("") }
-    val myPageViewModel: MyPageViewModel = hiltViewModel()
 
-    val context = LocalContext.current
-    val tokenDataSource = TokenDataSource(context)
-    val loginId: String? = tokenDataSource.getLoginId()
+    val loginId = App.prefs.getLoginId()
     val getUserInfoResponse by myPageViewModel.getUserInfoResponse.observeAsState()
     LaunchedEffect(loginId) {
         val result = loginId?.let {
@@ -114,6 +115,8 @@ fun ChatDetail(
             socketViewModel.connectToChat(it)
         }
     }
+    
+    // 나갈 때 소켓 연결 해제
     DisposableEffect(chatId) {
         onDispose {
             chatId?.let {
@@ -239,7 +242,18 @@ fun MessageItem(
     nextMessage: MessageEntity?,
     memberId: Long?
 ) {
-    val isOwnMessage = message.senderId == memberId
+    val isOwnMessage = message.senderId?.toLong() == memberId
+    val myPageViewModel: MyPageViewModel = hiltViewModel()
+    val userInfoResponse by myPageViewModel.getUserInfoResponseByPk.observeAsState()
+
+    var userInfo : UserInfoResponseByPk? = null
+    userInfoResponse?.let { response ->
+        if (response.isSuccessful) {
+            userInfo = response.body()!!
+        } else {
+
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -256,7 +270,7 @@ fun MessageItem(
             if (isOwnMessage) {
             } else if (previousMessage?.senderId != message.senderId) {
                 AsyncImage(
-                    model = R.drawable.basic_profile,
+                    model = userInfo?.profileImage,
                     contentScale = ContentScale.Crop,
                     contentDescription = null,
                     placeholder = ColorPainter(Color.LightGray),
@@ -275,7 +289,7 @@ fun MessageItem(
                 // 이름을 표시하는 조건
                 if (!isOwnMessage && previousMessage?.senderId != message.senderId) {
                     Text(
-                        text = "${message.senderName}"
+                        text = "${userInfo?.nickname}"
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Spacer(modifier = Modifier.height(4.dp))
@@ -289,13 +303,13 @@ fun MessageItem(
                     if (isOwnMessage &&
                         (
                             nextMessage == null || (
-                                nextMessage.sendTime?.hour != message.sendTime?.hour ||
-                                    nextMessage.sendTime?.minute != message.sendTime?.minute
+                                nextMessage.timeStamp?.hour != message.timeStamp?.hour ||
+                                    nextMessage.timeStamp?.minute != message.timeStamp?.minute
                                 ) || nextMessage.senderId != message.senderId
                             )
                     ) {
                         Text(
-                            text = message.sendTime?.let {
+                            text = message.timeStamp?.let {
                                 val updatedTime = it.plusHours(9) // 올바른 시간 계산을 위해 plusHours 사용
                                 String.format("%02d:%02d", updatedTime.hour, updatedTime.minute)
                             } ?: "",
@@ -322,14 +336,14 @@ fun MessageItem(
                     if (!isOwnMessage &&
                         (
                             nextMessage == null || (
-                                nextMessage.sendTime?.hour != message.sendTime?.hour ||
-                                    nextMessage.sendTime?.minute != message.sendTime?.minute
+                                nextMessage.timeStamp?.hour != message.timeStamp?.hour ||
+                                    nextMessage.timeStamp?.minute != message.timeStamp?.minute
                                 ) || nextMessage.senderId != message.senderId
                             )
                     ) {
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = message.sendTime?.let {
+                            text = message.timeStamp?.let {
                                 val updatedTime = it.plusHours(9) // 올바른 시간 계산을 위해 plusHours 사용
                                 String.format("%02d:%02d", updatedTime.hour, updatedTime.minute)
                             } ?: "",

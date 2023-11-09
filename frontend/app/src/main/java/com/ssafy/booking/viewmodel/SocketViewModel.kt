@@ -49,7 +49,9 @@ class SocketViewModel @Inject constructor(
 //    }
 
     fun loadLatestMessages(chatId: String) {
-        messages = messageDao.getLatestMessage(chatId.toInt())
+        viewModelScope.launch(Dispatchers.IO) {
+            messages = messageDao.getLatestMessage(chatId.toInt())
+        }
     }
 
     val headers = HashMap<String, String>()
@@ -70,18 +72,18 @@ class SocketViewModel @Inject constructor(
                                     gson.fromJson(stompMessage, KafkaMessage::class.java)
                                 Log.d("STOMP", "Parsed Message: $kafkaMessage")
                                 // to MessageEntity
-                                val messageEntity = MessageEntity(
-                                    chatId = chatId.toInt(),
-                                    senderId = kafkaMessage.senderId,
-                                    sendTime = kafkaMessage.sendTime,
-                                    content = kafkaMessage.message,
-                                    senderName = kafkaMessage.senderName
-                                )
-                                Log.d("STOMP", "Converted to Entity: $messageEntity")
+//                                val messageEntity = MessageEntity(
+//                                    chatId = chatId.toInt(),
+//                                    senderId = kafkaMessage.senderId,
+//                                    sendTime = kafkaMessage.sendTime,
+//                                    content = kafkaMessage.message,
+//                                    senderName = kafkaMessage.senderName
+//                                )
+//                                Log.d("STOMP", "Converted to Entity: $messageEntity")
                                 // Insert Room DB
                                 viewModelScope.launch(Dispatchers.IO) {
                                     try {
-                                        messageDao.insert(messageEntity)
+//                                        messageDao.insert(messageEntity)
                                         loadLatestMessages(chatId)
                                     } catch (e: Exception) {
                                         Log.e("STOMP", "Error inserting message into database", e)

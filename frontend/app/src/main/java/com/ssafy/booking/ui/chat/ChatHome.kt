@@ -2,7 +2,9 @@ package com.ssafy.booking.ui.chat
 
 import android.util.Log
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,6 +17,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -23,6 +26,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -41,16 +45,21 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.ssafy.booking.R
+import com.ssafy.booking.ui.AppNavItem
 import com.ssafy.booking.ui.LocalNavigation
 import com.ssafy.booking.ui.common.BottomNav
 import com.ssafy.booking.ui.common.TopBar
 import com.ssafy.booking.viewmodel.AppViewModel
+import com.ssafy.booking.viewmodel.BookingViewModel
 import com.ssafy.booking.viewmodel.ChatViewModel
 import com.ssafy.booking.viewmodel.MyPageViewModel
 import com.ssafy.data.repository.token.TokenDataSource
+import com.ssafy.data.room.dao.ChatDao
 import com.ssafy.domain.model.ChatCreateRequest
 import com.ssafy.domain.model.ChatJoinRequest
 import com.ssafy.domain.model.ChatRoom
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -108,7 +117,8 @@ fun ChatHome(
                         )
                         Button(
                             onClick = {
-                                val request = ChatCreateRequest(chatId.toInt(), memId, "${chatId}번 채팅")
+                                val request =
+                                    ChatCreateRequest(chatId.toInt(), memId, "${chatId}번 채팅")
                                 chatViewModel.createChatRoom(request)
                             }
                         ) {
@@ -136,16 +146,14 @@ fun ChatHome(
 @Composable
 fun ChatList() {
     val chatViewModel: ChatViewModel = hiltViewModel()
-    val chatListState = chatViewModel.chatListState.value
-
-    val chatList = chatListState
+    val chatListState by chatViewModel.chatListState.observeAsState(initial = emptyList())
 
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
-        items(chatList) { chat ->
+        items(chatListState) { chat ->
             ChatItem(chat) {
             }
         }
@@ -155,9 +163,14 @@ fun ChatList() {
 @Composable
 fun ChatItem(
     chat: ChatRoom,
-    onRowClick: (ChatRoom) -> Unit
+    onRowClick: (ChatRoom) -> Unit,
 ) {
     val navController = LocalNavigation.current
+    val chatViewModel: ChatViewModel = hiltViewModel()
+    val lastReadPk by chatViewModel.lastReadMessageId.collectAsState(initial = 0)
+    chatViewModel.saveLocalChatId(chat.chatroomId)
+    chatViewModel.getLastReadMessageId(chat.chatroomId)
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -167,6 +180,7 @@ fun ChatItem(
                 navController.navigate("chatDetail/${chat.chatroomId}")
             })
     ) {
+        // 개인 채팅방 이미지
         if (chat.memberList.size <= 1) {
             Image(
                 painter = painterResource(id = R.drawable.chat3),
@@ -175,6 +189,7 @@ fun ChatItem(
                     .size(70.dp, 70.dp)
                     .clip(RoundedCornerShape(36.dp)) // 박스를 둥글게
             )
+            // 채팅방 이미지
         } else {
             Image(
                 painter = painterResource(id = R.drawable.chat3),
@@ -184,40 +199,56 @@ fun ChatItem(
             )
         }
         Spacer(modifier = Modifier.width(16.dp))
-        Column(
-            modifier = Modifier.width(200.dp)
+        Row (
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = chat.meetingTitle,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    fontWeight = FontWeight.ExtraBold,
-                    fontSize = 16.sp
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-                if (chat.memberList.size > 1) {
+            Column {
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        text = "${chat.memberList.size}",
-                        maxLines = 2,
+                        text = chat.meetingTitle,
+                        maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
-                        fontWeight = FontWeight.Medium,
-                        fontSize = 16.sp,
-                        color = Color.Gray
+                        fontWeight = FontWeight.ExtraBold,
+                        fontSize = 16.sp
                     )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    if (chat.memberList.size > 1) {
+                        Text(
+                            text = "${chat.memberList.size}",
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis,
+                            fontWeight = FontWeight.Medium,
+                            fontSize = 16.sp,
+                            color = Color.Gray
+                        )
+                    }
                 }
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = chat.lastMessage?.let {
+                        chat.lastMessage
+                    } ?: "",
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 12.sp
+                )
+                Spacer(modifier = Modifier.height(4.dp))
             }
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = chat.lastMessage?.let {
-                    chat.lastMessage
-                } ?: "",
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-                fontWeight = FontWeight.Medium,
-                fontSize = 12.sp
-            )
-            Spacer(modifier = Modifier.height(4.dp))
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .size(24.dp)
+                    .background(Color.Red, shape = CircleShape)
+            ) {
+                Text(
+                    text = "${chat.lastMessageIdx - (lastReadPk ?: 0)}",
+                    fontWeight = FontWeight.ExtraBold,
+                    fontSize = 12.sp,
+                    color = Color.White
+                )
+            }
         }
     }
 }

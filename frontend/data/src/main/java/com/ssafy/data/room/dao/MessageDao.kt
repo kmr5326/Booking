@@ -12,8 +12,8 @@ interface MessageDao {
 //    @Query("SELECT * FROM messageEntity WHERE chat_id = :chatId ORDER BY send_time DESC")
 //    fun getAll(chatId: Int): LiveData<List<MessageEntity>>
 
-    @Query("SELECT * FROM messageEntity WHERE chat_id = :chatId")
-    fun getLatestMessage(chatId: Int): LiveData<List<MessageEntity>>
+    @Query("SELECT * FROM messageEntity WHERE chatroom_id = :chatroomId")
+    fun getLatestMessage(chatroomId: Int): LiveData<List<MessageEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(messageEntity: MessageEntity)
