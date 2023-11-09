@@ -43,15 +43,14 @@ include::{snippets}/chatroom/list/http-response.adoc[]
 === 채팅방 접속
 
 ==== Http Request
+include::{snippets}/chatroom/enter/http-request.adoc[]
 include::{snippets}/chatroom/enter/path-parameters.adoc[]
-include::{snippets}/chatroom/enter/response-body.adoc[]
 include::{snippets}/chatroom/enter/request-body.adoc[]
-include::{snippets}/chatroom/enter/httpie-request.adoc[]
 
 ==== Http Response
 include::{snippets}/chatroom/enter/response-body.adoc[]
 include::{snippets}/chatroom/enter/response-fields.adoc[]
-include::{snippets}/chatroom/enter/http-request.adoc[]
+include::{snippets}/chatroom/enter/http-response.adoc[]
 
 === 채팅방 연결 끊길 때 보내는 api
 
