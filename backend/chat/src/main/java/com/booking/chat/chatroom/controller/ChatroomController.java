@@ -1,8 +1,10 @@
 package com.booking.chat.chatroom.controller;
 
+import com.booking.chat.chat.domain.Message;
 import com.booking.chat.chatroom.dto.request.ExitChatroomRequest;
 import com.booking.chat.chatroom.dto.request.InitChatroomRequest;
 import com.booking.chat.chatroom.dto.request.JoinChatroomRequest;
+import com.booking.chat.chatroom.dto.request.LastMessageRequest;
 import com.booking.chat.chatroom.dto.response.ChatroomListResponse;
 import com.booking.chat.chatroom.service.ChatroomService;
 import com.booking.chat.global.jwt.JwtUtil;
@@ -10,7 +12,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -71,6 +75,22 @@ public class ChatroomController {
         Long memberId = JwtUtil.getMemberIdByToken(token);
         log.info(" {} member request chatroomList ", memberId);
         return chatroomService.getChatroomListByMemberIdOrderByDesc(memberId);
+    }
+
+    @PostMapping("/{chatroomId}")
+    public Flux<Message> enterChatroom(@PathVariable Long chatroomId, @RequestHeader(AUTHORIZATION) String token, @RequestBody LastMessageRequest lastMessageRequest){
+        Long memberId = JwtUtil.getMemberIdByToken(token);
+        log.info(" {} member request enter chatroom : {} ", memberId, chatroomId);
+        return chatroomService.enterChatroom(chatroomId, memberId, lastMessageRequest);
+    }
+
+    @DeleteMapping("/{chatroomId}")
+    public Mono<ResponseEntity<Void>> disconnectChatroom(@PathVariable Long chatroomId, @RequestHeader(AUTHORIZATION) String token) {
+        Long memberId = JwtUtil.getMemberIdByToken(token);
+        log.info(" {} member request disconnect chatroom : {} ", memberId, chatroomId);
+
+        return chatroomService.disconnectChatroom(chatroomId, memberId)
+                                .then(Mono.just(new ResponseEntity<>(HttpStatus.NO_CONTENT)));
     }
 
 
