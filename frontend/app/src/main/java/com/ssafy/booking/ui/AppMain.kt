@@ -20,6 +20,7 @@ import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.ssafy.booking.ui.book.BookDetail
 import com.ssafy.booking.ui.book.BookHome
+import com.ssafy.booking.ui.booking.BookingDetail
 import com.ssafy.booking.ui.booking.Main
 import com.ssafy.booking.ui.chat.ChatDetail
 import com.ssafy.booking.ui.chat.ChatHome
@@ -36,6 +37,7 @@ import com.ssafy.booking.viewmodel.AppViewModel
 import com.ssafy.booking.viewmodel.ChatViewModel
 import com.ssafy.booking.viewmodel.MainViewModel
 import com.ssafy.booking.viewmodel.SocketViewModel
+import com.ssafy.domain.model.booking.BookingDetail
 
 sealed class AppNavItem(
     val route: String
@@ -58,6 +60,7 @@ sealed class AppNavItem(
     object Setting : AppNavItem("setting")
     object ProfileFollow : AppNavItem("profile/follow/{nickname}")
     object ProfileModifier : AppNavItem("profile/modifier")
+    object BookingDetail : AppNavItem("bookingDetail/{meetingId}")
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -150,6 +153,13 @@ fun Route(googleSignInClient: GoogleSignInClient) {
             }
             composable("profile/modifier") {
                 ProfileModifierScreen()
+            }
+            // Navigation 컴포즈에서 인자를 전달할 때 모든 인자는 'String' 형식으로 전달됨.
+            composable("bookingDetail/{meetingId}") { navBackStackEntry ->
+                // String으로 받은 meetingId를 Long으로 변환
+                val meetingIdString = navBackStackEntry.arguments?.getString("meetingId") ?: "0"
+                val meetingId = meetingIdString.toLongOrNull() ?: 0L // 만약 변환이 실패하면 0L로 대체
+                BookingDetail(meetingId = meetingId) // 이제 meetingId는 Long 타입
             }
         }
     }
