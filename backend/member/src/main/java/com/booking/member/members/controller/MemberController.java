@@ -58,12 +58,15 @@ public class MemberController {
                 .onErrorResume(e -> Mono.just(ResponseEntity.badRequest().body(e.getMessage())));
     }
 
-    @DeleteMapping("/deletion")
-    Mono<ResponseEntity<String>> deleteMember(@RequestBody DeleteMemberRequestDto req) {
-        log.info("회원 탈퇴 {}", req);
-        memberService.deleteMember(req.loginId());
-        return Mono.just(ResponseEntity.ok().body("회원 탈퇴 성공"))
-                .onErrorResume(e -> Mono.just(ResponseEntity.badRequest().body(e.getMessage())));
+    @DeleteMapping("/deletion/{loginId}")
+    Mono<ResponseEntity<String>> deleteMember(@PathVariable String loginId) {
+        log.info("회원 탈퇴 {}", loginId);
+        return memberService.deleteMember(loginId)
+                .thenReturn(ResponseEntity.ok().body("탈퇴"))
+                .onErrorResume(e->{
+                    log.error("탈퇴 에러 {}",e.getMessage());
+                    return Mono.just(ResponseEntity.badRequest().body(e.getMessage()));
+                });
     }
 
     @PostMapping("/login")
@@ -90,6 +93,15 @@ public class MemberController {
         log.info("유저 정보 조회 memberPk={}", memberPk);
 
         return memberService.loadMemberInfoByPk(memberPk)
+                .map(response -> ResponseEntity.ok().body(response))
+                .switchIfEmpty(Mono.just(ResponseEntity.notFound().build()));
+    }
+
+    @GetMapping("/memberInfo-nick/{nickname}")
+    Mono<ResponseEntity<MemberInfoResponseDto>> loadMemberByNickname(@PathVariable String nickname) {
+        log.info("유저 정보 조회 member nickname={}", nickname);
+
+        return memberService.loadMemberInfoByNickname(nickname)
                 .map(response -> ResponseEntity.ok().body(response))
                 .switchIfEmpty(Mono.just(ResponseEntity.notFound().build()));
     }

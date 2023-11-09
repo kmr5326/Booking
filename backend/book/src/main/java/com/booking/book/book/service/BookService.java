@@ -8,6 +8,8 @@ import com.booking.book.global.exception.ErrorCode;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -66,11 +68,21 @@ public class BookService {
     public Mono<Book> findByIsbn(String isbn) {
         return bookRepository.findById(isbn)
                              .switchIfEmpty(
-                                 Mono.error(new BookException(ErrorCode.BOOK_NOT_FOUND)));
+                                 Mono.error(new BookException(ErrorCode.BOOK_NOT_FOUND))
+                             );
     }
 
     public Flux<BookResponse> loadLatestBooks(Pageable pageable) {
         return bookRepository.findByPublishDateBeforeCurrentDateOrderByPublishDateDesc(LocalDateTime.now(),pageable)
+                .collectList()  // 모든 Book 객체를 리스트로 수집합니다.
+                .doOnNext(books -> {
+                    // 책 제목만 추출하여 로그로 남깁니다.
+                    String titles = books.stream()
+                            .map(Book::getTitle)  // Book 객체에서 title 필드를 추출합니다.
+                            .collect(Collectors.joining(", "));  // 쉼표로 구분된 문자열로 결합합니다.
+                    log.info("신작 도서 조회: {}", titles);
+                })
+                .flatMapMany(Flux::fromIterable)
                 .map(BookResponse::new);
     }
 }
