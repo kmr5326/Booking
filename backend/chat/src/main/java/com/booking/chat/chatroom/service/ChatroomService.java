@@ -24,7 +24,7 @@ import reactor.core.publisher.Mono;
 public class ChatroomService {
 
     private final ChatroomRepository chatroomRepository;
-    private final ReactiveRedisTemplate<String, List<Long>> redisTemplate;
+    private final ReactiveRedisTemplate<String, List<Long>> reactiveRedisTemplate;
 
     public Mono<Chatroom> initializeChatroom(InitChatroomRequest initChatroomRequest) {
         return chatroomRepository.findById(initChatroomRequest.meetingId())
@@ -83,12 +83,20 @@ public class ChatroomService {
 
     public Mono<Void> disconnectChatroom(Long chatroomId, Long memberId) {
 
-//        String chatroom = "chatroom-%d".formatted(chatroomId);
-//        List<Long> memberList = redisTemplate.opsForValue().get(chatroom);
-//        Objects.requireNonNull(memberList).remove(memberId);
+        String chatroomName = "chatroom-%d".formatted(chatroomId);
 
-       // if(memberList.)
-
-        return null;
+        return reactiveRedisTemplate.opsForValue().get(chatroomName)
+                                    .flatMap(memberList -> {
+                                        if(!memberList.remove(memberId)) {
+                                            return Mono.error(new ChatroomException(ErrorCode.MEMBER_NOT_PART_OF_CHATROOM));
+                                        };
+                                        if (memberList.isEmpty()) {
+                                            return reactiveRedisTemplate.delete(chatroomName).then();
+                                        } else {
+                                            return reactiveRedisTemplate.opsForValue().set(chatroomName, memberList).then();
+                                        }
+                                    })
+                                    .then()
+            .onErrorResume(error -> Mono.error(new ChatroomException(ErrorCode.MEMBER_NOT_PART_OF_CHATROOM)));
     }
 }

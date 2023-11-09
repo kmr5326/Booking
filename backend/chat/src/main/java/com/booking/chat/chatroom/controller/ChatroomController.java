@@ -89,7 +89,8 @@ public class ChatroomController {
         Long memberId = JwtUtil.getMemberIdByToken(token);
         log.info(" {} member request disconnect chatroom : {} ", memberId, chatroomId);
 
-        return Mono.empty();
+        return chatroomService.disconnectChatroom(chatroomId, memberId)
+                                .then(Mono.just(new ResponseEntity<>(HttpStatus.NO_CONTENT)));
     }
 
 

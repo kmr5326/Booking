@@ -61,14 +61,14 @@ public class StompHandler implements ChannelInterceptor {
     }
 
     private Mono<Boolean> storeMemberStatusWithCreateKey(String chatroomKey, Long memberId) {
-        log.info(" {} member connected {} ", memberId, chatroomKey);
+        log.info(" {} member connected {} and stored by redis", memberId, chatroomKey);
         List<Long> memberList = List.of(memberId);
         return reactiveRedisTemplate.opsForValue()
                                     .set(chatroomKey, memberList);
     }
 
     private Mono<Boolean> storeMemberStatus(String chatroomKey, Long memberId) {
-        log.info(" {} member connected {} ", memberId, chatroomKey);
+        log.info(" {} member connected {} by redis", memberId, chatroomKey);
         return reactiveRedisTemplate.opsForValue()
                                     .get(chatroomKey)
                                     .defaultIfEmpty(new ArrayList<>())
