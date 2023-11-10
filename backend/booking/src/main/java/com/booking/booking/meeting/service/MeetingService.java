@@ -21,6 +21,9 @@ import com.booking.booking.meeting.repository.MeetingRepository;
 import com.booking.booking.meetinginfo.dto.request.MeetingInfoRequest;
 import com.booking.booking.meetinginfo.service.MeetingInfoService;
 import com.booking.booking.participant.service.ParticipantService;
+import com.booking.booking.post.dto.request.PostRequest;
+import com.booking.booking.post.domain.Post;
+import com.booking.booking.post.service.PostService;
 import com.booking.booking.waitlist.service.WaitlistService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,6 +42,7 @@ public class MeetingService {
     private final MeetingInfoService meetingInfoService;
     private final ParticipantService participantService;
     private final WaitlistService waitlistService;
+    private final PostService postService;
 
     private final static double RADIUS = 10.0;
 
@@ -381,5 +385,24 @@ public class MeetingService {
                     return Mono.error(new RuntimeException("미팅 삭제 실패"));
                 })
                 .then();
+    }
+
+    public Mono<Post> createPost(String userEmail, PostRequest postRequest) {
+        log.info("[Booking:Meeting] createPost({}, {})", userEmail, postRequest);
+
+        return Mono.zip(MemberUtil.getMemberInfoByEmail(userEmail),
+                meetingRepository.findByMeetingId(postRequest.meetingId())
+                        .switchIfEmpty(Mono.error(new RuntimeException("존재하지 않는 미팅"))))
+                .flatMap(tuple -> {
+                    Integer memberId = tuple.getT1().memberPk();
+
+                    return participantService.existsByMeetingIdAndMemberId(postRequest.meetingId(), memberId)
+                            .flatMap(exists -> {
+                                if (!exists) {
+                                    return Mono.error(new RuntimeException("미팅 참여자만 글 작성 가능"));
+                                }
+                                return postService.createPost(postRequest.toEntity(memberId));
+                            });
+                });
     }
 }

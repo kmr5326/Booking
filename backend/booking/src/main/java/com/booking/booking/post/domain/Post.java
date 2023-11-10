@@ -1,38 +1,31 @@
-//package com.booking.booking.post.domain;
-//
-//import com.booking.booking.meeting.domain.Meeting;
-//import lombok.AccessLevel;
-//import lombok.AllArgsConstructor;
-//import lombok.Builder;
-//import lombok.Getter;
-//import lombok.NoArgsConstructor;
-//
-//import javax.persistence.Entity;
-//import javax.persistence.GeneratedValue;
-//import javax.persistence.GenerationType;
-//import javax.persistence.Id;
-//import javax.persistence.JoinColumn;
-//import javax.persistence.ManyToOne;
-//import javax.persistence.Table;
-//
-//@Entity
-//@Getter
-//@Builder
-//@NoArgsConstructor(access = AccessLevel.PROTECTED)
-//@AllArgsConstructor
-//@Table(name = "posts")
-//public class Post {
-//    @Id
-//    @GeneratedValue(strategy = GenerationType.IDENTITY)
-//    private long postId;
-//
-//    @ManyToOne
-//    @JoinColumn(name = "meetingId")
-//    private Meeting meeting;
-//
-//    private Integer memberId;
-//
-//    private String title;
-//
-//    private String content;
-//}
+package com.booking.booking.post.domain;
+
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+import java.time.LocalDateTime;
+
+@Getter
+@Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+@Document("posts")
+public class Post {
+    @Id
+    private long postId;
+
+    private Long meetingId;
+
+    private Integer memberId;
+
+    private String title;
+
+    private String content;
+
+    private LocalDateTime createdAt;
+}
