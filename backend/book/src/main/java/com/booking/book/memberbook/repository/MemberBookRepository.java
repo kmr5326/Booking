@@ -10,4 +10,6 @@ public interface MemberBookRepository extends ReactiveMongoRepository<MemberBook
     Flux<MemberBook> findAllByMemberNicknameOrderByCreatedAtDesc(String nickname);
 
     Mono<MemberBook> findByMemberNicknameAndBookIsbn(String nickname, String isbn);
+
+    Mono<MemberBook> findBy_id(String memberBookId);
 }
