@@ -10,7 +10,7 @@ import java.util.List;
 
 public record MemberBookResponse(
         String id,
-        String memberNickname,
+        Integer memberPk,
         BookResponse bookInfo,
         List<Note> notes,
         LocalDateTime createdAt
@@ -18,7 +18,7 @@ public record MemberBookResponse(
     public MemberBookResponse(MemberBook memberBook, Book book) {
         this(
                 memberBook.get_id(),
-                memberBook.getMemberNickname(),
+                memberBook.getMemberPk(),
                 new BookResponse(book),
                 memberBook.getNotes(),
                 memberBook.getCreatedAt()
