@@ -275,13 +275,9 @@ fun MessageItem(
 //    Log.d("CHAT_DETAIL", "유저캐시맵 ${userInfoCache}")
 //    Log.d("CHAT_DETAIL", "유저정보 $userInfo")
 
-
-//    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS")
-//    Log.d("CHAT_DETAIL", "$formatter")
-//    val dateTime = LocalDateTime.parse(message.timeStamp, formatter)
-//    Log.d("CHAT_DETAIL", "$dateTime")
-//    val displayTime = "${dateTime.hour}:${dateTime.minute.toString().padStart(2, '0')}"
-//    Log.d("CHAT_DETAIL", "$displayTime")
+    val nextTime = nextMessage?.timeStamp?.let { formatTimestamp(it) }
+    val curTime = formatTimestamp(message.timeStamp)
+//    val prevTime = previousMessage?.timeStamp?.let { formatTimestamp(it) }
 
     Box(
         modifier = Modifier
@@ -329,12 +325,10 @@ fun MessageItem(
                 ) {
                     // 자신의 메시지인 경우, 시간을 먼저 표시
                     if (isOwnMessage &&
-                        (nextMessage == null || (nextMessage.timeStamp != message.timeStamp || nextMessage.timeStamp != message.timeStamp) || nextMessage.senderId != message.senderId)
+                        (nextMessage == null || nextTime != curTime || nextMessage.senderId != message.senderId)
                     ) {
                         Text(
-                            text = message.timeStamp.let {
-                                "${message.timeStamp}"
-                            },
+                            text = curTime,
                             fontSize = 12.sp,
                             color = Color(0xFF556677),
                             modifier = Modifier.align(Alignment.Bottom)
@@ -356,13 +350,11 @@ fun MessageItem(
 
                     // 다른 사람의 메시지인 경우, 메시지 뒤에 시간을 표시
                     if (!isOwnMessage &&
-                        (nextMessage == null || (nextMessage.timeStamp != message.timeStamp || nextMessage.timeStamp != message.timeStamp) || nextMessage.senderId != message.senderId)
+                        (nextMessage == null || nextTime != curTime || nextMessage.senderId != message.senderId)
                     ) {
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = message.timeStamp.let {
-                                "${message.timeStamp}"
-                            },
+                            text = curTime,
                             fontSize = 12.sp,
                             color = Color(0xFF556677),
                             modifier = Modifier.align(Alignment.Bottom)
@@ -431,4 +423,11 @@ fun InputText(
 
         )
     }
+}
+
+fun formatTimestamp(timestamp: String): String {
+    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
+    val timestampWithoutMilliseconds = timestamp.substringBefore('.')
+    val dateTime = LocalDateTime.parse(timestampWithoutMilliseconds, formatter)
+    return "${dateTime.hour.toString().padStart(2, '0')}:${dateTime.minute.toString().padStart(2, '0')}"
 }
