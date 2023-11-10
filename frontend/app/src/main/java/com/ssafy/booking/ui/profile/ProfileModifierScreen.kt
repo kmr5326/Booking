@@ -194,17 +194,18 @@ fun ProfileModifierScreen() {
             if (isErrorNick) {
                 Text("중복된 닉네임 입니다.", color = Color.Red)
             }
-            OutlinedTextField(
-                value = nick,
-                onValueChange = {
-                    nick = it
-                    isError = it.isEmpty()
-                    isErrorNick = false
-                },
-                label = { Text("*닉네임") },
-                singleLine = true,
-                isError = isError
-            )
+//            OutlinedTextField(
+//                value = nick,
+//                onValueChange = {
+//                    nick = it
+//                    isError = it.isEmpty()
+//                    isErrorNick = false
+//                },
+//                label = { Text("*닉네임") },
+//                singleLine = true,
+//                isError = isError
+//            )
+            Text("$nick")
 
             Spacer(modifier = Modifier.padding(24.dp))
 

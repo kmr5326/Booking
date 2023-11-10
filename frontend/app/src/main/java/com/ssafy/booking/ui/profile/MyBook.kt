@@ -61,7 +61,7 @@ fun MyBook(
             when (myBookState) {
                 is MyBookState.Loading -> Text("정보를 불러오는 중...")
                 is MyBookState.Success -> MyBookListView(books = (myBookState as MyBookState.Success).data)
-                is MyBookState.Error -> MyBookErroView(message = (myBookState as MyBookState.Error).message)
+                is MyBookState.Error -> MyBookErrorView(message = (myBookState as MyBookState.Error).message)
                 else -> Text("정보를 불러오는 중...")
             }
         }
@@ -122,7 +122,7 @@ fun MyBookItem(
             .padding(4.dp)
             .fillMaxWidth()
             .clickable {
-
+                navController.navigate("profile/book/detail/${book.bookInfo.isbn}")
             },
         colors = CardDefaults.cardColors(
             containerColor = colorResource(id = R.color.background_color)
@@ -136,7 +136,7 @@ fun MyBookItem(
                 contentDescription = "책 커버 이미지",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
-                    .height(200.dp)
+                    .height(170.dp)
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(4.dp))
             )
@@ -152,7 +152,7 @@ fun MyBookItem(
 }
 
 @Composable
-fun MyBookErroView(
+fun MyBookErrorView(
     message : String
 ) {
     Text(text = "에러 발생 : $message")

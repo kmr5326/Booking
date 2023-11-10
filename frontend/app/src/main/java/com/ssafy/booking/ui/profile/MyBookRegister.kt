@@ -51,6 +51,7 @@ import com.ssafy.booking.ui.LocalNavigation
 import com.ssafy.booking.viewmodel.BookSearchViewModel
 import com.ssafy.booking.viewmodel.MyBookViewModel
 import com.ssafy.data.repository.token.TokenDataSource
+import com.ssafy.domain.model.mybook.MyBookMemoRegisterRequest
 import com.ssafy.domain.model.mybook.MyBookRegisterRequest
 
 
@@ -192,6 +193,14 @@ fun CreateMyBook(
             nickname?.let {
                 Button(
                     onClick={
+                        if (memo != "") {
+                            val memoType = MyBookMemoRegisterRequest(
+                                nickname = nickname,
+                                isbn= book.isbn,
+                                content = memo
+                            )
+                            viewModel.postBookMemo(memoType)
+                        }
                         val bookRegisterInfo = MyBookRegisterRequest(
                             nickname = nickname,
                             bookIsbn = book.isbn,
