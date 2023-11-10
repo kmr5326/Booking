@@ -1,8 +1,11 @@
 package com.ssafy.data.remote.api
+import com.ssafy.domain.model.booking.BookingAcceptRequest
 import com.ssafy.domain.model.booking.BookingAll
 import com.ssafy.domain.model.booking.BookingCreateRequest
 import com.ssafy.domain.model.booking.BookingDetail
+import com.ssafy.domain.model.booking.BookingJoinRequest
 import com.ssafy.domain.model.booking.BookingParticipants
+import com.ssafy.domain.model.booking.BookingStartRequest
 import com.ssafy.domain.model.booking.BookingWaiting
 import com.ssafy.domain.model.booking.SearchResponse
 import com.ssafy.domain.model.mypage.UserInfoResponse
@@ -25,7 +28,7 @@ interface BookingApi {
     suspend fun getAllBooking(): Response<List<BookingAll>>
 
     @Headers("Content-Type: application/json;charset=UTF-8")
-    @GET("/api/booking/meeting/{meetingId}")
+    @GET("/api/booking/meeting/detail/{meetingId}")
     suspend fun getEachBooking(@Path("meetingId") meetingId: Long): Response<BookingDetail>
 
     @Headers("Content-Type: application/json;charset=UTF-8")
@@ -35,6 +38,21 @@ interface BookingApi {
     @Headers("Content-Type: application/json;charset=UTF-8")
     @GET("/api/booking/waitlist/{meetingId}")
     suspend fun getWaitingList(@Path("meetingId") meetingId: Long): Response<List<BookingWaiting>>
+
+    @Headers("Content-Type: application/json;charset=UTF-8")
+    @POST("/api/booking/meeting/{meetingId}/waiting")
+    suspend fun postBookingJoin(@Path("meetingId") meetingId: Long,@Body request : BookingJoinRequest): Response<Unit>
+//    suspend fun postBookingJoin(@Body request : BookingJoinRequest): Response<Unit>
+
+    @Headers("Content-Type: application/json;charset=UTF-8")
+    @POST("/api/booking/meeting/{meetingId}/accept/{memberId}")
+//    suspend fun postBookingAccept(@Body request: BookingAcceptRequest): Response<Unit>
+    suspend fun postBookingAccept(@Path("meetingId") meetingId: Long,@Path("memberId") memberId: Int,@Body request: BookingAcceptRequest): Response<Unit>
+
+    @Headers("Content-Type: application/json;charset=UTF-8")
+    @POST("/api/booking/meeting/info/")
+    suspend fun postBookingStart(@Body request: BookingStartRequest): Response<Unit>
+
 
     // 네이버 지역 검색 API
     @Headers("X-Naver-Client-Id: aCoZnAym6gdpl1cAQpUm", "X-Naver-Client-Secret: fVdZqSbv7I")

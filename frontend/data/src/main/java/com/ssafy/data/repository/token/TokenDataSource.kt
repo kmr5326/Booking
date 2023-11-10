@@ -49,6 +49,11 @@ class TokenDataSource @Inject constructor(
         editor.apply()
     }
 
+    private fun putLong(key: String, data: Long) {
+        editor.putLong(key, data)
+        editor.apply()
+    }
+
     private fun getString(key: String, defValue: String? = null) : String? {
         return prefs.getString(key, defValue)
     }
@@ -64,6 +69,11 @@ class TokenDataSource @Inject constructor(
     private fun getFloat(key: String, defValue: Float = 0f) : Float {
         return prefs.getFloat(key, defValue)
     }
+
+    private fun getLong(key: String, defValue: Long = 0) : Long {
+        return prefs.getLong(key, defValue)
+    }
+
 
     // 토큰 부분
     fun putToken(token: String?) {
@@ -156,16 +166,16 @@ class TokenDataSource @Inject constructor(
 //
 //    //
 //
-//    fun putMemberPk(memberPk: Int) {
-//        putInt(MEMBER_PK, memberPk)
-//    }
-//
-//    fun getMemberPk() : Int {
-//        return getInt(MEMBER_PK)
-//    }
-//
-//    fun removeMemberPk() {
-//        putInt(MEMBER_PK, 0)
-//    }
+    fun putMemberPk(memberPk: Long) {
+        putLong(MEMBER_PK, memberPk)
+    }
+
+    fun getMemberPk() : Long {
+        return getLong(MEMBER_PK)
+    }
+
+    fun removeMemberPk() {
+        putInt(MEMBER_PK, 0)
+    }
 
 }

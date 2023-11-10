@@ -220,7 +220,7 @@ fun BookSearch(
                 .width(150.dp)
                 .height(210.dp)
                 .clickable {
-                    navController.navigate("book/false")
+                    navController.navigate("book/1")
                 }
         ) {
             // 왼쪽의 도서 등록 칸

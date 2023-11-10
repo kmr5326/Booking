@@ -108,10 +108,11 @@ fun Greeting(
                 modifier = modifier.padding(bottom = 24.dp),
                 color = Color(0xFF00C68E),
                 style = TextStyle(fontSize = 40.sp)
+
             )
 
             KakaoLoginButton(context, navController, loginViewModel)
-            TempLoginButton(navController)
+//            TempLoginButton(navController)
 //            GoogleLoginButton(mainViewModel, googleSignInClient, navController, loginViewModel)
 //            SignInBtn()
         }
@@ -218,7 +219,7 @@ fun KakaoLoginButton(
                     // 로그인 성공 부분
                     else if (token != null) {
                         Log.e(TAG1, "로그인 성공 ${token.accessToken}")
-                        navController.navigate(AppNavItem.Main.route)
+//                        navController.navigate(AppNavItem.Main.route)
 
                         // 사용자 정보 요청 (기본)
                         UserApiClient.instance.me { user, error ->

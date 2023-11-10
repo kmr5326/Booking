@@ -62,13 +62,11 @@ import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
 import com.ssafy.booking.R
 import com.ssafy.booking.ui.common.BottomNav
-import com.ssafy.booking.ui.profile.BookingList
 import com.ssafy.booking.viewmodel.AppViewModel
 import com.ssafy.booking.viewmodel.BookingViewModel
 import com.ssafy.data.repository.token.TokenDataSource
 import com.ssafy.domain.model.DeviceToken
 import com.ssafy.domain.model.booking.BookingAll
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Main(
@@ -76,46 +74,33 @@ fun Main(
     appViewModel: AppViewModel
 ) {
     val bookingViewModel: BookingViewModel = hiltViewModel()
-    // ViewModel의 LiveData를 State로 변환
-//    val bookingAllListState by bookingViewModel.getBookingAllList.observeAsState()
-//    val bookingDetailState by bookingViewModel.getBookingDetail.observeAsState()
-//    val participantsState by bookingViewModel.getParticipants.observeAsState()
     val userInfoState by bookingViewModel.getUserInfoResponse.observeAsState()
     val context = LocalContext.current
     val tokenDataSource = TokenDataSource(context)
     val loginId = tokenDataSource.getLoginId()
-
     val deviceToken: String? = tokenDataSource.getDeviceToken()
-
-
     // LaunchedEffect를 사용하여 한 번만 API 호출
     LaunchedEffect(Unit) {
         bookingViewModel.postDeivceToken(DeviceToken(deviceToken))
 
-        // 메인 화면 가자마자 userInfo 조회
+        // 메인 화면 가자마자 userInfo 조회n
         Log.d("test1", "${tokenDataSource.getLoginId()}")
         Log.d("test2", "$loginId")
         bookingViewModel.getUserInfo(loginId!!)
 
         // 전체 북킹 목록 조회
         bookingViewModel.getBookingAllList()
-
-//        bookingViewModel.getBookingDetail(1) // 실제 meetingId로 교체 필요
-//        bookingViewModel.getParticipants(1) // 실제 meetingId로 교체 필요
-//        bookingViewModel.getWaitingList(1) // 실제 meetingId로 교체 필요
-//        Log.d("APICALL", "Booking All List: ${bookingAllListState?.body()}")
-
     }
 
     LaunchedEffect(userInfoState) {
         userInfoState?.body()?.let {
             tokenDataSource.putNickName(it.nickname)
             tokenDataSource.putProfileImage(it.profileImage)
+            tokenDataSource.putMemberPk(it.memberPk)
             Log.d("test33", "$it")
             Log.d("test3", "${it.nickname}")
         }
     }
-
     Scaffold(
         topBar = {
             HomeTopBar(navController, appViewModel)
@@ -139,8 +124,6 @@ fun Main(
             }
         }
     }
-
-
 @Composable
 fun BookList(navController: NavController, appViewModel: AppViewModel,bookingViewModel: BookingViewModel) {
 
@@ -161,8 +144,6 @@ fun BookList(navController: NavController, appViewModel: AppViewModel,bookingVie
         }
         }
     }
-
-
 @Composable
 fun BookItem(booking: BookingAll,navController: NavController) {
     val meetingId = booking.meetingId
@@ -204,8 +185,8 @@ fun BookItem(booking: BookingAll,navController: NavController) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Outlined.LocationOn, contentDescription = "locate", modifier = Modifier.size(12.dp), tint = Color.Gray)
                 Text(
-                    text = booking.lat.toString(),
-//                    fontWeight = FontWeight.Medium,
+//                    text = booking.lat.toString(),
+                    text = "오선동",
                     color = Color.Gray,
                     fontSize = 12.sp
                 )
@@ -247,10 +228,7 @@ fun BookItem(booking: BookingAll,navController: NavController) {
             .padding(horizontal = 8.dp)
     )
 }
-
-
 // 해시태그 칩
-
 @Composable
 fun HashtagChip(tag: String) {
     Box(
@@ -269,41 +247,6 @@ fun HashtagChip(tag: String) {
         )
     }
 }
-// 모임 생성 버튼
-//@Composable
-//fun MyFloatingActionButton(navController: NavController, appViewModel: AppViewModel) {
-//    ExtendedFloatingActionButton(
-//        text = { Text(text = "모임") },
-//        icon = {
-//            Icon(
-//                Icons.Filled.Add,
-//                contentDescription = "Create Meeting",
-//                modifier = Modifier.size(40.dp),
-//                tint = Color.White
-//            )
-//        },
-//        onClick = { navController.navigate("create/booking/isbn") },
-//        modifier = Modifier
-//            .padding(end = 16.dp, bottom = 10.dp)
-//            .size(65.dp),
-//        containerColor = Color(0xFF12BD7E),
-////        shape = CircleShape
-//        shape = RoundedCornerShape(30.dp)
-//
-//        // 그냥 동그라미할지, + 모임생성할지 고민.
-//
-//    )
-////    {
-////        Icon(
-////            Icons.Filled.Add,
-////            contentDescription = "Localized description",
-////            modifier = Modifier.size(40.dp),
-////            tint = Color.White
-////
-////        )
-////
-////    }
-//}
 
 @Composable
 fun MyFloatingActionButton(navController: NavController, appViewModel: AppViewModel) {
@@ -385,19 +328,3 @@ fun HomeTopBar(navController: NavController, appViewModel: AppViewModel) {
         )
     }
 }
-
-data class Book(val imageResId: Int, val bookName: String, val title: String, val locate: String, val currentPeople: Int, val maxPeople: Int)
-
-val bookItemsList = listOf(
-    Book(R.drawable.book1, "데미안", "데미안에 대해 읽고 같이 토론하실 분", "하남동", 3, 6),
-    Book(R.drawable.book2, "인간실격", "인간실격에 대해 읽고 같이 토론하실 분", "장덕동", 2, 2),
-    Book(R.drawable.book5, "불편한 편의점", "불편한 편의점 대해 읽고 같이 토론하실 분", "수완동", 3, 3),
-    Book(R.drawable.book4, "나미야 잡화점의 기적", "데미안에 대해 읽고 같이 토론하실 분", "하남동", 1, 5),
-    Book(R.drawable.book5, "불편한 편의점", "데미안에 대해 읽고 같이 토론하실 분", "하남동", 5, 6),
-    Book(R.drawable.book1, "데미안", "데미안에 대해 읽고 같이 토론하실 분", "장덕동", 2, 6),
-    Book(R.drawable.book7, "불편한 편의점2", "데미안에 대해 읽고 같이 토론하실 분", "하남동", 1, 6),
-    Book(R.drawable.book5, "불편한 편의점1", "데미안에 대해 읽고 같이 토론하실 분", "하남동", 1, 6),
-    Book(R.drawable.book2, "인간실격", "데미안에 대해 읽고 같이 토론하실 분", "하남동", 4, 6),
-    Book(R.drawable.book4, "나미야 잡화점의 기적", "데미안에 대해 읽고 같이 토론하실 분", "하남동", 3, 6),
-    Book(R.drawable.book5, "데미안", "데미안에 대해 읽고 같이 토론하실 분", "하남동", 6, 6)
-)
