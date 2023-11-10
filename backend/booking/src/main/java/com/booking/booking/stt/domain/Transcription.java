@@ -1,6 +1,7 @@
 package com.booking.booking.stt.domain;
 
-import com.booking.booking.stt.dto.SttResponseDto;
+import com.booking.booking.stt.dto.response.SttResponseDto;
+import lombok.Getter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -12,6 +13,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+@Getter
 @Document(collection = "transcriptions")
 public class Transcription {
 
