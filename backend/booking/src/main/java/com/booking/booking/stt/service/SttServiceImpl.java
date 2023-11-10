@@ -41,7 +41,7 @@ public class SttServiceImpl implements SttService{
     private final WebClient sttWebClient= WebClient.create(invokeUrl);
     private final WebClient naverWebClient= WebClient.create("https://naveropenapi.apigw.ntruss.com");
     @Override
-    public Mono<SttResponseDto> speachToText(SttRequestDto requestDto) {
+    public Mono<SttResponseDto> speechToText(SttRequestDto requestDto) {
         Map<String, Object> requestBody = new HashMap<>();
         //음성 001.m4a
         requestBody.put("dataKey","recording/"+requestDto.fileName());

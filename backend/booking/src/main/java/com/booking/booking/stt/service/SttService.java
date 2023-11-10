@@ -9,7 +9,7 @@ import com.booking.booking.stt.dto.response.TranscriptionResponse;
 import reactor.core.publisher.Mono;
 
 public interface SttService {
-    Mono<SttResponseDto> speachToText(SttRequestDto requestDto);
+    Mono<SttResponseDto> speechToText(SttRequestDto requestDto);
 
     Mono<TranscriptionResponse> findTranscriptionByFileName(String fileName);
 

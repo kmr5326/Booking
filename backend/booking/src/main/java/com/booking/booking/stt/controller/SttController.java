@@ -24,10 +24,10 @@ public class SttController {
     private final String AUTH="Authorization";
 
     @PostMapping("/stt")
-    public Mono<ResponseEntity<SttResponseDto>> speachToText(@RequestHeader(AUTH) String token,
+    public Mono<ResponseEntity<SttResponseDto>> speechToText(@RequestHeader(AUTH) String token,
                                                              @RequestBody SttRequestDto requestDto) {
         log.info("stt 요청 파일 이름 {}",requestDto.fileName());
-        return sttService.speachToText(requestDto)
+        return sttService.speechToText(requestDto)
                 .map(resp->ResponseEntity.ok().body(resp));
     }
     @PostMapping("/summary")
