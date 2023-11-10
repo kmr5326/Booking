@@ -38,10 +38,11 @@ public class SttServiceImpl implements SttService{
 
     private final TranscriptionRepository transcriptionRepository;
     private final SummaryRepository summaryRepository;
-    private final WebClient sttWebClient= WebClient.create(invokeUrl);
-    private final WebClient naverWebClient= WebClient.create("https://naveropenapi.apigw.ntruss.com");
+//    private final WebClient sttWebClient= WebClient.create(invokeUrl);
+//    private final WebClient naverWebClient= WebClient.create("https://naveropenapi.apigw.ntruss.com");
     @Override
     public Mono<SttResponseDto> speechToText(SttRequestDto requestDto) {
+        WebClient sttWebClient= WebClient.create(invokeUrl);
         Map<String, Object> requestBody = new HashMap<>();
         //음성 001.m4a
         requestBody.put("dataKey","recording/"+requestDto.fileName());
@@ -81,6 +82,7 @@ public class SttServiceImpl implements SttService{
     }
 
     public Mono<CreateSummaryResponse> summary(SummaryControllerDto req) {
+        WebClient naverWebClient= WebClient.create("https://naveropenapi.apigw.ntruss.com");
         SummaryRequest request=new SummaryRequest(req.getContent());
         return naverWebClient.post()
                 .uri("/text-summary/v1/summarize")
