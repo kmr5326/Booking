@@ -12,6 +12,7 @@ import com.booking.chat.chatroom.dto.response.ChatroomListResponse;
 import com.booking.chat.chatroom.exception.ChatroomException;
 import com.booking.chat.chatroom.repository.ChatroomRepository;
 import com.booking.chat.global.exception.ErrorCode;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -102,8 +103,12 @@ public class ChatroomService {
                                                                     message.decreaseReadCount();
                                                                  }
                                                                  return messageRepository.save(message);
-                                                             });
+                                                             })
+                                                            .sort(Comparator.comparing(Message::getMessageId));;
 
+        updatedMessagesFlux.count()
+                           .doOnNext(count -> log.info("Member : {} , The number of updated messages: {}", memberId, count))
+                           .subscribe();
         // 레디스 업데이트 후 메시지 스트림 반환
         return redisUpdateMono.thenMany(updatedMessagesFlux).map(MessageResponse::new);
     }
