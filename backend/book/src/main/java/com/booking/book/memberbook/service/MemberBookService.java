@@ -7,7 +7,6 @@ import com.booking.book.memberbook.domain.MemberBook;
 import com.booking.book.memberbook.domain.Note;
 import com.booking.book.memberbook.dto.request.MemberBookRegistRequest;
 import com.booking.book.memberbook.dto.request.RegisterNoteRequest;
-import com.booking.book.memberbook.dto.response.MemberBookListResponse;
 import com.booking.book.memberbook.dto.response.MemberBookResponse;
 import com.booking.book.memberbook.repository.MemberBookRepository;
 import javassist.NotFoundException;
@@ -27,16 +26,16 @@ public class MemberBookService {
     private final MemberBookRepository memberBookRepository;
     private final BookService bookService;
 
-    public Flux<MemberBookResponse> getMemberBookByMemberId(String nickname) {
-        return memberBookRepository.findAllByMemberNicknameOrderByCreatedAtDesc(nickname)
+    public Flux<MemberBookResponse> getMemberBookByMemberId(Integer memberPk) {
+        return memberBookRepository.findAllByMemberPkOrderByCreatedAtDesc(memberPk)
                                    .flatMap(memberBook ->
                                        bookService.findByIsbn(memberBook.getBookIsbn())
                                                   .map(book->new MemberBookResponse(memberBook,book))
                                    );
     }
 
-    public Mono<MemberBookResponse> getMemberBookDetail(String nickname, String isbn) {
-        return memberBookRepository.findByMemberNicknameAndBookIsbn(nickname, isbn)
+    public Mono<MemberBookResponse> getMemberBookDetail(Integer memberPk, String isbn) {
+        return memberBookRepository.findByMemberPkAndBookIsbn(memberPk, isbn)
                 .flatMap(memberBook ->
                     bookService.findByIsbn(memberBook.getBookIsbn())
                             .map(book->new MemberBookResponse(memberBook,book))
@@ -44,9 +43,9 @@ public class MemberBookService {
     }
 
     public Mono<MemberBook> registerMemberBook(MemberBookRegistRequest memberBookRegistRequest) {
-        String nickname= memberBookRegistRequest.nickname();
+        Integer memberPk= memberBookRegistRequest.memberPk();
         String isbn=memberBookRegistRequest.bookIsbn();
-        return memberBookRepository.findByMemberNicknameAndBookIsbn(nickname,isbn)
+        return memberBookRepository.findByMemberPkAndBookIsbn(memberPk,isbn)
                 .flatMap(exist -> {
                     log.error("내 서재 등록 요청 에러 : 이미 등록된 책");
                     return Mono.<MemberBook>error(new RuntimeException("이미 등록된 책"));
@@ -71,7 +70,7 @@ public class MemberBookService {
     }
 
     public Mono<String> registerNote(RegisterNoteRequest request) {
-        return memberBookRepository.findByMemberNicknameAndBookIsbn(request.nickname(), request.isbn())
+        return memberBookRepository.findByMemberPkAndBookIsbn(request.memberPk(), request.isbn())
                 .flatMap(memberBook -> {
                     memberBook.getNotes().add(new Note(request.content(), LocalDateTime.now()));
                     return memberBookRepository.save(memberBook);
