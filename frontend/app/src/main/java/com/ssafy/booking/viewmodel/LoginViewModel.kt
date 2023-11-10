@@ -76,6 +76,7 @@ class LoginViewModel : ViewModel() {
                     tokenDataSource.putToken(token)
                     // 로그인 아이디 넣기
                     tokenDataSource.putLoginId(loginId)
+
                     val asdf = tokenDataSource.getLoginId()
                     Log.d("asdf", "로그인 아이디: $asdf")
 
