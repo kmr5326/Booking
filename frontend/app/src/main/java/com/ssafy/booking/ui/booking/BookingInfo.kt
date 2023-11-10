@@ -40,10 +40,8 @@ import com.ssafy.domain.model.booking.BookingDetail
 fun BookingInfo(
     meetingId : Long,
 )
-
 {
     // 뷰모델 연결
-
     val bookingViewModel: BookingViewModel = hiltViewModel()
     val getBookingDetailResponse by bookingViewModel.getBookingDetailResponse.observeAsState()
     var bookingDetail by remember { mutableStateOf<BookingDetail?>(null) }
