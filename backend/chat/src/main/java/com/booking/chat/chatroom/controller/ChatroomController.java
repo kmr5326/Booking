@@ -80,7 +80,7 @@ public class ChatroomController {
     @PostMapping("/{chatroomId}")
     public Flux<MessageResponse> enterChatroom(@PathVariable Long chatroomId, @RequestHeader(AUTHORIZATION) String token, @RequestBody LastMessageRequest lastMessageRequest){
         Long memberId = JwtUtil.getMemberIdByToken(token);
-        log.info(" {} member request enter chatroom : {} ", memberId, chatroomId);
+        log.info(" {} member request enter chatroom : {} , startIdx : {} ", memberId, chatroomId, lastMessageRequest.lastMessageIndex());
         return chatroomService.enterChatroom(chatroomId, memberId, lastMessageRequest);
     }
 
