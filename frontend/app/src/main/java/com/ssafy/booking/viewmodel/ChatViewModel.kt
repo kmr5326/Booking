@@ -1,6 +1,7 @@
 package com.ssafy.booking.viewmodel
 
 import android.util.Log
+import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -8,11 +9,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.room.Query
 import com.ssafy.data.room.dao.ChatDao
+import com.ssafy.data.room.dao.MessageDao
 import com.ssafy.data.room.entity.ChatEntity
+import com.ssafy.data.room.entity.MessageEntity
 import com.ssafy.domain.model.ChatCreateRequest
 import com.ssafy.domain.model.ChatExitRequest
 import com.ssafy.domain.model.ChatJoinRequest
 import com.ssafy.domain.model.ChatRoom
+import com.ssafy.domain.model.LastReadMessageRequest
 import com.ssafy.domain.repository.ChatRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -29,7 +33,8 @@ import javax.inject.Inject
 @HiltViewModel
 class ChatViewModel @Inject constructor(
     private val chatRepository: ChatRepository,
-    private val chatDao: ChatDao
+    private val chatDao: ChatDao,
+    private val messageDao: MessageDao
 ) : ViewModel() {
 
     private val _chatListState = MutableLiveData<List<ChatRoom>>(listOf())
@@ -103,24 +108,31 @@ class ChatViewModel @Inject constructor(
         }
     }
 
+
+    // 최초 저장
     fun saveLocalChatId(chatroomId: Int) {
         viewModelScope.launch(Dispatchers.IO) {
-            val newChatEntity = ChatEntity(chatroomId = chatroomId, lastMessageIdx = 0)
+            val newChatEntity = ChatEntity(chatroomId = chatroomId, lastMessageIdx = 1)
             chatDao.insertChatIdFirstTime(newChatEntity)
         }
     }
 
-    private val _lastReadMessageId = MutableStateFlow<Int?>(null)
-    val lastReadMessageId: StateFlow<Int?> = _lastReadMessageId.asStateFlow()
+    // Room에서 마지막으로 읽은 메시지 GET
+
+
+    private val _lastReadMessageIds = mutableStateOf(mutableMapOf<Int, Int>())
+    val lastReadMessageIds: State<Map<Int, Int>> = _lastReadMessageIds
     fun getLastReadMessageId(chatroomId: Int) {
         viewModelScope.launch(Dispatchers.IO) {
             val lastReadId = chatDao.getLastReadMessageId(chatroomId) ?: 0
-            _lastReadMessageId.value = lastReadId
+            _lastReadMessageIds.value = _lastReadMessageIds.value.toMutableMap().apply {
+                put(chatroomId, lastReadId)
+            }
         }
     }
 
     init {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             while (isActive) {
                 loadChatList() // 채팅 목록을 로드하는 함수
                 delay(2000L) // 5초간 대기

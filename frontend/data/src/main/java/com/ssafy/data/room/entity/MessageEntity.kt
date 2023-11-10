@@ -11,11 +11,10 @@ import java.time.LocalDateTime
 @Entity(tableName = "messageEntity")
 data class MessageEntity (
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
-
     @ColumnInfo(name = "chatroom_id") val chatroomId : Int?,
     @ColumnInfo(name = "message_id") val messageId : Int?,
     @ColumnInfo(name = "sender_id") val senderId : Int?,
     @ColumnInfo(name = "content") val content : String?,
     @ColumnInfo(name = "read_count") val readCount : Int?,
-    @ColumnInfo(name = "time_stamp") val timeStamp : LocalDateTime?,
+    @ColumnInfo(name = "time_stamp") val timeStamp : String,
 )

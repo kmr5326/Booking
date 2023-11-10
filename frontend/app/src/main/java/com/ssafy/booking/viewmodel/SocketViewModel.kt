@@ -2,6 +2,7 @@ package com.ssafy.booking.viewmodel
 
 import android.util.Log
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -9,11 +10,16 @@ import com.gmail.bishoybasily.stomp.lib.Event
 import com.gmail.bishoybasily.stomp.lib.StompClient
 import com.google.gson.GsonBuilder
 import com.ssafy.booking.di.App
+import com.ssafy.data.room.dao.ChatDao
 import com.ssafy.data.room.dao.MessageDao
+import com.ssafy.data.room.entity.ChatEntity
 import com.ssafy.data.room.entity.MessageEntity
 import com.ssafy.data.utils.LocalDateTimeDeserializer
 import com.ssafy.data.utils.LocalDateTimeSerializer
 import com.ssafy.domain.model.KafkaMessage
+import com.ssafy.domain.model.LastReadMessageRequest
+import com.ssafy.domain.repository.ChatRepository
+import com.ssafy.domain.usecase.ChatUseCase
 import com.ssafy.domain.usecase.OkhttpService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.disposables.Disposable
@@ -25,7 +31,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SocketViewModel @Inject constructor(
-    private val messageDao: MessageDao
+    private val messageDao: MessageDao,
+    private val chatDao: ChatDao,
+    private val chatUseCase: ChatUseCase
 ) : ViewModel() {
 
     val logger = Logger.getLogger("STOMP")
@@ -36,64 +44,100 @@ class SocketViewModel @Inject constructor(
     private val intervalMillis = 1000L
     private val client = OkhttpService.OkHttpClientSingleton.provideOkHttpClient()
     val stomp = StompClient(client, intervalMillis).apply { this@apply.url = bookingwss }
-    val gson = GsonBuilder()
-        .registerTypeAdapter(LocalDateTime::class.java, LocalDateTimeSerializer())
-        .registerTypeAdapter(LocalDateTime::class.java, LocalDateTimeDeserializer())
-        .create()
+    val gson =
+        GsonBuilder().registerTypeAdapter(LocalDateTime::class.java, LocalDateTimeSerializer())
+            .registerTypeAdapter(LocalDateTime::class.java, LocalDateTimeDeserializer()).create()
 
-    var messages: LiveData<List<MessageEntity>> = MutableLiveData(emptyList())
-//    fun updateMessages(chatId: String) {
-//        viewModelScope.launch {
-//            messages = messageDao.getLastest(chatId.toInt())
+
+    private val _messages = MutableLiveData<List<MessageEntity>>()
+    val messages: LiveData<List<MessageEntity>> get() = _messages
+
+//    fun loadMessages(chatId: Int) {
+//        messageDao.getLatestMessage(chatId).observeForever { messageList ->
+//            _messages.postValue(messageList)
 //        }
 //    }
 
     fun loadLatestMessages(chatId: String) {
-        viewModelScope.launch(Dispatchers.IO) {
-            messages = messageDao.getLatestMessage(chatId.toInt())
+        viewModelScope.launch {
+            val latestMessagesLiveData = messageDao.getLatestMessage(chatId.toInt())
+            latestMessagesLiveData.observeForever { latestMessages ->
+                _messages.postValue(latestMessages)
+            }
         }
     }
 
-    val headers = HashMap<String, String>()
-    val accessToken = App.prefs.getToken()
+    fun postLastReadMessageId(chatroomId: Int) =
+        viewModelScope.launch(Dispatchers.IO) {
+            val lastReadId = chatDao.getLastReadMessageId(chatroomId) ?: 1
+            Log.d("CHAT_DETAIL", "lastReadId ${lastReadId}")
+            val lastMessageRequest = LastReadMessageRequest(lastMessageIndex = lastReadId)
+            try {
+                Log.d("CHAT_DETAIL", "lastMessageRequest ${lastMessageRequest}")
+                val messageResponses =
+                    chatUseCase.postLastReadMessage(chatroomId, lastMessageRequest)
+                Log.d("CHAT_DETAIL", "messageResponses ${messageResponses}")
+                val lastReadMessageIdx = messageResponses.maxOfOrNull { it.messageId } ?: 0
+                val chatEntity = ChatEntity(chatroomId, lastReadMessageIdx)
+                // 마지막으로 읽은 메시지 갱신
+                Log.d("CHAT_DETAIL", "chatEntity ${chatEntity}")
+                chatDao.updateLastReadMessage(chatEntity)
+
+                val messageEntities = messageResponses.map { response ->
+                    MessageEntity(
+                        chatroomId = response.chatroomId,
+                        messageId = response.messageId,
+                        senderId = response.senderId,
+                        content = response.content,
+                        readCount = response.readCount,
+                        timeStamp = response.timestamp
+                    )
+                }
+                Log.d("CHAT_DETAIL", "messageEntities ${messageEntities}")
+                // 메시지 저장
+                messageEntities.forEach { messageEntity ->
+                    val existingEntity = messageDao.getMessageByChatIdAndMessageId(
+                        messageEntity.chatroomId,
+                        messageEntity.messageId
+                    )
+                    if (existingEntity == null) {
+                        messageDao.insertMessage(messageEntity)
+                    } else {
+                        Log.d("CHAT_DETAIL", "중복된 message!!")
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("CHAT_DETAIL", "받아오기 $e")
+            }
+        }
+
 
     fun connectToChat(chatId: String) {
         stompConnection = stomp.connect().subscribe {
             when (it.type) {
                 Event.Type.OPENED -> {
                     Log.d("STOMP", "$it OPENED!!!")
-                    topic = stomp.join("/subscribe/$chatId")
-                        .subscribe(
-                            { stompMessage ->
-                                // Get Message
-                                Log.d("STOMP", "Received: $stompMessage")
-                                // Parse KafkaMessage
-                                val kafkaMessage: KafkaMessage =
-                                    gson.fromJson(stompMessage, KafkaMessage::class.java)
-                                Log.d("STOMP", "Parsed Message: $kafkaMessage")
-                                // to MessageEntity
-//                                val messageEntity = MessageEntity(
-//                                    chatId = chatId.toInt(),
-//                                    senderId = kafkaMessage.senderId,
-//                                    sendTime = kafkaMessage.sendTime,
-//                                    content = kafkaMessage.message,
-//                                    senderName = kafkaMessage.senderName
-//                                )
-//                                Log.d("STOMP", "Converted to Entity: $messageEntity")
-                                // Insert Room DB
-                                viewModelScope.launch(Dispatchers.IO) {
-                                    try {
+                    topic = stomp.join("/subscribe/$chatId").subscribe({ stompMessage ->
+                        // Get Message
+                        Log.d("STOMP", "Received: $stompMessage")
+                        // Parse KafkaMessage
+                        val kafkaMessage: KafkaMessage =
+                            gson.fromJson(stompMessage, KafkaMessage::class.java)
+                        Log.d("STOMP", "Parsed Message: $kafkaMessage")
+                        viewModelScope.launch(Dispatchers.Main) {
+                            try {
+                                Log.d("STOMP", "messages ${messages.value}")
+                                postLastReadMessageId(chatId.toInt())
+                                loadLatestMessages(chatId)
 //                                        messageDao.insert(messageEntity)
-                                        loadLatestMessages(chatId)
-                                    } catch (e: Exception) {
-                                        Log.e("STOMP", "Error inserting message into database", e)
-                                    }
-                                }
-                            },
-                            { throwable ->
-                                Log.e("STOMP", "Error :", throwable)
+//                                        loadLatestMessages(chatId)
+                            } catch (e: Exception) {
+                                Log.e("STOMP", "Error inserting message into database", e)
                             }
-                        )
+                        }
+                    }, { throwable ->
+                        Log.e("STOMP", "Error :", throwable)
+                    })
                 }
 
                 Event.Type.CLOSED -> {
@@ -113,14 +157,13 @@ class SocketViewModel @Inject constructor(
 
     fun sendMessage(message: KafkaMessage, chatId: Long?) {
         val jsonMessage = gson.toJson(message)
-        stomp.send("/publish/message/$chatId", jsonMessage)
-            .subscribe { success ->
-                if (success) {
-                    Log.d("STOMP", "chatting send is successful $jsonMessage")
-                } else {
-                    Log.d("STOMP", "failed to send message")
-                }
+        stomp.send("/publish/message/$chatId", jsonMessage).subscribe { success ->
+            if (success) {
+                Log.d("STOMP", "chatting send is successful $jsonMessage")
+            } else {
+                Log.d("STOMP", "failed to send message")
             }
+        }
     }
 
     fun disconnectChat() {

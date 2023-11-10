@@ -5,6 +5,8 @@ import com.ssafy.domain.model.ChatCreateRequest
 import com.ssafy.domain.model.ChatExitRequest
 import com.ssafy.domain.model.ChatJoinRequest
 import com.ssafy.domain.model.ChatRoom
+import com.ssafy.domain.model.LastReadMessageRequest
+import com.ssafy.domain.model.MessageResponse
 import com.ssafy.domain.repository.ChatRepository
 import retrofit2.Response
 import javax.inject.Inject
@@ -25,6 +27,13 @@ class ChatRepositoryImpl @Inject constructor(private val chatApi: ChatApi) : Cha
 
     override suspend fun postChatExit(request: ChatExitRequest): Response<Unit> {
         return chatApi.postChatExit(request)
+    }
+
+    override suspend fun postLastReadMessage(
+        chatroomId: Int,
+        request: LastReadMessageRequest
+    ): List<MessageResponse> {
+        return chatApi.postLastReadMessage(chatroomId, request)
     }
 }
 

@@ -17,12 +17,11 @@ interface ChatDao {
     fun insertChatIdFirstTime(chatEntity: ChatEntity)
     
     // 마지막으로 읽은 메시지 불러오기
-    @Query("SELECT lastReadMessage_idx FROM chatEntity WHERE chatroom_id = :chatroomId")
+    @Query("SELECT lastReadMessage_idx FROM chatEntity WHERE chatroomId = :chatroomId")
     fun getLastReadMessageId(chatroomId: Int): Int?
 
-    @Insert
-    fun insert(chatEntity: ChatEntity)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun updateLastReadMessage(chatEntity: ChatEntity)
 
-    @Delete
-    fun delete(chatEntity: ChatEntity)
+
 }

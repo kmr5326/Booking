@@ -29,7 +29,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -62,11 +61,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.ssafy.booking.R
@@ -75,13 +75,13 @@ import com.ssafy.booking.ui.common.TopBarChat
 import com.ssafy.booking.viewmodel.ChatViewModel
 import com.ssafy.booking.viewmodel.MyPageViewModel
 import com.ssafy.booking.viewmodel.SocketViewModel
-import com.ssafy.data.repository.token.TokenDataSource
 import com.ssafy.data.room.entity.MessageEntity
 import com.ssafy.domain.model.ChatExitRequest
 import com.ssafy.domain.model.KafkaMessage
 import com.ssafy.domain.model.mypage.UserInfoResponseByPk
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -97,40 +97,47 @@ fun ChatDetail(
 
     val loginId = App.prefs.getLoginId()
     val getUserInfoResponse by myPageViewModel.getUserInfoResponse.observeAsState()
+
+    // 자신의 정보 불러오기
     LaunchedEffect(loginId) {
-        val result = loginId?.let {
+        loginId?.let {
             myPageViewModel.getUserInfo(loginId)
         }
     }
-    LaunchedEffect(getUserInfoResponse) {
-        if (getUserInfoResponse != null) {
-            Log.d("STOMP", "${getUserInfoResponse!!.body()}")
-            memberId = getUserInfoResponse!!.body()?.memberPk
-            nickname = getUserInfoResponse!!.body()?.nickname.toString()
-        }
+    // 자신의 정보가 로드되면 memberId와 nickname을 설정
+    getUserInfoResponse?.let { response ->
+        memberId = response.body()?.memberPk
+        nickname = response.body()?.nickname ?: ""
     }
-    LaunchedEffect(memberId) {
-        chatId?.let {
-            socketViewModel.loadLatestMessages(it)
-            socketViewModel.connectToChat(it)
-        }
-    }
-    
-    // 나갈 때 소켓 연결 해제
-    DisposableEffect(chatId) {
-        onDispose {
-            chatId?.let {
-                socketViewModel.disconnectChat()
-            }
+
+    chatId?.let {
+        LaunchedEffect(chatId) {
+            socketViewModel.connectToChat(chatId)
+            socketViewModel.postLastReadMessageId(chatId.toInt())
         }
     }
 
     val listState = rememberLazyListState()
     val topBarState = rememberTopAppBarState()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-    val messages by socketViewModel.messages.observeAsState(listOf())
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(topBarState)
     val coroutineScope = rememberCoroutineScope()
+
+    val messages by socketViewModel.messages.observeAsState(initial = emptyList())
+    if (chatId != null) {
+        socketViewModel.loadLatestMessages(chatId)
+    }
+
+    // 나갈 때 소켓 연결 해제
+    DisposableEffect(chatId) {
+        onDispose {
+            socketViewModel.disconnectChat()
+        }
+    }
+
+//    if (chatId != null) {
+//        socketViewModel.postLastReadMessageId(chatId.toInt())
+//    }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -209,6 +216,26 @@ fun MessageList(
     messages: List<MessageEntity>,
     memberId: Long?
 ) {
+    val myPageViewModel: MyPageViewModel = hiltViewModel()
+    // 메시지 아이템에 대한 유저 정보를 캐시하기 위한 맵
+    val userInfoCache = remember { mutableMapOf<Long, UserInfoResponseByPk>() }
+    LaunchedEffect(messages) {
+        messages.forEach { message ->
+            message.senderId?.toLong()?.let {senderId ->
+                if(!userInfoCache.containsKey(senderId)) {
+                    myPageViewModel.getUserInfoResponseByPk(senderId.toInt())
+                }
+            }
+        }
+    }
+    LaunchedEffect(myPageViewModel.getUserInfoResponseByPk) {
+        myPageViewModel.getUserInfoResponseByPk.observeForever {response ->
+            response.body()?.let { userInfo ->
+                userInfoCache[userInfo.memberPk] = userInfo
+            }
+        }
+    }
+
     Box(
         modifier = modifier
             .background(Color(0xFF9bbbd4))
@@ -223,7 +250,7 @@ fun MessageList(
                 val nextMessage =
                     if (index < messages.size - 1) messages[index + 1] else null
 
-                MessageItem(message, previousMessage, nextMessage, memberId)
+                MessageItem(message, previousMessage, nextMessage, memberId, userInfoCache)
             }
         }
 
@@ -240,20 +267,21 @@ fun MessageItem(
     message: MessageEntity,
     previousMessage: MessageEntity?,
     nextMessage: MessageEntity?,
-    memberId: Long?
+    memberId: Long?,
+    userInfoCache: MutableMap<Long, UserInfoResponseByPk>
 ) {
     val isOwnMessage = message.senderId?.toLong() == memberId
-    val myPageViewModel: MyPageViewModel = hiltViewModel()
-    val userInfoResponse by myPageViewModel.getUserInfoResponseByPk.observeAsState()
+    val userInfo = userInfoCache[message.senderId?.toLong()]
+//    Log.d("CHAT_DETAIL", "유저캐시맵 ${userInfoCache}")
+//    Log.d("CHAT_DETAIL", "유저정보 $userInfo")
 
-    var userInfo : UserInfoResponseByPk? = null
-    userInfoResponse?.let { response ->
-        if (response.isSuccessful) {
-            userInfo = response.body()!!
-        } else {
 
-        }
-    }
+//    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS")
+//    Log.d("CHAT_DETAIL", "$formatter")
+//    val dateTime = LocalDateTime.parse(message.timeStamp, formatter)
+//    Log.d("CHAT_DETAIL", "$dateTime")
+//    val displayTime = "${dateTime.hour}:${dateTime.minute.toString().padStart(2, '0')}"
+//    Log.d("CHAT_DETAIL", "$displayTime")
 
     Box(
         modifier = Modifier
@@ -301,18 +329,12 @@ fun MessageItem(
                 ) {
                     // 자신의 메시지인 경우, 시간을 먼저 표시
                     if (isOwnMessage &&
-                        (
-                            nextMessage == null || (
-                                nextMessage.timeStamp?.hour != message.timeStamp?.hour ||
-                                    nextMessage.timeStamp?.minute != message.timeStamp?.minute
-                                ) || nextMessage.senderId != message.senderId
-                            )
+                        (nextMessage == null || (nextMessage.timeStamp != message.timeStamp || nextMessage.timeStamp != message.timeStamp) || nextMessage.senderId != message.senderId)
                     ) {
                         Text(
-                            text = message.timeStamp?.let {
-                                val updatedTime = it.plusHours(9) // 올바른 시간 계산을 위해 plusHours 사용
-                                String.format("%02d:%02d", updatedTime.hour, updatedTime.minute)
-                            } ?: "",
+                            text = message.timeStamp.let {
+                                "${message.timeStamp}"
+                            },
                             fontSize = 12.sp,
                             color = Color(0xFF556677),
                             modifier = Modifier.align(Alignment.Bottom)
@@ -334,19 +356,13 @@ fun MessageItem(
 
                     // 다른 사람의 메시지인 경우, 메시지 뒤에 시간을 표시
                     if (!isOwnMessage &&
-                        (
-                            nextMessage == null || (
-                                nextMessage.timeStamp?.hour != message.timeStamp?.hour ||
-                                    nextMessage.timeStamp?.minute != message.timeStamp?.minute
-                                ) || nextMessage.senderId != message.senderId
-                            )
+                        (nextMessage == null || (nextMessage.timeStamp != message.timeStamp || nextMessage.timeStamp != message.timeStamp) || nextMessage.senderId != message.senderId)
                     ) {
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = message.timeStamp?.let {
-                                val updatedTime = it.plusHours(9) // 올바른 시간 계산을 위해 plusHours 사용
-                                String.format("%02d:%02d", updatedTime.hour, updatedTime.minute)
-                            } ?: "",
+                            text = message.timeStamp.let {
+                                "${message.timeStamp}"
+                            },
                             fontSize = 12.sp,
                             color = Color(0xFF556677),
                             modifier = Modifier.align(Alignment.Bottom)

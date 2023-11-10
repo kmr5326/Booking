@@ -58,6 +58,7 @@ import com.ssafy.data.room.dao.ChatDao
 import com.ssafy.domain.model.ChatCreateRequest
 import com.ssafy.domain.model.ChatJoinRequest
 import com.ssafy.domain.model.ChatRoom
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 
@@ -167,9 +168,11 @@ fun ChatItem(
 ) {
     val navController = LocalNavigation.current
     val chatViewModel: ChatViewModel = hiltViewModel()
-    val lastReadPk by chatViewModel.lastReadMessageId.collectAsState(initial = 0)
     chatViewModel.saveLocalChatId(chat.chatroomId)
     chatViewModel.getLastReadMessageId(chat.chatroomId)
+
+    val lastReadMessageIds  by chatViewModel.lastReadMessageIds
+    val lastReadMessageId = lastReadMessageIds[chat.chatroomId]
 
     Row(
         modifier = Modifier
@@ -199,7 +202,7 @@ fun ChatItem(
             )
         }
         Spacer(modifier = Modifier.width(16.dp))
-        Row (
+        Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
@@ -236,18 +239,22 @@ fun ChatItem(
                 )
                 Spacer(modifier = Modifier.height(4.dp))
             }
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .size(24.dp)
-                    .background(Color.Red, shape = CircleShape)
-            ) {
-                Text(
-                    text = "${chat.lastMessageIdx - (lastReadPk ?: 0)}",
-                    fontWeight = FontWeight.ExtraBold,
-                    fontSize = 12.sp,
-                    color = Color.White
-                )
+            if (chat.lastMessageIdx - (lastReadMessageId ?: 0) - 1 > 0) {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .size(24.dp)
+                        .background(Color.Red, shape = CircleShape)
+                ) {
+                    Log.d("LAST_MESSAGE", "${chat}")
+                    Log.d("LAST_MESSAGE", "${lastReadMessageId}")
+                    Text(
+                        text = "${chat.lastMessageIdx - (lastReadMessageId ?: 0) -1 }",
+                        fontWeight = FontWeight.ExtraBold,
+                        fontSize = 12.sp,
+                        color = Color.White
+                    )
+                }
             }
         }
     }

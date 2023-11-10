@@ -24,3 +24,8 @@ data class ChatExitRequest(
     @SerializedName("memberId")
     val memberId: Long?,
 )
+
+data class LastReadMessageRequest(
+    @SerializedName("lastMessageIndex")
+    val lastMessageIndex: Int
+)
