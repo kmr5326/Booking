@@ -22,14 +22,14 @@ import com.ssafy.domain.model.mypage.UserFollowingsResponse
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileFollowScreen(
-    nickname: String
+    memberPk: Long
 ) {
     val viewModel: MyPageViewModel = hiltViewModel()
     val combinedData by viewModel.combinedUserFollowData.observeAsState()
 
     LaunchedEffect(Unit) {
-        viewModel.getUserFollowers(nickname)
-        viewModel.getUserFollowings(nickname)
+        viewModel.getUserFollowers(memberPk)
+        viewModel.getUserFollowings(memberPk)
     }
 
     Scaffold(

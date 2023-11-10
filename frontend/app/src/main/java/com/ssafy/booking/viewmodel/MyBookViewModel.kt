@@ -11,6 +11,9 @@ import com.ssafy.domain.model.mybook.MyBookMemoRegisterRequest
 import com.ssafy.domain.model.mybook.MyBookRegisterRequest
 import com.ssafy.domain.usecase.MyBookUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import retrofit2.Response
 import javax.inject.Inject
@@ -27,17 +30,24 @@ class MyBookViewModel @Inject constructor(
     private val _myBookResponse = MutableLiveData<Response<List<MyBookListResponse>>>()
     val myBookResponse : LiveData<Response<List<MyBookListResponse>>> get() = _myBookResponse
 
-    fun getMyBookResponse(nickname : String) =
+    fun getMyBookResponse(memberPk : Long) =
         viewModelScope.launch {
             _myBookState.value = MyBookState.Loading
             try {
-                val myBookRes = myBookUseCase.getBookList(nickname)
+                val myBookRes = myBookUseCase.getBookList(memberPk)
                 if (myBookRes.isSuccessful && myBookRes.body() != null) {
                     _myBookState.value = MyBookState.Success(myBookRes.body()!!)
                 }
             } catch (e: Exception) {
                 _myBookState.value = MyBookState.Error(e.message ?: "알 수 없는 에러가 발생했습니다.")
             }
+        }
+    // 내 서재 상세 조회
+    private val _myBookDetailResponse = MutableLiveData<Response<MyBookListResponse>>()
+    val myBookDetailResponse : LiveData<Response<MyBookListResponse>> get() = _myBookDetailResponse
+    fun getMyBookDetailResponse(memberPk: Long, isbn: String) =
+        viewModelScope.launch {
+            _myBookDetailResponse.value = myBookUseCase.getBookDetail(memberPk, isbn)
         }
 
     private val _postBookRegisterResult = MutableLiveData<Response<Unit>>()
@@ -48,6 +58,7 @@ class MyBookViewModel @Inject constructor(
             _postBookRegisterResult.value = myBookUseCase.postBookRegister(request)
         }
 
+    // 메모 요청 날리기
     private val _postBookMemoResult = MutableLiveData<Response<Unit>>()
     val postBookMemoResult : LiveData<Response<Unit>> get() = _postBookMemoResult
 
