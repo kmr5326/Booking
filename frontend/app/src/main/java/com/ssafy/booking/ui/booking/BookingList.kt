@@ -96,6 +96,7 @@ fun Main(
         userInfoState?.body()?.let {
             tokenDataSource.putNickName(it.nickname)
             tokenDataSource.putProfileImage(it.profileImage)
+            tokenDataSource.putMemberPk(it.memberPk)
             Log.d("test33", "$it")
             Log.d("test3", "${it.nickname}")
         }
