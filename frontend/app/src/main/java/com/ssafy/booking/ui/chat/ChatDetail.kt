@@ -80,8 +80,10 @@ import com.ssafy.domain.model.ChatExitRequest
 import com.ssafy.domain.model.KafkaMessage
 import com.ssafy.domain.model.mypage.UserInfoResponseByPk
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -249,7 +251,6 @@ fun MessageList(
                 val previousMessage = if (index > 0) messages[index - 1] else null
                 val nextMessage =
                     if (index < messages.size - 1) messages[index + 1] else null
-
                 MessageItem(message, previousMessage, nextMessage, memberId, userInfoCache)
             }
         }
@@ -277,8 +278,31 @@ fun MessageItem(
 
     val nextTime = nextMessage?.timeStamp?.let { formatTimestamp(it) }
     val curTime = formatTimestamp(message.timeStamp)
-//    val prevTime = previousMessage?.timeStamp?.let { formatTimestamp(it) }
+    val prevTime = previousMessage?.timeStamp?.let { formatTimestamp(it) }
 
+    val prevDate = previousMessage?.timeStamp?.let { formatDate(it) }
+    val curDate = formatDate(message.timeStamp)
+
+    if(prevDate == null || curDate != prevDate) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = curDate,
+                modifier = Modifier
+                    .background(
+                        color = Color(0xFF556677),
+                        shape = RoundedCornerShape(10.dp)
+                    )
+                    .padding(8.dp)
+                    .widthIn(max = 150.dp),
+                fontSize = 12.sp,
+                color = Color.White
+            )
+        }
+    }
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -336,6 +360,7 @@ fun MessageItem(
                         Spacer(modifier = Modifier.width(4.dp))
                     }
 
+                    // 내용
                     Text(
                         text = "${message.content}",
                         modifier = Modifier
@@ -430,4 +455,12 @@ fun formatTimestamp(timestamp: String): String {
     val timestampWithoutMilliseconds = timestamp.substringBefore('.')
     val dateTime = LocalDateTime.parse(timestampWithoutMilliseconds, formatter)
     return "${dateTime.hour.toString().padStart(2, '0')}:${dateTime.minute.toString().padStart(2, '0')}"
+}
+
+fun formatDate(timestamp: String): String {
+    val timestampWithoutMilliseconds = timestamp.substringBefore('T')
+    val parseFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+    val date = LocalDate.parse(timestampWithoutMilliseconds, parseFormatter)
+    val displayFormatter = DateTimeFormatter.ofPattern("yyyy'년' MM'월' dd'일' EEEE", Locale.KOREAN)
+    return date.format(displayFormatter)
 }
