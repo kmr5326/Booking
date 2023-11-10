@@ -18,6 +18,7 @@ public class FollowingsResponseDto {
     @AllArgsConstructor
     @Data
     public static class Following{
+        private Integer memberPk;
         private String nickname;
         private String profileImage;
     }
