@@ -52,7 +52,7 @@ sealed class AppNavItem(
     object Main : AppNavItem("main")
     object Chat : AppNavItem("chat")
     object ChatDetail : AppNavItem("chatDetail/{chatId}")
-    object Profile : AppNavItem("profile")
+    object Profile : AppNavItem("profile/{memberPk}")
     object Login : AppNavItem("login")
     object CreateBooking : AppNavItem("create/booking/{isbn}")
     object SignIn : AppNavItem("signIn/{loginId}/{kakaoNickName}") {
@@ -61,7 +61,7 @@ sealed class AppNavItem(
         }
     }
     object Setting : AppNavItem("setting")
-    object ProfileFollow : AppNavItem("profile/follow/{nickname}")
+    object ProfileFollow : AppNavItem("profile/follow/{memberPk}")
     object ProfileModifier : AppNavItem("profile/modifier")
     object BookingDetail : AppNavItem("bookingDetail/{meetingId}")
     object MyBookRegister : AppNavItem("profile/book/{isbn}")
@@ -135,8 +135,9 @@ fun Route(googleSignInClient: GoogleSignInClient) {
             composable("chatDetail/{chatId}") {
                 ChatDetail(navController, socketViewModel)
             }
-            composable("profile") {
-                ProfileHome(navController, appViewModel)
+            composable("profile/{memberPk}") {navBackStackEntry->
+                val memberPk = navBackStackEntry.arguments?.getString("memberPk")?.toLong() ?: 0
+                ProfileHome(navController, appViewModel, memberPk)
             }
             composable("create/booking/{isbn}") { navBackStackEntry ->
                 val isbn = navBackStackEntry.arguments?.getString("isbn")
@@ -155,9 +156,9 @@ fun Route(googleSignInClient: GoogleSignInClient) {
             composable("setting") {
                 SettingPage()
             }
-            composable("profile/follow/{nickname}") { navBackStackEntry ->
-                val nickname = navBackStackEntry.arguments?.getString("nickname") ?: ""
-                ProfileFollowScreen(nickname)
+            composable("profile/follow/{memberPk}") { navBackStackEntry ->
+                val memberPk = navBackStackEntry.arguments?.getString("memberPk")?.toLong() ?: 0
+                ProfileFollowScreen(memberPk)
             }
             composable("profile/modifier") {
                 ProfileModifierScreen()

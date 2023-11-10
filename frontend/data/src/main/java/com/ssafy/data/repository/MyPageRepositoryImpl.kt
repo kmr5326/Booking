@@ -27,14 +27,14 @@ class MyPageRepositoryImpl @Inject constructor(
     override suspend fun deleteUser(loginId: String) : Response<Unit> {
         return myPageApi.deleteUser(loginId)
     }
-    override suspend fun getUserFollowers(nickname : String) : Response<UserFollowersResponse> {
-        return myPageApi.getUserFollowers(nickname)
+    override suspend fun getUserFollowers(memberPk : Long) : Response<UserFollowersResponse> {
+        return myPageApi.getUserFollowers(memberPk)
     }
-    override suspend fun getUserFollowings(nickname : String) : Response<UserFollowingsResponse> {
-        return myPageApi.getUserFollowings(nickname)
+    override suspend fun getUserFollowings(memberPk : Long) : Response<UserFollowingsResponse> {
+        return myPageApi.getUserFollowings(memberPk)
     }
 
-    override suspend fun getUserInfoByPk(memberPk: Int): Response<UserInfoResponseByPk> {
+    override suspend fun getUserInfoByPk(memberPk: Long): Response<UserInfoResponseByPk> {
         return myPageApi.getUserInfoByPk(memberPk)
     }
 
@@ -42,12 +42,12 @@ class MyPageRepositoryImpl @Inject constructor(
         return myPageApi.getUserInfoByNickname(nickname)
     }
 
-    override suspend fun postFollow(nickname: String): Response<Unit> {
-        return myPageApi.postFollow(nickname)
+    override suspend fun postFollow(memberPk: Long): Response<Unit> {
+        return myPageApi.postFollow(memberPk)
     }
 
-    override suspend fun deleteFollow(nickname: String): Response<Unit> {
-        return myPageApi.deleteFollow(nickname)
+    override suspend fun deleteFollow(memberPk: Long): Response<Unit> {
+        return myPageApi.deleteFollow(memberPk)
     }
 
 }

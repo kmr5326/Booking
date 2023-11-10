@@ -65,15 +65,15 @@ fun MyBookDetail(
     val viewModel: MyBookViewModel = hiltViewModel()
     val context = LocalContext.current
     val tokenDataSource = TokenDataSource(context)
-    val nickname: String? = tokenDataSource.getNickName()
+    val memberPk: Long = tokenDataSource.getMemberPk()
 
     val myBookDetailResponse by viewModel.myBookDetailResponse.observeAsState()
 
     var BookDetailState by remember { mutableStateOf(0) }
 
     LaunchedEffect(Unit) {
-        if (nickname != null && isbn != null) {
-            viewModel.getMyBookDetailResponse(nickname, isbn)
+        if (memberPk != null && isbn != null) {
+            viewModel.getMyBookDetailResponse(memberPk, isbn)
         }
     }
 
@@ -120,7 +120,7 @@ fun MyBookDetail(
             if (BookDetailState == 0) {
                 Text(text = "로딩중..")
             } else if (BookDetailState == 1) {
-                DetailBookSuccessView(myBookDetailResponse!!.body(), viewModel)
+                DetailBookSuccessView(myBookDetailResponse!!.body(), viewModel, memberPk)
             } else {
                 DetailBookErrorView()
             }
@@ -132,7 +132,8 @@ fun MyBookDetail(
 @Composable
 fun DetailBookSuccessView(
     myBookDetailResponse: MyBookListResponse?,
-    viewModel: MyBookViewModel
+    viewModel: MyBookViewModel,
+    memberPk: Long
 ) {
     var memo by remember { mutableStateOf("") }
 
@@ -191,7 +192,7 @@ fun DetailBookSuccessView(
             keyboardActions = KeyboardActions(
                 onDone = {
                     val result = MyBookMemoRegisterRequest(
-                        nickname = myBookDetailResponse.memberNickname,
+                        memberPk = memberPk,
                         isbn = myBookDetailResponse.bookInfo.isbn,
                         content = memo
                     )

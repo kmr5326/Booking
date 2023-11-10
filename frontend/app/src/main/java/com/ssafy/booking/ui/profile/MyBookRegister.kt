@@ -100,7 +100,7 @@ fun CreateMyBook(
     val navController = LocalNavigation.current
     val context = LocalContext.current
     val tokenDataSource = TokenDataSource(context)
-    val nickname: String? = tokenDataSource.getNickName()
+    val memberPk: Long = tokenDataSource.getMemberPk()
 
     val viewModel : MyBookViewModel = hiltViewModel()
 
@@ -121,9 +121,9 @@ fun CreateMyBook(
         postBookRegisterResult?.let {
             response ->
             if(response.isSuccessful) {
-                navController.navigate("profile")
+                navController.navigate("profile/$memberPk")
             } else {
-                navController.navigate("profile")
+                navController.navigate("profile/$memberPk")
                 Toast.makeText(context, "이미 서재에 등록된 도서입니다.", Toast.LENGTH_LONG).show()
             }
         }
@@ -190,19 +190,19 @@ fun CreateMyBook(
             )
 
             // 버튼
-            nickname?.let {
+            memberPk?.let {
                 Button(
                     onClick={
                         if (memo != "") {
                             val memoType = MyBookMemoRegisterRequest(
-                                nickname = nickname,
+                                memberPk = memberPk,
                                 isbn= book.isbn,
                                 content = memo
                             )
                             viewModel.postBookMemo(memoType)
                         }
                         val bookRegisterInfo = MyBookRegisterRequest(
-                            nickname = nickname,
+                            memberPk = memberPk,
                             bookIsbn = book.isbn,
                         )
                         viewModel.postBookRegister(bookRegisterInfo)

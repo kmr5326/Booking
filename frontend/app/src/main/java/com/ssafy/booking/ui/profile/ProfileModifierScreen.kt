@@ -56,6 +56,7 @@ fun ProfileModifierScreen() {
     val nickname: String? = tokenDataSource.getNickName()
     val profileImg: String? = tokenDataSource.getProfileImage()
     val loginId: String? = tokenDataSource.getLoginId()
+    val memberPk: Long = tokenDataSource.getMemberPk()
 
     var nick by remember { mutableStateOf("$nickname") }
     var pImg by remember { mutableStateOf("$profileImg") }
@@ -194,18 +195,18 @@ fun ProfileModifierScreen() {
             if (isErrorNick) {
                 Text("중복된 닉네임 입니다.", color = Color.Red)
             }
-//            OutlinedTextField(
-//                value = nick,
-//                onValueChange = {
-//                    nick = it
-//                    isError = it.isEmpty()
-//                    isErrorNick = false
-//                },
-//                label = { Text("*닉네임") },
-//                singleLine = true,
-//                isError = isError
-//            )
-            Text("$nick")
+            OutlinedTextField(
+                value = nick,
+                onValueChange = {
+                    nick = it
+                    isError = it.isEmpty()
+                    isErrorNick = false
+                },
+                label = { Text("*닉네임") },
+                singleLine = true,
+                isError = isError
+            )
+//            Text("$nick")
 
             Spacer(modifier = Modifier.padding(24.dp))
 
@@ -215,7 +216,7 @@ fun ProfileModifierScreen() {
                 // 정보 수정 api 요청
                 // 정보 수정 후 sharedPreference 정보 변경
                 // 이후 profile 화면으로 이동 시키기
-                onClick = { myPageViewModel.userInfoChange(nick, pImg, loginId!!) },
+                onClick = { myPageViewModel.userInfoChange(nick, pImg, loginId!!, memberPk) },
                 enabled = !isError
             ) {
                 Text(text = "회원 정보 수정")

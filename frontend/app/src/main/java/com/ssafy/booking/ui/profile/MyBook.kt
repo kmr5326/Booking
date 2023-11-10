@@ -43,11 +43,14 @@ import com.ssafy.domain.model.mybook.MyBookListResponse
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyBook(
-    myBookState: MyBookState?
+    myBookState: MyBookState?,
+    data: ProfileData
 ) {
     Scaffold(
         floatingActionButton = {
-            MyBookFloatingActionButton()
+            if(data.isI) {
+                MyBookFloatingActionButton()
+            }
         }
     ) {paddingValues ->
         Column(

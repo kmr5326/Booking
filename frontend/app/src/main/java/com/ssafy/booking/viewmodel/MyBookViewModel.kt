@@ -30,11 +30,11 @@ class MyBookViewModel @Inject constructor(
     private val _myBookResponse = MutableLiveData<Response<List<MyBookListResponse>>>()
     val myBookResponse : LiveData<Response<List<MyBookListResponse>>> get() = _myBookResponse
 
-    fun getMyBookResponse(nickname : String) =
+    fun getMyBookResponse(memberPk : Long) =
         viewModelScope.launch {
             _myBookState.value = MyBookState.Loading
             try {
-                val myBookRes = myBookUseCase.getBookList(nickname)
+                val myBookRes = myBookUseCase.getBookList(memberPk)
                 if (myBookRes.isSuccessful && myBookRes.body() != null) {
                     _myBookState.value = MyBookState.Success(myBookRes.body()!!)
                 }
@@ -45,9 +45,9 @@ class MyBookViewModel @Inject constructor(
     // 내 서재 상세 조회
     private val _myBookDetailResponse = MutableLiveData<Response<MyBookListResponse>>()
     val myBookDetailResponse : LiveData<Response<MyBookListResponse>> get() = _myBookDetailResponse
-    fun getMyBookDetailResponse(nickname: String, isbn: String) =
+    fun getMyBookDetailResponse(memberPk: Long, isbn: String) =
         viewModelScope.launch {
-            _myBookDetailResponse.value = myBookUseCase.getBookDetail(nickname,isbn)
+            _myBookDetailResponse.value = myBookUseCase.getBookDetail(memberPk, isbn)
         }
 
     private val _postBookRegisterResult = MutableLiveData<Response<Unit>>()
