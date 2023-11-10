@@ -27,8 +27,8 @@ public record MeetingDetailResponse(
 ) {
     public MeetingDetailResponse(Meeting meeting, BookResponse book, List<ParticipantResponse> participantList,
                                  List<HashtagResponse> hashtagList, List<MeetingInfoResponse> meetingInfoList) {
-        this(meeting.getMeetingId(), meeting.getLeaderId(), book.isbn(),
-                book.title(), book.author(), book.content(), book.coverImage(),
+        this(meeting.getMeetingId(), meeting.getLeaderId(),
+                book.isbn(), book.title(), book.author(), book.content(), book.coverImage(),
                 meeting.getMeetingTitle(), meeting.getDescription(), meeting.getLat(), meeting.getLgt(),
                 meeting.getMaxParticipants(), participantList, hashtagList, meetingInfoList);
     }
