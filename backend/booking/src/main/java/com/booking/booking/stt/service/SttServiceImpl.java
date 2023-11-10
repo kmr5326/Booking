@@ -1,7 +1,15 @@
 package com.booking.booking.stt.service;
 
+import com.booking.booking.stt.domain.Summary;
 import com.booking.booking.stt.domain.Transcription;
-import com.booking.booking.stt.dto.*;
+import com.booking.booking.stt.dto.request.SttRequestDto;
+import com.booking.booking.stt.dto.request.SummaryControllerDto;
+import com.booking.booking.stt.dto.request.SummaryRequest;
+import com.booking.booking.stt.dto.response.LoadSummaryResponse;
+import com.booking.booking.stt.dto.response.SttResponseDto;
+import com.booking.booking.stt.dto.response.CreateSummaryResponse;
+import com.booking.booking.stt.dto.response.TranscriptionResponse;
+import com.booking.booking.stt.repository.SummaryRepository;
 import com.booking.booking.stt.repository.TranscriptionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,7 +19,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,12 +37,12 @@ public class SttServiceImpl implements SttService{
     private String naverKey;
 
     private final TranscriptionRepository transcriptionRepository;
-
-    private final WebClient sttWebClient= WebClient.create(invokeUrl);
-    private final WebClient naverWebClient= WebClient.create("https://naveropenapi.apigw.ntruss.com");
+    private final SummaryRepository summaryRepository;
+//    private final WebClient sttWebClient= WebClient.create(invokeUrl);
+//    private final WebClient naverWebClient= WebClient.create("https://naveropenapi.apigw.ntruss.com");
     @Override
-    public Mono<SttResponseDto> speachToText(SttRequestDto requestDto) {
-
+    public Mono<SttResponseDto> speechToText(SttRequestDto requestDto) {
+        WebClient sttWebClient= WebClient.create(invokeUrl);
         Map<String, Object> requestBody = new HashMap<>();
         //음성 001.m4a
         requestBody.put("dataKey","recording/"+requestDto.fileName());
@@ -53,13 +60,11 @@ public class SttServiceImpl implements SttService{
                 .retrieve()
                 .onStatus(HttpStatus::is4xxClientError, clientResponse -> {
                     return clientResponse.bodyToMono(String.class).doOnNext(body -> {
-                        // 로그에 오류 본문을 출력
                         log.error("4xx error: {}", body);
                     }).then(Mono.error(new RuntimeException("Client error")));
                 })
                 .onStatus(HttpStatus::is5xxServerError, clientResponse -> {
                     return clientResponse.bodyToMono(String.class).doOnNext(body -> {
-                        // 로그에 오류 본문을 출력
                         log.error("5xx error: {}", body);
                     }).then(Mono.error(new RuntimeException("Server error")));
                 })
@@ -68,7 +73,16 @@ public class SttServiceImpl implements SttService{
                 .doOnNext(resp-> log.info("stt 결과 {}",resp));
     }
 
-    public Mono<SummaryResponse> summary(SummaryControllerDto req) {
+    @Override
+    public Mono<TranscriptionResponse> findTranscriptionByFileName(String fileName) {
+        return transcriptionRepository.findByFileName(fileName)
+                .flatMap(transcription -> Mono.just(new TranscriptionResponse(transcription)))
+                .switchIfEmpty(Mono.error(new RuntimeException("Not found Transcription")));
+
+    }
+
+    public Mono<CreateSummaryResponse> summary(SummaryControllerDto req) {
+        WebClient naverWebClient= WebClient.create("https://naveropenapi.apigw.ntruss.com");
         SummaryRequest request=new SummaryRequest(req.getContent());
         return naverWebClient.post()
                 .uri("/text-summary/v1/summarize")
@@ -89,11 +103,23 @@ public class SttServiceImpl implements SttService{
                         log.error("5xx error: {}", body);
                     }).then(Mono.error(new RuntimeException("Server error")));
                 })
-                .bodyToMono(SummaryResponse.class);
+                .bodyToMono(CreateSummaryResponse.class)
+                .flatMap(createSummaryResponse -> saveSummary(createSummaryResponse,req).thenReturn(createSummaryResponse))
+                .doOnNext(resp-> log.info("summary result : {}",resp));
+    }
+
+    public Mono<LoadSummaryResponse> findFirstByTranscriptionId(String transcriptionId) {
+        return summaryRepository.findFirstByTranscriptionIdOrderByCreatedAtDesc(transcriptionId)
+                .flatMap(summary -> Mono.just(new LoadSummaryResponse(summary)));
     }
 
     private Mono<Transcription> saveTranscription(SttResponseDto sttResponseDto,String fileName) {
         Transcription transcription = Transcription.of(sttResponseDto,fileName);
         return transcriptionRepository.save(transcription);
+    }
+
+    private Mono<Summary> saveSummary(CreateSummaryResponse createSummaryResponse,SummaryControllerDto summaryControllerDto) {
+        Summary summary= Summary.of(createSummaryResponse.getSummary(),summaryControllerDto.getTranscriptionId());
+        return summaryRepository.save(summary);
     }
 }
