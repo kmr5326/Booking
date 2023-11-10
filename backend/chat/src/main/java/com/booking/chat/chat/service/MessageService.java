@@ -38,6 +38,7 @@ public class MessageService {
         save(kafkaMessage, chatroomId)
             .retry(3L)
             .then(Mono.fromRunnable(() -> proceedMessageSendProcess(kafkaMessage, chatroomId)))
+            .doOnError(x -> log.info(" optimistic error by {} ", x.toString()))
             .subscribe();
     }
 
@@ -95,7 +96,11 @@ public class MessageService {
                                                                                 .readCount(readCount)
                                                                                 .build()))
                                                          .flatMap(messageRepository::save)
-                                      );
+                                      ).flatMap(savedMessage -> {
+                                          chatroom.updateListMessageReceived();
+                                          chatroom.updateLastMessage(savedMessage.getContent());
+                                          return chatroomService.save(chatroom);
+                                      });
                               })
                               .then();
     }
