@@ -52,6 +52,7 @@ class BookSearchViewModel @Inject constructor(
             _getBookSearchResponse.value = bookSearchUseCase.getBookSearch(title)
         }
 
+
     // GET - 최신 도서 조회
     private val _getBookLatestResponse = MutableLiveData<Response<List<BookSearchResponse>>>()
     val getBookLatestResponse: LiveData<Response<List<BookSearchResponse>>> get() = _getBookLatestResponse
