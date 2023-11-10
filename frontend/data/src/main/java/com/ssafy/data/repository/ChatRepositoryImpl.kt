@@ -35,5 +35,11 @@ class ChatRepositoryImpl @Inject constructor(private val chatApi: ChatApi) : Cha
     ): List<MessageResponse> {
         return chatApi.postLastReadMessage(chatroomId, request)
     }
+
+    override suspend fun deleteDisconnectSocket(
+        chatroomId: Int,
+    ): Response<Unit> {
+        return chatApi.deleteDisconnectSocket(chatroomId)
+    }
 }
 

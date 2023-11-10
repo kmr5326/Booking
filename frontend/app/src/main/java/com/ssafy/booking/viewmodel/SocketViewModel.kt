@@ -100,10 +100,10 @@ class SocketViewModel @Inject constructor(
                         messageEntity.chatroomId,
                         messageEntity.messageId
                     )
-                    if (existingEntity == null) {
+                    if (existingEntity == null || existingEntity.readCount != messageEntity.readCount) {
                         messageDao.insertMessage(messageEntity)
                     } else {
-                        Log.d("CHAT_DETAIL", "중복된 message!!")
+                        Log.d("CHAT_DETAIL", "중복된 메시지가 처리되었습니다.")
                     }
                 }
             } catch (e: Exception) {
@@ -166,8 +166,12 @@ class SocketViewModel @Inject constructor(
         }
     }
 
-    fun disconnectChat() {
-        topic.dispose() // 구독 해지
-        stompConnection.dispose() // STOMP 연결 해지
+    fun disconnectChat(chatId: String) {
+        viewModelScope.launch {
+            Log.d("DISCONNECT", "${chatId} 나가기")
+            topic.dispose() // 구독 해지
+            stompConnection.dispose() // STOMP 연결 해지
+            chatUseCase.deleteDisconnectSocket(chatId.toInt())
+        }
     }
 }

@@ -12,7 +12,7 @@ interface MessageDao {
     @Query("SELECT * FROM messageEntity WHERE chatroom_id = :chatroomId ORDER BY time_stamp")
     fun getLatestMessage(chatroomId: Int): LiveData<List<MessageEntity>>
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertMessage(vararg messages: MessageEntity)
 
     @Query("SELECT * FROM messageEntity WHERE chatroom_id = :chatroomId AND message_id = :messageId")

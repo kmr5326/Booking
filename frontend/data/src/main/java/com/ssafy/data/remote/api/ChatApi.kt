@@ -35,4 +35,10 @@ interface ChatApi {
         @Path("chatroomId") chatroomId: Int,
         @Body request: LastReadMessageRequest
     ): List<MessageResponse>
+
+    @Headers("Content-Type: application/json")
+    @POST("/api/chat/room/{chatroomId}")
+    suspend fun deleteDisconnectSocket(
+        @Path("chatroomId") chatroomId: Int,
+    ): Response<Unit>
 }

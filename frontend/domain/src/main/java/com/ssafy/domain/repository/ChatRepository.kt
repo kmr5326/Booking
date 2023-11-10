@@ -15,4 +15,5 @@ interface ChatRepository {
     suspend fun postChatJoin(request: ChatJoinRequest) : Response<Unit>
     suspend fun postChatExit(request: ChatExitRequest) : Response<Unit>
     suspend fun postLastReadMessage(chatroomId: Int, request: LastReadMessageRequest) : List<MessageResponse>
+    suspend fun deleteDisconnectSocket(chatroomId: Int) : Response<Unit>
 }

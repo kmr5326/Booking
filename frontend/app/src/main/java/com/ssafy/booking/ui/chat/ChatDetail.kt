@@ -133,7 +133,8 @@ fun ChatDetail(
     // 나갈 때 소켓 연결 해제
     DisposableEffect(chatId) {
         onDispose {
-            socketViewModel.disconnectChat()
+            if(chatId != null)
+            socketViewModel.disconnectChat(chatId)
         }
     }
 
@@ -283,17 +284,19 @@ fun MessageItem(
     val prevDate = previousMessage?.timeStamp?.let { formatDate(it) }
     val curDate = formatDate(message.timeStamp)
 
+    // 날짜 표시
     if(prevDate == null || curDate != prevDate) {
         Row(
             modifier = Modifier
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .padding(8.dp),
             horizontalArrangement = Arrangement.Center
         ) {
             Text(
                 text = curDate,
                 modifier = Modifier
                     .background(
-                        color = Color(0xFF556677),
+                        color = Color(0xFF5284AC),
                         shape = RoundedCornerShape(10.dp)
                     )
                     .padding(8.dp)
@@ -377,13 +380,22 @@ fun MessageItem(
                     if (!isOwnMessage &&
                         (nextMessage == null || nextTime != curTime || nextMessage.senderId != message.senderId)
                     ) {
+
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text(
-                            text = curTime,
-                            fontSize = 12.sp,
-                            color = Color(0xFF556677),
-                            modifier = Modifier.align(Alignment.Bottom)
-                        )
+                        Column(modifier = Modifier.align(Alignment.Bottom)){
+                            if (message.readCount!! > 0) {
+                                Text(
+                                    text = "${message.readCount}",
+                                    fontSize = 12.sp,
+                                    color = Color(0xFFFEF01B),
+                                )
+                            }
+                            Text(
+                                text = curTime,
+                                fontSize = 12.sp,
+                                color = Color(0xFF556677),
+                            )
+                        }
                     }
                 }
             }

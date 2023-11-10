@@ -24,5 +24,8 @@ class ChatUseCase @Inject constructor(private val repository: ChatRepository) {
     suspend fun postLastReadMessage(chatroomId: Int, request: LastReadMessageRequest) : List<MessageResponse> {
         return repository.postLastReadMessage(chatroomId, request)
     }
+    suspend fun deleteDisconnectSocket(chatroomId: Int) : Response<Unit> {
+        return repository.deleteDisconnectSocket(chatroomId)
+    }
 
 }
