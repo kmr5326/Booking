@@ -25,7 +25,7 @@ class MessageRepositoryTest {
     void t1() throws Exception {
 
         Message testMessage = Message.builder()
-                                     ._id(1L)
+                                     ._id("123")
                                      .memberId(1L)
                                      .chatroomId(1L)
                                      .content("하이")

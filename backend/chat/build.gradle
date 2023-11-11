@@ -75,6 +75,9 @@ dependencies {
 	implementation group: 'org.fluentd', name: 'fluent-logger', version: '0.3.4'
 	implementation group: 'com.sndyuk', name: 'logback-more-appenders', version: '1.8.8'
 
+	//firebase
+	implementation 'com.google.firebase:firebase-admin:9.2.0'
+
     //actuator
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-actuator', version: '3.1.0'
     //micrometer,prometheus
@@ -83,6 +86,10 @@ dependencies {
 
 	//firebase
 	implementation 'com.google.firebase:firebase-admin:9.2.0'
+
+	//redis
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis-reactive:3.1.5'
+
 
 }
 
