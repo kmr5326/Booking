@@ -7,6 +7,7 @@ import com.booking.booking.meeting.dto.response.MeetingDetailResponse;
 import com.booking.booking.meeting.dto.response.MeetingListResponse;
 import com.booking.booking.meeting.service.MeetingService;
 import com.booking.booking.meetinginfo.dto.request.MeetingInfoRequest;
+import com.booking.booking.post.dto.request.PostRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -118,6 +119,29 @@ public class MeetingController {
                         Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, error.getMessage())));
     }
 
+    @PostMapping("/{meetingId}/reject/{memberId}")
+    public Mono<ResponseEntity<Void>> rejectMeeting(@RequestHeader(AUTHORIZATION) String token,
+                                                    @PathVariable("meetingId") Long meetingId,
+                                                    @PathVariable("memberId") Integer memberId) {
+        String userEmail = JwtUtil.getLoginEmailByToken(token);
+
+        return meetingService.rejectMeeting(userEmail, meetingId, memberId)
+                .thenReturn(ResponseEntity.ok().<Void>build())
+                .onErrorResume(error ->
+                        Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, error.getMessage())));
+    }
+
+    @DeleteMapping("/{meetingId}/exit")
+    public Mono<ResponseEntity<Void>> exitMeeting(@RequestHeader(AUTHORIZATION) String token,
+                                                  @PathVariable("meetingId") Long meetingId) {
+        String userEmail = JwtUtil.getLoginEmailByToken(token);
+
+        return meetingService.exitMeeting(userEmail, meetingId)
+                .thenReturn(ResponseEntity.ok().<Void>build())
+                .onErrorResume(error ->
+                        Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, error.getMessage())));
+    }
+
     @PostMapping("/info/")
     public Mono<ResponseEntity<Void>> createDetailedMeeting(@RequestHeader(AUTHORIZATION) String token,
                                                             @RequestBody MeetingInfoRequest meetingInfoRequest) {
@@ -147,6 +171,17 @@ public class MeetingController {
 
         return meetingService.deleteMeeting(userEmail, meetingId)
                 .thenReturn(ResponseEntity.ok().<Void>build())
+                .onErrorResume(error ->
+                        Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, error.getMessage())));
+    }
+
+    @PostMapping("/post/")
+    public Mono<ResponseEntity<Long>> createPost(@RequestHeader(AUTHORIZATION) String token,
+                                                 @RequestBody PostRequest postRequest) {
+        String userEmail = JwtUtil.getLoginEmailByToken(token);
+
+        return meetingService.createPost(userEmail, postRequest)
+                .map(post -> ResponseEntity.ok().body(post.getPostId()))
                 .onErrorResume(error ->
                         Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, error.getMessage())));
     }
