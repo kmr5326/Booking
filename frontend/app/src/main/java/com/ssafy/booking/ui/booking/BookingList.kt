@@ -131,7 +131,6 @@ fun BookList(navController: NavController, appViewModel: AppViewModel,bookingVie
     // response가 not null 이면 바디 추출
     val bookingAllList = bookingAllListState?.body()
     LazyColumn(
-
         modifier = Modifier
             .fillMaxSize()
             .fillMaxHeight()
@@ -291,6 +290,9 @@ fun HomeTopBar(navController: NavController, appViewModel: AppViewModel) {
                 modifier = Modifier
                     .align(Alignment.CenterStart)
                     .padding(top = 10.dp)
+                    .clickable {
+                        navController.navigate("setting/address")
+                    }
             ) {
                 Text(text = "하남동", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color(0xFFffffff))
                 Icon(Icons.Filled.ArrowDropDown, contentDescription = null, tint = Color(0xFFffffff))

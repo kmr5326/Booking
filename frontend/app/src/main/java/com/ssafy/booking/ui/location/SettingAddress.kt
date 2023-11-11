@@ -37,14 +37,13 @@ import com.ssafy.booking.viewmodel.AppViewModel
 fun SettingAddress(
     navController: NavController,
     appViewModel: AppViewModel
-) {
+)
 
-
+{
     Column {
         Text(text = "내 동네 설정")
         SearchInput()
         SetCurrentLocation()
-        // 이 밑에 지도 띄우고 현재 위치 띄우면 되지 않을까?
     }
     // 제목
 }
@@ -80,7 +79,9 @@ fun SearchInput() {
 // 현재 위치로 설정
 @Composable
 fun SetCurrentLocation() {
-    Row {
+    Row(
+
+    ) {
         Icon(Icons.Outlined.LocationOn, contentDescription = null, tint = Color(0xFF12BD7E))
         Text(text = "현재 내 위치로 설정")
         Icon(Icons.Outlined.KeyboardArrowRight, contentDescription = null, tint = Color(0xFF12BD7E))

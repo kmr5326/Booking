@@ -182,7 +182,7 @@ fun Route(googleSignInClient: GoogleSignInClient) {
                 MyBookDetail(isbn)
             }
             composable("setting/address") {
-                SettingAddress()
+                SettingAddress(navController, appViewModel)
             }
         }
     }
