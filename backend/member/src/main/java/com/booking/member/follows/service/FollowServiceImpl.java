@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,34 +26,34 @@ public class FollowServiceImpl implements FollowService{
     private final MemberRepository memberRepository;
     private final FollowRepository followRepository;
     @Override
-    public Mono<Void> follow(String loginId, String targetNickname) {
+    public Mono<Void> follow(String loginId, Integer targetMemberPk) {
         Member member=memberRepository.findByLoginId(loginId);
-        Member target=memberRepository.findByNickname(targetNickname);
-        if(target==null){
+        Optional<Member> target=memberRepository.findById(targetMemberPk);
+        if(target.isEmpty()){
             log.error("팔로우 에러 대상 없음");
             return Mono.error(new UsernameNotFoundException("사용자 찾을 수 없음"));
         }
-        if(followRepository.findByFollowerAndFollowing(member,target)!=null){
+        if(followRepository.findByFollowerAndFollowing(member,target.get())!=null){
             log.error("이미 팔로우 상태입니다.");
             return Mono.error(new RuntimeException("이미 팔로우 상태입니다."));
         }
         Follow follow=Follow.builder()
                 .follower(member)
-                .following(target)
+                .following(target.get())
                 .build();
         followRepository.save(follow);
         return Mono.empty();
     }
 
     @Override
-    public Mono<Void> unfollow(String loginId, String targetNickname) {
+    public Mono<Void> unfollow(String loginId, Integer targetMemberPk) {
         Member member=memberRepository.findByLoginId(loginId);
-        Member target=memberRepository.findByNickname(targetNickname);
-        if(target==null){
+        Optional<Member> target=memberRepository.findById(targetMemberPk);
+        if(target.isEmpty()){
             log.error("언팔로우 에러 대상 없음");
             return Mono.error(new UsernameNotFoundException("사용자 찾을 수 없음"));
         }
-        Follow follow=followRepository.findByFollowerAndFollowing(member,target);
+        Follow follow=followRepository.findByFollowerAndFollowing(member,target.get());
         if(follow==null){
             log.error("팔로우 상태가 아닙니다.");
             return Mono.error(new RuntimeException("팔로우 상태가 아닙니다."));
@@ -62,14 +63,15 @@ public class FollowServiceImpl implements FollowService{
     }
 
     @Override
-    public Mono<FollowersResponseDto> getFollowers(String nickname) {
-        Member member=memberRepository.findByNickname(nickname);
-        if(member==null)return Mono.error(new UsernameNotFoundException("사용자 찾을 수 없음"));
-        List<Follow> followers=followRepository.findByFollowing(member);
+    public Mono<FollowersResponseDto> getFollowers(Integer memberPk) {
+        Optional<Member> member=memberRepository.findById(memberPk);
+        if(member.isEmpty())return Mono.error(new UsernameNotFoundException("사용자 찾을 수 없음"));
+        List<Follow> followers=followRepository.findByFollowing(member.get());
         List<Follower> followerDetails = followers.stream()
                 .map(follow -> {
                     Member followerMember = follow.getFollower();
                     return new Follower(
+                            followerMember.getId(),
                             followerMember.getNickname(),
                             followerMember.getProfileImage()
                     );
@@ -85,14 +87,15 @@ public class FollowServiceImpl implements FollowService{
     }
 
     @Override
-    public Mono<FollowingsResponseDto> getFollowings(String nickname) {
-        Member member=memberRepository.findByNickname(nickname);
-        if(member==null)return Mono.error(new UsernameNotFoundException("사용자 찾을 수 없음"));
-        List<Follow> followings=followRepository.findByFollower(member);
+    public Mono<FollowingsResponseDto> getFollowings(Integer memberPk) {
+        Optional<Member> member=memberRepository.findById(memberPk);
+        if(member.isEmpty())return Mono.error(new UsernameNotFoundException("사용자 찾을 수 없음"));
+        List<Follow> followings=followRepository.findByFollower(member.get());
         List<Following> followingsDetails = followings.stream()
                 .map(follow -> {
                     Member followingMember= follow.getFollowing();
                     return new Following(
+                            followingMember.getId(),
                             followingMember.getNickname(),
                             followingMember.getProfileImage()
                     );

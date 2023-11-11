@@ -1,7 +1,7 @@
 package com.booking.book.memberbook.dto.request;
 
 public record MemberBookRegistRequest(
-    String nickname,
+    Integer memberPk,
     String bookIsbn
 ) {
 

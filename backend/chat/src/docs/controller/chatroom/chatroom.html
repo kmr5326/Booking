@@ -648,11 +648,15 @@ Host: localhost:8080</code></pre>
 <div class="content">
 <pre class="CodeRay highlight nowrap"><code>[ {
   &quot;chatroomId&quot; : 1,
-  &quot;meetingTitle&quot; : &quot;미팅 이름&quot;,
+  &quot;lastMessageIdx&quot; : 1,
+  &quot;meetingTitle&quot; : &quot;meetingTitle&quot;,
+  &quot;lastMessage&quot; : &quot;lastMessage&quot;,
   &quot;memberList&quot; : [ 1, 2, 3 ]
 }, {
   &quot;chatroomId&quot; : 2,
-  &quot;meetingTitle&quot; : &quot;미팅 이름2&quot;,
+  &quot;lastMessageIdx&quot; : 1,
+  &quot;meetingTitle&quot; : &quot;meetingTitle2&quot;,
+  &quot;lastMessage&quot; : &quot;lastMessage2&quot;,
   &quot;memberList&quot; : [ 1, 2, 3 ]
 } ]</code></pre>
 </div>
@@ -679,12 +683,22 @@ Host: localhost:8080</code></pre>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>[].chatroomId</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">모임 PK</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">채팅방 PK</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[].lastMessageIdx</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">마지막 메세지 PK</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>[].meetingTitle</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">미팅방 이름</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[].lastMessage</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">마지막 수신된 메세지</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>[].memberList[]</code></p></td>
@@ -697,17 +711,202 @@ Host: localhost:8080</code></pre>
 <div class="content">
 <pre class="CodeRay highlight nowrap"><code data-lang="http">HTTP/1.1 200 OK
 Content-Type: application/json
-Content-Length: 191
+Content-Length: 308
 
 [ {
   &quot;chatroomId&quot; : 1,
-  &quot;meetingTitle&quot; : &quot;미팅 이름&quot;,
+  &quot;lastMessageIdx&quot; : 1,
+  &quot;meetingTitle&quot; : &quot;meetingTitle&quot;,
+  &quot;lastMessage&quot; : &quot;lastMessage&quot;,
   &quot;memberList&quot; : [ 1, 2, 3 ]
 }, {
   &quot;chatroomId&quot; : 2,
-  &quot;meetingTitle&quot; : &quot;미팅 이름2&quot;,
+  &quot;lastMessageIdx&quot; : 1,
+  &quot;meetingTitle&quot; : &quot;meetingTitle2&quot;,
+  &quot;lastMessage&quot; : &quot;lastMessage2&quot;,
   &quot;memberList&quot; : [ 1, 2, 3 ]
 } ]</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_채팅방_접속">채팅방 접속</h3>
+<div class="sect3">
+<h4 id="_http_request_5">Http Request</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="http">POST /api/chat/room/1 HTTP/1.1
+Authorization: Bearer: token
+Content-Type: application/json
+Content-Length: 30
+Host: localhost:8080
+
+{
+  &quot;lastMessageIndex&quot; : 1
+}</code></pre>
+</div>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 1. /api/chat/room/{chatroomId}</caption>
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Parameter</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>chatroomId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">채팅방 PK</p></td>
+</tr>
+</tbody>
+</table>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight nowrap"><code>{
+  &quot;lastMessageIndex&quot; : 1
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_http_response_5">Http Response</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight nowrap"><code>[ {
+  &quot;chatroomId&quot; : 1,
+  &quot;messageId&quot; : 2,
+  &quot;senderId&quot; : 3,
+  &quot;content&quot; : &quot;HELLO WEB FLUX!!!!!&quot;,
+  &quot;readCount&quot; : 2,
+  &quot;timestamp&quot; : [ 2023, 11, 9, 13, 34, 4, 727212500 ]
+}, {
+  &quot;chatroomId&quot; : 2,
+  &quot;messageId&quot; : 4,
+  &quot;senderId&quot; : 3,
+  &quot;content&quot; : &quot;BYE WEB FLUX!!!!!&quot;,
+  &quot;readCount&quot; : 5,
+  &quot;timestamp&quot; : [ 2023, 11, 9, 13, 34, 4, 727212500 ]
+} ]</code></pre>
+</div>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Path</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[]</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Array</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">요청한 시점부터의 마지막까지의 메세지</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[].chatroomId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">채팅방 PK</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[].messageId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">메세지 ID</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[].senderId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">메세지 보낸 회원 PK</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[].content</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">메세지 내용</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[].readCount</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">안읽은 사람 수</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[].timestamp</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Array</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">메세지 전송 시각</p></td>
+</tr>
+</tbody>
+</table>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="http">HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 358
+
+[ {
+  &quot;chatroomId&quot; : 1,
+  &quot;messageId&quot; : 2,
+  &quot;senderId&quot; : 3,
+  &quot;content&quot; : &quot;HELLO WEB FLUX!!!!!&quot;,
+  &quot;readCount&quot; : 2,
+  &quot;timestamp&quot; : [ 2023, 11, 9, 13, 34, 4, 727212500 ]
+}, {
+  &quot;chatroomId&quot; : 2,
+  &quot;messageId&quot; : 4,
+  &quot;senderId&quot; : 3,
+  &quot;content&quot; : &quot;BYE WEB FLUX!!!!!&quot;,
+  &quot;readCount&quot; : 5,
+  &quot;timestamp&quot; : [ 2023, 11, 9, 13, 34, 4, 727212500 ]
+} ]</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_채팅방_연결_끊길_때_보내는_api">채팅방 연결 끊길 때 보내는 api</h3>
+<div class="sect3">
+<h4 id="_http_request_6">Http Request</h4>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 2. /api/chat/room/{chatroomId}</caption>
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Parameter</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>chatroomId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">채팅방 PK</p></td>
+</tr>
+</tbody>
+</table>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="http">DELETE /api/chat/room/1 HTTP/1.1
+Authorization: Bearer: token
+Host: localhost:8080</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_http_response_6">Http Response</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="http">HTTP/1.1 204 No Content</code></pre>
 </div>
 </div>
 </div>
@@ -717,7 +916,7 @@ Content-Length: 191
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2023-11-02 01:04:46 +0900
+Last updated 2023-11-09 13:58:07 +0900
 </div>
 </div>
 </body>
