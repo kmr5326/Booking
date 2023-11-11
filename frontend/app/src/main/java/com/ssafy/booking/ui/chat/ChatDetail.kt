@@ -3,6 +3,7 @@ package com.ssafy.booking.ui.chat
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,6 +27,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.Button
@@ -73,6 +75,7 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.ssafy.booking.R
 import com.ssafy.booking.di.App
+import com.ssafy.booking.ui.LocalNavigation
 import com.ssafy.booking.ui.common.TopBarChat
 import com.ssafy.booking.viewmodel.ChatViewModel
 import com.ssafy.booking.viewmodel.MyPageViewModel
@@ -306,6 +309,7 @@ fun MessageItem(
     memberId: Long?,
     userInfoMap: MutableMap<Long, UserInfoResponseByPk>
 ) {
+    val navController = LocalNavigation.current
     val isOwnMessage = message.senderId?.toLong() == memberId
     val userInfo = userInfoMap[message.senderId?.toLong()]
 
@@ -363,6 +367,9 @@ fun MessageItem(
                         .size(48.dp)
                         .clip(RoundedCornerShape(20.dp))
                         .border(1.dp, Color.Gray, RoundedCornerShape(20.dp))
+                        .clickable {
+                        navController.navigate("profile/${userInfo?.memberPk}")
+                    }
                 )
             } else {
                 Spacer(modifier = Modifier.width(48.dp))
@@ -398,17 +405,19 @@ fun MessageItem(
                     }
 
                     // 내용
-                    Text(
-                        text = "${message.content}",
-                        modifier = Modifier
-                            .background(
-                                color = if (isOwnMessage) Color(0xFFFEF01B) else Color.White,
-                                shape = RoundedCornerShape(10.dp)
-                            )
-                            .padding(8.dp)
-                            .widthIn(max = 220.dp),
-                        color = Color.Black
-                    )
+                    SelectionContainer {
+                        Text(
+                            text = "${message.content}",
+                            modifier = Modifier
+                                .background(
+                                    color = if (isOwnMessage) Color(0xFFFEF01B) else Color.White,
+                                    shape = RoundedCornerShape(10.dp)
+                                )
+                                .padding(8.dp)
+                                .widthIn(max = 220.dp),
+                            color = Color.Black
+                        )
+                    }
 
                     // 다른 사람의 메시지인 경우, 메시지 뒤에 시간을 표시
                     if (!isOwnMessage &&
