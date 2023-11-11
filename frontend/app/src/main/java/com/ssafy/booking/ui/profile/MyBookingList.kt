@@ -23,10 +23,14 @@ import com.ssafy.booking.ui.LocalNavigation
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MyBookingList() {
+fun MyBookingList(
+    data: ProfileData
+) {
     Scaffold(
         floatingActionButton = {
-            MyBookingFloatingActionButton()
+            if(data.isI) {
+                MyBookingFloatingActionButton()
+            }
         }
     ) {paddingValues->
         Column(
