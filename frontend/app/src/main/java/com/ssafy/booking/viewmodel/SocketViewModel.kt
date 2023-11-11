@@ -18,7 +18,6 @@ import com.ssafy.data.utils.LocalDateTimeSerializer
 import com.ssafy.domain.model.KafkaMessage
 import com.ssafy.domain.model.LastReadMessageRequest
 import com.ssafy.domain.model.mypage.UserInfoResponseByPk
-import com.ssafy.domain.repository.ChatRepository
 import com.ssafy.domain.usecase.ChatUseCase
 import com.ssafy.domain.usecase.MyPageUseCase
 import com.ssafy.domain.usecase.OkhttpService
@@ -41,9 +40,6 @@ class SocketViewModel @Inject constructor(
     private val chatUseCase: ChatUseCase,
     private val myPageUseCase: MyPageUseCase,
 ) : ViewModel() {
-
-    val logger = Logger.getLogger("STOMP")
-
     lateinit var stompConnection: Disposable
     lateinit var topic: Disposable
     private val bookingwss = "wss://k9c206.p.ssafy.io:10001/booking/chat"
@@ -72,21 +68,24 @@ class SocketViewModel @Inject constructor(
 
     private val _finalMessages = MutableLiveData<List<MessageEntity>>()
     val finalMessages: LiveData<List<MessageEntity>> get() = _finalMessages
-
     private var allMessagesSource: LiveData<List<MessageEntity>>? = null
     private var latestMessagesSource: LiveData<List<MessageEntity>>? = null
 
     // 전체 메시지 불러오기
     fun loadAllMessage(chatId: Int) {
-        allMessagesSource = messageDao.getAllMessage(chatId).also {
-            Log.d("CHAT", "SOCKETVM 전체 메시지 갱신")
-            it.observeForever { allMessages ->
-                _finalMessages.postValue(allMessages)
-            }
+        Log.d("CHAT", "loadAllMessage Start")
+        viewModelScope.launch {
+            messageDao.getAllMessage(chatId).asFlow()
+                .collect { allMessages ->
+                    _finalMessages.postValue(allMessages)
+                }
         }
+        Log.d("CHAT", "loadAllMessage End")
     }
 
     fun loadMoreMessages(chatId: Int) {
+        Log.d("CHAT", "loadMoreMessages Start")
+
         viewModelScope.launch {
             val currentMessages = _finalMessages.value.orEmpty()
             if (currentMessages.isNotEmpty()) {
@@ -100,10 +99,14 @@ class SocketViewModel @Inject constructor(
                 }
             }
         }
+        Log.d("CHAT", "loadMoreMessages End")
+
     }
 
     // 로컬에 있지만 불러오지 않은 메시지 불러오기
     fun loadLatestMessage(chatId: Int) {
+        Log.d("CHAT", "loadLatestMessage Start")
+
         viewModelScope.launch {
             messageDao.getUnusedMessage(chatId).asFlow()
                 .distinctUntilChanged()  // 중복 데이터 제거
@@ -117,6 +120,8 @@ class SocketViewModel @Inject constructor(
                     }
                 }
         }
+        Log.d("CHAT", "loadLatestMessage End")
+
     }
 
     private val _setPollingMessage = MutableLiveData<Boolean>(false)
@@ -124,6 +129,7 @@ class SocketViewModel @Inject constructor(
     private var PollingJob: Job? = null
     fun starMessagePolling(chatId: Int) {
         PollingJob = viewModelScope.launch(Dispatchers.Main) {
+            delay(1000)
             while (isActive) {
                 loadLatestMessage(chatId)
                 Log.d("CHAT", "SOCKETVM 목록 갱신")
@@ -269,6 +275,12 @@ class SocketViewModel @Inject constructor(
             stompConnection.dispose() // STOMP 연결 해지
             chatUseCase.deleteDisconnectSocket(chatId.toInt())
         }
+    }
+
+    fun onChatRoomChanged() {
+        // 메시지 목록을 초기화하고 새 채팅방의 메시지를 로드
+        _finalMessages.value = emptyList()
+        _userInfoMap.value = emptyMap()
     }
 
 }

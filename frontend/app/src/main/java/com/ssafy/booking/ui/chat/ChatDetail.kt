@@ -125,6 +125,11 @@ fun ChatDetail(
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(topBarState)
     val coroutineScope = rememberCoroutineScope()
 
+    LaunchedEffect(chatId) {
+        socketViewModel.onChatRoomChanged()
+        listState.scrollToItem(index = 0)
+    }
+
     // 최신 메시지 폴링 시작
     LaunchedEffect(Unit) {
         if (chatId != null) {
@@ -158,7 +163,10 @@ fun ChatDetail(
     LaunchedEffect(isLoading, messages) {
         if (!isLoading && messages.isNotEmpty()) {
             coroutineScope.launch {
-                listState.animateScrollToItem(index = messages.size - 1)
+                if (messages.isNotEmpty()) {
+
+                    listState.animateScrollToItem(index = messages.size - 1)
+                }
             }
         }
     }
@@ -169,8 +177,6 @@ fun ChatDetail(
             Log.d("CHAT", "listState ${listState.firstVisibleItemIndex}")
         }
     }
-
-
 
     // 자신의 정보 불러오기
     var memberId by remember { mutableStateOf<Long?>(null) }
@@ -195,6 +201,7 @@ fun ChatDetail(
             }
         }
     }
+
 
     val reversedMessages = messages.reversed()
 
@@ -318,11 +325,13 @@ fun MessageList(
     listState: LazyListState,
     messages: List<MessageEntity>,
     memberId: Long?,
-    userInfoMap:  Map<Long, UserInfoResponseByPk>
+    userInfoMap: Map<Long, UserInfoResponseByPk>
 ) {
     LaunchedEffect(messages.size) {
         if (listState.isScrolledToTheBottom()) {
-            listState.animateScrollToItem(messages.size - 1)
+            if (messages.isNotEmpty()) {
+                listState.animateScrollToItem(messages.size - 1)
+            }
         }
     }
 
@@ -352,7 +361,7 @@ fun MessageItem(
     previousMessage: MessageEntity?,
     nextMessage: MessageEntity?,
     memberId: Long?,
-    userInfoMap:  Map<Long, UserInfoResponseByPk>
+    userInfoMap: Map<Long, UserInfoResponseByPk>
 ) {
     val navController = LocalNavigation.current
     val isOwnMessage = message.senderId?.toLong() == memberId
