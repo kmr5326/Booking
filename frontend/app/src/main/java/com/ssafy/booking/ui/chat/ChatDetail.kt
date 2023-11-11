@@ -79,6 +79,8 @@ import com.ssafy.data.room.entity.MessageEntity
 import com.ssafy.domain.model.ChatExitRequest
 import com.ssafy.domain.model.KafkaMessage
 import com.ssafy.domain.model.mypage.UserInfoResponseByPk
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -102,6 +104,21 @@ fun ChatDetail(
         }
     }
 
+    // 최신 메시지 폴링 시작
+    LaunchedEffect(Unit) {
+        if (chatId != null) {
+            socketViewModel.setPollingMessage(chatId.toInt(), true)
+        }
+    }
+    // 최신 메시지 폴링 중지
+    DisposableEffect(Unit) {
+        onDispose {
+            if (chatId != null) {
+                socketViewModel.setPollingMessage(chatId.toInt(), false)
+            }
+        }
+    }
+
     val messages by socketViewModel.finalMessages.observeAsState(initial = emptyList())
 
     // 소켓 연결 + 읽었다고 보내기
@@ -111,7 +128,7 @@ fun ChatDetail(
             socketViewModel.postLastReadMessageId(chatId.toInt())
         }
     }
-    
+
     // 자신의 정보 불러오기
     var memberId by remember { mutableStateOf<Long?>(null) }
     var nickname by remember { mutableStateOf("") }
@@ -127,14 +144,14 @@ fun ChatDetail(
         nickname = response.body()?.nickname ?: ""
     }
 
-    
+
     // UI 상태
     val listState = rememberLazyListState()
     val topBarState = rememberTopAppBarState()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(topBarState)
     val coroutineScope = rememberCoroutineScope()
-    
+
     // 나갈 때 소켓 연결 해제
     DisposableEffect(chatId) {
         onDispose {
@@ -203,16 +220,26 @@ fun ChatDetail(
                             .imePadding(),
                         socketViewModel,
                         listState,
-                        messages.size,
+                        messages,
                         chatId,
                         memberId,
-                        nickname
+                        nickname,
+                        coroutineScope
                     )
                 }
             }
         }
     }
 }
+
+fun LazyListState.isScrolledToTheBottom(): Boolean {
+    if (layoutInfo.visibleItemsInfo.lastOrNull()?.index != null) {
+        return layoutInfo.visibleItemsInfo.lastOrNull()?.index!! >= layoutInfo.totalItemsCount - 5
+    } else {
+        return false
+    }
+}
+
 
 @Composable
 fun MessageList(
@@ -221,6 +248,12 @@ fun MessageList(
     messages: List<MessageEntity>,
     memberId: Long?
 ) {
+    LaunchedEffect(messages.size) {
+        if (listState.isScrolledToTheBottom()) {
+            listState.animateScrollToItem(messages.size - 1)
+        }
+    }
+
     val myPageViewModel: MyPageViewModel = hiltViewModel()
     // 메시지 아이템에 대한 유저 정보를 캐시하기 위한 맵
     val userInfoCache = remember { mutableMapOf<Long, UserInfoResponseByPk>() }
@@ -257,7 +290,6 @@ fun MessageList(
                 MessageItem(message, previousMessage, nextMessage, memberId, userInfoCache)
             }
         }
-
     }
 }
 
@@ -406,10 +438,11 @@ fun InputText(
     modifier: Modifier,
     socketViewModel: SocketViewModel,
     listState: LazyListState,
-    messagesSize: Int,
+    messages: List<MessageEntity>,
     chatId: String?,
     memberId: Long?,
-    nickname: String
+    nickname: String,
+    coroutineScope: CoroutineScope
 ) {
     var text by rememberSaveable(stateSaver = TextFieldValue.Saver) {
         mutableStateOf(TextFieldValue(""))
@@ -442,8 +475,12 @@ fun InputText(
                     sendTime = LocalDateTime.now(),
                     senderName = nickname
                 )
-                socketViewModel.sendMessage(message, chatId?.toLong())
                 text = TextFieldValue("")
+                coroutineScope.launch {
+                    socketViewModel.sendMessage(message, chatId?.toLong())
+                    delay(30)
+                    listState.animateScrollToItem(messages.size)
+                }
             },
             enabled = text.text.isNotBlank(),
             modifier = Modifier.padding(0.dp),
