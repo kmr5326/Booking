@@ -20,6 +20,7 @@ import com.ssafy.domain.model.LastReadMessageRequest
 import com.ssafy.domain.repository.ChatRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -131,12 +132,29 @@ class ChatViewModel @Inject constructor(
         }
     }
 
-    init {
-        viewModelScope.launch(Dispatchers.IO) {
+    // 목록 조회 폴링
+    private val _isChatHome = MutableLiveData<Boolean>(false)
+    val isChatHome: LiveData<Boolean> get() = _isChatHome
+    private var chatListJob: Job? = null
+    fun startChatListAutoUpdate() {
+        chatListJob = viewModelScope.launch(Dispatchers.IO) {
             while (isActive) {
-                loadChatList() // 채팅 목록을 로드하는 함수
-                delay(2000L) // 5초간 대기
+                loadChatList()
+                Log.d("CHAT_HOME", "목록 갱신")
+                delay(2000L)
             }
+        }
+    }
+    fun stopChatListAutoUpdate() {
+                Log.d("CHAT_HOME", "갱신 중지")
+        chatListJob?.cancel()
+    }
+    fun setIsChatHome(isHome: Boolean) {
+        _isChatHome.value = isHome
+        if (isHome) {
+            startChatListAutoUpdate()
+        } else {
+            stopChatListAutoUpdate()
         }
     }
 

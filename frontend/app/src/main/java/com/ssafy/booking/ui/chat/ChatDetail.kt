@@ -133,8 +133,9 @@ fun ChatDetail(
     // 나갈 때 소켓 연결 해제
     DisposableEffect(chatId) {
         onDispose {
-            if(chatId != null)
-            socketViewModel.disconnectChat(chatId)
+            if (chatId != null) {
+                socketViewModel.disconnectChat(chatId)
+            }
         }
     }
 
@@ -224,15 +225,15 @@ fun MessageList(
     val userInfoCache = remember { mutableMapOf<Long, UserInfoResponseByPk>() }
     LaunchedEffect(messages) {
         messages.forEach { message ->
-            message.senderId?.toLong()?.let {senderId ->
-                if(!userInfoCache.containsKey(senderId)) {
+            message.senderId?.toLong()?.let { senderId ->
+                if (!userInfoCache.containsKey(senderId)) {
                     myPageViewModel.getUserInfoResponseByPk(senderId.toInt())
                 }
             }
         }
     }
     LaunchedEffect(myPageViewModel.getUserInfoResponseByPk) {
-        myPageViewModel.getUserInfoResponseByPk.observeForever {response ->
+        myPageViewModel.getUserInfoResponseByPk.observeForever { response ->
             response.body()?.let { userInfo ->
                 userInfoCache[userInfo.memberPk] = userInfo
             }
@@ -285,7 +286,7 @@ fun MessageItem(
     val curDate = formatDate(message.timeStamp)
 
     // 날짜 표시
-    if(prevDate == null || curDate != prevDate) {
+    if (prevDate == null || curDate != prevDate) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -296,7 +297,7 @@ fun MessageItem(
                 text = curDate,
                 modifier = Modifier
                     .background(
-                        color = Color(0xFF5284AC),
+                        color = Color(0xFF8DA9BF),
                         shape = RoundedCornerShape(10.dp)
                     )
                     .padding(8.dp)
@@ -382,7 +383,7 @@ fun MessageItem(
                     ) {
 
                         Spacer(modifier = Modifier.width(4.dp))
-                        Column(modifier = Modifier.align(Alignment.Bottom)){
+                        Column(modifier = Modifier.align(Alignment.Bottom)) {
                             if (message.readCount!! > 0) {
                                 Text(
                                     text = "${message.readCount}",
@@ -466,7 +467,9 @@ fun formatTimestamp(timestamp: String): String {
     val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
     val timestampWithoutMilliseconds = timestamp.substringBefore('.')
     val dateTime = LocalDateTime.parse(timestampWithoutMilliseconds, formatter)
-    return "${dateTime.hour.toString().padStart(2, '0')}:${dateTime.minute.toString().padStart(2, '0')}"
+    return "${dateTime.hour.toString().padStart(2, '0')}:${
+        dateTime.minute.toString().padStart(2, '0')
+    }"
 }
 
 fun formatDate(timestamp: String): String {

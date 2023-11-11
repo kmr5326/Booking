@@ -25,6 +25,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -91,6 +92,17 @@ fun ChatHome(
         if (getUserInfoResponse != null) {
             Log.d("CHAT", "${getUserInfoResponse!!.body()}")
             memId = getUserInfoResponse!!.body()?.memberPk
+        }
+    }
+
+    // ChatHome 자동 목록 조회 시작
+    LaunchedEffect(Unit) {
+        chatViewModel.setIsChatHome(true)
+    }
+    // ChatHome 자동 목록 조회 중지
+    DisposableEffect(Unit) {
+        onDispose {
+            chatViewModel.setIsChatHome(false)
         }
     }
 
