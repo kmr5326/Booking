@@ -39,4 +39,38 @@ data class RoadAddress(
     @SerializedName("zone_no") val zoneNo: String
 )
 
+// Kakao Search
+
 // 카카오 장소 검색  API
+data class KakaoSearchResponse(
+    @SerializedName("meta") val searchMeta: SearchMeta,
+    @SerializedName("documents") val documents: List<SearchDocument>
+)
+
+data class SearchMeta(
+    @SerializedName("same_name") val sameName: SameName,
+    @SerializedName("pageable_count") val pageableCount: Int,
+    @SerializedName("total_count") val totalCount: Int,
+    @SerializedName("is_end") val isEnd: Boolean
+)
+
+data class SameName(
+    @SerializedName("region") val region: List<String>,
+    @SerializedName("keyword") val keyword: String,
+    @SerializedName("selected_region") val selectedRegion: String
+)
+
+data class SearchDocument(
+    @SerializedName("place_name") val placeName: String,
+    @SerializedName("distance") val distance: String,
+    @SerializedName("place_url") val placeUrl: String,
+    @SerializedName("category_name") val categoryName: String,
+    @SerializedName("address_name") val addressName: String,
+    @SerializedName("road_address_name") val roadAddressName: String,
+    @SerializedName("id") val id: String,
+    @SerializedName("phone") val phone: String,
+    @SerializedName("category_group_code") val categoryGroupCode: String,
+    @SerializedName("category_group_name") val categoryGroupName: String,
+    @SerializedName("x") val x: String,
+    @SerializedName("y") val y: String
+)

@@ -62,10 +62,16 @@ class NetworkModule {
     class AppInterceptor : Interceptor {
         @Throws(IOException::class)
         override fun intercept(chain: Interceptor.Chain): Response = with(chain) {
-            val accessToken = App.prefs.getToken() // ViewModel에서 지정한 key로 JWT 토큰을 가져온다.
-            val newRequest = request().newBuilder()
-                .addHeader("authorization", "Bearer $accessToken") // 헤더에 authorization라는 key로 JWT 를 넣어준다.
-                .build()
+            val request = request()
+            val newRequestBuilder = request.newBuilder()
+
+            // 카카오 API 요청인 경우, authorization 헤더를 추가하지 않음
+            if (!request.url.host.contains("dapi.kakao.com")) {
+                val accessToken = App.prefs.getToken() // JWT 토큰을 가져온다
+                newRequestBuilder.addHeader("authorization", "Bearer $accessToken") // 헤더에 JWT 추가
+            }
+
+            val newRequest = newRequestBuilder.build()
             proceed(newRequest)
         }
     }
