@@ -109,49 +109,28 @@ fun ChatDetail(
     val myPageViewModel: MyPageViewModel = hiltViewModel()
     val chatId = chatId ?: return
     val meetingTitle = meetingTitle ?: return
-//    Log.d("CHAT", "DETAIL ${meetingTitle}")
     val memberList = memberListString?.split(",")?.map { it.toInt() } ?: return
-    val userInfoMap = remember { mutableMapOf<Long, UserInfoResponseByPk>() }
-//    Log.d("CHAT", "DETAIL 멤버리스트 ${memberList}")
-    LaunchedEffect(memberList) {
-        memberList.forEach { memberId ->
-            myPageViewModel.getUserInfoResponseByPk(memberId.toLong())
-        }
-    }
-    val userInfoResponse = myPageViewModel.getUserInfoResponseByPk.observeAsState()
-    userInfoResponse.value?.body()?.let { userInfo ->
-        userInfoMap[userInfo.memberPk] = userInfo
-    }
+    Log.d("CHAT", "memberListSize ${memberList.size}")
+    val userInfoMap by socketViewModel.userInfoMap.observeAsState(emptyMap())
 
 //    Log.d("CHAT", "DETAIL 유저맵 ${userInfoMap}")
 
     val messages by socketViewModel.finalMessages.observeAsState(initial = emptyList())
 
     // UI 상태
+    var isLoading by remember { mutableStateOf(true) }
     val listState = rememberLazyListState()
     val topBarState = rememberTopAppBarState()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(topBarState)
     val coroutineScope = rememberCoroutineScope()
 
-    // 최초 모든 메시지 갱신
-    LaunchedEffect(chatId) {
-        if (chatId != null) {
-            socketViewModel.loadAllMessage(chatId.toInt())
-            delay(1000)
-        }
-    }
-//    Log.d("CHAT", "DETAIL 스크롤 내리기 messageSize ${messages.size}")
-    // 스크롤 내리기
-//    LaunchedEffect(messages.size) {
-//        if (messages != null && messages.size > 10) {
-//            listState.animateScrollToItem(messages.size - 1)
-//        }
-//    }
     // 최신 메시지 폴링 시작
     LaunchedEffect(Unit) {
         if (chatId != null) {
+            socketViewModel.loadAllMessage(chatId.toInt())
             socketViewModel.setPollingMessage(chatId.toInt(), true)
+            isLoading = false
         }
     }
     // 최신 메시지 폴링 중지
@@ -169,6 +148,29 @@ fun ChatDetail(
             socketViewModel.postLastReadMessageId(chatId.toInt())
         }
     }
+
+    LaunchedEffect(messages) {
+        memberList.forEach { memberId ->
+            socketViewModel.loadUserInfo(memberId.toLong())
+        }
+    }
+
+    LaunchedEffect(isLoading, messages) {
+        if (!isLoading && messages.isNotEmpty()) {
+            coroutineScope.launch {
+                listState.animateScrollToItem(index = messages.size - 1)
+            }
+        }
+    }
+
+    LaunchedEffect(listState.firstVisibleItemScrollOffset) {
+        if (listState.firstVisibleItemIndex <= 10 && listState.firstVisibleItemScrollOffset <= 10) {
+            socketViewModel.loadMoreMessages(chatId.toInt())
+            Log.d("CHAT", "listState ${listState.firstVisibleItemIndex}")
+        }
+    }
+
+
 
     // 자신의 정보 불러오기
     var memberId by remember { mutableStateOf<Long?>(null) }
@@ -193,16 +195,8 @@ fun ChatDetail(
             }
         }
     }
-    Button(
-        onClick = {
-            val request = ChatExitRequest(chatId, memberId)
-            chatViewModel.exitChatRoom(request)
-            navController.popBackStack()
-        }
-    ) {
-        Text("채팅방 나가기")
-    }
 
+    val reversedMessages = messages.reversed()
 
     ModalNavigationDrawer(
         gesturesEnabled = !drawerState.isClosed,
@@ -285,7 +279,7 @@ fun ChatDetail(
                         .weight(1f)
                         .background(Color(0xFF9bbbd4)),
                     listState,
-                    messages,
+                    reversedMessages,
                     memberId,
                     userInfoMap
                 )
@@ -308,6 +302,7 @@ fun ChatDetail(
     }
 }
 
+
 fun LazyListState.isScrolledToTheBottom(): Boolean {
     if (layoutInfo.visibleItemsInfo.lastOrNull()?.index != null) {
         return layoutInfo.visibleItemsInfo.lastOrNull()?.index!! >= layoutInfo.totalItemsCount - 5
@@ -323,7 +318,7 @@ fun MessageList(
     listState: LazyListState,
     messages: List<MessageEntity>,
     memberId: Long?,
-    userInfoMap: MutableMap<Long, UserInfoResponseByPk>
+    userInfoMap:  Map<Long, UserInfoResponseByPk>
 ) {
     LaunchedEffect(messages.size) {
         if (listState.isScrolledToTheBottom()) {
@@ -357,7 +352,7 @@ fun MessageItem(
     previousMessage: MessageEntity?,
     nextMessage: MessageEntity?,
     memberId: Long?,
-    userInfoMap: MutableMap<Long, UserInfoResponseByPk>
+    userInfoMap:  Map<Long, UserInfoResponseByPk>
 ) {
     val navController = LocalNavigation.current
     val isOwnMessage = message.senderId?.toLong() == memberId

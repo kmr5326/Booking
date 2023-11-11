@@ -60,23 +60,6 @@ import com.ssafy.data.room.dao.ChatDao
 import com.ssafy.domain.model.ChatCreateRequest
 import com.ssafy.domain.model.ChatJoinRequest
 import com.ssafy.domain.model.ChatRoom
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
-@Composable
-fun LoadingOverlay(isLoading: Boolean) {
-    if (isLoading) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.Black.copy(alpha = 0.8f))
-                .clickable(enabled = false, onClick = {}),
-            contentAlignment = Alignment.Center
-        ) {
-            CircularProgressIndicator() // 로딩 인디케이터
-        }
-    }
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
