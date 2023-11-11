@@ -136,4 +136,7 @@ class BookingViewModel @Inject constructor(
         viewModelScope.launch {
             _postBookingStartResponse.value = bookingUseCase.postBookingStart(request)
         }
+
+    // POST - 모임 세팅
+    
 }
