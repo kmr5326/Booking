@@ -84,13 +84,12 @@ fun ChatHome(
     chatViewModel.loadChatList()
     LaunchedEffect(loginId) {
         val result = loginId?.let {
-            Log.d("CHAT", "$loginId")
             myPageViewModel.getUserInfo(loginId)
         }
     }
     LaunchedEffect(getUserInfoResponse) {
         if (getUserInfoResponse != null) {
-            Log.d("CHAT", "${getUserInfoResponse!!.body()}")
+//            Log.d("CHAT", "HOME ${getUserInfoResponse!!.body()}")
             memId = getUserInfoResponse!!.body()?.memberPk
         }
     }
@@ -142,7 +141,6 @@ fun ChatHome(
                         Button(
                             onClick = {
                                 val request = ChatJoinRequest(chatId.toInt(), memId)
-                                Log.d("CHAT", "$request")
                                 chatViewModel.joinChatRoom(request)
                             }
                         ) {
@@ -259,8 +257,8 @@ fun ChatItem(
                         .size(24.dp)
                         .background(Color.Red, shape = CircleShape)
                 ) {
-                    Log.d("LAST_MESSAGE", "${chat}")
-                    Log.d("LAST_MESSAGE", "${lastReadMessageId}")
+//                    Log.d("CHAT", "HOME ${chat}")
+//                    Log.d("CHAT", "HOME ${lastReadMessageId}")
                     Text(
                         text = "${chat.lastMessageIdx - (lastReadMessageId ?: 0) -1 }",
                         fontWeight = FontWeight.ExtraBold,

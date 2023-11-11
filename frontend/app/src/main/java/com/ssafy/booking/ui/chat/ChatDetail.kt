@@ -109,10 +109,10 @@ fun ChatDetail(
     val myPageViewModel: MyPageViewModel = hiltViewModel()
     val chatId = chatId ?: return
     val meetingTitle = meetingTitle ?: return
-    Log.d("CHAT_DETAIL", "${meetingTitle}")
+//    Log.d("CHAT", "DETAIL ${meetingTitle}")
     val memberList = memberListString?.split(",")?.map { it.toInt() } ?: return
     val userInfoMap = remember { mutableMapOf<Long, UserInfoResponseByPk>() }
-    Log.d("CHAT_DETAIL", "멤버리스트 ${memberList}")
+//    Log.d("CHAT", "DETAIL 멤버리스트 ${memberList}")
     LaunchedEffect(memberList) {
         memberList.forEach { memberId ->
             myPageViewModel.getUserInfoResponseByPk(memberId.toLong())
@@ -123,7 +123,7 @@ fun ChatDetail(
         userInfoMap[userInfo.memberPk] = userInfo
     }
 
-    Log.d("CHAT_DETAIL", "유저맵 ${userInfoMap}")
+//    Log.d("CHAT", "DETAIL 유저맵 ${userInfoMap}")
 
     val messages by socketViewModel.finalMessages.observeAsState(initial = emptyList())
 
@@ -135,19 +135,19 @@ fun ChatDetail(
     val coroutineScope = rememberCoroutineScope()
 
     // 최초 모든 메시지 갱신
-    LaunchedEffect(Unit) {
+    LaunchedEffect(chatId) {
         if (chatId != null) {
             socketViewModel.loadAllMessage(chatId.toInt())
             delay(1000)
         }
     }
-    Log.d("CHAT_DETAIL", "messageSize ${messages.size}")
+//    Log.d("CHAT", "DETAIL 스크롤 내리기 messageSize ${messages.size}")
     // 스크롤 내리기
-    LaunchedEffect(messages.size) {
-        if (messages != null && messages.size > 10) {
-            listState.animateScrollToItem(messages.size - 1)
-        }
-    }
+//    LaunchedEffect(messages.size) {
+//        if (messages != null && messages.size > 10) {
+//            listState.animateScrollToItem(messages.size - 1)
+//        }
+//    }
     // 최신 메시지 폴링 시작
     LaunchedEffect(Unit) {
         if (chatId != null) {
@@ -196,7 +196,6 @@ fun ChatDetail(
     Button(
         onClick = {
             val request = ChatExitRequest(chatId, memberId)
-            Log.d("CHAT", "$request")
             chatViewModel.exitChatRoom(request)
             navController.popBackStack()
         }
@@ -245,7 +244,6 @@ fun ChatDetail(
                         selected = false,
                         onClick = {
                             val request = ChatExitRequest(chatId, memberId)
-                            Log.d("CHAT", "$request")
                             chatViewModel.exitChatRoom(request)
                             navController.popBackStack()
                         },
@@ -431,7 +429,7 @@ fun MessageItem(
                 // 이름을 표시하는 조건
                 if (!isOwnMessage && previousMessage?.senderId != message.senderId) {
                     Text(
-                        text = "${userInfo?.nickname}"
+                        text = "${userInfo?.nickname ?: "알 수 없음"}"
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Spacer(modifier = Modifier.height(4.dp))

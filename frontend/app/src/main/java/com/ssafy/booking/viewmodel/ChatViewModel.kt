@@ -47,13 +47,13 @@ class ChatViewModel @Inject constructor(
             try {
                 val response = chatRepository.postChatCreate(request)
                 if (response.isSuccessful) {
-                    Log.d("CHAT", "Chat room created successfully: $response")
+                    Log.d("CHAT", "CHATVM Chat room created successfully: $response")
                     loadChatList()
                 } else {
-                    Log.e("CHAT", "Error creating chat room: $response")
+                    Log.e("CHAT", "CHATVM Error creating chat room: $response")
                 }
             } catch (e: Exception) {
-                Log.e("CHAT", "Exception creating chat room", e)
+                Log.e("CHAT", "CHATVM Exception creating chat room", e)
             }
         }
     }
@@ -63,13 +63,13 @@ class ChatViewModel @Inject constructor(
             try {
                 val response = chatRepository.postChatJoin(request)
                 if (response.isSuccessful) {
-                    Log.d("CHAT", "Chat room joined successfully: $response")
+                    Log.d("CHAT", "CHATVM Chat room joined successfully: $response")
                     loadChatList()
                 } else {
-                    Log.e("CHAT", "Error joining chat room: $response")
+                    Log.e("CHAT", "CHATVM Error joining chat room: $response")
                 }
             } catch (e: Exception) {
-                Log.e("CHAT", "Exception joining chat room", e)
+                Log.e("CHAT", "CHATVM Exception joining chat room", e)
             }
         }
     }
@@ -79,13 +79,13 @@ class ChatViewModel @Inject constructor(
             try {
                 val response = chatRepository.postChatExit(request)
                 if (response.isSuccessful) {
-                    Log.d("CHAT", "Chat room exited successfully: $response")
+                    Log.d("CHAT", "CHATVM Chat room exited successfully: $response")
                     loadChatList()
                 } else {
-                    Log.e("CHAT", "Error exiting chat room: $response")
+                    Log.e("CHAT", "CHATVM Error exiting chat room: $response")
                 }
             } catch (e: Exception) {
-                Log.e("CHAT", "Exception exiting chat room", e)
+                Log.e("CHAT", "CHATVM Exception exiting chat room", e)
             }
         }
     }
@@ -95,15 +95,15 @@ class ChatViewModel @Inject constructor(
             try {
                 val chatList = chatRepository.getChatList()
                 _chatListState.value = chatList
-                Log.d("CHAT", "Get Chat room List $chatListState")
+                Log.d("CHAT", "CHATVM Get Chat room List $chatListState")
             } catch (e: HttpException) {
-                errorMessage.value = "네트워크 에러: ${e.code()} ${e.message}"
+                errorMessage.value = "CHATVM 네트워크 에러: ${e.code()} ${e.message}"
                 Log.d("CHAT", "$errorMessage.value")
             } catch (e: IOException) {
-                errorMessage.value = "네트워크 연결을 확인해 주세요."
+                errorMessage.value = "CHATVM 네트워크 연결을 확인해 주세요."
                 Log.d("CHAT", "$errorMessage.value")
             } catch (e: Exception) {
-                errorMessage.value = "알 수 없는 에러 발생: ${e.message}"
+                errorMessage.value = "CHATVM 알 수 없는 에러 발생: ${e.message}"
                 Log.d("CHAT", "$errorMessage.value")
             }
         }
@@ -137,13 +137,13 @@ class ChatViewModel @Inject constructor(
         chatListJob = viewModelScope.launch(Dispatchers.IO) {
             while (isActive) {
                 loadChatList()
-                Log.d("CHAT_HOME", "목록 갱신")
+                Log.d("CHAT", "CHATVM 목록 갱신")
                 delay(2000L)
             }
         }
     }
     fun stopChatListAutoUpdate() {
-                Log.d("CHAT_HOME", "갱신 중지")
+                Log.d("CHAT", "CHATVM 갱신 중지")
         chatListJob?.cancel()
     }
     fun setIsChatHome(isHome: Boolean) {

@@ -62,7 +62,7 @@ class SocketViewModel @Inject constructor(
     // 전체 메시지 불러오기
     fun loadAllMessage(chatId: Int) {
         allMessagesSource = messageDao.getAllMessage(chatId).also {
-            Log.d("CHAT_DETAIL", "전체 메시지 갱신")
+            Log.d("CHAT", "SOCKETVM 전체 메시지 갱신")
             it.observeForever { allMessages ->
                 _finalMessages.postValue(allMessages)
             }
@@ -93,13 +93,13 @@ class SocketViewModel @Inject constructor(
         PollingJob = viewModelScope.launch(Dispatchers.Main) {
             while (isActive) {
                 loadLatestMessage(chatId)
-                Log.d("CHAT_DETAIL", "목록 갱신")
+                Log.d("CHAT", "SOCKETVM 목록 갱신")
                 delay(500)
             }
         }
     }
     fun stopMessagePolling() {
-        Log.d("CHAT_DETAIL", "갱신 중지")
+        Log.d("CHAT", "SOCKETVM 갱신 중지")
         PollingJob?.cancel()
     }
     fun setPollingMessage(chatId: Int, toggle: Boolean) {
@@ -113,7 +113,7 @@ class SocketViewModel @Inject constructor(
 
     // Observer 메모리 누수 방지
     override fun onCleared() {
-//        Log.d("CHAT_DETAIL", "onCleared")
+//        Log.d("CHAT", "SOCKETVM onCleared")
         super.onCleared()
         allMessagesSource?.let { it.removeObserver {} }
         latestMessagesSource?.let { it.removeObserver {} }
@@ -123,14 +123,14 @@ class SocketViewModel @Inject constructor(
     fun postLastReadMessageId(chatroomId: Int) =
         viewModelScope.launch(Dispatchers.IO) {
             val lastReadId = chatDao.getLastReadMessageId(chatroomId) ?: 1
-            Log.d("CHAT_DETAIL", "마지막으로 읽은 메시지 보내기 ${lastReadId}")
+            Log.d("CHAT", "SOCKETVM 마지막으로 읽은 메시지 보내기 ${lastReadId}")
             val lastMessageRequest = LastReadMessageRequest(lastMessageIndex = lastReadId)
             try {
                 val messageResponses = chatUseCase.postLastReadMessage(chatroomId, lastMessageRequest)
                 val lastReadMessageIdx = messageResponses.maxOfOrNull { it.messageId } ?: 0
                 val chatEntity = ChatEntity(chatroomId, lastReadMessageIdx)
                 chatDao.updateLastReadMessage(chatEntity)
-                Log.d("CHAT_DETAIL", "마지막으로 읽은 메시지 업데이트 ${chatEntity}")
+                Log.d("CHAT", "SOCKETVM 마지막으로 읽은 메시지 업데이트 ${chatEntity}")
 
                 val messageEntities = messageResponses.map { response ->
                     MessageEntity(
@@ -150,16 +150,16 @@ class SocketViewModel @Inject constructor(
                     )
                     if (existingEntity == null) {
                         messageDao.insertMessage(messageEntity)
-                        Log.d("CHAT_DETAIL", "신규 메시지 룸 저장 ${existingEntity}")
+                        Log.d("CHAT", "SOCKETVM 신규 메시지 룸 저장 ${existingEntity}")
                     } else if(existingEntity.readCount != messageEntity.readCount) {
                         existingEntity.messageId?.let {
                             existingEntity.readCount?.let { cnt ->
                                 messageDao.updateReadCount(it, cnt)
-                                Log.d("CHAT_DETAIL", "읽음 처리 ${existingEntity}")
+                                Log.d("CHAT", "SOCKETVM 읽음 처리 ${existingEntity}")
                             }
                         }
                     } else {
-                        Log.d("CHAT_DETAIL", "중복된 메시지가 처리되었습니다.")
+                        Log.d("CHAT", "SOCKETVM 중복된 메시지가 처리되었습니다.")
                     }
                 }
 
@@ -172,39 +172,39 @@ class SocketViewModel @Inject constructor(
         stompConnection = stomp.connect().subscribe {
             when (it.type) {
                 Event.Type.OPENED -> {
-                    Log.d("STOMP", "$it OPENED!!!")
+                    Log.d("CHAT", "SOCKETVM $it OPENED!!!")
                     topic = stomp.join("/subscribe/$chatId").subscribe({ stompMessage ->
                         // Get Message
-                        Log.d("STOMP", "Received: $stompMessage")
+                        Log.d("CHAT", "SOCKETVM Received: $stompMessage")
                         // Parse KafkaMessage
                         val kafkaMessage: KafkaMessage =
                             gson.fromJson(stompMessage, KafkaMessage::class.java)
-                        Log.d("STOMP", "Parsed Message: $kafkaMessage")
+                        Log.d("CHAT", "SOCKETVM Parsed Message: $kafkaMessage")
                         viewModelScope.launch(Dispatchers.Main) {
                             try {
-                        Log.d("STOMP", "마지막으로 읽은 메시지 보내기 + 최신 메시지 받기")
+                        Log.d("CHAT", "SOCKETVM 마지막으로 읽은 메시지 보내기 + 최신 메시지 받기")
                                 postLastReadMessageId(chatId.toInt())
                                 // delay(1000)
-                        Log.d("STOMP", "최신 메시지 갱신")
+                        Log.d("CHAT", "SOCKETVM 최신 메시지 갱신")
                             } catch (e: Exception) {
-                                Log.e("STOMP", "Error inserting message into database", e)
+                                Log.e("CHAT", "SOCKETVM Error inserting message into database", e)
                             }
                         }
                     }, { throwable ->
-                        Log.e("STOMP", "Error :", throwable)
+                        Log.e("CHAT", "SOCKETVM Error :", throwable)
                     })
                 }
 
                 Event.Type.CLOSED -> {
-                    Log.d("STOMP", "$it CLOSED!!!")
+                    Log.d("CHAT", "SOCKETVM $it CLOSED!!!")
                 }
 
                 Event.Type.ERROR -> {
-                    Log.d("STOMP", "$it ERROR!!!")
+                    Log.d("CHAT", "SOCKETVM $it ERROR!!!")
                 }
 
                 else -> {
-                    Log.d("STOMP", "else")
+                    Log.d("CHAT", "SOCKETVM else")
                 }
             }
         }
@@ -214,16 +214,16 @@ class SocketViewModel @Inject constructor(
         val jsonMessage = gson.toJson(message)
         stomp.send("/publish/message/$chatId", jsonMessage).subscribe { success ->
             if (success) {
-                Log.d("STOMP", "chatting send is successful $jsonMessage")
+                Log.d("CHAT", "SOCKETVM chatting send is successful $jsonMessage")
             } else {
-                Log.d("STOMP", "failed to send message")
+                Log.d("CHAT", "SOCKETVM failed to send message")
             }
         }
     }
 
     fun disconnectChat(chatId: String) {
         viewModelScope.launch {
-            Log.d("DISCONNECT", "${chatId} 나가기")
+            Log.d("CHAT", "SOCKETVM ${chatId} 나가기")
             topic.dispose() // 구독 해지
             stompConnection.dispose() // STOMP 연결 해지
             chatUseCase.deleteDisconnectSocket(chatId.toInt())
