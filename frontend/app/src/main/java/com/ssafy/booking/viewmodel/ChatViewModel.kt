@@ -109,8 +109,7 @@ class ChatViewModel @Inject constructor(
         }
     }
 
-
-    // 최초 저장
+    // 처음 들어가는 채팅방에 대한 정보 저장
     fun saveLocalChatId(chatroomId: Int) {
         viewModelScope.launch(Dispatchers.IO) {
             val newChatEntity = ChatEntity(chatroomId = chatroomId, lastMessageIdx = 1)
@@ -119,8 +118,6 @@ class ChatViewModel @Inject constructor(
     }
 
     // Room에서 마지막으로 읽은 메시지 GET
-
-
     private val _lastReadMessageIds = mutableStateOf(mutableMapOf<Int, Int>())
     val lastReadMessageIds: State<Map<Int, Int>> = _lastReadMessageIds
     fun getLastReadMessageId(chatroomId: Int) {

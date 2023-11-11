@@ -48,23 +48,42 @@ class SocketViewModel @Inject constructor(
         GsonBuilder().registerTypeAdapter(LocalDateTime::class.java, LocalDateTimeSerializer())
             .registerTypeAdapter(LocalDateTime::class.java, LocalDateTimeDeserializer()).create()
 
+    private val _finalMessages = MutableLiveData<List<MessageEntity>>()
+    val finalMessages: LiveData<List<MessageEntity>> get() = _finalMessages
 
-    private val _messages = MutableLiveData<List<MessageEntity>>()
-    val messages: LiveData<List<MessageEntity>> get() = _messages
+    private var allMessagesSource: LiveData<List<MessageEntity>>? = null
+    private var latestMessagesSource: LiveData<List<MessageEntity>>? = null
 
-//    fun loadMessages(chatId: Int) {
-//        messageDao.getLatestMessage(chatId).observeForever { messageList ->
-//            _messages.postValue(messageList)
-//        }
-//    }
-
-    fun loadLatestMessages(chatId: String) {
-        viewModelScope.launch {
-            val latestMessagesLiveData = messageDao.getLatestMessage(chatId.toInt())
-            latestMessagesLiveData.observeForever { latestMessages ->
-                _messages.postValue(latestMessages)
+    // 전체 메시지 불러오기
+    fun loadAllMessage(chatId: Int) {
+        allMessagesSource = messageDao.getAllMessage(chatId).also {
+            it.observeForever { allMessages ->
+                _finalMessages.postValue(allMessages)
             }
         }
+    }
+    
+    // 안읽은 메시지 불러오기
+    fun loadLatestMessage(chatId: Int) {
+        latestMessagesSource = messageDao.getUnusedMessage(chatId).also {
+            it.observeForever { newMessages ->
+                val currentMessages = _finalMessages.value.orEmpty()
+                _finalMessages.postValue(currentMessages + newMessages) // 안읽은 메시지 추가
+
+                // '읽음'처리
+                viewModelScope.launch {
+                    newMessages.forEach { newMessage ->
+                        messageDao.markUsedMessage(newMessage.id)
+                    }
+                }
+            }
+        }
+    }
+    // Observer 메모리 누수 방지
+    override fun onCleared() {
+        super.onCleared()
+        allMessagesSource?.let { it.removeObserver {} }
+        latestMessagesSource?.let { it.removeObserver {} }
     }
 
     fun postLastReadMessageId(chatroomId: Int) =
@@ -79,7 +98,7 @@ class SocketViewModel @Inject constructor(
                 Log.d("CHAT_DETAIL", "messageResponses ${messageResponses}")
                 val lastReadMessageIdx = messageResponses.maxOfOrNull { it.messageId } ?: 0
                 val chatEntity = ChatEntity(chatroomId, lastReadMessageIdx)
-                // 마지막으로 읽은 메시지 갱신
+                // 마지막으로 읽은 메시지 보내기
                 Log.d("CHAT_DETAIL", "chatEntity ${chatEntity}")
                 chatDao.updateLastReadMessage(chatEntity)
 
@@ -94,23 +113,29 @@ class SocketViewModel @Inject constructor(
                     )
                 }
                 Log.d("CHAT_DETAIL", "messageEntities ${messageEntities}")
-                // 메시지 저장
+                // 메시지를 Room에 저장
                 messageEntities.forEach { messageEntity ->
                     val existingEntity = messageDao.getMessageByChatIdAndMessageId(
                         messageEntity.chatroomId,
                         messageEntity.messageId
                     )
-                    if (existingEntity == null || existingEntity.readCount != messageEntity.readCount) {
+                    if (existingEntity == null) {
                         messageDao.insertMessage(messageEntity)
+                    } else if(existingEntity.readCount != messageEntity.readCount) {
+                        existingEntity.messageId?.let {
+                            existingEntity.readCount?.let { cnt ->
+                                messageDao.updateReadCount(it, cnt)
+                            }
+                        }
                     } else {
                         Log.d("CHAT_DETAIL", "중복된 메시지가 처리되었습니다.")
                     }
                 }
+
             } catch (e: Exception) {
                 Log.e("CHAT_DETAIL", "받아오기 $e")
             }
         }
-
 
     fun connectToChat(chatId: String) {
         stompConnection = stomp.connect().subscribe {
@@ -126,11 +151,10 @@ class SocketViewModel @Inject constructor(
                         Log.d("STOMP", "Parsed Message: $kafkaMessage")
                         viewModelScope.launch(Dispatchers.Main) {
                             try {
-                                Log.d("STOMP", "messages ${messages.value}")
+                        Log.d("STOMP", "마지막으로 읽은 메시지 보내기 + 최신 메시지 받기")
                                 postLastReadMessageId(chatId.toInt())
-                                loadLatestMessages(chatId)
-//                                        messageDao.insert(messageEntity)
-//                                        loadLatestMessages(chatId)
+                        Log.d("STOMP", "최신 메시지 갱신")
+                                loadLatestMessage(chatId.toInt())
                             } catch (e: Exception) {
                                 Log.e("STOMP", "Error inserting message into database", e)
                             }
@@ -174,4 +198,5 @@ class SocketViewModel @Inject constructor(
             chatUseCase.deleteDisconnectSocket(chatId.toInt())
         }
     }
+    
 }

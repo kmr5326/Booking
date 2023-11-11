@@ -17,4 +17,6 @@ data class MessageEntity (
     @ColumnInfo(name = "content") val content : String?,
     @ColumnInfo(name = "read_count") val readCount : Int?,
     @ColumnInfo(name = "time_stamp") val timeStamp : String,
+
+    @ColumnInfo(name = "used") val used: Boolean = false
 )

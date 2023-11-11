@@ -91,45 +91,50 @@ fun ChatDetail(
     navController: NavController,
     socketViewModel: SocketViewModel
 ) {
-    val chatId = navController.currentBackStackEntry?.arguments?.getString("chatId")
     val chatViewModel: ChatViewModel = hiltViewModel()
     val myPageViewModel: MyPageViewModel = hiltViewModel()
-    var memberId by remember { mutableStateOf<Long?>(null) }
-    var nickname by remember { mutableStateOf("") }
+    val chatId = navController.currentBackStackEntry?.arguments?.getString("chatId")
 
-    val loginId = App.prefs.getLoginId()
-    val getUserInfoResponse by myPageViewModel.getUserInfoResponse.observeAsState()
-
-    // 자신의 정보 불러오기
-    LaunchedEffect(loginId) {
-        loginId?.let {
-            myPageViewModel.getUserInfo(loginId)
+    // 최초 모든 메시지 갱신
+    LaunchedEffect(Unit) {
+        if (chatId != null) {
+            socketViewModel.loadAllMessage(chatId.toInt())
         }
     }
-    // 자신의 정보가 로드되면 memberId와 nickname을 설정
-    getUserInfoResponse?.let { response ->
-        memberId = response.body()?.memberPk
-        nickname = response.body()?.nickname ?: ""
-    }
 
+    val messages by socketViewModel.finalMessages.observeAsState(initial = emptyList())
+
+    // 소켓 연결 + 읽었다고 보내기
     chatId?.let {
         LaunchedEffect(chatId) {
             socketViewModel.connectToChat(chatId)
             socketViewModel.postLastReadMessageId(chatId.toInt())
         }
     }
+    
+    // 자신의 정보 불러오기
+    var memberId by remember { mutableStateOf<Long?>(null) }
+    var nickname by remember { mutableStateOf("") }
+    val loginId = App.prefs.getLoginId()
+    val getUserInfoResponse by myPageViewModel.getUserInfoResponse.observeAsState()
+    LaunchedEffect(loginId) {
+        loginId?.let {
+            myPageViewModel.getUserInfo(loginId)
+        }
+    }
+    getUserInfoResponse?.let { response ->
+        memberId = response.body()?.memberPk
+        nickname = response.body()?.nickname ?: ""
+    }
 
+    
+    // UI 상태
     val listState = rememberLazyListState()
     val topBarState = rememberTopAppBarState()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(topBarState)
     val coroutineScope = rememberCoroutineScope()
-
-    val messages by socketViewModel.messages.observeAsState(initial = emptyList())
-    if (chatId != null) {
-        socketViewModel.loadLatestMessages(chatId)
-    }
-
+    
     // 나갈 때 소켓 연결 해제
     DisposableEffect(chatId) {
         onDispose {
@@ -138,10 +143,6 @@ fun ChatDetail(
             }
         }
     }
-
-//    if (chatId != null) {
-//        socketViewModel.postLastReadMessageId(chatId.toInt())
-//    }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -257,11 +258,6 @@ fun MessageList(
             }
         }
 
-        LaunchedEffect(messages) {
-            if (messages.isNotEmpty()) {
-                listState.animateScrollToItem(index = messages.size - 1)
-            }
-        }
     }
 }
 
