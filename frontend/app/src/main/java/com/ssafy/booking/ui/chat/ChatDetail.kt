@@ -98,12 +98,14 @@ fun ChatDetail(
     navController: NavController,
     socketViewModel: SocketViewModel,
     chatId: String?,
-    memberListString: String?
+    memberListString: String?,
+    meetingTitle: String?
 ) {
     val chatViewModel: ChatViewModel = hiltViewModel()
     val myPageViewModel: MyPageViewModel = hiltViewModel()
     val chatId = chatId ?: return
-
+    val meetingTitle = meetingTitle ?: return
+    Log.d("CHAT_DETAIL", "${meetingTitle}")
     val memberList = memberListString?.split(",")?.map { it.toInt() } ?: return
     val userInfoMap = remember { mutableMapOf<Long, UserInfoResponseByPk>() }
     LaunchedEffect(memberList) {
@@ -190,7 +192,7 @@ fun ChatDetail(
         drawerState = drawerState,
         drawerContent = {
             ModalDrawerSheet {
-                Text("Drawer title", modifier = Modifier.padding(16.dp))
+                Text("$meetingTitle", modifier = Modifier.padding(16.dp))
                 Divider()
                 Button(
                     onClick = {
@@ -208,7 +210,7 @@ fun ChatDetail(
         Scaffold(
             topBar = {
                 TopBarChat(
-                    title = "${chatId}번 채팅방",
+                    title = "${meetingTitle}",
                     onNavigationIconClick = {
                         coroutineScope.launch {
                             drawerState.apply {

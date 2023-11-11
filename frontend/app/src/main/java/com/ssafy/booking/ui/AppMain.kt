@@ -51,7 +51,7 @@ sealed class AppNavItem(
     object HistoryDetail : AppNavItem("history/detail")
     object Main : AppNavItem("main")
     object Chat : AppNavItem("chat")
-    object ChatDetail : AppNavItem("chatDetail/{chatId}/{memberList}")
+    object ChatDetail : AppNavItem("chatDetail/{chatId}/{memberList}/{meetingTitle}")
     object Profile : AppNavItem("profile/{memberPk}")
     object Login : AppNavItem("login")
     object CreateBooking : AppNavItem("create/booking/{isbn}")
@@ -132,10 +132,11 @@ fun Route(googleSignInClient: GoogleSignInClient) {
             composable("chat") {
                 ChatHome(navController, appViewModel)
             }
-            composable("chatDetail/{chatId}/{memberList}") {
+            composable("chatDetail/{chatId}/{memberList}/{meetingTitle}") {
                 val chatId = it.arguments?.getString("chatId")
                 val memberListString = it.arguments?.getString("memberList")
-                ChatDetail(navController, socketViewModel, chatId, memberListString)
+                val meetingTitle = it.arguments?.getString("meetingTitle")
+                ChatDetail(navController, socketViewModel, chatId, memberListString, meetingTitle)
             }
             composable("profile/{memberPk}") {navBackStackEntry->
                 val memberPk = navBackStackEntry.arguments?.getString("memberPk")?.toLong() ?: 0

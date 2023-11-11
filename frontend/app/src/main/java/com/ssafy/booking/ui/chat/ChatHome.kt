@@ -193,7 +193,7 @@ fun ChatItem(
             .clickable(onClick = {
                 onRowClick(chat)
                 val memberListString = chat.memberList.joinToString(",")
-                navController.navigate("chatDetail/${chat.chatroomId}/${memberListString}")
+                navController.navigate("chatDetail/${chat.chatroomId}/${memberListString}/${chat.meetingTitle}")
             })
     ) {
         // 개인 채팅방 이미지
