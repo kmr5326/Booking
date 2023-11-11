@@ -15,15 +15,15 @@ class MyBookRepositoryImpl @Inject constructor(
         return myBookApi.postBookRegister(request)
     }
 
-    override suspend fun getBookList(nickname: String): Response<List<MyBookListResponse>> {
-        return myBookApi.getBookList(nickname)
+    override suspend fun getBookList(memberPk: Long): Response<List<MyBookListResponse>> {
+        return myBookApi.getBookList(memberPk)
     }
 
     override suspend fun getBookDetail(
-        nickname: String,
+        memberPk: Long,
         isbn: String
     ): Response<MyBookListResponse> {
-        return myBookApi.getBookDetail(nickname, isbn)
+        return myBookApi.getBookDetail(memberPk, isbn)
     }
 
     override suspend fun postBookMemo(request: MyBookMemoRegisterRequest) : Response<Unit> {

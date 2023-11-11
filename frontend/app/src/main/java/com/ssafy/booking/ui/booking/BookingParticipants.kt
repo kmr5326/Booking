@@ -2,6 +2,7 @@ package com.ssafy.booking.ui.booking
 
 import android.util.Log
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -34,6 +35,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberImagePainter
+import com.ssafy.booking.ui.LocalNavigation
 import com.ssafy.booking.viewmodel.BookingViewModel
 import com.ssafy.domain.model.booking.BookingAcceptRequest
 import com.ssafy.domain.model.booking.BookingDetail
@@ -89,6 +91,8 @@ fun BookingParticipants(meetingId:Long) {
 // 참가자
 @Composable
 fun ParticipantItem(participant: BookingParticipants) {
+    val navController = LocalNavigation.current
+
     // 참가자 한 명에 대한 UI를 여기에 구성하세요.
     Row(verticalAlignment = Alignment.CenterVertically) {
         // 프로필 이미지가 있다면:
@@ -100,7 +104,13 @@ fun ParticipantItem(participant: BookingParticipants) {
             )
         }
         // 닉네임과 다른 정보를 표시
-        Column {
+        Column(
+            modifier = Modifier.clickable{
+                navController.navigate("profile/${participant.memberPk}"){
+                    popUpTo("login") { inclusive = true }
+                }
+            }
+        ) {
             Text(text = participant.nickname, fontWeight = FontWeight.Bold)
             Text(text = if (participant.attendanceStatus) "출석" else "미출석")
             Text(text = if (participant.paymentStatus) "결제 완료" else "미결제")

@@ -31,22 +31,22 @@ interface MyPageApi {
     @DELETE("/api/members/deletion/{loginId}")
     suspend fun deleteUser(@Path("loginId") loginId: String) : Response<Unit>
     @Headers("Content-Type: application/json;charset=UTF-8")
-    @GET("/api/follows/followers/{nickname}")
-    suspend fun getUserFollowers(@Path("nickname") nickname: String) : Response<UserFollowersResponse>
+    @GET("/api/follows/followers/{memberPk}")
+    suspend fun getUserFollowers(@Path("memberPk") memberPk: Long) : Response<UserFollowersResponse>
     @Headers("Content-Type: application/json;charset=UTF-8")
-    @GET("/api/follows/followings/{nickname}")
-    suspend fun getUserFollowings(@Path("nickname") nickname: String) : Response<UserFollowingsResponse>
+    @GET("/api/follows/followings/{memberPk}")
+    suspend fun getUserFollowings(@Path("memberPk") memberPk: Long) : Response<UserFollowingsResponse>
     @Headers("Content-Type: application/json;charset=UTF-8")
     @GET("/api/members/memberInfo-pk/{memberPk}")
-    suspend fun getUserInfoByPk(@Path("memberPk") memberPk: Int) : Response<UserInfoResponseByPk>
+    suspend fun getUserInfoByPk(@Path("memberPk") memberPk: Long) : Response<UserInfoResponseByPk>
     @Headers("Content-Type: application/json;charset=UTF-8")
     @GET("/api/members/memberInfo-nick/{nickname}")
     suspend fun getUserInfoByNickname(@Path("nickname") nickname: String) : Response<UserInfoResponseByNickname>
     @Headers("Content-Type: application/json;charset=UTF-8")
-    @POST("/api/follows/{nickname}")
-    suspend fun postFollow(@Path("nickname") nickname: String) : Response<Unit>
+    @POST("/api/follows/{memberPk}")
+    suspend fun postFollow(@Path("memberPk") memberPk: Long) : Response<Unit>
     @Headers("Content-Type: application/json;charset=UTF-8")
-    @DELETE("/api/follows/{nickname}")
-    suspend fun deleteFollow(@Path("nickname") nickname: String) : Response<Unit>
+    @DELETE("/api/follows/{memberPk}")
+    suspend fun deleteFollow(@Path("memberPk") memberPk: Long) : Response<Unit>
 
 }
