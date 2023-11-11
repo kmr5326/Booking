@@ -28,6 +28,7 @@ import com.ssafy.booking.ui.chat.ChatHome
 import com.ssafy.booking.ui.common.SettingPage
 import com.ssafy.booking.ui.history.HistoryDetail
 import com.ssafy.booking.ui.history.HistoryHome
+import com.ssafy.booking.ui.location.SettingAddress
 import com.ssafy.booking.ui.login.Greeting
 import com.ssafy.booking.ui.login.SignInScreen
 import com.ssafy.booking.ui.profile.MyBookDetail
@@ -66,6 +67,7 @@ sealed class AppNavItem(
     object BookingDetail : AppNavItem("bookingDetail/{meetingId}")
     object MyBookRegister : AppNavItem("profile/book/{isbn}")
     object MyBookDetail : AppNavItem("profile/book/detail/{isbn}")
+    object SettingAddress : AppNavItem("setting/address")
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -178,6 +180,9 @@ fun Route(googleSignInClient: GoogleSignInClient) {
             composable("profile/book/detail/{isbn}") {navBackStackEntry->
                 val isbn = navBackStackEntry.arguments!!.getString("isbn")
                 MyBookDetail(isbn)
+            }
+            composable("setting/address") {
+                SettingAddress()
             }
         }
     }

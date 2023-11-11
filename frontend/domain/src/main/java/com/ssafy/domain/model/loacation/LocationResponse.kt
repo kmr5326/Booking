@@ -1,38 +1,42 @@
 package com.ssafy.domain.model.loacation
 import com.google.gson.annotations.SerializedName
+
+// 위도,경도로 행정구역 받아오기.
 data class AddressResponse(
     @SerializedName("meta") val meta: Meta,
     @SerializedName("documents") val documents: List<Document>
 )
 
 data class Meta(
-    @SerializedName("totalCount") val totalCount: Int
+    @SerializedName("total_count") val totalCount: Int
 )
 
 data class Document(
     @SerializedName("address") val address: Address,
-    @SerializedName("roadAddress") val roadAddress: RoadAddress
+    @SerializedName("road_address") val roadAddress: RoadAddress
 )
 
 data class Address(
-    @SerializedName("addressName") val addressName: String,
-    @SerializedName("region1DepthName") val region1DepthName: String,
-    @SerializedName("region2DepthName") val region2DepthName: String,
-    @SerializedName("region3DepthName") val region3DepthName: String,
-    @SerializedName("mountainYn") val mountainYn: String,
-    @SerializedName("mainAddressNo") val mainAddressNo: String,
-    @SerializedName("subAddressNo") val subAddressNo: String
+    @SerializedName("address_name") val addressName: String,
+    @SerializedName("region_1depth_name") val region1DepthName: String,
+    @SerializedName("region_2depth_name") val region2DepthName: String,
+    @SerializedName("region_3depth_name") val region3DepthName: String,
+    @SerializedName("mountain_yn") val mountainYn: String,
+    @SerializedName("main_address_no") val mainAddressNo: String,
+    @SerializedName("sub_address_no") val subAddressNo: String
 )
 
 data class RoadAddress(
-    @SerializedName("addressName") val addressName: String,
-    @SerializedName("region1DepthName") val region1DepthName: String,
-    @SerializedName("region2DepthName") val region2DepthName: String,
-    @SerializedName("region3DepthName") val region3DepthName: String,
-    @SerializedName("roadName") val roadName: String,
-    @SerializedName("undergroundYn") val undergroundYn: String,
-    @SerializedName("mainBuildingNo") val mainBuildingNo: String,
-    @SerializedName("subBuildingNo") val subBuildingNo: String,
-    @SerializedName("buildingName") val buildingName: String,
-    @SerializedName("zoneNo") val zoneNo: String
+    @SerializedName("address_name") val addressName: String,
+    @SerializedName("region_1depth_name") val region1DepthName: String,
+    @SerializedName("region_2depth_name") val region2DepthName: String,
+    @SerializedName("region_3depth_name") val region3DepthName: String,
+    @SerializedName("road_name") val roadName: String,
+    @SerializedName("underground_yn") val undergroundYn: String,
+    @SerializedName("main_building_no") val mainBuildingNo: String,
+    @SerializedName("sub_building_no") val subBuildingNo: String,
+    @SerializedName("building_name") val buildingName: String,
+    @SerializedName("zone_no") val zoneNo: String
 )
+
+// 카카오 장소 검색  API

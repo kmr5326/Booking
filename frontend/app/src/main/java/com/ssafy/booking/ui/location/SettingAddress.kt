@@ -29,16 +29,17 @@ import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-
-@Preview
-@Composable
-fun PreviewSettingLocation() {
-    SettingLocation()
-}
+import androidx.navigation.NavController
+import com.ssafy.booking.viewmodel.AppViewModel
 
 // 최상단 컴포저블
 @Composable
-fun SettingLocation() {
+fun SettingAddress(
+    navController: NavController,
+    appViewModel: AppViewModel
+) {
+
+
     Column {
         Text(text = "내 동네 설정")
         SearchInput()

@@ -8,6 +8,7 @@ import com.ssafy.data.remote.api.BookingApi
 import com.ssafy.data.remote.api.ChatApi
 import com.ssafy.data.remote.api.FirebaseApi
 import com.ssafy.data.remote.api.GoogleApi
+import com.ssafy.data.remote.api.LocationApi
 import com.ssafy.data.remote.api.MemberApi
 import com.ssafy.data.remote.api.MyBookApi
 import com.ssafy.data.remote.api.MyPageApi
@@ -125,6 +126,12 @@ class NetworkModule {
     @Singleton
     fun provideMyBookApi(retrofit: Retrofit) : MyBookApi {
         return retrofit.create(MyBookApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideLocationApi(retrofit: Retrofit) : LocationApi {
+        return retrofit.create(LocationApi::class.java)
     }
 
 //    @Provides
