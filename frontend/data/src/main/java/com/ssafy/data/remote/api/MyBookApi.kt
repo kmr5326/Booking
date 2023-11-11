@@ -18,12 +18,12 @@ interface MyBookApi {
     suspend fun postBookRegister(@Body request: MyBookRegisterRequest) : Response<Unit>
 
     @Headers("Content-Type: application/json;charset=UTF-8")
-    @GET("/api/book/member/{nickname}")
-    suspend fun getBookList(@Path("nickname") nickname: String) : Response<List<MyBookListResponse>>
+    @GET("/api/book/member/{memberPk}")
+    suspend fun getBookList(@Path("memberPk") memberPk: Long) : Response<List<MyBookListResponse>>
 
     @Headers("Content-Type: application/json;charset=UTF-8")
-    @GET("/api/book/member/{nickname}/{isbn}")
-    suspend fun getBookDetail(@Path("nickname") nickname: String, @Path("isbn") isbn: String) : Response<MyBookListResponse>
+    @GET("/api/book/member/{memberPk}/{isbn}")
+    suspend fun getBookDetail(@Path("memberPk") memberPk: Long, @Path("isbn") isbn: String) : Response<MyBookListResponse>
 
     @Headers("Content-Type: application/json;charset=UTF-8")
     @POST("/api/book/member/note")

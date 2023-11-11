@@ -15,12 +15,12 @@ class MyBookUseCase @Inject constructor(
         return repository.postBookRegister(request)
     }
 
-    suspend fun getBookList(nickname: String) : Response<List<MyBookListResponse>> {
-        return repository.getBookList(nickname)
+    suspend fun getBookList(memberPk: Long) : Response<List<MyBookListResponse>> {
+        return repository.getBookList(memberPk)
     }
 
-    suspend fun getBookDetail(nickname: String, isbn: String) : Response<MyBookListResponse> {
-        return repository.getBookDetail(nickname, isbn)
+    suspend fun getBookDetail(memberPk: Long, isbn: String) : Response<MyBookListResponse> {
+        return repository.getBookDetail(memberPk, isbn)
     }
 
     suspend fun postBookMemo(request: MyBookMemoRegisterRequest) : Response<Unit> {
