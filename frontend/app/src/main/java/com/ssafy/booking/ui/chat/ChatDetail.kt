@@ -231,7 +231,9 @@ fun ChatDetail(
                             label = { Text(user.value.nickname) },
                             selected = false,
                             onClick = {
-                                navController.navigate("profile/${user.value.memberPk}")
+                                if (user.value.memberPk != null) {
+                                    navController.navigate("profile/${user.value.memberPk}")
+                                }
                             },
                             modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                         )
@@ -416,7 +418,9 @@ fun MessageItem(
                         .clip(RoundedCornerShape(20.dp))
                         .border(1.dp, Color.Gray, RoundedCornerShape(20.dp))
                         .clickable {
-                            navController.navigate("profile/${userInfo?.memberPk}")
+                            if (userInfo?.memberPk != null) {
+                                navController.navigate("profile/${userInfo.memberPk}")
+                            }
                         }
                 )
             } else {

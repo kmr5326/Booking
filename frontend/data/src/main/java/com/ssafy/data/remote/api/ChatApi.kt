@@ -8,6 +8,7 @@ import com.ssafy.domain.model.LastReadMessageRequest
 import com.ssafy.domain.model.MessageResponse
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Headers
 import retrofit2.http.POST
@@ -37,7 +38,7 @@ interface ChatApi {
     ): List<MessageResponse>
 
     @Headers("Content-Type: application/json")
-    @POST("/api/chat/room/{chatroomId}")
+    @DELETE("/api/chat/room/{chatroomId}")
     suspend fun deleteDisconnectSocket(
         @Path("chatroomId") chatroomId: Int,
     ): Response<Unit>
