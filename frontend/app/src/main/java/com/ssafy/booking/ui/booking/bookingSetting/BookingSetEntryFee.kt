@@ -37,7 +37,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun MainScreen() {
     Scaffold(
-        bottomBar = { FixedBottomButton() }
+        bottomBar = { (SetEntryFeeBottomButton()) }
     ) { innerPadding ->
         setEntryFee(Modifier.padding(innerPadding))
     }
@@ -52,7 +52,6 @@ fun setEntryFee(modifier: Modifier = Modifier) {
         FeeInputField(onFeeChanged = { fee ->
             enteredFee = fee
         })
-
         Text("설정된 참가비: $enteredFee 원")
     }
 }
@@ -90,7 +89,7 @@ fun FeeInputField(onFeeChanged: (Int) -> Unit) {
 }
 
 @Composable
-fun FixedBottomButton() {
+fun SetEntryFeeBottomButton() {
     Box(
         contentAlignment = Alignment.BottomCenter,
         modifier = Modifier
