@@ -29,11 +29,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
@@ -91,11 +93,36 @@ import java.util.Locale
 @Composable
 fun ChatDetail(
     navController: NavController,
-    socketViewModel: SocketViewModel
+    socketViewModel: SocketViewModel,
+    chatId: String?,
+    memberListString: String?
 ) {
     val chatViewModel: ChatViewModel = hiltViewModel()
     val myPageViewModel: MyPageViewModel = hiltViewModel()
-    val chatId = navController.currentBackStackEntry?.arguments?.getString("chatId")
+    val chatId = chatId ?: return
+
+    val memberList = memberListString?.split(",")?.map { it.toInt() } ?: return
+    val userInfoMap = remember { mutableMapOf<Long, UserInfoResponseByPk>() }
+    LaunchedEffect(memberList) {
+        memberList.forEach { memberId ->
+            myPageViewModel.getUserInfoResponseByPk(memberId.toLong())
+        }
+    }
+    val userInfoResponse = myPageViewModel.getUserInfoResponseByPk.observeAsState()
+    userInfoResponse.value?.body()?.let { userInfo ->
+        userInfoMap[userInfo.memberPk] = userInfo
+    }
+
+    Log.d("CHAT_DETAIL", "${userInfoMap}")
+
+    val messages by socketViewModel.finalMessages.observeAsState(initial = emptyList())
+
+    // UI 상태
+    val listState = rememberLazyListState()
+    val topBarState = rememberTopAppBarState()
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(topBarState)
+    val coroutineScope = rememberCoroutineScope()
 
     // 최초 모든 메시지 갱신
     LaunchedEffect(Unit) {
@@ -103,7 +130,13 @@ fun ChatDetail(
             socketViewModel.loadAllMessage(chatId.toInt())
         }
     }
-
+    Log.d("CHAT_DETAIL", "messageSize ${messages.size}")
+    // 스크롤 내리기
+    LaunchedEffect(messages.size) {
+        if(messages!=null && messages.size > 10) {
+            listState.animateScrollToItem(messages.size - 1)
+        }
+    }
     // 최신 메시지 폴링 시작
     LaunchedEffect(Unit) {
         if (chatId != null) {
@@ -118,12 +151,9 @@ fun ChatDetail(
             }
         }
     }
-
-    val messages by socketViewModel.finalMessages.observeAsState(initial = emptyList())
-
     // 소켓 연결 + 읽었다고 보내기
     chatId?.let {
-        LaunchedEffect(chatId) {
+        LaunchedEffect(Unit) {
             socketViewModel.connectToChat(chatId)
             socketViewModel.postLastReadMessageId(chatId.toInt())
         }
@@ -143,14 +173,6 @@ fun ChatDetail(
         memberId = response.body()?.memberPk
         nickname = response.body()?.nickname ?: ""
     }
-
-
-    // UI 상태
-    val listState = rememberLazyListState()
-    val topBarState = rememberTopAppBarState()
-    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(topBarState)
-    val coroutineScope = rememberCoroutineScope()
 
     // 나갈 때 소켓 연결 해제
     DisposableEffect(chatId) {
@@ -211,7 +233,8 @@ fun ChatDetail(
                         .background(Color(0xFF9bbbd4)),
                     listState,
                     messages,
-                    memberId
+                    memberId,
+                    userInfoMap
                 )
                 chatId?.let {
                     InputText(
@@ -246,7 +269,8 @@ fun MessageList(
     modifier: Modifier = Modifier,
     listState: LazyListState,
     messages: List<MessageEntity>,
-    memberId: Long?
+    memberId: Long?,
+    userInfoMap: MutableMap<Long, UserInfoResponseByPk>
 ) {
     LaunchedEffect(messages.size) {
         if (listState.isScrolledToTheBottom()) {
@@ -254,25 +278,6 @@ fun MessageList(
         }
     }
 
-    val myPageViewModel: MyPageViewModel = hiltViewModel()
-    // 메시지 아이템에 대한 유저 정보를 캐시하기 위한 맵
-    val userInfoCache = remember { mutableMapOf<Long, UserInfoResponseByPk>() }
-    LaunchedEffect(messages) {
-        messages.forEach { message ->
-            message.senderId?.toLong()?.let { senderId ->
-                if (!userInfoCache.containsKey(senderId)) {
-                    myPageViewModel.getUserInfoResponseByPk(senderId.toInt())
-                }
-            }
-        }
-    }
-    LaunchedEffect(myPageViewModel.getUserInfoResponseByPk) {
-        myPageViewModel.getUserInfoResponseByPk.observeForever { response ->
-            response.body()?.let { userInfo ->
-                userInfoCache[userInfo.memberPk] = userInfo
-            }
-        }
-    }
 
     Box(
         modifier = modifier
@@ -287,7 +292,7 @@ fun MessageList(
                 val previousMessage = if (index > 0) messages[index - 1] else null
                 val nextMessage =
                     if (index < messages.size - 1) messages[index + 1] else null
-                MessageItem(message, previousMessage, nextMessage, memberId, userInfoCache)
+                MessageItem(message, previousMessage, nextMessage, memberId, userInfoMap)
             }
         }
     }
@@ -299,12 +304,10 @@ fun MessageItem(
     previousMessage: MessageEntity?,
     nextMessage: MessageEntity?,
     memberId: Long?,
-    userInfoCache: MutableMap<Long, UserInfoResponseByPk>
+    userInfoMap: MutableMap<Long, UserInfoResponseByPk>
 ) {
     val isOwnMessage = message.senderId?.toLong() == memberId
-    val userInfo = userInfoCache[message.senderId?.toLong()]
-//    Log.d("CHAT_DETAIL", "유저캐시맵 ${userInfoCache}")
-//    Log.d("CHAT_DETAIL", "유저정보 $userInfo")
+    val userInfo = userInfoMap[message.senderId?.toLong()]
 
     val nextTime = nextMessage?.timeStamp?.let { formatTimestamp(it) }
     val curTime = formatTimestamp(message.timeStamp)
@@ -348,9 +351,11 @@ fun MessageItem(
 
         ) {
             if (isOwnMessage) {
+                // 자신의 메시지
             } else if (previousMessage?.senderId != message.senderId) {
+                // 타인의 메시지
                 AsyncImage(
-                    model = userInfo?.profileImage,
+                    model =  if (userInfo?.profileImage.isNullOrEmpty()) R.drawable.basic_profile else userInfo?.profileImage,
                     contentScale = ContentScale.Crop,
                     contentDescription = null,
                     placeholder = ColorPainter(Color.LightGray),
@@ -478,7 +483,7 @@ fun InputText(
                 text = TextFieldValue("")
                 coroutineScope.launch {
                     socketViewModel.sendMessage(message, chatId?.toLong())
-                    delay(30)
+                    delay(3010)
                     listState.animateScrollToItem(messages.size)
                 }
             },

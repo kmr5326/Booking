@@ -192,13 +192,14 @@ fun ChatItem(
             .padding(10.dp)
             .clickable(onClick = {
                 onRowClick(chat)
-                navController.navigate("chatDetail/${chat.chatroomId}")
+                val memberListString = chat.memberList.joinToString(",")
+                navController.navigate("chatDetail/${chat.chatroomId}/${memberListString}")
             })
     ) {
         // 개인 채팅방 이미지
         if (chat.memberList.size <= 1) {
             Image(
-                painter = painterResource(id = R.drawable.chat3),
+                painter = painterResource(id = R.drawable.main1),
                 contentDescription = "Chat Image",
                 modifier = Modifier
                     .size(70.dp, 70.dp)
@@ -207,7 +208,7 @@ fun ChatItem(
             // 채팅방 이미지
         } else {
             Image(
-                painter = painterResource(id = R.drawable.chat3),
+                painter = painterResource(id = R.drawable.main1),
                 contentDescription = "Chat Image",
                 modifier = Modifier
                     .size(70.dp, 70.dp)

@@ -68,6 +68,7 @@ class SocketViewModel @Inject constructor(
             Log.d("CHAT_DETAIL", "전체 메시지 갱신")
         }
     }
+
     
     // 로컬에 있지만 불러오지 않은 메시지 불러오기
     fun loadLatestMessage(chatId: Int) {
