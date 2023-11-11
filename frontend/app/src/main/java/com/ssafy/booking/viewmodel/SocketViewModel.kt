@@ -62,10 +62,10 @@ class SocketViewModel @Inject constructor(
     // 전체 메시지 불러오기
     fun loadAllMessage(chatId: Int) {
         allMessagesSource = messageDao.getAllMessage(chatId).also {
+            Log.d("CHAT_DETAIL", "전체 메시지 갱신")
             it.observeForever { allMessages ->
                 _finalMessages.postValue(allMessages)
             }
-            Log.d("CHAT_DETAIL", "전체 메시지 갱신")
         }
     }
 

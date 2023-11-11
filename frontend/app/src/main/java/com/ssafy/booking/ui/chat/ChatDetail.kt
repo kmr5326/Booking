@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.exclude
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -29,6 +30,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -40,6 +42,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.NavigationDrawerItem
+import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.Text
@@ -108,6 +112,7 @@ fun ChatDetail(
     Log.d("CHAT_DETAIL", "${meetingTitle}")
     val memberList = memberListString?.split(",")?.map { it.toInt() } ?: return
     val userInfoMap = remember { mutableMapOf<Long, UserInfoResponseByPk>() }
+    Log.d("CHAT_DETAIL", "멤버리스트 ${memberList}")
     LaunchedEffect(memberList) {
         memberList.forEach { memberId ->
             myPageViewModel.getUserInfoResponseByPk(memberId.toLong())
@@ -118,7 +123,7 @@ fun ChatDetail(
         userInfoMap[userInfo.memberPk] = userInfo
     }
 
-    Log.d("CHAT_DETAIL", "${userInfoMap}")
+    Log.d("CHAT_DETAIL", "유저맵 ${userInfoMap}")
 
     val messages by socketViewModel.finalMessages.observeAsState(initial = emptyList())
 
@@ -133,12 +138,13 @@ fun ChatDetail(
     LaunchedEffect(Unit) {
         if (chatId != null) {
             socketViewModel.loadAllMessage(chatId.toInt())
+            delay(1000)
         }
     }
     Log.d("CHAT_DETAIL", "messageSize ${messages.size}")
     // 스크롤 내리기
     LaunchedEffect(messages.size) {
-        if(messages!=null && messages.size > 10) {
+        if (messages != null && messages.size > 10) {
             listState.animateScrollToItem(messages.size - 1)
         }
     }
@@ -157,7 +163,7 @@ fun ChatDetail(
         }
     }
     // 소켓 연결 + 읽었다고 보내기
-    chatId?.let {
+    chatId.let {
         LaunchedEffect(Unit) {
             socketViewModel.connectToChat(chatId)
             socketViewModel.postLastReadMessageId(chatId.toInt())
@@ -187,22 +193,64 @@ fun ChatDetail(
             }
         }
     }
+    Button(
+        onClick = {
+            val request = ChatExitRequest(chatId, memberId)
+            Log.d("CHAT", "$request")
+            chatViewModel.exitChatRoom(request)
+            navController.popBackStack()
+        }
+    ) {
+        Text("채팅방 나가기")
+    }
+
 
     ModalNavigationDrawer(
+        gesturesEnabled = !drawerState.isClosed,
         drawerState = drawerState,
         drawerContent = {
             ModalDrawerSheet {
-                Text("$meetingTitle", modifier = Modifier.padding(16.dp))
-                Divider()
-                Button(
-                    onClick = {
-                        val request = ChatExitRequest(chatId, memberId)
-                        Log.d("CHAT", "$request")
-                        chatViewModel.exitChatRoom(request)
-                        navController.popBackStack()
+                Column(modifier = Modifier.fillMaxSize()) {
+                    Text(
+                        modifier = Modifier.padding(20.dp),
+                        text = "${meetingTitle}"
+                    )
+                    Divider()
+                    Spacer(Modifier.height(12.dp))
+                    userInfoMap.forEach { user ->
+                        NavigationDrawerItem(
+                            icon = {
+                                AsyncImage(
+                                    modifier = Modifier
+                                        .size(48.dp)
+                                        .clip(RoundedCornerShape(20.dp))
+                                        .border(1.dp, Color.Gray, RoundedCornerShape(20.dp)),
+                                    model = if (user.value.profileImage.isNullOrEmpty()) R.drawable.basic_profile else user.value.profileImage,
+                                    contentDescription = "유저", // 내용 설명
+                                )
+                            },
+                            label = { Text(user.value.nickname) },
+                            selected = false,
+                            onClick = {
+                                navController.navigate("profile/${user.value.memberPk}")
+                            },
+                            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                        )
                     }
-                ) {
-                    Text("채팅방 나가기")
+                    Spacer(Modifier.weight(1f))
+                    Divider()
+                    NavigationDrawerItem(
+                        icon = { Icon(Icons.Filled.ExitToApp, "채팅방 나가기") },
+                        label = { Text("채팅방 나가기") },
+                        selected = false,
+                        onClick = {
+                            val request = ChatExitRequest(chatId, memberId)
+                            Log.d("CHAT", "$request")
+                            chatViewModel.exitChatRoom(request)
+                            navController.popBackStack()
+                        },
+                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                    )
                 }
             }
         }
@@ -241,7 +289,7 @@ fun ChatDetail(
                     memberId,
                     userInfoMap
                 )
-                chatId?.let {
+                chatId.let {
                     InputText(
                         modifier = Modifier
                             .navigationBarsPadding()
@@ -361,7 +409,7 @@ fun MessageItem(
             } else if (previousMessage?.senderId != message.senderId) {
                 // 타인의 메시지
                 AsyncImage(
-                    model =  if (userInfo?.profileImage.isNullOrEmpty()) R.drawable.basic_profile else userInfo?.profileImage,
+                    model = if (userInfo?.profileImage.isNullOrEmpty()) R.drawable.basic_profile else userInfo?.profileImage,
                     contentScale = ContentScale.Crop,
                     contentDescription = null,
                     placeholder = ColorPainter(Color.LightGray),
@@ -370,8 +418,8 @@ fun MessageItem(
                         .clip(RoundedCornerShape(20.dp))
                         .border(1.dp, Color.Gray, RoundedCornerShape(20.dp))
                         .clickable {
-                        navController.navigate("profile/${userInfo?.memberPk}")
-                    }
+                            navController.navigate("profile/${userInfo?.memberPk}")
+                        }
                 )
             } else {
                 Spacer(modifier = Modifier.width(48.dp))
