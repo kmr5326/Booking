@@ -25,10 +25,9 @@ fun RecordUploader() {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
-            modifier = Modifier.padding(24.dp)
+            modifier = Modifier.padding(12.dp)
         ) {
             IconButton(
-                modifier = Modifier.padding(16.dp),
                 onClick = {
                     // 클릭 이벤트 처리
                 },
@@ -42,7 +41,6 @@ fun RecordUploader() {
                     tint = Color(0xFF00C68E)
                 )
             }
-            Spacer(modifier = Modifier.padding(4.dp))
             Text(
                 text = "녹음 파일 업로드",
                 fontSize = 12.sp,

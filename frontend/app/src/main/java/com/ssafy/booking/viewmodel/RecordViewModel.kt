@@ -13,7 +13,14 @@ class RecordViewModel @Inject constructor(
     private val _sliderPosition = MutableLiveData(0)
     val sliderPosition: LiveData<Int> = _sliderPosition
 
+    override fun onCleared() {
+        super.onCleared()
+        _sliderPosition.value = 0
+    }
+
     fun updateSliderPosition(newPosition: Int) {
         _sliderPosition.value = newPosition
     }
+
+
 }

@@ -33,7 +33,7 @@ fun RecordController(
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
-            modifier = Modifier.padding(24.dp)
+            modifier = Modifier.padding(12.dp)
         ) {
             IconButton(
                 onClick = {
