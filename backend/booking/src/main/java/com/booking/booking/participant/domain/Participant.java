@@ -20,8 +20,4 @@ public class Participant {
     private Integer memberId;
 
     private Long meetingId;
-
-    private Boolean attendanceStatus;
-
-    private Boolean paymentStatus;
 }
