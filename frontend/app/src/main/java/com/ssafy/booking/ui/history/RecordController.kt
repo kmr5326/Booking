@@ -1,5 +1,6 @@
 package com.ssafy.booking.ui.history
 
+import android.media.MediaPlayer
 import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -64,6 +65,8 @@ fun SeekBar(
     recordViewModel: RecordViewModel
 ) {
     val sliderPosition by recordViewModel.sliderPosition.observeAsState(0)
+    val totalDuration by recordViewModel.totalDuration.observeAsState(0)
+
 
     Column (
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -74,7 +77,7 @@ fun SeekBar(
             onValueChange = { newPosition ->
                 recordViewModel.updateSliderPosition(newPosition.toInt())
             },
-            valueRange = 0f..100f, // 녹음 파일의 길이만큼 할 것
+            valueRange = 0f..totalDuration.toFloat(), // 녹음 파일의 길이만큼 할 것
             colors = SliderDefaults.colors(
                 thumbColor = Color(0xFF00C68E), // 원
                 activeTrackColor = Color(0xFF00C68E), // 진행
@@ -84,7 +87,10 @@ fun SeekBar(
                 .size(100.dp)
         )
         Text(
-            text = "${sliderPosition} / 30:00"
+            text = "${recordViewModel.convertMillisToTimeFormat(sliderPosition)} / ${recordViewModel.convertMillisToTimeFormat(totalDuration)}"
         )
     }
 }
+
+
+

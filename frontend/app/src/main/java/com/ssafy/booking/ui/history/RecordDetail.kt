@@ -33,7 +33,6 @@ fun RecordDetail(
 
 ) {
     val recordViewModel: RecordViewModel = hiltViewModel()
-    val sliderPosition by recordViewModel.sliderPosition.observeAsState(0)
 
     Box(
         modifier = Modifier
@@ -46,36 +45,36 @@ fun RecordDetail(
                 Text(
                     modifier = Modifier
                         .border(BorderStroke(1.dp, Color.Black))
-                        .clickable(onClick = { recordViewModel.updateSliderPosition(30) }),
-                    text = "30"
+                        .clickable(onClick = { recordViewModel.updateSliderPosition(30000) }),
+                    text = "${recordViewModel.convertMillisToTimeFormat(30000)}"
                 )
-                Text(text = "데미안을 읽으면서 가장 인상 깊었던 것은 주인공 신클라이어의 성장 과정이었습니다.")
+                Text(text = "그래 그리 쉽지는 않겠지")
             }
             Row {
                 Text(
                     modifier = Modifier
                         .border(BorderStroke(1.dp, Color.Black))
-                        .clickable(onClick = { recordViewModel.updateSliderPosition(50) }),
-                    text = "50"
+                        .clickable(onClick = { recordViewModel.updateSliderPosition(50000) }),
+                    text = "${recordViewModel.convertMillisToTimeFormat(50000)}"
                 )
-                Text(text = "맞아요. 데미안과의 관계를 통해 신클라이어가 자신의 내면을 깊게 탐색하는 모습이 인상적이었어요.")
+                Text(text = "나를 허락해준 세상이란")
             }
             Row {
                 Text(
                     modifier = Modifier
                         .border(BorderStroke(1.dp, Color.Black))
-                        .clickable(onClick = { recordViewModel.updateSliderPosition(70) }),
-                    text = "70"
+                        .clickable(onClick = { recordViewModel.updateSliderPosition(90000) }),
+                    text = "${recordViewModel.convertMillisToTimeFormat(90000)}"
                 )
-                Text(text = "데미안이란 인물도 매우 흥미로웠어요. 그는 마치 신클라이어의 또 다른 자아, 혹은 그의 내면의 가이드 같았어요.")
+                Text(text = "손쉽게 다가오는")
             }
             Row {
                 Text(
                     modifier = Modifier
-                        .clickable(onClick = { recordViewModel.updateSliderPosition(90) }),
-                    text = "90"
+                        .clickable(onClick = { recordViewModel.updateSliderPosition(120000) }),
+                    text = "${recordViewModel.convertMillisToTimeFormat(120000)}"
                 )
-                Text(text = "저는 데미안이 신클라이어의 내면의 투영이라고 생각했어요.")
+                Text(text = "편하고도 감미로운 공간이 아냐")
             }
         }
     }
