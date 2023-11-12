@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.fasterxml.jackson.databind.ser.Serializers.Base
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -44,6 +45,7 @@ import com.kakao.sdk.user.UserApiClient
 import com.ssafy.booking.ui.AppNavItem
 import com.ssafy.booking.ui.LocalNavigation
 import com.ssafy.booking.utils.MyFirebaseMessagingService
+import com.ssafy.booking.utils.Utils.BASE_URL
 import com.ssafy.booking.viewmodel.AppViewModel
 import com.ssafy.booking.viewmodel.LoginViewModel
 import com.ssafy.booking.viewmodel.MainViewModel
@@ -73,7 +75,7 @@ data class LoginInfo(val loginId: String)
 
 // Retrofit 인스턴스 생성
 val retrofit = Retrofit.Builder()
-    .baseUrl("https://k9c206.p.ssafy.io:9999") // 실제 서버 URL로 변경해야 함
+    .baseUrl(BASE_URL) // 실제 서버 URL로 변경해야 함
     .addConverterFactory(GsonConverterFactory.create())
     .build()
 

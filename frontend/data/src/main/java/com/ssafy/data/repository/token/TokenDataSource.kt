@@ -19,8 +19,11 @@ class TokenDataSource @Inject constructor(
         private const val LAT = "lat"
         private const val LGT = "lgt"
         private const val MEMBER_PK = "member_pk"
-
+        private const val TITLE = "title"
+        private const val DESCRIPTION = "description"
+        private const val BOOK_IMAGE = "book_image"
         private const val DEVICE_TOKEN = "device_token"
+
     }
     private fun getTokenPreference(context: Context) : SharedPreferences {
         return context.getSharedPreferences(ACCESS_TOKEN, Context.MODE_PRIVATE)
@@ -138,31 +141,31 @@ class TokenDataSource @Inject constructor(
 
     // 위도,경도,멤버pk
 
-//    fun putLat(lat: Float) {
-//        putFloat(LAT, lat)
-//    }
-//
-//    fun getLat() : Float {
-//        return getFloat(LAT)
-//    }
-//
-//    fun removeLat() {
-//        putFloat(LAT, 0f)
-//    }
-//
-//    //
-//
-//    fun putLgt(lgt: Float) {
-//        putFloat(LGT, lgt)
-//    }
-//
-//    fun getLgt() : Float {
-//        return getFloat(LGT)
-//    }
-//
-//    fun removeLgt() {
-//        putFloat(LGT, 0f)
-//    }
+    fun putLat(lat: Float) {
+        putFloat(LAT, lat)
+    }
+
+    fun getLat() : Float {
+        return getFloat(LAT)
+    }
+
+    fun removeLat() {
+        putFloat(LAT, 0f)
+    }
+
+    //
+
+    fun putLgt(lgt: Float) {
+        putFloat(LGT, lgt)
+    }
+
+    fun getLgt() : Float {
+        return getFloat(LGT)
+    }
+
+    fun removeLgt() {
+        putFloat(LGT, 0f)
+    }
 //
 //    //
 //
@@ -176,6 +179,34 @@ class TokenDataSource @Inject constructor(
 
     fun removeMemberPk() {
         putInt(MEMBER_PK, 0)
+    }
+
+    fun getTitle() : String? {
+        return getString(TITLE)
+    }
+    fun putTitle(title: String?) {
+        putString(TITLE, title)
+    }
+    fun removeTitle() {
+        putString(TITLE, null)
+    }
+    fun getDescription() : String? {
+        return getString(DESCRIPTION)
+    }
+    fun putDescription(description: String?) {
+        putString(DESCRIPTION, description)
+    }
+    fun removeDescription() {
+        putString(DESCRIPTION, null)
+    }
+    fun getBookImage() : String? {
+        return getString(BOOK_IMAGE)
+    }
+    fun putBookImage(bookImage: String?) {
+        putString(BOOK_IMAGE, bookImage)
+    }
+    fun removeBookImage() {
+        putString(BOOK_IMAGE, null)
     }
 
 }

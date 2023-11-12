@@ -91,7 +91,6 @@ fun SetLocationSearch() {
                         .fillMaxWidth()
                         .padding(8.dp)
                         .shadow(4.dp, RoundedCornerShape(4.dp)),
-
                 ) {
                     Column(
                         modifier = Modifier
@@ -109,7 +108,5 @@ fun SetLocationSearch() {
     } else {
         Text(text = "검색 결과가 없습니다.")
     }
-
-
 }
 

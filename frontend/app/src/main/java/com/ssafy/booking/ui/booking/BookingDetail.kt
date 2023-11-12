@@ -68,7 +68,22 @@ fun BookingJoinRequestButton(meetingId:Long) {
     Button(onClick = {
         navController.navigate(AppNavItem.BookingSetLocation.route)
     }) {
-        Text(text = "모임 참가 신청하기")
+        Text(text = "로케이트")
+    }
+    Button(onClick = {
+        navController.navigate(AppNavItem.BookingSetTitle.route)
+    }) {
+        Text(text = "타이틀")
+    }
+    Button(onClick = {
+        navController.navigate(AppNavItem.BookingSetEntryFee.route)
+    }) {
+        Text(text = "피")
+    }
+    Button(onClick = {
+        navController.navigate(AppNavItem.BookingSetDateTime.route)
+    }) {
+        Text(text = "데이트타임")
     }
 
 //    Button(onClick = {
