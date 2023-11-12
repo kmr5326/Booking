@@ -7,5 +7,5 @@ import retrofit2.Response
 
 interface LocationRepository {
     suspend fun getAddress(lng:String,lat:String) : Response<AddressResponse>
-    suspend fun getSearchList(query:String,page:Int,size:Int) : Response<KakaoSearchResponse>
+    suspend fun getSearchList(query:String,page:Int,size:Int,x:String,y:String,radius:Int) : Response<KakaoSearchResponse>
 }

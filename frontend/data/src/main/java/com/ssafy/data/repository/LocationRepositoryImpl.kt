@@ -18,7 +18,7 @@ class LocationRepositoryImpl @Inject constructor(
         return locationApi.getAddress(lng, lat)
     }
 
-    override suspend fun getSearchList(query: String, page: Int, size: Int): Response<KakaoSearchResponse> {
-        return locationApi.getSearchList(query, page, size)
+    override suspend fun getSearchList(query: String, page: Int, size: Int,x:String,y:String,radius:Int): Response<KakaoSearchResponse> {
+        return locationApi.getSearchList(query, page, size, x,y,radius)
     }
 }

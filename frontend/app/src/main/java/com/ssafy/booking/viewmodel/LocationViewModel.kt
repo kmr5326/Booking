@@ -48,10 +48,10 @@ class LocationViewModel @Inject constructor(
 
     private val _getKakaoSearchResponse = MutableLiveData<Response<KakaoSearchResponse>>()
     val getKakaoSearchResponse: LiveData<Response<KakaoSearchResponse>> get() = _getKakaoSearchResponse
-    fun getSearchList(query:String,page:Int,size:Int) = viewModelScope.launch {
+    fun getSearchList(query:String,page:Int,size:Int,x:String,y:String,radius:Int) = viewModelScope.launch {
         isLoading.value = true
         try {
-            val response = locationUseCase.getSearchList(query,page,size)
+            val response = locationUseCase.getSearchList(query,page,size,x,y,radius)
             if (response.isSuccessful) {
                 // 성공적인 응답 처리
                 _getKakaoSearchResponse.value = response

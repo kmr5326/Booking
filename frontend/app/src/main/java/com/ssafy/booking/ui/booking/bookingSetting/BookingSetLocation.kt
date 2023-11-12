@@ -35,6 +35,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.ssafy.booking.di.App
 import com.ssafy.booking.viewmodel.BookingViewModel
 import com.ssafy.booking.viewmodel.LocationViewModel
 
@@ -53,7 +54,8 @@ fun SetLocationSearch() {
     }
     val viewModel: LocationViewModel = hiltViewModel()
     val getKakaoSearchResponse by viewModel.getKakaoSearchResponse.observeAsState()
-
+    val lat = App.prefs.getLat().toString()
+    val lgt = App.prefs.getLgt().toString()
     OutlinedTextField(
         value = location, // 이 부분을 뷰모델의 상태로 연결하거나 필요에 따라 변경
         onValueChange = { location = it },
@@ -77,7 +79,8 @@ fun SetLocationSearch() {
         ),
         keyboardActions = KeyboardActions(
             onDone = {
-                viewModel.getSearchList(location.text, 1, 15)
+                // 사용자 설정 위치에서 반경 20km 안에서만 검색
+                viewModel.getSearchList(location.text, 5, 15,lat,lgt,20000)
             }
         )
     )
@@ -101,6 +104,9 @@ fun SetLocationSearch() {
                         Text(text = "URL: ${item.placeUrl ?: "정보 없음"}")
                         Text(text = "X 좌표: ${item.x ?: "정보 없음"}")
                         Text(text = "Y 좌표: ${item.y ?: "정보 없음"}")
+                        Text(text= "플레이스네임: ${item.placeName ?: "정보 없음"}")
+                        Text(text="카테고리: ${item.categoryName ?: "정보 없음"}")
+                        Text(text="거리: ${item.distance ?: "정보 없음"}")
                     }
                 }
             }

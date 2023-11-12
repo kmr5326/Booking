@@ -11,7 +11,7 @@ class LocationUseCase @Inject constructor(private val repository: LocationReposi
     suspend fun getAddress(lng:String,lat:String): Response<AddressResponse> {
         return repository.getAddress(lng,lat)
     }
-    suspend fun getSearchList(query:String,page:Int,size:Int): Response<KakaoSearchResponse> {
-        return repository.getSearchList(query,page,size)
+    suspend fun getSearchList(query:String,page:Int,size:Int,x:String,y:String,radius:Int): Response<KakaoSearchResponse> {
+        return repository.getSearchList(query,page,size,x,y,radius)
     }
 }

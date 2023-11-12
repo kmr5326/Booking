@@ -100,10 +100,11 @@ fun SetCurrentLocation() {
 //    val loginId = tokenDataSource.getLoginId()
                 // 위랑 아래랑 같은 코드
                 val loginId2 = App.prefs.getLoginId()
-                val lng = "127.423084873712"
-                val lat = "37.0789561558879"
-                locationViewModel.getAddress(lng, lat)
-                locationViewModel.getSearchList("스타벅스 하남점", 1, 15)
+                val lat = App.prefs.getLat().toString()
+                val lgt = App.prefs.getLgt().toString()
+
+                locationViewModel.getAddress(lat, lgt)
+                locationViewModel.getSearchList("스타벅스 하남점", 5, 15,lat,lgt)
             }
     ) {
         Text(text= searchListData.toString() ?: "검색결과가 없습니다")
