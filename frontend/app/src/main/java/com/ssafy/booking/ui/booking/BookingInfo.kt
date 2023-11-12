@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberImagePainter
 import com.ssafy.booking.R
+import com.ssafy.booking.di.App
 import com.ssafy.booking.viewmodel.BookingViewModel
 import com.ssafy.domain.model.booking.BookingDetail
 
@@ -40,10 +41,8 @@ import com.ssafy.domain.model.booking.BookingDetail
 fun BookingInfo(
     meetingId : Long,
 )
-
 {
     // 뷰모델 연결
-
     val bookingViewModel: BookingViewModel = hiltViewModel()
     val getBookingDetailResponse by bookingViewModel.getBookingDetailResponse.observeAsState()
     var bookingDetail by remember { mutableStateOf<BookingDetail?>(null) }
@@ -54,6 +53,14 @@ fun BookingInfo(
         getBookingDetailResponse?.body()?.let { response ->
             Log.d("test334", "$response")
             bookingDetail = response // 상태 업데이트
+            bookingDetail?.let {
+                App.prefs.putBookTitle(bookingDetail?.bookTitle)
+                App.prefs.putDescription(bookingDetail?.description)
+                App.prefs.putBookAuthor(bookingDetail?.bookAuthor)
+                App.prefs.putBookImage(bookingDetail?.coverImage)
+                App.prefs.putTitle(bookingDetail?.meetingTitle)
+                App.prefs.putMaxParticipants(bookingDetail?.maxParticipants)
+            }
         }
     }
     Column(

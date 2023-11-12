@@ -1,6 +1,7 @@
 package com.ssafy.booking.viewmodel
 
 import android.util.Log
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -66,12 +67,10 @@ class BookingViewModel @Inject constructor(
     // GET - 모임 전체 목록 조회
     private val _getBookingAllListResponse = MutableLiveData<Response<List<BookingAll>>>()
     val getBookingAllList: LiveData<Response<List<BookingAll>>> get() = _getBookingAllListResponse
-
     fun getBookingAllList() =
         viewModelScope.launch {
             _getBookingAllListResponse.value = bookingUseCase.getAllBooking()
         }
-
     // GET - 모임 상세 조회
     private val _getBookingDetailResponse = MutableLiveData<Response<BookingDetail>>()
     val getBookingDetailResponse: LiveData<Response<BookingDetail>> get() = _getBookingDetailResponse
@@ -136,4 +135,29 @@ class BookingViewModel @Inject constructor(
         viewModelScope.launch {
             _postBookingStartResponse.value = bookingUseCase.postBookingStart(request)
         }
+
+    // POST - 모임 세팅
+    val title = MutableLiveData("")
+    val description = MutableLiveData("")
+    val lgt = MutableLiveData("")
+    val lat = MutableLiveData("")
+    val location = MutableLiveData("")
+    val placeName = MutableLiveData("")
+    val date = MutableLiveData("")
+    val time = MutableLiveData("")
+    val fee = MutableLiveData(0)
+
+
+//    var description = mutableStateOf(
+//        ""
+//    )
+//    var bookgImage = mutableStateOf(
+//            ""
+//    )
+//    var fee = mutableStateOf({0})
+//    var lng = mutableStateOf({0.0})
+//    var lat = mutableStateOf({0.0})
+//    var location = mutableStateOf({""})
+//    var date = mutableStateOf({""})
+    
 }

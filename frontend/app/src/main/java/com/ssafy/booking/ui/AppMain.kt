@@ -23,11 +23,16 @@ import com.ssafy.booking.ui.book.BookDetail
 import com.ssafy.booking.ui.book.BookHome
 import com.ssafy.booking.ui.booking.BookingDetail
 import com.ssafy.booking.ui.booking.Main
+import com.ssafy.booking.ui.booking.bookingSetting.SetDateAndFee
+import com.ssafy.booking.ui.booking.bookingSetting.SetLocation
+import com.ssafy.booking.ui.booking.bookingSetting.SetTitle
 import com.ssafy.booking.ui.chat.ChatDetail
 import com.ssafy.booking.ui.chat.ChatHome
 import com.ssafy.booking.ui.common.SettingPage
 import com.ssafy.booking.ui.history.HistoryDetail
 import com.ssafy.booking.ui.history.HistoryHome
+import com.ssafy.booking.ui.location.SettingAddress
+import com.ssafy.booking.ui.history.HistoryRecord
 import com.ssafy.booking.ui.login.Greeting
 import com.ssafy.booking.ui.login.SignInScreen
 import com.ssafy.booking.ui.profile.MyBookDetail
@@ -49,9 +54,10 @@ sealed class AppNavItem(
     object BookDetail : AppNavItem("bookDetail/{isbn}")
     object History : AppNavItem("history")
     object HistoryDetail : AppNavItem("history/detail")
+    object HistoryRecord : AppNavItem("history/detail/record")
     object Main : AppNavItem("main")
     object Chat : AppNavItem("chat")
-    object ChatDetail : AppNavItem("chatDetail/{chatId}")
+    object ChatDetail : AppNavItem("chatDetail/{chatId}/{memberList}/{meetingTitle}")
     object Profile : AppNavItem("profile/{memberPk}")
     object Login : AppNavItem("login")
     object CreateBooking : AppNavItem("create/booking/{isbn}")
@@ -66,6 +72,11 @@ sealed class AppNavItem(
     object BookingDetail : AppNavItem("bookingDetail/{meetingId}")
     object MyBookRegister : AppNavItem("profile/book/{isbn}")
     object MyBookDetail : AppNavItem("profile/book/detail/{isbn}")
+    object SettingAddress : AppNavItem("setting/address")
+    object BookingSetTitle : AppNavItem("booking/setting/title")
+    object BookingSetLocation : AppNavItem("booking/setting/location")
+    object BookingSetDateAndFee : AppNavItem("booking/setting/dateandfee")
+
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -121,10 +132,13 @@ fun Route(googleSignInClient: GoogleSignInClient) {
                 }
             }
             composable("history") {
-                HistoryHome(navController, appViewModel)
+                HistoryHome()
             }
             composable("history/detail") {
-                HistoryDetail(navController, appViewModel)
+                HistoryDetail()
+            }
+            composable("history/detail/record") {
+                HistoryRecord()
             }
             composable("main") {
                 Main(navController, appViewModel)
@@ -132,8 +146,11 @@ fun Route(googleSignInClient: GoogleSignInClient) {
             composable("chat") {
                 ChatHome(navController, appViewModel)
             }
-            composable("chatDetail/{chatId}") {
-                ChatDetail(navController, socketViewModel)
+            composable("chatDetail/{chatId}/{memberList}/{meetingTitle}") {
+                val chatId = it.arguments?.getString("chatId")
+                val memberListString = it.arguments?.getString("memberList")
+                val meetingTitle = it.arguments?.getString("meetingTitle")
+                ChatDetail(navController, socketViewModel, chatId, memberListString, meetingTitle)
             }
             composable("profile/{memberPk}") {navBackStackEntry->
                 val memberPk = navBackStackEntry.arguments?.getString("memberPk")?.toLong() ?: 0
@@ -178,6 +195,21 @@ fun Route(googleSignInClient: GoogleSignInClient) {
             composable("profile/book/detail/{isbn}") {navBackStackEntry->
                 val isbn = navBackStackEntry.arguments!!.getString("isbn")
                 MyBookDetail(isbn)
+            }
+            composable("setting/address") {
+                SettingAddress(navController, appViewModel)
+            }
+            composable("booking/setting/title"){
+                SetTitle()
+            }
+            composable("booking/setting/location")
+            {
+                SetLocation()
+            }
+
+            composable("booking/setting/dateandfee")
+            {
+                SetDateAndFee()
             }
         }
     }

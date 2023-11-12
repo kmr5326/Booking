@@ -61,6 +61,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
 import com.ssafy.booking.R
+import com.ssafy.booking.di.App
 import com.ssafy.booking.ui.common.BottomNav
 import com.ssafy.booking.viewmodel.AppViewModel
 import com.ssafy.booking.viewmodel.BookingViewModel
@@ -97,6 +98,8 @@ fun Main(
             tokenDataSource.putNickName(it.nickname)
             tokenDataSource.putProfileImage(it.profileImage)
             tokenDataSource.putMemberPk(it.memberPk)
+            tokenDataSource.putLat(it.lat.toFloat())
+            tokenDataSource.putLgt(it.lgt.toFloat())
             Log.d("test33", "$it")
             Log.d("test3", "${it.nickname}")
         }
@@ -131,7 +134,6 @@ fun BookList(navController: NavController, appViewModel: AppViewModel,bookingVie
     // response가 not null 이면 바디 추출
     val bookingAllList = bookingAllListState?.body()
     LazyColumn(
-
         modifier = Modifier
             .fillMaxSize()
             .fillMaxHeight()
@@ -153,6 +155,7 @@ fun BookItem(booking: BookingAll,navController: NavController) {
             .padding(12.dp)
             .clickable { // clickable 모디파이어 추가
                 navController.navigate("bookingDetail/$meetingId") // 클릭 시 상세 화면으로 이동
+                App.prefs.putMeetingId(meetingId) // 미팅 아이디 SharedPreference에 저장하기
             }
     ) {
         Image(
@@ -291,6 +294,9 @@ fun HomeTopBar(navController: NavController, appViewModel: AppViewModel) {
                 modifier = Modifier
                     .align(Alignment.CenterStart)
                     .padding(top = 10.dp)
+                    .clickable {
+                        navController.navigate("setting/address")
+                    }
             ) {
                 Text(text = "하남동", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color(0xFFffffff))
                 Icon(Icons.Filled.ArrowDropDown, contentDescription = null, tint = Color(0xFFffffff))
