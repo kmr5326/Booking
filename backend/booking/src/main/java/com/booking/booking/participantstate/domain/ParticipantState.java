@@ -1,4 +1,4 @@
-package com.booking.booking.participant.domain;
+package com.booking.booking.participantstate.domain;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -12,12 +12,16 @@ import org.springframework.data.relational.core.mapping.Table;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-@Table(name = "participants")
-public class Participant {
+@Table(name = "participants_state")
+public class ParticipantState {
     @Id
-    private long participantId;
+    private long stateId;
 
     private Integer memberId;
 
-    private Long meetingId;
+    private Long meetinginfoId;
+
+    private Boolean attendanceStatus;
+
+    private Boolean paymentStatus;
 }
