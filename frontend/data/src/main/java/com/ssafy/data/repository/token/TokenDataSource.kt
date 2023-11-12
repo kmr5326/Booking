@@ -23,6 +23,8 @@ class TokenDataSource @Inject constructor(
         private const val DESCRIPTION = "description"
         private const val BOOK_IMAGE = "book_image"
         private const val DEVICE_TOKEN = "device_token"
+        private const val BOOK_TITLE = "book_title"
+        private const val BOOK_AUTHOR = "book_author"
 
     }
     private fun getTokenPreference(context: Context) : SharedPreferences {
@@ -207,6 +209,25 @@ class TokenDataSource @Inject constructor(
     }
     fun removeBookImage() {
         putString(BOOK_IMAGE, null)
+    }
+
+    fun getBookTitle() : String? {
+        return getString(BOOK_TITLE)
+    }
+    fun putBookTitle(bookTitle: String?) {
+        putString(BOOK_TITLE, bookTitle)
+    }
+    fun removeBookTitle() {
+        putString(BOOK_TITLE, null)
+    }
+    fun getBookAuthor() : String? {
+        return getString(BOOK_AUTHOR)
+    }
+    fun putBookAuthor(bookAuthor: String?) {
+        putString(BOOK_AUTHOR, bookAuthor)
+    }
+    fun removeBookAuthor() {
+        putString(BOOK_AUTHOR, null)
     }
 
 }
