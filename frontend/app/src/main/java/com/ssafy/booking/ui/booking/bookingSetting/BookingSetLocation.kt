@@ -12,6 +12,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
@@ -24,6 +25,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
@@ -79,20 +81,35 @@ fun SetLocationSearch() {
             }
         )
     )
-
     val response = getKakaoSearchResponse?.body()?.documents
 
     if (response != null && response.isNotEmpty()) {
         LazyColumn {
             items(response) { item ->
-                Text(text = item.addressName ?: "주소 정보 없음")
-                Text(text = item.placeUrl ?: "URL 정보 없음")
-                Text(text = item.x ?: "X 좌표 정보 없음")
-                Text(text = item.y ?: "Y 좌표 정보 없음")
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp)
+                        .shadow(4.dp, RoundedCornerShape(4.dp)),
+
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp)
+                    ) {
+                        Text(text = "주소: ${item.addressName ?: "정보 없음"}")
+                        Text(text = "URL: ${item.placeUrl ?: "정보 없음"}")
+                        Text(text = "X 좌표: ${item.x ?: "정보 없음"}")
+                        Text(text = "Y 좌표: ${item.y ?: "정보 없음"}")
+                    }
+                }
             }
         }
     } else {
         Text(text = "검색 결과가 없습니다.")
     }
 
+
 }
+
