@@ -1,7 +1,11 @@
 package com.ssafy.booking.ui.profile
 
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.drawable.Icon
 import android.util.Log
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -10,6 +14,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -50,15 +55,47 @@ import com.ssafy.domain.model.mypage.UserFollowersResponse
 import com.ssafy.domain.model.mypage.UserFollowingsResponse
 import com.ssafy.domain.model.mypage.UserInfoResponse
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.res.painterResource
+import coil.ImageLoader
+import coil.compose.AsyncImagePainter
+import coil.compose.LocalImageLoader
+import coil.compose.rememberAsyncImagePainter
+import coil.imageLoader
+import coil.request.CachePolicy
+import coil.request.ImageRequest
+import coil.util.DebugLogger
+import com.ssafy.booking.di.NetworkModule_ProvideImageLoaderFactory.provideImageLoader
+import com.ssafy.booking.di.NetworkModule_ProvideObjectStorageInterceptorFactory.provideObjectStorageInterceptor
 import com.ssafy.booking.ui.LocalNavigation
+import com.ssafy.booking.ui.booking.tabTitles
 import com.ssafy.booking.ui.common.BackTopBar
+import com.ssafy.booking.utils.ObjectStorageInterceptor
 import com.ssafy.booking.viewmodel.MyBookViewModel
 import com.ssafy.domain.model.mybook.MyBookListResponse
 import com.ssafy.domain.model.mypage.UserInfoResponseByPk
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 
 @Composable
 fun MyProfile(profileData: ProfileData) {
     val navController = LocalNavigation.current
+    val viewModel: MyPageViewModel = hiltViewModel()
+    val imageLoader = LocalImageLoader.current
+    val context = LocalContext.current
+
+//    val imageTest by viewModel.naverCloudGetResponse.observeAsState()
+//    var bitmap : Bitmap? by remember { mutableStateOf(null) }
+//
+//    LaunchedEffect(imageTest) {
+//        imageTest?.let{
+//            val inputStream = imageTest!!.body()?.byteStream()
+//            bitmap = BitmapFactory.decodeStream(inputStream)
+//        }
+//    }
 
     Card(
         colors = CardDefaults.cardColors(
@@ -73,13 +110,19 @@ fun MyProfile(profileData: ProfileData) {
             modifier = Modifier.padding(8.dp)
         ) {
             AsyncImage(
-                model = profileData.myProfile?.profileImage,
+                model = ImageRequest.Builder(context)
+                    .data("https://kr.object.ncloudstorage.com/booking-bucket/images/${profileData.myProfile?.memberPk}_profile.png")
+                    .memoryCachePolicy(CachePolicy.DISABLED)
+                    .addHeader("Host", "kr.object.ncloudstorage.com")
+                    .crossfade(true)
+                    .build(),
                 contentScale = ContentScale.Crop,
                 contentDescription = null,
-                placeholder = ColorPainter(Color.DarkGray),
+                imageLoader=imageLoader,
                 modifier = Modifier
                     .size(64.dp)
-                    .clip(CircleShape)
+                    .clip(CircleShape),
+                error = painterResource(id = R.drawable.basic_profile)
             )
             Spacer(modifier = Modifier.size(40.dp))
             Column {
@@ -130,6 +173,7 @@ fun ProfileHome(
     // 상태 관찰
     val profileState by viewModel.profileState.observeAsState()
 
+
     LaunchedEffect(Unit) {
         loginId?.let {
             Log.d("mypage", "$loginId")
@@ -160,6 +204,33 @@ fun ProfileView(
     myBookViewModel : MyBookViewModel
 ) {
     val myBookState by myBookViewModel.myBookState.observeAsState()
+
+
+//    fun provideObjectStorageInterceptor(): ObjectStorageInterceptor {
+//        val accessKey = "64tVP74TUGmd6PDzjQ04"
+//        val secretKey = "1E11TfvJcy7OVnSSm3rV0Vph24CLUO4Tiehd5PtZ"
+//        val region = "kr-standard"
+//        return ObjectStorageInterceptor(accessKey, secretKey, region)
+//    }
+//
+//    fun provideImageLoader(context: Context): ImageLoader {
+//        val objectStorageInterceptor = provideObjectStorageInterceptor()
+//
+//        val okHttpClient = OkHttpClient.Builder()
+//            .addInterceptor(objectStorageInterceptor)
+//            .addInterceptor(HttpLoggingInterceptor().apply {
+//                level = HttpLoggingInterceptor.Level.BODY
+//            })
+//            .build()
+//
+//        return ImageLoader.Builder(context)
+//            .logger(DebugLogger())
+//            .okHttpClient(okHttpClient)
+//            .build()
+//    }
+//
+//    val imageLoader = provideImageLoader(context)
+
 
     Scaffold(
         topBar = {

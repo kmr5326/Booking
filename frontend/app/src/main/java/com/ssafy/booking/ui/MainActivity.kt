@@ -10,10 +10,15 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import coil.Coil
+import coil.ImageLoader
+import coil.imageLoader
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.location.LocationServices
 import com.kakao.sdk.common.KakaoSdk
 import com.kakao.sdk.common.util.Utility
+import com.ssafy.booking.di.NetworkModule_OkHttpClientWithObjectStorageFactory.okHttpClientWithObjectStorage
+import com.ssafy.booking.di.NetworkModule_ProvideObjectStorageInterceptorFactory.provideObjectStorageInterceptor
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -72,6 +77,8 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var googleSignInClient: GoogleSignInClient
 
+    @Inject lateinit var imageLoader: ImageLoader
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -104,5 +111,8 @@ class MainActivity : ComponentActivity() {
             )
         }
         fusedLocationClient.lastLocation.addOnSuccessListener { }
+
+        // Coil에 주입된 ImageLoader 설정
+        Coil.setImageLoader(imageLoader)
     }
 }

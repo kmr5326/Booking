@@ -1,5 +1,6 @@
 package com.ssafy.booking.viewmodel
 
+import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
@@ -18,18 +19,22 @@ import com.ssafy.domain.model.mypage.UserInfoResponseByPk
 import com.ssafy.domain.model.mypage.UserModifyRequest
 import com.ssafy.domain.usecase.MyBookUseCase
 import com.ssafy.domain.usecase.MyPageUseCase
+import com.ssafy.domain.usecase.NaverCloudUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import okhttp3.RequestBody
+import okhttp3.ResponseBody
 import retrofit2.Response
 import javax.inject.Inject
 
 @HiltViewModel
 class MyPageViewModel @Inject constructor(
     private val myPageUseCase: MyPageUseCase,
-    private val myBookUseCase: MyBookUseCase
+    private val myBookUseCase: MyBookUseCase,
+    private val naverCloudUseCase: NaverCloudUseCase
 ) : ViewModel() {
 
     // 마이페이지 에러 핸들링
@@ -53,16 +58,21 @@ class MyPageViewModel @Inject constructor(
     private val _userInfoChangeResult = MutableStateFlow<UserInfoChangeResult?>(null)
     val userInfoChangeResult: StateFlow<UserInfoChangeResult?> = _userInfoChangeResult.asStateFlow()
 
-    fun userInfoChange(nick: String, pImg: String, loginId: String, memberPk: Long) {
-        val requestInfo = UserModifyRequest(loginId = loginId, nickname = nick, profileImage = pImg)
+    fun userInfoChange(nick: String, loginId: String, memberPk: Long, requestBody: RequestBody?) {
+        // pImg 는 파일 이름으로 memberPk_profile.png 형식으로 들어갈 예정.
+        val requestInfo = UserModifyRequest(loginId = loginId, nickname = nick, profileImage = "${memberPk}_profile.png")
         Log.d("requestInfo", "$requestInfo")
 
         viewModelScope.launch {
+            // requestBody = inputStream data 를 뜻함.
+            if(requestBody != null) {
+                naverCloudUseCase.putObject("booking-bucket", "images/${memberPk}_profile.png", requestBody)
+            }
             myPageUseCase.patchUserInfo(requestInfo).collect { response ->
                 Log.d("requestInfo", "$response")
                 if (response.isSuccessful) {
                     // 성공 상태를 StateFlow에 업데이트
-                    _userInfoChangeResult.value = UserInfoChangeResult.Success(nick, pImg, "profile/$memberPk")
+                    _userInfoChangeResult.value = UserInfoChangeResult.Success(nick, "${memberPk}_profile.png", "profile/$memberPk")
                 } else {
                     // 실패 상태를 StateFlow에 업데이트
                     _userInfoChangeResult.value = UserInfoChangeResult.Error(true)
@@ -70,6 +80,25 @@ class MyPageViewModel @Inject constructor(
             }
         }
     }
+
+    // naverCloud upload put 요청
+    private val _naverCloudPutResponse = MutableLiveData<Response<Unit>>()
+    val naverCloudPutResponse : LiveData<Response<Unit>> get() = _naverCloudPutResponse
+
+    fun uploadImageToNaverCloud(requestBody: RequestBody, memberPK: Long) {
+        viewModelScope.launch {
+            _naverCloudPutResponse.value = naverCloudUseCase.putObject("booking-bucket", "images/${memberPK}_profile.png", requestBody)
+        }
+    }
+
+    // naverCloud get 요청 불러오기
+    private val _naverCloudGetResponse = MutableLiveData<Response<ResponseBody>>()
+    val naverCloudGetResponse : LiveData<Response<ResponseBody>> get() = _naverCloudGetResponse
+
+    fun GetToNaverCloud(memberPk: Long) =
+        viewModelScope.launch {
+            _naverCloudGetResponse.value = naverCloudUseCase.getObject("booking-bucket", "images/${memberPk}_profile.png")
+        }
 
     // PATCH - 회원 위치 정보 수정 요청 로직
     private val _patchUserAddressResponse = MutableLiveData<Response<Unit>>()
@@ -150,7 +179,7 @@ class MyPageViewModel @Inject constructor(
 
 
         // yourMemberPk, memberPk 일치 할때 불일치 할때 => 인자로 받을거임
-        val userInfoResponse = myPageUseCase.getUserInfoByPk(yourMemberPk)
+        var userInfoResponse = myPageUseCase.getUserInfoByPk(yourMemberPk)
         val userFollowersResponse = myPageUseCase.getUserFollowers(yourMemberPk)
         val userFollowingsResponse = myPageUseCase.getUserFollowings(yourMemberPk)
         val userBookResponse = myBookUseCase.getBookList(yourMemberPk)
