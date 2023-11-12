@@ -26,11 +26,9 @@ fun SetDateTime() {
         DatePickerComposable(onDateSelected = { date ->
             selectedDate = date
         })
-
         TimePickerComposable(onTimeSelected = { time ->
             selectedTime = time
         })
-
         Text("선택된 날짜: ${selectedDate ?: "없음"}")
         Text("선택된 시간: ${selectedTime ?: "없음"}")
     }
@@ -61,7 +59,6 @@ fun TimePickerComposable(onTimeSelected: (LocalTime) -> Unit) {
             onTimeSelected(LocalTime.of(hour, minute))
         }, LocalTime.now().hour, LocalTime.now().minute, true)
     }
-
     Button(onClick = { timePickerDialog.show() }) {
         Text("시간 선택")
     }

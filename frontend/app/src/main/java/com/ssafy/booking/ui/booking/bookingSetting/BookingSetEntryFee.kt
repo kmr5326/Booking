@@ -35,7 +35,7 @@ import androidx.compose.ui.unit.dp
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Composable
-fun MainScreen() {
+fun SetEntryFee() {
     Scaffold(
         bottomBar = { (SetEntryFeeBottomButton()) }
     ) { innerPadding ->

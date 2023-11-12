@@ -23,6 +23,10 @@ import com.ssafy.booking.ui.book.BookDetail
 import com.ssafy.booking.ui.book.BookHome
 import com.ssafy.booking.ui.booking.BookingDetail
 import com.ssafy.booking.ui.booking.Main
+import com.ssafy.booking.ui.booking.bookingSetting.SetDateTime
+import com.ssafy.booking.ui.booking.bookingSetting.SetEntryFee
+import com.ssafy.booking.ui.booking.bookingSetting.SetLocation
+import com.ssafy.booking.ui.booking.bookingSetting.SetTitle
 import com.ssafy.booking.ui.chat.ChatDetail
 import com.ssafy.booking.ui.chat.ChatHome
 import com.ssafy.booking.ui.common.SettingPage
@@ -68,6 +72,11 @@ sealed class AppNavItem(
     object MyBookRegister : AppNavItem("profile/book/{isbn}")
     object MyBookDetail : AppNavItem("profile/book/detail/{isbn}")
     object SettingAddress : AppNavItem("setting/address")
+    object BookingSetTitle : AppNavItem("booking/setting/title")
+    object BookingSetLocation : AppNavItem("booking/setting/location")
+    object BookingSetDateTime : AppNavItem("booking/setting/datetime")
+    object BookingSetEntryFee : AppNavItem("booking/setting/fee")
+
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -183,6 +192,21 @@ fun Route(googleSignInClient: GoogleSignInClient) {
             }
             composable("setting/address") {
                 SettingAddress(navController, appViewModel)
+            }
+            composable("booking/setting/title"){
+                SetTitle()
+            }
+            composable("booking/setting/location")
+            {
+                SetLocation()
+            }
+            composable("booking/setting/datetime")
+            {
+                SetDateTime()
+            }
+            composable("booking/setting/fee")
+            {
+                SetEntryFee()
             }
         }
     }

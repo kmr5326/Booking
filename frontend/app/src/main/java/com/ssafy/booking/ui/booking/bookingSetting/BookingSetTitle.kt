@@ -18,7 +18,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.Text
 
-@Composable fun BookingSetTitle() {
+@Composable fun SetTitle() {
 
 
 }

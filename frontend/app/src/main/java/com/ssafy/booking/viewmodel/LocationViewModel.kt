@@ -66,4 +66,5 @@ class LocationViewModel @Inject constructor(
             isLoading.value = false
         }
     }
+
 }
