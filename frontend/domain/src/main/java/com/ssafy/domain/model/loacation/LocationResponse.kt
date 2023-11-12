@@ -55,7 +55,7 @@ data class SearchMeta(
 )
 
 data class SameName(
-    @SerializedName("region") val region: List<String>,
+    @SerializedName(" region") val region: List<String>,
     @SerializedName("keyword") val keyword: String,
     @SerializedName("selected_region") val selectedRegion: String
 )

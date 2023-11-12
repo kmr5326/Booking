@@ -104,7 +104,7 @@ fun SetCurrentLocation() {
                 val lgt = App.prefs.getLgt().toString()
 
                 locationViewModel.getAddress(lat, lgt)
-                locationViewModel.getSearchList("스타벅스 하남점", 5, 15,lat,lgt)
+                locationViewModel.getSearchList("스타벅스 하남점", 5, 15,lat,lgt,20000)
             }
     ) {
         Text(text= searchListData.toString() ?: "검색결과가 없습니다")

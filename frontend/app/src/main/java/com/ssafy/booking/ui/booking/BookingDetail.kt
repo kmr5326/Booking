@@ -75,13 +75,13 @@ fun BookingJoinRequestButton(meetingId:Long) {
     }) {
         Text(text = "타이틀")
     }
+//    Button(onClick = {
+//        navController.navigate(AppNavItem.BookingSetEntryFee.route)
+//    }) {
+//        Text(text = "피")
+//    }
     Button(onClick = {
-        navController.navigate(AppNavItem.BookingSetEntryFee.route)
-    }) {
-        Text(text = "피")
-    }
-    Button(onClick = {
-        navController.navigate(AppNavItem.BookingSetDateTime.route)
+        navController.navigate(AppNavItem.BookingSetDateAndFee.route)
     }) {
         Text(text = "데이트타임")
     }

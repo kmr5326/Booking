@@ -23,8 +23,7 @@ import com.ssafy.booking.ui.book.BookDetail
 import com.ssafy.booking.ui.book.BookHome
 import com.ssafy.booking.ui.booking.BookingDetail
 import com.ssafy.booking.ui.booking.Main
-import com.ssafy.booking.ui.booking.bookingSetting.SetDateTime
-import com.ssafy.booking.ui.booking.bookingSetting.SetEntryFee
+import com.ssafy.booking.ui.booking.bookingSetting.SetDateAndFee
 import com.ssafy.booking.ui.booking.bookingSetting.SetLocation
 import com.ssafy.booking.ui.booking.bookingSetting.SetTitle
 import com.ssafy.booking.ui.chat.ChatDetail
@@ -74,8 +73,7 @@ sealed class AppNavItem(
     object SettingAddress : AppNavItem("setting/address")
     object BookingSetTitle : AppNavItem("booking/setting/title")
     object BookingSetLocation : AppNavItem("booking/setting/location")
-    object BookingSetDateTime : AppNavItem("booking/setting/datetime")
-    object BookingSetEntryFee : AppNavItem("booking/setting/fee")
+    object BookingSetDateAndFee : AppNavItem("booking/setting/dateandfee")
 
 }
 
@@ -200,13 +198,10 @@ fun Route(googleSignInClient: GoogleSignInClient) {
             {
                 SetLocation()
             }
-            composable("booking/setting/datetime")
+
+            composable("booking/setting/dateandfee")
             {
-                SetDateTime()
-            }
-            composable("booking/setting/fee")
-            {
-                SetEntryFee()
+                SetDateAndFee()
             }
         }
     }

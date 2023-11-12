@@ -15,9 +15,8 @@ interface LocationApi {
     @GET("https://dapi.kakao.com/v2/local/geo/coord2address")
     suspend fun getAddress(@Query("x") lng: String,@Query("y") lat:String): Response<AddressResponse>
 
-
     @Headers("Content-Type: application/json;charset=UTF-8","Authorization:KakaoAK f166b3e6f0c90bc4bbd204d02b311184")
     @GET("https://dapi.kakao.com/v2/local/search/keyword")
-    suspend fun getSearchList(@Query("query") query:String,@Query("page") page:Int,@Query("size") size:Int,@Query("x") x:String,@Query("y") y:String,@Query("radius") radius:Int): Response<KakaoSearchResponse>
+    suspend fun getSearchList(@Query("query") query:String,@Query("page") page:Int,@Query("size") size:Int,@Query("y") y:String,@Query("x") x:String,@Query("radius") radius:Int): Response<KakaoSearchResponse>
 
 }

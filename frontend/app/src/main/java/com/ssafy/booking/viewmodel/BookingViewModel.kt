@@ -139,11 +139,14 @@ class BookingViewModel @Inject constructor(
     // POST - 모임 세팅
     val title = MutableLiveData("")
     val description = MutableLiveData("")
-    val fee = MutableLiveData(0)
-    val lgt = MutableLiveData(0.0)
-    val lat = MutableLiveData(0.0)
+    val lgt = MutableLiveData("")
+    val lat = MutableLiveData("")
     val location = MutableLiveData("")
+    val placeName = MutableLiveData("")
     val date = MutableLiveData("")
+    val time = MutableLiveData("")
+    val fee = MutableLiveData(0)
+
 
 //    var description = mutableStateOf(
 //        ""
