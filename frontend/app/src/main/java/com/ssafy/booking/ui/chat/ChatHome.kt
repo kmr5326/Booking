@@ -1,6 +1,5 @@
 package com.ssafy.booking.ui.chat
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -20,7 +19,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -28,7 +26,6 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -47,17 +44,13 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.ssafy.booking.R
-import com.ssafy.booking.ui.AppNavItem
 import com.ssafy.booking.ui.LocalNavigation
 import com.ssafy.booking.ui.common.BottomNav
 import com.ssafy.booking.ui.common.TopBar
 import com.ssafy.booking.viewmodel.AppViewModel
-import com.ssafy.booking.viewmodel.BookingViewModel
 import com.ssafy.booking.viewmodel.ChatViewModel
 import com.ssafy.booking.viewmodel.MyPageViewModel
-import com.ssafy.booking.viewmodel.SocketViewModel
 import com.ssafy.data.repository.token.TokenDataSource
-import com.ssafy.data.room.dao.ChatDao
 import com.ssafy.domain.model.ChatCreateRequest
 import com.ssafy.domain.model.ChatJoinRequest
 import com.ssafy.domain.model.ChatRoom
@@ -80,7 +73,8 @@ fun ChatHome(
     var memId by remember { mutableStateOf<Long?>(null) }
     val loginId: String? = tokenDataSource.getLoginId()
     val getUserInfoResponse by myPageViewModel.getUserInfoResponse.observeAsState()
-    chatViewModel.loadChatList()
+    
+    // 사용자 정보 조회
     LaunchedEffect(loginId) {
         val result = loginId?.let {
             myPageViewModel.getUserInfo(loginId)
@@ -88,7 +82,6 @@ fun ChatHome(
     }
     LaunchedEffect(getUserInfoResponse) {
         if (getUserInfoResponse != null) {
-//            Log.d("CHAT", "HOME ${getUserInfoResponse!!.body()}")
             memId = getUserInfoResponse!!.body()?.memberPk
         }
     }
@@ -256,8 +249,6 @@ fun ChatItem(
                         .size(24.dp)
                         .background(Color.Red, shape = CircleShape)
                 ) {
-//                    Log.d("CHAT", "HOME ${chat}")
-//                    Log.d("CHAT", "HOME ${lastReadMessageId}")
                     Text(
                         text = "${chat.lastMessageIdx - (lastReadMessageId ?: 0) -1 }",
                         fontWeight = FontWeight.ExtraBold,

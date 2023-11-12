@@ -73,9 +73,6 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.ssafy.booking.R
@@ -125,7 +122,6 @@ fun ChatDetail(
 
     // 최신 메시지 폴링 시작
     LaunchedEffect(Unit) {
-    Log.d("TEST" , "3. 폴링시작 ")
         if (chatId != null) {
             socketViewModel.loadAllMessage(chatId.toInt())
             socketViewModel.setPollingMessage(chatId.toInt(), true)
@@ -134,46 +130,50 @@ fun ChatDetail(
     }
     // 최신 메시지 폴링 중지
     DisposableEffect(Unit) {
-    Log.d("TEST" , "3. 폴링종료 ")
         onDispose {
             if (chatId != null) {
                 socketViewModel.setPollingMessage(chatId.toInt(), false)
             }
         }
     }
-
     // 소켓 연결 + 읽었다고 보내기
     chatId.let {
         LaunchedEffect(Unit) {
-    Log.d("TEST" , "4. 소켓연결 + 읽음보내기 ")
             socketViewModel.connectToChat(chatId)
             socketViewModel.postLastReadMessageId(chatId.toInt())
         }
     }
-
+    // 유저 정보 매핑
     LaunchedEffect(messages) {
         memberList.forEach { memberId ->
             socketViewModel.loadUserInfo(memberId.toLong())
-        Log.d("TEST" , "5. 유저정보 조회 ")
         }
     }
-
+    // 로딩 후 스크롤
     LaunchedEffect(isLoading, messages) {
         if (!isLoading && messages.isNotEmpty()) {
             coroutineScope.launch {
                 if (messages.isNotEmpty()) {
                     listState.animateScrollToItem(index = messages.size - 1)
+                    isLoading = true
                 }
             }
         }
     }
-
+    // 무한 스크롤
     LaunchedEffect(listState.firstVisibleItemScrollOffset) {
         if (listState.firstVisibleItemIndex <= 1 && listState.firstVisibleItemScrollOffset <= 1) {
             socketViewModel.loadMoreMessages(chatId.toInt())
         }
     }
-
+    // 맨 밑 스크롤 유지
+    LaunchedEffect(messages.size) {
+        if (listState.isScrolledToTheBottom()) {
+            if (messages.isNotEmpty()) {
+                listState.animateScrollToItem(messages.size - 1)
+            }
+        }
+    }
     // 자신의 정보 불러오기
     var memberId by remember { mutableStateOf<Long?>(null) }
     var nickname by remember { mutableStateOf("") }
@@ -188,7 +188,6 @@ fun ChatDetail(
         memberId = response.body()?.memberPk
         nickname = response.body()?.nickname ?: ""
     }
-
     // 나갈 때 소켓 연결 해제
     DisposableEffect(chatId) {
         onDispose {
@@ -197,7 +196,8 @@ fun ChatDetail(
             }
         }
     }
-
+    
+    // 무한스크롤을 위한 역순
     val reversedMessages = messages.reversed()
 
     ModalNavigationDrawer(
@@ -221,7 +221,7 @@ fun ChatDetail(
                                         .clip(RoundedCornerShape(20.dp))
                                         .border(1.dp, Color.Gray, RoundedCornerShape(20.dp)),
                                     model = if (user.value.profileImage.isNullOrEmpty()) R.drawable.basic_profile else user.value.profileImage,
-                                    contentDescription = "유저", // 내용 설명
+                                    contentDescription = "유저",
                                 )
                             },
                             label = { Text(user.value.nickname) },
@@ -251,8 +251,6 @@ fun ChatDetail(
             }
         }
     ) {
-        Log.d("TEST" , "10 UI 스캐폴드전 ")
-
         Scaffold(
             topBar = {
                 TopBarChat(
@@ -278,8 +276,6 @@ fun ChatDetail(
                     .fillMaxSize()
                     .padding(paddingValues)
             ) {
-                Log.d("TEST" , "10 메시지리스트 ")
-
                 MessageList(
                     modifier = Modifier
                         .weight(1f)
@@ -309,7 +305,7 @@ fun ChatDetail(
     }
 }
 
-
+// 맨 밑 탐지
 fun LazyListState.isScrolledToTheBottom(): Boolean {
     if (layoutInfo.visibleItemsInfo.lastOrNull()?.index != null) {
         return layoutInfo.visibleItemsInfo.lastOrNull()?.index!! >= layoutInfo.totalItemsCount - 5
@@ -317,7 +313,6 @@ fun LazyListState.isScrolledToTheBottom(): Boolean {
         return false
     }
 }
-
 
 @Composable
 fun MessageList(
@@ -328,16 +323,7 @@ fun MessageList(
     userInfoMap: Map<Long, UserInfoResponseByPk>,
     chatId: String?
 ) {
-//    LaunchedEffect(messages.size) {
-//        if (listState.isScrolledToTheBottom()) {
-//            if (messages.isNotEmpty()) {
-//                listState.animateScrollToItem(messages.size - 1)
-//            }
-//        }
-//    }
-
-    Log.d("TEST" , "10 메시지리스트 들어감")
-
+    
     Box(
         modifier = modifier
             .background(Color(0xFF9bbbd4))
@@ -366,8 +352,6 @@ fun MessageItem(
     userInfoMap: Map<Long, UserInfoResponseByPk>,
     chatId: String?
 ) {
-    Log.d("TEST" , "10 메시지아이템 들어감 ${chatId}")
-
     val navController = LocalNavigation.current
     val isOwnMessage = message.senderId?.toLong() == memberId
     val userInfo = userInfoMap[message.senderId?.toLong()]
@@ -562,7 +546,7 @@ fun InputText(
                 coroutineScope.launch {
                     socketViewModel.sendMessage(message, chatId?.toLong())
                     delay(500)
-//                    listState.animateScrollToItem(messages.size)
+                    listState.animateScrollToItem(messages.size)
                 }
             },
             enabled = text.text.isNotBlank(),

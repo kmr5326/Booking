@@ -42,6 +42,7 @@ class ChatViewModel @Inject constructor(
     val chatListState: LiveData<List<ChatRoom>> = _chatListState
     var errorMessage = mutableStateOf("")
 
+    // 채팅방 생성
     fun createChatRoom(request: ChatCreateRequest) {
         viewModelScope.launch {
             try {
@@ -58,6 +59,7 @@ class ChatViewModel @Inject constructor(
         }
     }
 
+    // 채팅방 참여
     fun joinChatRoom(request: ChatJoinRequest) {
         viewModelScope.launch {
             try {
@@ -74,6 +76,7 @@ class ChatViewModel @Inject constructor(
         }
     }
 
+    // 채팅방 나가기
     fun exitChatRoom(request: ChatExitRequest) {
         viewModelScope.launch {
             try {
@@ -90,6 +93,7 @@ class ChatViewModel @Inject constructor(
         }
     }
 
+    // 채팅방 목록 불러오기
     fun loadChatList() {
         viewModelScope.launch {
             try {
@@ -129,7 +133,7 @@ class ChatViewModel @Inject constructor(
         }
     }
 
-    // 목록 조회 폴링
+    // 2초마다 목록 조회 폴링
     private val _isChatHome = MutableLiveData<Boolean>(false)
     val isChatHome: LiveData<Boolean> get() = _isChatHome
     private var chatListJob: Job? = null
@@ -137,13 +141,11 @@ class ChatViewModel @Inject constructor(
         chatListJob = viewModelScope.launch(Dispatchers.IO) {
             while (isActive) {
                 loadChatList()
-                Log.d("CHAT", "CHATVM 목록 갱신")
                 delay(2000L)
             }
         }
     }
     fun stopChatListAutoUpdate() {
-                Log.d("CHAT", "CHATVM 갱신 중지")
         chatListJob?.cancel()
     }
     fun setIsChatHome(isHome: Boolean) {
