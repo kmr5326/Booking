@@ -123,11 +123,18 @@ fun ChatDetail(
     val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
+//        이전 메시지를 보고 있을 때는 갱신 안함
+        if(listState.firstVisibleItemScrollOffset >= 500) {
+        } else {
         socketViewModel.loadAllMessage(chatId.toInt())
         isLoading = false
+        }
     }
-    LaunchedEffect(messages.size) {
-        socketViewModel.loadAllMessage(chatId.toInt())
+//    리스트를 다시 내리면 갱신
+    LaunchedEffect(listState.firstVisibleItemScrollOffset){
+        if(listState.firstVisibleItemScrollOffset <= 10) {
+            socketViewModel.loadAllMessage(chatId.toInt())
+        }
     }
 
 // 소켓 연결 + 읽었다고 보내기
@@ -148,7 +155,7 @@ fun ChatDetail(
         if (!isLoading && messages.isNotEmpty()) {
             coroutineScope.launch {
                 if (messages.isNotEmpty()) {
-                    listState.animateScrollToItem(index = messages.size - 1)
+                    listState.animateScrollToItem(Int.MAX_VALUE)
                     isLoading = true
                 }
             }
@@ -156,15 +163,29 @@ fun ChatDetail(
     }
 // 무한 스크롤
     LaunchedEffect(listState.firstVisibleItemScrollOffset) {
-        if (listState.firstVisibleItemIndex <= 5 && listState.firstVisibleItemScrollOffset <= 5) {
+        if(!isLoading) {delay(2000)}
+        Log.d("TEST", "무한 스크롤 조건 ${listState.firstVisibleItemIndex} , ${listState.firstVisibleItemScrollOffset}")
+        if (listState.firstVisibleItemScrollOffset <= 0 && listState.firstVisibleItemIndex <= 0) {
             socketViewModel.loadMoreMessages(chatId.toInt())
+            delay(300)
+            socketViewModel.loadMoreMessages(chatId.toInt())
+            delay(300)
+            listState.scrollToItem(listState.firstVisibleItemIndex + 1)
+            socketViewModel.loadMoreMessages(chatId.toInt())
+            delay(300)
+            socketViewModel.loadMoreMessages(chatId.toInt())
+            delay(300)
+            listState.scrollToItem(listState.firstVisibleItemIndex + 1)
         }
     }
+
+
 // 맨 밑 스크롤 유지
-    LaunchedEffect(messages.size) {
+    LaunchedEffect(Unit) {
+        delay(100)
         if (listState.isScrolledToTheBottom()) {
             if (messages.isNotEmpty()) {
-                listState.animateScrollToItem(messages.size - 1)
+                listState.animateScrollToItem(Int.MAX_VALUE)
             }
         }
     }
@@ -302,8 +323,6 @@ fun ChatDetail(
 
 // 맨 밑 탐지
 fun LazyListState.isScrolledToTheBottom(): Boolean {
-    Log.d("TEST", "${layoutInfo.visibleItemsInfo.lastOrNull()?.index}")
-    Log.d("TEST", "맨밑입니다.")
     if (layoutInfo.visibleItemsInfo.lastOrNull()?.index != null) {
         return layoutInfo.visibleItemsInfo.lastOrNull()?.index!! >= layoutInfo.totalItemsCount - 5
     } else {
@@ -545,7 +564,9 @@ fun InputText(
                 coroutineScope.launch {
                     socketViewModel.sendMessage(message, chatId?.toLong())
                     delay(500)
-                    listState.animateScrollToItem(Int.MAX_VALUE)
+                    listState.scrollToItem(Int.MAX_VALUE)
+                    delay(500)
+                    listState.scrollToItem(Int.MAX_VALUE)
                 }
             },
             enabled = text.text.isNotBlank(),

@@ -55,7 +55,7 @@ class SocketViewModel @Inject constructor(
     private val _finalMessages = MutableLiveData<List<MessageEntity>>()
     val finalMessages: LiveData<List<MessageEntity>> = _finalMessages
 
-    private val _totalMessageCount = MutableLiveData(20)
+    private val _totalMessageCount = MutableLiveData(15)
     val totalMessageCount: LiveData<Int> = _totalMessageCount
 
     // 채팅방 사용자 정보 가져오기
@@ -85,9 +85,8 @@ class SocketViewModel @Inject constructor(
     // 전체 메시지 불러오기
     fun loadAllMessage(chatId: Int) {
         viewModelScope.launch {
-            val count = _totalMessageCount.value ?: 20
-            Log.d("TEST", "전체 메시지 불러오기 메시지 개수 : ${count}")
-            messageDao.getAllMessage(chatId, count).asFlow()
+            Log.d("TEST", "파이널메시지 개수 ${_finalMessages.value?.size}")
+            messageDao.getAllMessage(chatId, (_totalMessageCount.value ?: 15) ).asFlow()
                 .collect { allMessages ->
                     _finalMessages.postValue(allMessages)
                 }
@@ -101,13 +100,12 @@ class SocketViewModel @Inject constructor(
             if (currentMessages.isNotEmpty()) {
                 val lastMessageId = currentMessages.last().messageId
                 lastMessageId?.let {
-                    val newCount = (_totalMessageCount.value ?: 0) + 20
-                    Log.d("TEST", "이전의 메시지 불러오기 메시지 개수 : $newCount")
-                    messageDao.getMessagesBefore(chatId, lastMessageId, newCount).asFlow()
+                    messageDao.getMessagesBefore(chatId, lastMessageId, 5).asFlow()
                         .distinctUntilChanged()
                         .collect { additionalMessages ->
                             _finalMessages.postValue(currentMessages + additionalMessages)
-                            _totalMessageCount.postValue(newCount)
+                            _totalMessageCount.postValue((_totalMessageCount.value ?: 0) + 5)
+                            Log.d("TEST", "이전의 메시지 불러오기 메시지 개수 : ${_totalMessageCount.value}")
                         }
                 }
             }
@@ -144,9 +142,9 @@ class SocketViewModel @Inject constructor(
                     // 새 메시지 저장
                     if (existingEntity == null) {
                         messageDao.insertMessage(messageEntity)
-                        val newCount = (_totalMessageCount.value ?: 0) + 1
                         Log.d("TEST", "새 메시지 저장 ${_totalMessageCount.value}")
-                        _totalMessageCount.postValue(newCount)
+                        _totalMessageCount.postValue((_totalMessageCount.value ?: 0) + 1)
+                        messageDao.getAllMessage(chatroomId, (_totalMessageCount.value ?: 15) ).asFlow()
                         // 이미 있는 메시지 읽은 수 업데이트
                     } else if (existingEntity.readCount!! < messageEntity.readCount!!) {
                         existingEntity.messageId?.let {
