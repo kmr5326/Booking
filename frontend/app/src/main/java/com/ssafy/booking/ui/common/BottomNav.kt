@@ -25,10 +25,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.ssafy.booking.R
 import com.ssafy.booking.ui.AppNavItem
 import com.ssafy.booking.viewmodel.AppViewModel
+import com.ssafy.data.repository.token.TokenDataSource
 
 enum class NavItem(val route: String, val title: String) {
     Book("book", "book"),
@@ -57,8 +61,12 @@ fun BottomNav(
     )
     // 선택된 아이템과 선택되지 않은 아이템의 색상을 정의
     val selectedColor = Color(0xFF00C68E)
-    val unselectedColor = Color.DarkGray
-    NavigationBar(containerColor = Color.White) {
+    val unselectedColor = colorResource(id = R.color.font_color)
+    val context = LocalContext.current
+    val tokenDataSource = TokenDataSource(context)
+    val memberPk : Long = tokenDataSource.getMemberPk()
+
+    NavigationBar(containerColor = colorResource(id = R.color.background_color)) {
         items.forEach { item ->
             NavigationBarItem(
                 icon = {
@@ -91,7 +99,8 @@ fun BottomNav(
                 onClick = {
                     if (currentRoute != item.route) {
                         val route = when (item) {
-                            AppNavItem.Book -> "book/true"
+                            AppNavItem.Book -> "book/0"
+                            AppNavItem.Profile -> "profile/$memberPk"
                             else -> item.route
                         }
 
@@ -105,7 +114,7 @@ fun BottomNav(
                     }
                 },
                 colors = NavigationBarItemDefaults.colors(
-                    indicatorColor = Color.White, // 인디케이터 색상을 투명하게 설정합니다.
+                    indicatorColor = colorResource(id = R.color.second_background_color), // 인디케이터 색상을 투명하게 설정합니다.
                     selectedIconColor = selectedColor,
                     unselectedIconColor = unselectedColor,
                     selectedTextColor = selectedColor,

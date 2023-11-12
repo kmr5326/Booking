@@ -7,10 +7,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ssafy.data.repository.FirebaseRepositoryImpl
 import com.ssafy.domain.model.DeviceToken
+import com.ssafy.domain.model.booking.BookingAcceptRequest
 import com.ssafy.domain.model.booking.BookingAll
 import com.ssafy.domain.model.booking.BookingCreateRequest
 import com.ssafy.domain.model.booking.BookingDetail
+import com.ssafy.domain.model.booking.BookingJoinRequest
 import com.ssafy.domain.model.booking.BookingParticipants
+import com.ssafy.domain.model.booking.BookingStartRequest
 import com.ssafy.domain.model.booking.BookingWaiting
 import com.ssafy.domain.model.booking.SearchResponse
 import com.ssafy.domain.model.mypage.UserInfoResponse
@@ -27,12 +30,23 @@ class BookingViewModel @Inject constructor(
     private val firebaseRepositoryImpl: FirebaseRepositoryImpl,
     private val myPageUseCase: MyPageUseCase
 ) : ViewModel() {
+
+    // POST - 모임 생성
     private val _postCreateBookingResponse = MutableLiveData<Response<Unit>>()
+    private val _createBookingSuccess = MutableLiveData<Boolean?>()
+    val createBookingSuccess: LiveData<Boolean?> get() = _createBookingSuccess
     val postCreateBookingResponse: LiveData<Response<Unit>> get() = _postCreateBookingResponse
     fun postCreateBooking(request: BookingCreateRequest) =
         viewModelScope.launch {
-            _postCreateBookingResponse.value = bookingUseCase.postBookingCreate(request)
+            val response = bookingUseCase.postBookingCreate(request)
+            _postCreateBookingResponse.value = response
+            _createBookingSuccess.value = response.isSuccessful // 여기서 모임생성의 성공 여부를 업데이트
         }
+
+    // 모임 생성 여부 초기화
+    fun resetCreateBookingSuccess() {
+        _createBookingSuccess.value = null
+    }
 
     // POST - 디바이스 토큰 전송
     fun postDeivceToken(deviceToken: DeviceToken) =
@@ -60,7 +74,7 @@ class BookingViewModel @Inject constructor(
 
     // GET - 모임 상세 조회
     private val _getBookingDetailResponse = MutableLiveData<Response<BookingDetail>>()
-    val getBookingDetail: LiveData<Response<BookingDetail>> get() = _getBookingDetailResponse
+    val getBookingDetailResponse: LiveData<Response<BookingDetail>> get() = _getBookingDetailResponse
     fun getBookingDetail(meetingId: Long) =
         viewModelScope.launch {
             _getBookingDetailResponse.value = bookingUseCase.getEachBooking(meetingId)
@@ -68,7 +82,7 @@ class BookingViewModel @Inject constructor(
 
     // GET - 참여자 목록 조회
     private val _getParticipantsResponse = MutableLiveData<Response<List<BookingParticipants>>>()
-    val getParticipants: LiveData<Response<List<BookingParticipants>>> get() = _getParticipantsResponse
+    val getParticipantsResponse: LiveData<Response<List<BookingParticipants>>> get() = _getParticipantsResponse
     fun getParticipants(meetingId: Long) =
         viewModelScope.launch {
             _getParticipantsResponse.value = bookingUseCase.getParticipants(meetingId)
@@ -76,7 +90,7 @@ class BookingViewModel @Inject constructor(
 
     // GET - 대기자 목록 조회
     private val _getWaitingListResponse = MutableLiveData<Response<List<BookingWaiting>>>()
-    val getWaitingList: LiveData<Response<List<BookingWaiting>>> get() = _getWaitingListResponse
+    val getWaitingListResponse: LiveData<Response<List<BookingWaiting>>> get() = _getWaitingListResponse
     fun getWaitingList(meetingId: Long) =
         viewModelScope.launch {
             _getWaitingListResponse.value = bookingUseCase.getWaitingList(meetingId)
@@ -94,9 +108,32 @@ class BookingViewModel @Inject constructor(
     // GET - 네이버 검색 API
     private val _getSearchListResponse = MutableLiveData<Response<SearchResponse>>()
     val getSearchListResponse: LiveData<Response<SearchResponse>> get() = _getSearchListResponse
-
     fun getSearchList(query: String, display: Int, start: Int, sort: String) =
         viewModelScope.launch {
             _getSearchListResponse.value = bookingUseCase.getSearchList(query, display, start, sort)
+        }
+
+    // POST - 모임 참여
+    private val _postBookingJoinResponse = MutableLiveData<Response<Unit>>()
+    val postBookingJoinResponse: LiveData<Response<Unit>> get() = _postBookingJoinResponse
+    fun postBookingJoin(meetingId: Long,request: BookingJoinRequest) =
+        viewModelScope.launch {
+            _postBookingJoinResponse.value = bookingUseCase.postBookingJoin(meetingId,request)
+        }
+
+    // POST - 모임 참여 수락
+    private val _postBookingAcceptResponse = MutableLiveData<Response<Unit>>()
+    val postBookingAcceptResponse: LiveData<Response<Unit>> get() = _postBookingAcceptResponse
+    fun postBookingAccept(meetingId: Long,memberId:Int,request: BookingAcceptRequest) =
+        viewModelScope.launch {
+            _postBookingAcceptResponse.value = bookingUseCase.postBookingAccept(meetingId,memberId,request)
+        }
+
+    // POST - 모임 시작
+    private val _postBookingStartResponse = MutableLiveData<Response<Unit>>()
+    val postBookingStartResponse: LiveData<Response<Unit>> get() = _postBookingStartResponse
+    fun postBookingStart(request: BookingStartRequest) =
+        viewModelScope.launch {
+            _postBookingStartResponse.value = bookingUseCase.postBookingStart(request)
         }
 }

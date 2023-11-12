@@ -1,7 +1,6 @@
 package com.ssafy.domain.usecase
 
 import com.ssafy.domain.model.mypage.AddressnModifyRequest
-import com.ssafy.domain.model.mypage.UserDeleteRequest
 import com.ssafy.domain.model.mypage.UserFollowersResponse
 import com.ssafy.domain.model.mypage.UserFollowingsResponse
 import com.ssafy.domain.model.mypage.UserInfoResponse
@@ -28,25 +27,25 @@ class MyPageUseCase @Inject constructor(
     suspend fun patchUserAddress(request: AddressnModifyRequest) : Response<Unit> {
         return repository.patchUserAddress(request)
     }
-    suspend fun deleteUser(request: UserDeleteRequest) : Response<Unit> {
-        return repository.deleteUser(request)
+    suspend fun deleteUser(loginId: String) : Response<Unit> {
+        return repository.deleteUser(loginId)
     }
-    suspend fun getUserFollowers(nickname: String) : Response<UserFollowersResponse> {
-        return repository.getUserFollowers(nickname)
+    suspend fun getUserFollowers(memberPk: Long) : Response<UserFollowersResponse> {
+        return repository.getUserFollowers(memberPk)
     }
-    suspend fun getUserFollowings(nickname: String) : Response<UserFollowingsResponse> {
-        return repository.getUserFollowings(nickname)
+    suspend fun getUserFollowings(memberPk: Long) : Response<UserFollowingsResponse> {
+        return repository.getUserFollowings(memberPk)
     }
-    suspend fun getUserInfoByPk(memberPk: Int) : Response<UserInfoResponseByPk> {
+    suspend fun getUserInfoByPk(memberPk: Long) : Response<UserInfoResponseByPk> {
         return repository.getUserInfoByPk(memberPk)
     }
     suspend fun getUserInfoByNickname(nickname: String) : Response<UserInfoResponseByNickname> {
         return repository.getUserInfoByNickname(nickname)
     }
-    suspend fun postFollow(nickname: String) : Response<Unit> {
-        return repository.postFollow(nickname)
+    suspend fun postFollow(memberPk: Long) : Response<Unit> {
+        return repository.postFollow(memberPk)
     }
-    suspend fun deleteFollow(nickname: String) : Response<Unit> {
-        return repository.deleteFollow(nickname)
+    suspend fun deleteFollow(memberPk: Long) : Response<Unit> {
+        return repository.deleteFollow(memberPk)
     }
 }

@@ -51,6 +51,10 @@ import com.ssafy.domain.model.mypage.UserFollowingsResponse
 import com.ssafy.domain.model.mypage.UserInfoResponse
 import androidx.compose.runtime.livedata.observeAsState
 import com.ssafy.booking.ui.LocalNavigation
+import com.ssafy.booking.ui.common.BackTopBar
+import com.ssafy.booking.viewmodel.MyBookViewModel
+import com.ssafy.domain.model.mybook.MyBookListResponse
+import com.ssafy.domain.model.mypage.UserInfoResponseByPk
 
 @Composable
 fun MyProfile(profileData: ProfileData) {
@@ -81,10 +85,10 @@ fun MyProfile(profileData: ProfileData) {
             Column {
                 Text(text = "@${profileData.myProfile?.nickname}", color = colorResource(id = R.color.font_color))
                 Spacer(modifier = Modifier.size(4.dp))
-                Text(text = "읽은 책 : ${profileData.readBookNumber}권", color = colorResource(id = R.color.font_color))
+                Text(text = "읽은 책 : ${profileData.readBook!!.size}권", color = colorResource(id = R.color.font_color))
                 Spacer(modifier = Modifier.size(4.dp))
                 Row(
-                    modifier = Modifier.clickable { navController.navigate("profile/follow/${profileData.myProfile!!.nickname}") }
+                    modifier = Modifier.clickable { navController.navigate("profile/follow/${profileData.myProfile!!.memberPk}") }
                 ) {
                     Text(text = "팔로잉 ${profileData.followings?.followingsCnt}", color = colorResource(id = R.color.font_color))
                     Spacer(modifier = Modifier.size(16.dp))
@@ -92,55 +96,36 @@ fun MyProfile(profileData: ProfileData) {
                 }
             }
             Spacer(modifier = Modifier.size(40.dp))
-            IconButton(
-                onClick = { navController.navigate("profile/modifier") },
-                modifier = Modifier.align(Alignment.Top)
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.Edit,
-                    contentDescription = null,
-                    tint = colorResource(id = R.color.font_color)
-                )
+            if(profileData.isI == true) {
+                IconButton(
+                    onClick = { navController.navigate("profile/modifier") },
+                    modifier = Modifier.align(Alignment.Top)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Edit,
+                        contentDescription = null,
+                        tint = colorResource(id = R.color.font_color)
+                    )
+                }
             }
         }
     }
 }
 
-@Composable
-fun MyBook() {
-    Column(
-        modifier = Modifier
-            .padding(32.dp)
-            .fillMaxWidth()
-            .fillMaxHeight()
-    ) {
-        Text("내 서재")
-    }
-}
-
-// 북킹 Composable
-@Composable
-fun BookingList() {
-    Column(
-        modifier = Modifier
-            .padding(32.dp)
-            .fillMaxWidth()
-            .fillMaxHeight()
-    ) {
-        Text("북킹")
-    }
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileHome(
     navController: NavController,
-    appViewModel: AppViewModel
+    appViewModel: AppViewModel,
+    yourMemberPk: Long
 ) {
     val context = LocalContext.current
     val tokenDataSource = TokenDataSource(context)
     val loginId: String? = tokenDataSource.getLoginId()
+    val memberPk: Long = tokenDataSource.getMemberPk()
     val viewModel: MyPageViewModel = hiltViewModel()
+    val myBookViewModel: MyBookViewModel = hiltViewModel()
 
     // 상태 관찰
     val profileState by viewModel.profileState.observeAsState()
@@ -148,16 +133,19 @@ fun ProfileHome(
     LaunchedEffect(Unit) {
         loginId?.let {
             Log.d("mypage", "$loginId")
-            viewModel.getMyPage(loginId)
+            viewModel.getMyPage(memberPk, yourMemberPk)
         } ?: run {
             // 로그인 페이지로 이동시키는 버튼이 있는 화면 띄우기
+        }
+        memberPk?.let {
+            myBookViewModel.getMyBookResponse(yourMemberPk)
         }
     }
 
     // 화면 표시
     when (profileState) {
         is UserProfileState.Loading -> LoadingView()
-        is UserProfileState.Success -> ProfileView(data = (profileState as UserProfileState.Success).data, navController = navController, appViewModel = appViewModel)
+        is UserProfileState.Success -> ProfileView(data = (profileState as UserProfileState.Success).data, navController = navController, appViewModel = appViewModel, myBookViewModel = myBookViewModel)
         is UserProfileState.Error -> ErrorView(message = (profileState as UserProfileState.Error).message, navController = navController, appViewModel = appViewModel)
         else -> GuestView(navController = navController, appViewModel = appViewModel)
     }
@@ -168,14 +156,23 @@ fun ProfileHome(
 fun ProfileView(
     data: ProfileData,
     navController: NavController,
-    appViewModel: AppViewModel
+    appViewModel: AppViewModel,
+    myBookViewModel : MyBookViewModel
 ) {
+    val myBookState by myBookViewModel.myBookState.observeAsState()
+
     Scaffold(
         topBar = {
-            TopBar("프로필")
+            if (data.isI == true) {
+                TopBar("프로필")
+            } else {
+                BackTopBar(title = "프로필")
+            }
         },
         bottomBar = {
-            BottomNav(navController, appViewModel)
+            if (data.isI == true) {
+                BottomNav(navController, appViewModel)
+            }
         },
         modifier = Modifier.fillMaxSize()
     ) { paddingValues ->
@@ -188,12 +185,12 @@ fun ProfileView(
             // 인자로 첫번째는 title 리스트, 두번째는 각 탭에 해당하는 @composable
             // 현재는 테스트용으로 하드코딩 해뒀음.
             TabBar(
-                tabTitles = listOf("내 서재", "북킹"),
+                tabTitles = listOf("내 서재", "내 북킹"),
                 contentForTab = { index ->
                     // 인덱스 마다 @composable 함수 넣으면 됨.
                     when (index) {
-                        0 -> MyBook()
-                        1 -> BookingList()
+                        0 -> MyBook(myBookState = myBookState, data=data)
+                        1 -> MyBookingList(data=data)
                     }
                 }
             )
@@ -203,7 +200,12 @@ fun ProfileView(
 
 @Composable
 fun LoadingView() {
-    Text("로딩중...")
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text("로딩중...")
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -265,8 +267,9 @@ fun ErrorView(
 
 // sealed class 만들어 둠
 data class ProfileData(
-    val myProfile: UserInfoResponse?,
-    val readBookNumber: Number = 0,
+    val myProfile: UserInfoResponseByPk?,
+    val readBook: List<MyBookListResponse>?,
     val followers: UserFollowersResponse?,
-    val followings: UserFollowingsResponse?
+    val followings: UserFollowingsResponse?,
+    val isI : Boolean,
 )

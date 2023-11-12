@@ -28,6 +28,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -45,6 +46,7 @@ import com.ssafy.booking.ui.AppNavItem
 import com.ssafy.booking.ui.LocalNavigation
 import com.ssafy.booking.utils.MyFirebaseMessagingService
 import com.ssafy.booking.viewmodel.AppViewModel
+import com.ssafy.booking.viewmodel.LoginViewModel
 import com.ssafy.booking.viewmodel.MainViewModel
 import com.ssafy.data.repository.token.TokenDataSource
 import com.ssafy.domain.model.google.AccountInfo
@@ -79,59 +81,7 @@ val retrofit = Retrofit.Builder()
 val loginService = retrofit.create(LoginService::class.java)
 
 // 로그인 API 호출
-private fun onLoginSuccess(
-    context: Context,
-    loginId: String,
-    navController: NavController,
-    kakaoNickName: String
-) {
-    val loginInfo = LoginInfo(loginId = loginId) // 실제 로그인 ID로 변경해야 함
-//    val loginInfo = LoginInfo(loginId = "kakao_3143286573")
-    val call = loginService.login(loginInfo)
-    call.enqueue(object : Callback<ResponseBody> {
-        override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
-            if (response.isSuccessful) {
-                // 성공적으로 API 호출 완료, JWT 토큰 처리
-                val token = response.body()?.string()
-                Log.d("API", "API 호출 성공,AT는: $token")
-                val tokenDataSource = TokenDataSource(context)
-                // 토큰 넣기
-                tokenDataSource.putToken(token)
-                // 로그인 아이디 넣기
-                tokenDataSource.putLoginId(loginId)
-                val asdf = tokenDataSource.getLoginId()
-                Log.d("asdf", "로그인 아이디: $asdf")
 
-                MyFirebaseMessagingService.getFirebaseToken { token ->
-                    val tokenDataSource = TokenDataSource(context)
-                    tokenDataSource.putDeviceToken(token)
-                }
-
-                navController.navigate(AppNavItem.Main.route) {
-                    popUpTo("login") { inclusive = true }
-                    launchSingleTop = true
-                }
-            } else {
-                // 오류 처리
-                val errorCode = response.code()
-                Log.d("kakao", "$errorCode")
-                when (errorCode) {
-                    // 에러 코드가 400이면 회원가입이 필요한 상태 -> 회원가입으로 라우트
-                    400 -> {
-                        navController.navigate(AppNavItem.SignIn.createRoute(loginId, kakaoNickName)) {
-                            popUpTo("SignIn") { inclusive = false }
-                        }
-                    }
-                }
-            }
-        }
-
-        override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
-            // 네트워크 오류 등의 이유로 호출 실패
-            Log.d(TAG, "API 호출 실패2: ${t.message}")
-        }
-    })
-}
 
 @Composable
 fun Greeting(
@@ -143,6 +93,8 @@ fun Greeting(
     modifier: Modifier = Modifier
 ) {
     val navController = navController
+    val loginViewModel = LoginViewModel()
+
     Box(
         modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
@@ -157,11 +109,12 @@ fun Greeting(
                 modifier = modifier.padding(bottom = 24.dp),
                 color = Color(0xFF00C68E),
                 style = TextStyle(fontSize = 40.sp)
+
             )
 
-            KakaoLoginButton(context, navController)
-            TempLoginButton(navController)
-//            GoogleLoginButton(mainViewModel, googleSignInClient, navController)
+            KakaoLoginButton(context, navController, loginViewModel)
+//            TempLoginButton(navController)
+//            GoogleLoginButton(mainViewModel, googleSignInClient, navController, loginViewModel)
 //            SignInBtn()
         }
     }
@@ -193,7 +146,8 @@ fun TempLoginButton(navController: NavController) {
 fun GoogleLoginButton(
     viewModel: MainViewModel,
     googleSignInClient: GoogleSignInClient,
-    navController: NavController
+    navController: NavController,
+    loginViewModel: LoginViewModel
 ) {
     val accountInfo by viewModel.accountInfo.collectAsState()
     val firebaseAuth by lazy { FirebaseAuth.getInstance() }
@@ -205,7 +159,7 @@ fun GoogleLoginButton(
                 if (indent != null) {
                     val task: Task<GoogleSignInAccount> =
                         GoogleSignIn.getSignedInAccountFromIntent(indent)
-                    handleSignInResult(context, task, viewModel, firebaseAuth)
+                    loginViewModel.handleSignInResult(context, task, viewModel, firebaseAuth)
                 }
             }
         }
@@ -232,84 +186,13 @@ fun GoogleLoginButton(
     }
 }
 
-private fun handleSignInResult(
+
+@Composable
+fun KakaoLoginButton(
     context: Context,
-    accountTask: Task<GoogleSignInAccount>,
-    viewModel: MainViewModel,
-    firebaseAuth: FirebaseAuth
+    navController: NavController,
+    loginViewModel: LoginViewModel
 ) {
-    try {
-        val account = accountTask.result ?: return
-        val credential = GoogleAuthProvider.getCredential(account.idToken, null)
-        firebaseAuth.signInWithCredential(credential)
-            .addOnCompleteListener(context as Activity) { task ->
-                if (task.isSuccessful) {
-                    viewModel.signInGoogle(
-                        AccountInfo(
-                            account.idToken.orEmpty(),
-                            account.displayName.orEmpty(),
-                            AccountInfo.Type.GOOGLE
-                        )
-                    )
-                } else {
-                    viewModel.signOutGoogle()
-                    firebaseAuth.signOut()
-                }
-            }
-    } catch (e: Exception) {
-        e.printStackTrace()
-    }
-}
-
-@Composable
-fun TestButton(onClick: () -> Unit) {
-    Button(
-        onClick = onClick,
-        colors = ButtonDefaults.buttonColors(
-            containerColor = Color(0xFF00C68E),
-            contentColor = Color(0xFFffffff)
-        )
-
-    ) {
-        Text(
-            "테스트 버튼",
-            fontWeight = FontWeight.Bold
-        )
-    }
-}
-
-// /////
-
-private fun loginCallback(
-    context: Context,
-    navController: NavController
-): (OAuthToken?, Throwable?) -> Unit = { token, error ->
-    if (error != null) {
-        Log.e(TAG1, "로그인 실패 $error")
-    } else if (token != null) {
-        Log.e(TAG1, "로그인 성공 ${token.accessToken}")
-        // 사용자 정보 요청 (기본)
-        UserApiClient.instance.me { user, error ->
-            if (error != null) {
-                Log.e("asdf", "사용자 정보 요청 실패", error)
-            } else if (user != null) {
-                val loginId = "kakao_" + user.id.toString()
-                onLoginSuccess(context, loginId, navController, user.kakaoAccount?.profile?.nickname.toString())
-                Log.i(
-                    "loginInfo",
-                    "사용자 정보 요청 성공" +
-                        "\n회원번호: ${user.id}" +
-                        "\n이메일: ${user.kakaoAccount?.email}" +
-                        "\n닉네임: ${user.kakaoAccount?.profile?.nickname}" +
-                        "\n프로필사진: ${user.kakaoAccount?.profile?.thumbnailImageUrl}"
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun KakaoLoginButton(context: Context, navController: NavController) {
     Button(
         modifier = Modifier.width(200.dp).clip(RoundedCornerShape(5.dp)),
         shape = RoundedCornerShape(5.dp),
@@ -330,14 +213,14 @@ fun KakaoLoginButton(context: Context, navController: NavController) {
                             // 카카오계정으로 로그인
                             UserApiClient.instance.loginWithKakaoAccount(
                                 context,
-                                callback = loginCallback(context, navController)
+                                callback = loginViewModel.loginCallback(context, navController)
                             )
                         }
                     }
                     // 로그인 성공 부분
                     else if (token != null) {
                         Log.e(TAG1, "로그인 성공 ${token.accessToken}")
-                        navController.navigate(AppNavItem.Main.route)
+//                        navController.navigate(AppNavItem.Main.route)
 
                         // 사용자 정보 요청 (기본)
                         UserApiClient.instance.me { user, error ->
@@ -352,7 +235,7 @@ fun KakaoLoginButton(context: Context, navController: NavController) {
                                         "\n닉네임: ${user.kakaoAccount?.profile?.nickname}"
                                 )
 //                                        "\n프로필사진: ${user.kakaoAccount?.profile?.thumbnailImageUrl}")
-                                onLoginSuccess(context, user.id.toString(), navController, user.kakaoAccount?.profile?.nickname.toString())
+                                loginViewModel.onLoginSuccess(context, user.id.toString(), navController, user.kakaoAccount?.profile?.nickname.toString())
                             }
                         }
                     }
@@ -361,7 +244,7 @@ fun KakaoLoginButton(context: Context, navController: NavController) {
                 // 카카오계정으로 로그인
                 UserApiClient.instance.loginWithKakaoAccount(
                     context,
-                    callback = loginCallback(context, navController)
+                    callback = loginViewModel.loginCallback(context, navController)
                 )
             }
         },
@@ -377,13 +260,3 @@ fun KakaoLoginButton(context: Context, navController: NavController) {
         )
     }
 }
-
-@Composable
-fun SignInBtn() {
-    val navController = LocalNavigation.current
-
-    Button(onClick = { navController.navigate(AppNavItem.SignIn.route) }) {
-        Text(text = "회원가입페이지 연결")
-    }
-}
-// //

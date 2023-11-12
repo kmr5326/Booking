@@ -43,6 +43,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import com.ssafy.booking.ui.AppNavItem
 import com.ssafy.booking.ui.LocalNavigation
 import com.ssafy.booking.ui.common.TopBar
 import com.ssafy.booking.viewmodel.AppViewModel
@@ -78,14 +79,26 @@ fun BookingCreate(navController: NavController, appViewModel: AppViewModel, isbn
     // 뷰모델
     val viewModel: BookingViewModel = hiltViewModel()
     val postCreateBookingResponse by viewModel.postCreateBookingResponse.observeAsState()
-
+    val createBookingSuccess by viewModel.createBookingSuccess.observeAsState()
     // isbn 으로 데이터 불러오기
     val bookSearchViewModel: BookSearchViewModel = hiltViewModel()
     val getBookSearchByIsbnResponse by bookSearchViewModel.getBookSearchByIsbnResponse.observeAsState()
-
     LaunchedEffect(Unit) {
         isbn?.let {
             bookSearchViewModel.getBookSearchByIsbn(isbn)
+        }
+    }
+
+    LaunchedEffect(createBookingSuccess) {
+        createBookingSuccess?.let { success ->
+            if (success) {
+                navController.navigate(AppNavItem.Main.route) {
+                    popUpTo("login") { inclusive = true }
+                    launchSingleTop = true
+                }
+                // 상태를 리셋하여 중복 네비게이션을 방지합니다.
+                viewModel.resetCreateBookingSuccess()
+            }
         }
     }
 
@@ -140,7 +153,6 @@ fun BookingCreate(navController: NavController, appViewModel: AppViewModel, isbn
                     meetingTitle = meetingTitle.text, // TextFieldValue에서 String으로 변환
                     description = description.text,
                     maxParticipants = maxParticipants,
-                    // 이거랑 isbn 하드코딩.
                     hashtagList = hashTagText
                 )
             }
@@ -208,7 +220,7 @@ fun BookSearch(
                 .width(150.dp)
                 .height(210.dp)
                 .clickable {
-                    navController.navigate("book/false")
+                    navController.navigate("book/1")
                 }
         ) {
             // 왼쪽의 도서 등록 칸

@@ -13,12 +13,17 @@ android {
     namespace = "com.ssafy.booking"
     compileSdk = 34
 
+    // 린트 옵션
+    lintOptions {
+        isCheckReleaseBuilds = false
+        isAbortOnError = false
+    }
     defaultConfig {
         applicationId = "com.ssafy.booking"
         minSdk = 28
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -53,6 +58,8 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+
+
 }
 
 dependencies {

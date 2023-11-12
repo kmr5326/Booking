@@ -53,6 +53,7 @@ data class ParticipantResponse(
     val attendanceStatus: Boolean,
     @SerializedName("paymentStatus")
     val paymentStatus: Boolean
+
 )
 
 data class MeetingInfoResponse(
@@ -63,6 +64,9 @@ data class MeetingInfoResponse(
     @SerializedName("fee")
     val fee : Int,
     )
+
+
+
 data class BookingDetail (
     @SerializedName("meetingId")
     val meetingId : Long,
@@ -90,10 +94,29 @@ data class BookingDetail (
     val maxParticipants : Int,
     @SerializedName("participantList")
     val participantList : List<ParticipantResponse>,
+    @SerializedName("memberPk")
+    val memberPk: Int,
+    @SerializedName("loginId")
+    val loginId: String,
+    @SerializedName("nickName")
+    val nickName : String,
+    @SerializedName("profileImage")
+    val profileImage: String?,
+    @SerializedName("attendanceStatus")
+    val attendanceStatus: Boolean,
+    @SerializedName("paymentStatus")
+    val paymentStatus: Boolean,
+
     @SerializedName("hashtagList")
     val hashtagList : List<HashtagResponse>,
     @SerializedName("meetingInfoList")
     val meetingInfoList : List<MeetingInfoResponse>,
+    @SerializedName("date")
+    val date: LocalDateTime,
+    @SerializedName("location")
+    val location : String,
+    @SerializedName("fee")
+    val fee : Int
 )
 
 // 모임 참여자 목록

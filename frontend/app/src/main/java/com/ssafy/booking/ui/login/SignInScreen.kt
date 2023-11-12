@@ -19,11 +19,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSizeIn
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -36,6 +38,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
@@ -45,6 +48,7 @@ import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
+import com.ssafy.booking.R
 import com.ssafy.booking.ui.AppNavItem
 import com.ssafy.booking.ui.LocalNavigation
 import com.ssafy.booking.viewmodel.SignInViewModel
@@ -69,23 +73,25 @@ fun SignInScreen(
     val (isNickNameError, setIsNickNameError) = remember { mutableStateOf(false) }
 
     LaunchedEffect(signInResponse) {
-        if (signInResponse?.body() != null) {
-            val tokenDataSource = TokenDataSource(context)
-            tokenDataSource.putToken(signInResponse?.body())
-            tokenDataSource.putLoginId(loginId)
-            Log.i("token", "${tokenDataSource.getToken()}")
-            Log.i("token", "$loginId")
-            Log.i("token", "${tokenDataSource.getLoginId()}")
-            navController.navigate(AppNavItem.Main.route) {
-                popUpTo("signIn") { inclusive = true }
-                launchSingleTop = true
-            }
-        } else {
-            // 에러 처리
-            Log.i("token", "${signInResponse?.code()}")
-            if (signInResponse?.code() == 400) {
-                // 닉네임 중복
-                setIsNickNameError(true)
+        signInResponse?.let {
+            if (signInResponse!!.isSuccessful) {
+                val tokenDataSource = TokenDataSource(context)
+                tokenDataSource.putToken(signInResponse?.body())
+                tokenDataSource.putLoginId(loginId)
+                Log.i("token", "${tokenDataSource.getToken()}")
+                Log.i("token", "$loginId")
+                Log.i("token", "${tokenDataSource.getLoginId()}")
+                navController.navigate(AppNavItem.Main.route) {
+                    popUpTo("login") { inclusive = true }
+                    launchSingleTop = true
+                }
+            } else {
+                // 에러 처리
+                Log.i("token", "${signInResponse?.code()}")
+                if (signInResponse?.code() == 400) {
+                    // 닉네임 중복
+                    setIsNickNameError(true)
+                }
             }
         }
     }
@@ -124,7 +130,7 @@ fun SignInScreen(
     var name: String by remember { mutableStateOf("") }
     var isError by remember { mutableStateOf(false) }
 
-    val years = (2013 downTo 1900).map { it.toString() }
+    val years = (2023 downTo 1950).map { it.toString() }
     val months = (1..12).map { it.toString() }
     val days = (1..31).map { it.toString() }
 
@@ -147,12 +153,15 @@ fun SignInScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(32.dp)
+            .padding(32.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(text = "회원가입")
+        Spacer(modifier = Modifier.height(8.dp))
         Text(text = "회원이 되어 다양한 혜택을 경험해 보세요.")
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(20.dp))
 
         OutlinedTextField(
             value = email,
@@ -207,14 +216,18 @@ fun SignInScreen(
                         )
                         .padding(vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically, // 중앙 수직 정렬
-                    horizontalArrangement = Arrangement.spacedBy(10.dp) // 요소 사이의 간격 설정
+                    horizontalArrangement = Arrangement.spacedBy(6.dp) // 요소 사이의 간격 설정
                 ) {
                     RadioButton(
                         selected = (gender == selectedGender),
-                        onClick = { setSelectedGender(gender) }
+                        onClick = { setSelectedGender(gender) },
+                        colors = RadioButtonDefaults.colors(
+                            selectedColor = colorResource(id = R.color.booking_1)
+                        )
                     )
                     Text(text = gender)
                 }
+                Spacer(modifier = Modifier.padding(5.dp))
             }
         }
 
@@ -339,12 +352,13 @@ fun SignInScreen(
             }
 
             if (myLocation !== "0") {
-                Text(text = "위치 인증 성공")
+                Text(text = "위치 인증 성공!", color=colorResource(id = R.color.main))
 
                 Spacer(modifier = Modifier.height(16.dp))
 
                 if (!isError) {
-                    Button(onClick = {
+                    Button(
+                        onClick = {
                         val request = SignInRequest(
                             loginId = loginId,
                             address = myLocation,
@@ -356,21 +370,30 @@ fun SignInScreen(
                             profileImage = null,
                             provider = "kakao"
                         )
-                        viewModel.signIn(request)
-                    }) {
+                        viewModel.signIn(request)},
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = colorResource(id = R.color.booking_1),
+                            contentColor = colorResource(id = R.color.font_color)
+                        )
+                        ) {
                         Text(text = "회원 가입")
                     }
                 }
             }
         } else {
-            Button(onClick = {
+            Button(
+                onClick = {
                 requestPermissionsLauncher.launch(
                     arrayOf(
                         Manifest.permission.ACCESS_FINE_LOCATION,
                         Manifest.permission.ACCESS_COARSE_LOCATION
                     )
+                )},
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = colorResource(id = R.color.booking_1),
+                    contentColor = colorResource(id = R.color.font_color)
                 )
-            }) {
+            ) {
                 Text(text = "위치 인증 체크")
             }
         }

@@ -8,9 +8,7 @@ import com.google.gson.Gson
 
 @Entity(tableName = "chatEntity")
 data class ChatEntity(
-    @PrimaryKey val id: Int,
-
-    @ColumnInfo(name = "meetings_id") val meetingsId : Int?,
-    @ColumnInfo(name = "member_list") val memberList : List<Int>?
+    @PrimaryKey val chatroomId : Int,
+    @ColumnInfo(name = "lastReadMessage_idx") val lastMessageIdx : Int = 1,
 )
 
