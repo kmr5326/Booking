@@ -1,8 +1,14 @@
 package com.ssafy.booking.di
 
+import android.content.Context
+import coil.ImageLoader
+import coil.request.CachePolicy
+import coil.util.DebugLogger
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import com.ssafy.booking.utils.ObjectStorageInterceptor
 import com.ssafy.booking.utils.Utils.BASE_URL
+import com.ssafy.booking.utils.Utils.NAVER_CLOUD_URL
 import com.ssafy.data.remote.api.BookSearchApi
 import com.ssafy.data.remote.api.BookingApi
 import com.ssafy.data.remote.api.ChatApi
@@ -11,9 +17,11 @@ import com.ssafy.data.remote.api.GoogleApi
 import com.ssafy.data.remote.api.MemberApi
 import com.ssafy.data.remote.api.MyBookApi
 import com.ssafy.data.remote.api.MyPageApi
+import com.ssafy.data.remote.api.NaverCloudApi
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
@@ -24,6 +32,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
 import java.io.IOException
 import java.util.concurrent.TimeUnit
+import javax.inject.Named
 import javax.inject.Singleton
 
 @Module
@@ -49,6 +58,7 @@ class NetworkModule {
 
     @Provides
     @Singleton
+    @Named("defaultRetrofit")
     fun retrofit(): Retrofit {
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
@@ -81,49 +91,49 @@ class NetworkModule {
 
     @Provides
     @Singleton
-    fun provideGoogleApiService(retrofit: Retrofit): GoogleApi {
+    fun provideGoogleApiService(@Named("defaultRetrofit") retrofit: Retrofit): GoogleApi {
         return retrofit.create(GoogleApi::class.java)
     }
 
     @Provides
     @Singleton
-    fun provideChatApi(retrofit: Retrofit): ChatApi {
+    fun provideChatApi(@Named("defaultRetrofit") retrofit: Retrofit): ChatApi {
         return retrofit.create(ChatApi::class.java)
     }
 
     @Provides
     @Singleton
-    fun provideMemberApi(retrofit: Retrofit): MemberApi {
+    fun provideMemberApi(@Named("defaultRetrofit") retrofit: Retrofit): MemberApi {
         return retrofit.create(MemberApi::class.java)
     }
 
     @Provides
     @Singleton
-    fun provideMyPageApi(retrofit: Retrofit): MyPageApi {
+    fun provideMyPageApi(@Named("defaultRetrofit") retrofit: Retrofit): MyPageApi {
         return retrofit.create(MyPageApi::class.java)
     }
 
     @Provides
     @Singleton
-    fun provideBookSearchApi(retrofit: Retrofit): BookSearchApi {
+    fun provideBookSearchApi(@Named("defaultRetrofit") retrofit: Retrofit): BookSearchApi {
         return retrofit.create(BookSearchApi::class.java)
     }
 
     @Provides
     @Singleton
-    fun provideBookingApi(retrofit: Retrofit): BookingApi {
+    fun provideBookingApi(@Named("defaultRetrofit") retrofit: Retrofit): BookingApi {
         return retrofit.create(BookingApi::class.java)
     }
 
     @Provides
     @Singleton
-    fun provideDeviceTokenApi(retrofit: Retrofit): FirebaseApi {
+    fun provideDeviceTokenApi(@Named("defaultRetrofit") retrofit: Retrofit): FirebaseApi {
         return retrofit.create(FirebaseApi::class.java)
     }
 
     @Provides
     @Singleton
-    fun provideMyBookApi(retrofit: Retrofit) : MyBookApi {
+    fun provideMyBookApi(@Named("defaultRetrofit") retrofit: Retrofit) : MyBookApi {
         return retrofit.create(MyBookApi::class.java)
     }
 
@@ -147,4 +157,66 @@ class NetworkModule {
 
     private fun getLoggingInterceptor(): HttpLoggingInterceptor =
         HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BODY }
+
+
+    // Naver cloud 활용 network module 부분
+    @Provides
+    @Singleton
+    fun provideObjectStorageInterceptor(): ObjectStorageInterceptor {
+        val accessKey = "64tVP74TUGmd6PDzjQ04"
+        val secretKey = "1E11TfvJcy7OVnSSm3rV0Vph24CLUO4Tiehd5PtZ"
+        val region = "kr-standard"
+        return ObjectStorageInterceptor(accessKey, secretKey, region)
+    }
+
+    @Provides
+    @Singleton
+    fun okHttpClientWithObjectStorage(objectStorageInterceptor: ObjectStorageInterceptor): OkHttpClient {
+        return OkHttpClient.Builder()
+            .readTimeout(10, TimeUnit.SECONDS)
+            .connectTimeout(10, TimeUnit.SECONDS)
+            .writeTimeout(15, TimeUnit.SECONDS)
+            .addInterceptor(objectStorageInterceptor) // ObjectStorageInterceptor 추가
+            .build()
+    }
+
+    // 기존 Retrofit 제공 함수를 ObjectStorageInterceptor를 포함하도록 수정
+    @Provides
+    @Singleton
+    @Named("objectStorageRetrofit")
+    fun retrofitWithObjectStorage(): Retrofit {
+        return Retrofit.Builder()
+            .baseUrl(NAVER_CLOUD_URL)
+            .client(okHttpClientWithObjectStorage(provideObjectStorageInterceptor()))
+            .addConverterFactory(ScalarsConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideNaverStorageApi(@Named("objectStorageRetrofit") retrofitWithObjectStorage: Retrofit): NaverCloudApi {
+        return retrofitWithObjectStorage.create(NaverCloudApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideImageLoader(@ApplicationContext context: Context): ImageLoader {
+        val objectStorageInterceptor = provideObjectStorageInterceptor()
+
+        // OkHttp 클라이언트를 구성합니다. 이 때, 로깅 인터셉터와 ObjectStorageInterceptor를 추가합니다.
+        val naverOkHttpClient = OkHttpClient.Builder()
+            .addInterceptor(objectStorageInterceptor)
+            .addInterceptor(HttpLoggingInterceptor().apply {
+                level = HttpLoggingInterceptor.Level.BODY
+            })
+            .build()
+
+        return ImageLoader.Builder(context)
+            .logger(DebugLogger())
+            .diskCachePolicy(CachePolicy.DISABLED)
+            .okHttpClient(naverOkHttpClient)
+            .build()
+    }
+
 }

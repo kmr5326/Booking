@@ -156,7 +156,7 @@ fun SettingPage() {
                         Spacer(modifier = Modifier.padding(5.dp))
                         Text(text = "현재 버전")
                         Spacer(modifier = Modifier.padding(horizontal = 50.dp))
-                        Text(text = "v1.0.1", color = Color.Gray)
+                        Text(text = "v3.0.0", color = Color.Gray)
                     }
                     Row(
                         modifier = Modifier

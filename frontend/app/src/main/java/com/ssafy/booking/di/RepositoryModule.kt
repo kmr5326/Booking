@@ -7,6 +7,7 @@ import com.ssafy.data.remote.api.FirebaseApi
 import com.ssafy.data.remote.api.MemberApi
 import com.ssafy.data.remote.api.MyBookApi
 import com.ssafy.data.remote.api.MyPageApi
+import com.ssafy.data.remote.api.NaverCloudApi
 import com.ssafy.data.repository.BookSearchRepositoryImpl
 import com.ssafy.data.repository.BookingRepositoryImpl
 import com.ssafy.data.repository.ChatRepositoryImpl
@@ -16,6 +17,7 @@ import com.ssafy.data.repository.GoogleRepositoryImpl
 import com.ssafy.data.repository.MemberRepositoryImpl
 import com.ssafy.data.repository.MyBookRepositoryImpl
 import com.ssafy.data.repository.MyPageRepositoryImpl
+import com.ssafy.data.repository.NaverCloudRepositoryImpl
 import com.ssafy.domain.repository.BookSearchRepository
 import com.ssafy.domain.repository.BookingRepository
 import com.ssafy.domain.repository.ChatRepository
@@ -24,6 +26,7 @@ import com.ssafy.domain.repository.GoogleRepository
 import com.ssafy.domain.repository.MemberRepository
 import com.ssafy.domain.repository.MyBookRepository
 import com.ssafy.domain.repository.MyPageRepository
+import com.ssafy.domain.repository.NaverCloudRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -84,5 +87,11 @@ class RepositoryModule {
     @Singleton
     fun provideMyBookRepository(api: MyBookApi): MyBookRepository {
         return MyBookRepositoryImpl(api)
+    }
+
+    @Provides
+    @Singleton
+    fun provideNaverCloudRepository(api: NaverCloudApi) : NaverCloudRepository {
+        return NaverCloudRepositoryImpl(api)
     }
 }

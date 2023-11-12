@@ -7,12 +7,14 @@ import com.ssafy.domain.repository.GoogleRepository
 import com.ssafy.domain.repository.MemberRepository
 import com.ssafy.domain.repository.MyBookRepository
 import com.ssafy.domain.repository.MyPageRepository
+import com.ssafy.domain.repository.NaverCloudRepository
 import com.ssafy.domain.usecase.BookSearchUseCase
 import com.ssafy.domain.usecase.BookingUseCase
 import com.ssafy.domain.usecase.ChatUseCase
 import com.ssafy.domain.usecase.GetTokenRepoUseCase
 import com.ssafy.domain.usecase.MyBookUseCase
 import com.ssafy.domain.usecase.MyPageUseCase
+import com.ssafy.domain.usecase.NaverCloudUseCase
 import com.ssafy.domain.usecase.SignInUseCase
 import dagger.Module
 import dagger.Provides
@@ -51,4 +53,8 @@ class UseCaseModule {
     @Provides
     @Singleton
     fun provideMyBookUseCase(repository: MyBookRepository) = MyBookUseCase(repository)
+
+    @Provides
+    @Singleton
+    fun provideNaverCloudUseCase(repository: NaverCloudRepository) = NaverCloudUseCase(repository)
 }
