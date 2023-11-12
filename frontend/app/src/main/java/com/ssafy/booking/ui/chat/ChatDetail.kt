@@ -75,6 +75,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.ssafy.booking.R
@@ -107,14 +108,11 @@ fun ChatDetail(
 ) {
     val chatViewModel: ChatViewModel = hiltViewModel()
     val myPageViewModel: MyPageViewModel = hiltViewModel()
+    val socketViewModel: SocketViewModel = hiltViewModel()
     val chatId = chatId ?: return
     val meetingTitle = meetingTitle ?: return
     val memberList = memberListString?.split(",")?.map { it.toInt() } ?: return
-    Log.d("CHAT", "memberListSize ${memberList.size}")
     val userInfoMap by socketViewModel.userInfoMap.observeAsState(emptyMap())
-
-//    Log.d("CHAT", "DETAIL 유저맵 ${userInfoMap}")
-
     val messages by socketViewModel.finalMessages.observeAsState(initial = emptyList())
 
     // UI 상태
@@ -125,13 +123,9 @@ fun ChatDetail(
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(topBarState)
     val coroutineScope = rememberCoroutineScope()
 
-    LaunchedEffect(chatId) {
-        socketViewModel.onChatRoomChanged()
-        listState.scrollToItem(index = 0)
-    }
-
     // 최신 메시지 폴링 시작
     LaunchedEffect(Unit) {
+    Log.d("TEST" , "3. 폴링시작 ")
         if (chatId != null) {
             socketViewModel.loadAllMessage(chatId.toInt())
             socketViewModel.setPollingMessage(chatId.toInt(), true)
@@ -140,15 +134,18 @@ fun ChatDetail(
     }
     // 최신 메시지 폴링 중지
     DisposableEffect(Unit) {
+    Log.d("TEST" , "3. 폴링종료 ")
         onDispose {
             if (chatId != null) {
                 socketViewModel.setPollingMessage(chatId.toInt(), false)
             }
         }
     }
+
     // 소켓 연결 + 읽었다고 보내기
     chatId.let {
         LaunchedEffect(Unit) {
+    Log.d("TEST" , "4. 소켓연결 + 읽음보내기 ")
             socketViewModel.connectToChat(chatId)
             socketViewModel.postLastReadMessageId(chatId.toInt())
         }
@@ -157,6 +154,7 @@ fun ChatDetail(
     LaunchedEffect(messages) {
         memberList.forEach { memberId ->
             socketViewModel.loadUserInfo(memberId.toLong())
+        Log.d("TEST" , "5. 유저정보 조회 ")
         }
     }
 
@@ -164,7 +162,6 @@ fun ChatDetail(
         if (!isLoading && messages.isNotEmpty()) {
             coroutineScope.launch {
                 if (messages.isNotEmpty()) {
-
                     listState.animateScrollToItem(index = messages.size - 1)
                 }
             }
@@ -172,9 +169,8 @@ fun ChatDetail(
     }
 
     LaunchedEffect(listState.firstVisibleItemScrollOffset) {
-        if (listState.firstVisibleItemIndex <= 10 && listState.firstVisibleItemScrollOffset <= 10) {
+        if (listState.firstVisibleItemIndex <= 1 && listState.firstVisibleItemScrollOffset <= 1) {
             socketViewModel.loadMoreMessages(chatId.toInt())
-            Log.d("CHAT", "listState ${listState.firstVisibleItemIndex}")
         }
     }
 
@@ -201,7 +197,6 @@ fun ChatDetail(
             }
         }
     }
-
 
     val reversedMessages = messages.reversed()
 
@@ -256,6 +251,8 @@ fun ChatDetail(
             }
         }
     ) {
+        Log.d("TEST" , "10 UI 스캐폴드전 ")
+
         Scaffold(
             topBar = {
                 TopBarChat(
@@ -281,6 +278,8 @@ fun ChatDetail(
                     .fillMaxSize()
                     .padding(paddingValues)
             ) {
+                Log.d("TEST" , "10 메시지리스트 ")
+
                 MessageList(
                     modifier = Modifier
                         .weight(1f)
@@ -288,7 +287,8 @@ fun ChatDetail(
                     listState,
                     reversedMessages,
                     memberId,
-                    userInfoMap
+                    userInfoMap,
+                    chatId
                 )
                 chatId.let {
                     InputText(
@@ -325,16 +325,18 @@ fun MessageList(
     listState: LazyListState,
     messages: List<MessageEntity>,
     memberId: Long?,
-    userInfoMap: Map<Long, UserInfoResponseByPk>
+    userInfoMap: Map<Long, UserInfoResponseByPk>,
+    chatId: String?
 ) {
-    LaunchedEffect(messages.size) {
-        if (listState.isScrolledToTheBottom()) {
-            if (messages.isNotEmpty()) {
-                listState.animateScrollToItem(messages.size - 1)
-            }
-        }
-    }
+//    LaunchedEffect(messages.size) {
+//        if (listState.isScrolledToTheBottom()) {
+//            if (messages.isNotEmpty()) {
+//                listState.animateScrollToItem(messages.size - 1)
+//            }
+//        }
+//    }
 
+    Log.d("TEST" , "10 메시지리스트 들어감")
 
     Box(
         modifier = modifier
@@ -349,7 +351,7 @@ fun MessageList(
                 val previousMessage = if (index > 0) messages[index - 1] else null
                 val nextMessage =
                     if (index < messages.size - 1) messages[index + 1] else null
-                MessageItem(message, previousMessage, nextMessage, memberId, userInfoMap)
+                MessageItem(message, previousMessage, nextMessage, memberId, userInfoMap, chatId)
             }
         }
     }
@@ -361,8 +363,11 @@ fun MessageItem(
     previousMessage: MessageEntity?,
     nextMessage: MessageEntity?,
     memberId: Long?,
-    userInfoMap: Map<Long, UserInfoResponseByPk>
+    userInfoMap: Map<Long, UserInfoResponseByPk>,
+    chatId: String?
 ) {
+    Log.d("TEST" , "10 메시지아이템 들어감 ${chatId}")
+
     val navController = LocalNavigation.current
     val isOwnMessage = message.senderId?.toLong() == memberId
     val userInfo = userInfoMap[message.senderId?.toLong()]
@@ -451,12 +456,20 @@ fun MessageItem(
                     if (isOwnMessage &&
                         (nextMessage == null || nextTime != curTime || nextMessage.senderId != message.senderId)
                     ) {
-                        Text(
-                            text = curTime,
-                            fontSize = 12.sp,
-                            color = Color(0xFF556677),
-                            modifier = Modifier.align(Alignment.Bottom)
-                        )
+                        Column(modifier = Modifier.align(Alignment.Bottom)) {
+                            if (message.readCount!! > 0) {
+                                Text(
+                                    text = "${message.readCount}",
+                                    fontSize = 12.sp,
+                                    color = Color(0xFFFEF01B),
+                                )
+                            }
+                            Text(
+                                text = curTime,
+                                fontSize = 12.sp,
+                                color = Color(0xFF556677),
+                            )
+                        }
                         Spacer(modifier = Modifier.width(4.dp))
                     }
 
@@ -548,8 +561,8 @@ fun InputText(
                 text = TextFieldValue("")
                 coroutineScope.launch {
                     socketViewModel.sendMessage(message, chatId?.toLong())
-                    delay(3010)
-                    listState.animateScrollToItem(messages.size)
+                    delay(500)
+//                    listState.animateScrollToItem(messages.size)
                 }
             },
             enabled = text.text.isNotBlank(),

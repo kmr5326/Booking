@@ -70,9 +70,20 @@ class SocketViewModel @Inject constructor(
     val finalMessages: LiveData<List<MessageEntity>> get() = _finalMessages
     private var allMessagesSource: LiveData<List<MessageEntity>>? = null
     private var latestMessagesSource: LiveData<List<MessageEntity>>? = null
+    
+    // 각 채팅방 상태 초기화 해주기
+    override fun onCleared() {
+        super.onCleared()
+        Log.d("NAV", "메모리 누수 방지")
+        _finalMessages.value = emptyList()
+        _userInfoMap.value = emptyMap()
+        allMessagesSource = null
+        latestMessagesSource = null
+    }
 
     // 전체 메시지 불러오기
     fun loadAllMessage(chatId: Int) {
+        Log.d("SVM", "뭐야ㅕ 이건{$chatId}")
         Log.d("CHAT", "loadAllMessage Start")
         viewModelScope.launch {
             messageDao.getAllMessage(chatId).asFlow()
@@ -93,8 +104,10 @@ class SocketViewModel @Inject constructor(
                 Log.d("CHAT", "라스트메시지아이디 ${lastMessageId}")
                 if (lastMessageId != null) {
                     messageDao.getMessagesBefore(chatId, lastMessageId, 30).asFlow()
+                        .distinctUntilChanged()
                         .collect { additionalMessages ->
                             `_finalMessages`.postValue(currentMessages + additionalMessages)
+                Log.d("SVM", "loadMoreMessages ${_finalMessages.value}")
                         }
                 }
             }
@@ -115,13 +128,12 @@ class SocketViewModel @Inject constructor(
                     val uniqueNewMessages =
                         newMessages.filterNot { it.messageId in currentMessages.map { msg -> msg.messageId } } // 증복 등장 방지
                     _finalMessages.postValue(uniqueNewMessages + currentMessages) // 새 메시지 추가
-                    uniqueNewMessages.forEach { newMessage ->
-                        newMessage.messageId?.let { messageDao.markUsedMessage(it) } // 읽음 처리
-                    }
+                    Log.d("SVM", "loadLatestMessage ${_finalMessages.value}")
+                    val messageIds = uniqueNewMessages.mapNotNull { it.messageId }
+                    messageDao.markUsedMessages(messageIds)
                 }
         }
         Log.d("CHAT", "loadLatestMessage End")
-
     }
 
     private val _setPollingMessage = MutableLiveData<Boolean>(false)
@@ -129,11 +141,10 @@ class SocketViewModel @Inject constructor(
     private var PollingJob: Job? = null
     fun starMessagePolling(chatId: Int) {
         PollingJob = viewModelScope.launch(Dispatchers.Main) {
-            delay(1000)
             while (isActive) {
                 loadLatestMessage(chatId)
                 Log.d("CHAT", "SOCKETVM 목록 갱신")
-                delay(500)
+                delay(2000)
             }
         }
     }
@@ -150,16 +161,6 @@ class SocketViewModel @Inject constructor(
         } else {
             stopMessagePolling()
         }
-    }
-
-    // Observer 메모리 누수 방지
-    override fun onCleared() {
-//        Log.d("CHAT", "SOCKETVM onCleared")
-        super.onCleared()
-        allMessagesSource?.let { it.removeObserver {} }
-        latestMessagesSource?.let { it.removeObserver {} }
-        finalMessages.let { it.removeObserver {} }
-        userInfoMap.let { it.removeObserver {} }
     }
 
     fun postLastReadMessageId(chatroomId: Int) =
@@ -194,11 +195,12 @@ class SocketViewModel @Inject constructor(
                     if (existingEntity == null) {
                         messageDao.insertMessage(messageEntity)
                         Log.d("CHAT", "SOCKETVM 신규 메시지 룸 저장 ${existingEntity}")
-                    } else if (existingEntity.readCount != messageEntity.readCount) {
+                    } else if (existingEntity.readCount!! < messageEntity.readCount!!) {
                         existingEntity.messageId?.let {
                             existingEntity.readCount?.let { cnt ->
                                 messageDao.updateReadCount(it, cnt)
                                 Log.d("CHAT", "SOCKETVM 읽음 처리 ${existingEntity}")
+                                Log.d("TEST", "4. SOCKETVM 읽음 처리 ${existingEntity}")
                             }
                         }
                     } else {
@@ -270,17 +272,13 @@ class SocketViewModel @Inject constructor(
 
     fun disconnectChat(chatId: String) {
         viewModelScope.launch {
+            Log.d("TEST" , "9. 나갈때소켓해제 ")
+
             Log.d("CHAT", "SOCKETVM ${chatId} 나가기")
             topic.dispose() // 구독 해지
             stompConnection.dispose() // STOMP 연결 해지
             chatUseCase.deleteDisconnectSocket(chatId.toInt())
         }
-    }
-
-    fun onChatRoomChanged() {
-        // 메시지 목록을 초기화하고 새 채팅방의 메시지를 로드
-        _finalMessages.value = emptyList()
-        _userInfoMap.value = emptyMap()
     }
 
 }

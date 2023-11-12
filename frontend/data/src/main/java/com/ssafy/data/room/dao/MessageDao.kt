@@ -31,6 +31,6 @@ interface MessageDao {
     fun getUnusedMessage(chatroomId: Int): LiveData<List<MessageEntity>>
 
     // '안불러옴' -> '불러옴'
-    @Query("UPDATE messageEntity SET used = 1 WHERE id = :messageId")
-    suspend fun markUsedMessage(messageId: Int)
+    @Query("UPDATE messageEntity SET used = 1 WHERE id IN (:messageIds)")
+    suspend fun markUsedMessages(messageIds: List<Int>)
 }

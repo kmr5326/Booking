@@ -55,6 +55,7 @@ import com.ssafy.booking.viewmodel.AppViewModel
 import com.ssafy.booking.viewmodel.BookingViewModel
 import com.ssafy.booking.viewmodel.ChatViewModel
 import com.ssafy.booking.viewmodel.MyPageViewModel
+import com.ssafy.booking.viewmodel.SocketViewModel
 import com.ssafy.data.repository.token.TokenDataSource
 import com.ssafy.data.room.dao.ChatDao
 import com.ssafy.domain.model.ChatCreateRequest
