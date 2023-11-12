@@ -60,9 +60,9 @@ public class MemberUtil {
                 .uri("/{nickname}", nickname)
                 .retrieve()
                 .onStatus(HttpStatus::is4xxClientError,
-                        response -> Mono.error(new RuntimeException("회원정보 응답 에러 4xx")))
+                        response -> Mono.error(new RuntimeException("회원정보 응답 에러")))
                 .onStatus(HttpStatus::is5xxServerError,
-                        response -> Mono.error(new RuntimeException("회원정보 응답 에러 5xx")))
+                        response -> Mono.error(new RuntimeException("회원정보 응답 에러")))
                 .bodyToMono(MemberResponse.class);
     }
 }

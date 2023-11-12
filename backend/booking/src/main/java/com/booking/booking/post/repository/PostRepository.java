@@ -9,4 +9,5 @@ public interface PostRepository extends R2dbcRepository<Post, Long> {
     Flux<Post> findAllByMeetingId(Long meetingId);
     Mono<Post> findByPostId(Long postId);
     Mono<Void> deleteByPostId(Long postId);
+    Mono<Void> deleteAllByMeetingId(Long meetingId);
 }
