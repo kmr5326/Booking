@@ -1,7 +1,7 @@
 package com.booking.booking.participant.dto.response;
 
 import com.booking.booking.global.dto.response.MemberResponse;
-import com.booking.booking.participant.domain.Participant;
+import com.booking.booking.participantstate.domain.ParticipantState;
 
 public record ParticipantResponse(
         Integer memberPk,
@@ -11,8 +11,13 @@ public record ParticipantResponse(
         Boolean attendanceStatus,
         Boolean paymentStatus
 ) {
-    public ParticipantResponse(MemberResponse member, Participant participant) {
+    public ParticipantResponse(MemberResponse member) {
         this(member.memberPk(), member.loginId(), member.nickname(), member.profileImage(),
-                participant.getAttendanceStatus(), participant.getPaymentStatus());
+                null, null);
+    }
+
+    public ParticipantResponse(MemberResponse member, ParticipantState participantState) {
+        this(member.memberPk(), member.loginId(), member.nickname(), member.profileImage(),
+                participantState.getAttendanceStatus(), participantState.getPaymentStatus());
     }
 }

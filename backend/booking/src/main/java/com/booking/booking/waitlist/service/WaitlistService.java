@@ -43,14 +43,14 @@ public class WaitlistService {
                 });
     }
 
-    public Flux<WaitlistResponse> findAllByMeetingMeetingId(Long meetingId) {
-        log.info("[Booking:Waitlist] findAllByMeetingMeetingId({})", meetingId);
+    public Flux<WaitlistResponse> findAllByMeetingId(Long meetingId) {
+        log.info("[Booking:Waitlist] findAllByMeetingId({})", meetingId);
 
         return waitlistRepository.findAllByMeetingId(meetingId)
                 .flatMap(waitlist -> MemberUtil.getMemberInfoByPk(waitlist.getMemberId())
-                                .flatMap(memberInfo -> Mono.just(new WaitlistResponse(memberInfo))))
+                        .flatMap(member -> Mono.just(new WaitlistResponse(member))))
                 .onErrorResume(error -> {
-                    log.info("[Booking:Waitlist ERROR] findAllByMeetingMeetingId : {}", error.getMessage());
+                    log.info("[Booking:Waitlist ERROR] findAllByMeetingId : {}", error.getMessage());
                     return Flux.error(new RuntimeException("대기자 목록 조회 실패"));
                 });
     }

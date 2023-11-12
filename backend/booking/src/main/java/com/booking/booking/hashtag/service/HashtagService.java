@@ -1,6 +1,7 @@
 package com.booking.booking.hashtag.service;
 
 import com.booking.booking.hashtag.domain.Hashtag;
+import com.booking.booking.hashtag.dto.response.HashtagResponse;
 import com.booking.booking.hashtag.repository.HashtagRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,8 +21,8 @@ public class HashtagService {
         return hashtagRepository.findByContent(content);
     }
 
-    public Mono<Hashtag> save(String content) {
-        log.info("[Booking:Hashtag] save({})", content);
+    public Mono<Hashtag> saveHashtag(String content) {
+        log.info("[Booking:Hashtag] saveHashtag({})", content);
 
         return hashtagRepository.save(Hashtag.builder().content(content).build())
                 .onErrorResume(error -> {
@@ -30,10 +31,11 @@ public class HashtagService {
                 });
     }
 
-    public Flux<Hashtag> findHashtagsByMeetingId(Long meetingId) {
+    public Flux<HashtagResponse> findHashtagsByMeetingId(Long meetingId) {
         log.info("[Booking:Hashtag] findHashtagsByMeetingId({})", meetingId);
 
         return hashtagRepository.findHashtagsByMeetingId(meetingId)
+                .flatMap(hashtag -> Mono.just(new HashtagResponse(hashtag)))
                 .onErrorResume(error -> {
                     log.error("[Booking:Hashtag ERROR] findHashtagsByMeetingId : {}", error.getMessage());
                     return Mono.error(new RuntimeException("해시태그 목록 조회 실패"));
