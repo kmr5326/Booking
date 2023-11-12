@@ -51,7 +51,7 @@ class RecordViewModel @Inject constructor(
     }
     fun updateSliderPosition(newPosition: Int) {
         _sliderPosition.value = newPosition
-        mediaPlayer.seekTo(newPosition * 1000)
+        mediaPlayer.seekTo(newPosition)
     }
 
     fun convertMillisToTimeFormat(millis: Int): String {

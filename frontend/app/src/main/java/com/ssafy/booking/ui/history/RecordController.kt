@@ -77,11 +77,11 @@ fun SeekBar(
             onValueChange = { newPosition ->
                 recordViewModel.updateSliderPosition(newPosition.toInt())
             },
-            valueRange = 0f..totalDuration.toFloat(), // 녹음 파일의 길이만큼 할 것
+            valueRange = 0f..totalDuration.toFloat(),
             colors = SliderDefaults.colors(
-                thumbColor = Color(0xFF00C68E), // 원
-                activeTrackColor = Color(0xFF00C68E), // 진행
-                inactiveTrackColor = Color(0xFFDAF6EE), // 전체
+                thumbColor = Color(0xFF00C68E),
+                activeTrackColor = Color(0xFF00C68E),
+                inactiveTrackColor = Color(0xFFDAF6EE),
             ),
             modifier = Modifier
                 .size(100.dp)
