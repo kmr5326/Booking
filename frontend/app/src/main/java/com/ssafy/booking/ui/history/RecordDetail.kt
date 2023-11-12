@@ -76,7 +76,7 @@ fun RecordDetail(
                     text = "90"
                 )
                 Text(text = "저는 데미안이 신클라이어의 내면의 투영이라고 생각했어요.")
-                          }
+            }
         }
     }
 

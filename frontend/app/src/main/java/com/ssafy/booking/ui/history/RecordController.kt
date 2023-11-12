@@ -1,5 +1,6 @@
 package com.ssafy.booking.ui.history
 
+import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,10 +25,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ssafy.booking.viewmodel.RecordViewModel
+import androidx.compose.ui.platform.LocalContext
+import com.ssafy.booking.R
+
 
 @Composable
 fun RecordController(
 ) {
+    val context = LocalContext.current
     val recordViewModel : RecordViewModel = hiltViewModel()
     Box {
         Column(
@@ -37,7 +42,8 @@ fun RecordController(
         ) {
             IconButton(
                 onClick = {
-                    // 클릭 이벤트 처리
+                    val resourceUri = Uri.parse("android.resource://${context.packageName}/${R.raw.crowd_talking}")
+                    recordViewModel.playAudio(context, resourceUri)
                 },
             ) {
                 Icon(
