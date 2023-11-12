@@ -28,6 +28,7 @@ import com.ssafy.booking.ui.chat.ChatHome
 import com.ssafy.booking.ui.common.SettingPage
 import com.ssafy.booking.ui.history.HistoryDetail
 import com.ssafy.booking.ui.history.HistoryHome
+import com.ssafy.booking.ui.history.HistoryRecord
 import com.ssafy.booking.ui.login.Greeting
 import com.ssafy.booking.ui.login.SignInScreen
 import com.ssafy.booking.ui.profile.MyBookDetail
@@ -49,6 +50,7 @@ sealed class AppNavItem(
     object BookDetail : AppNavItem("bookDetail/{isbn}")
     object History : AppNavItem("history")
     object HistoryDetail : AppNavItem("history/detail")
+    object HistoryRecord : AppNavItem("history/detail/record")
     object Main : AppNavItem("main")
     object Chat : AppNavItem("chat")
     object ChatDetail : AppNavItem("chatDetail/{chatId}/{memberList}/{meetingTitle}")
@@ -121,10 +123,13 @@ fun Route(googleSignInClient: GoogleSignInClient) {
                 }
             }
             composable("history") {
-                HistoryHome(navController, appViewModel)
+                HistoryHome()
             }
             composable("history/detail") {
-                HistoryDetail(navController, appViewModel)
+                HistoryDetail()
+            }
+            composable("history/detail/record") {
+                HistoryRecord()
             }
             composable("main") {
                 Main(navController, appViewModel)
