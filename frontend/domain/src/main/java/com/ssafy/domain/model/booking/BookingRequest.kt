@@ -22,10 +22,21 @@ data class BookingAcceptRequest (
     val memberId : Int,
 )
 
+// 모임 거절하기
+data class BookingRejectRequest (
+    val meetingId : Long,
+    val memberId : Int,
+)
+
 // 모임 확정하기
 data class BookingStartRequest (
     val meetingId : Long,
     val date : LocalDateTime,
     val location : String,
     val fee : Integer
+)
+
+// 모임 나가기
+data class BookingExitRequest (
+    val meetingId : Long,
 )

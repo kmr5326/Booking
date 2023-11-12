@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
@@ -326,7 +327,7 @@ fun CreateBookingButton(
             .height(50.dp),
 //            .offset(y = 30.dp)
         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00C68E)),
-        shape = RoundedCornerShape(4.dp) // 모서리의 라운드를 4.dp로 설정합니다.
+        shape = RoundedCornerShape(4.dp)
     ) {
         Text(text = "모임 생성하기")
     }
@@ -391,6 +392,14 @@ fun HashTagEditor(
             singleLine = true,
             label = { Text("해시태그") },
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+            keyboardActions = KeyboardActions(
+                onDone = {
+                    // '완료(Done)' 버튼이 눌렸을 때 할 작업
+                    onAddHashTag(text.text.trim())
+                    text = TextFieldValue("")
+                    keyboardController?.hide()
+                }
+            ),
             modifier = Modifier
                 .fillMaxWidth()
                 .onKeyEvent { keyEvent ->
