@@ -327,7 +327,7 @@ fun CreateBookingButton(
             .height(50.dp),
 //            .offset(y = 30.dp)
         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00C68E)),
-        shape = RoundedCornerShape(4.dp) // 모서리의 라운드를 4.dp로 설정합니다.
+        shape = RoundedCornerShape(4.dp)
     ) {
         Text(text = "모임 생성하기")
     }

@@ -1,5 +1,9 @@
 package com.ssafy.booking.ui.location
 
+import android.Manifest
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -18,8 +22,10 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -33,6 +39,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
+import com.google.android.gms.location.LocationServices
 import com.ssafy.booking.di.App
 import com.ssafy.booking.viewmodel.AppViewModel
 import com.ssafy.booking.viewmodel.BookingViewModel
@@ -47,78 +57,37 @@ fun SettingAddress(
 )
 {
     Column {
-        Text(text = "내 동네 설정")
-        SearchInput()
-        SetCurrentLocation()
+        Text(text = "내 위치 설정하기")
+//        SearchInput()
+        ReadLocation()
     }
     // 제목
 }
 
-// 검색버튼
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun SearchInput() {
-    var title by rememberSaveable(stateSaver = TextFieldValue.Saver) {
-        mutableStateOf(TextFieldValue(""))
-    }
-    OutlinedTextField(
-        value = title, // 이 부분을 뷰모델의 상태로 연결하거나 필요에 따라 변경
-        onValueChange = { title = it },
-        placeholder = { Text("지번, 도로명, 건물명으로 검색", fontSize = 11.sp, color = Color.Gray) },
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp)
-            .padding(top = 4.dp)
-            .padding(bottom = 16.dp)
-            .height(50.dp)
-            .background(Color.White, shape = RoundedCornerShape(3.dp)),
-        singleLine = true,
-        colors = TextFieldDefaults.outlinedTextFieldColors(
-            focusedBorderColor = Color(0xFF12BD7E),
-            unfocusedBorderColor = Color.White
-        ),
-        textStyle = TextStyle(color = Color.Gray, fontSize = 11.sp, baselineShift = BaselineShift.None),
-        leadingIcon = { Icon(Icons.Outlined.Search, contentDescription = null, tint = Color(0xFF12BD7E)) }
-    )
-}
-
 // 현재 위치로 설정
 @Composable
-fun SetCurrentLocation() {
+fun ReadLocation() {
     val locationViewModel: LocationViewModel = hiltViewModel()
     val isLoading = locationViewModel.isLoading.value
     val addressData = locationViewModel.getAddressResponse.value
     val errorMessage = locationViewModel.errorMessage.value
-    val searchListData = locationViewModel.getKakaoSearchResponse.value
 
-
-    Row(
-        modifier = Modifier
-            .clickable {
-                //    val context = LocalContext.current
-//    val tokenDataSource = TokenDataSource(context)
-//    val loginId = tokenDataSource.getLoginId()
-                // 위랑 아래랑 같은 코드
-                val loginId2 = App.prefs.getLoginId()
-                val lat = App.prefs.getLat().toString()
-                val lgt = App.prefs.getLgt().toString()
-
-                locationViewModel.getAddress(lat, lgt)
-                locationViewModel.getSearchList("스타벅스 하남점", 5, 15,lat,lgt,20000)
-            }
-    ) {
-        Text(text= searchListData.toString() ?: "검색결과가 없습니다")
+    LaunchedEffect(Unit) {
+        val lat = App.prefs.getLat().toString()
+        val lgt = App.prefs.getLgt().toString()
+        locationViewModel.getAddress(lat, lgt)
+    }
+    Row() {
         if (isLoading) {
-            Text(text = "로딩중")
+            Text(text = "주소 정보를 불러오는 중")
         } else {
             if (addressData != null) {
 //                Text(text = addressData.body()?.documents?.get(0).toString())
                 val addressName = addressData.body()?.documents?.firstOrNull()?.address?.addressName
-                val region1 = addressData.body()?.documents?.firstOrNull()?.address?.region2DepthName
-                val region2 = addressData.body()?.documents?.firstOrNull()?.address?.region3DepthName
+//                val region1 = addressData.body()?.documents?.firstOrNull()?.address?.region2DepthName
+//                val region2 = addressData.body()?.documents?.firstOrNull()?.address?.region3DepthName
                 Text(text = addressName ?: "주소 정보가 없습니다.")
-                Text(text = region1 ?: "주소 정보가 없습니다.")
-                Text(text = region2 ?: "주소 정보가 없습니다.")
+
             } else {
                 Text(text = "주소가 없습니다.")
             }
@@ -126,8 +95,41 @@ fun SetCurrentLocation() {
         if (errorMessage != null) {
             Text(text = errorMessage)
         }
-        Icon(Icons.Outlined.LocationOn, contentDescription = null, tint = Color(0xFF12BD7E))
-        Text(text = "현재 내 위치로 설정")
-        Icon(Icons.Outlined.KeyboardArrowRight, contentDescription = null, tint = Color(0xFF12BD7E))
+
     }
+}
+
+@Composable
+fun SetCurrentLocation() {
+//    val context = LocalContext.current
+//    val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
+//    val locationResult = remember { mutableStateOf<List?>(null) }
+//
+//    fun fetchLocation() {
+//        val locationTask = fusedLocationClient.lastLocation
+//        locationTask.addOnSuccessListener { location ->
+//            if (location != null) {
+//                locationResult.value = location
+//                // 위치 데이터를 String 형태로 변환하여 저장하는 로직
+//                // 예: SharedPreferences에 저장
+//            }
+//        }
+//    }
+//
+//    Row(
+//        modifier = Modifier
+//            .clickable {
+//                fetchLocation()
+//            }
+//    ) {
+//        Icon(Icons.Outlined.LocationOn, contentDescription = null, tint = Color(0xFF12BD7E))
+//        Text(text = "현재 내 위치로 설정")
+//        Icon(Icons.Outlined.KeyboardArrowRight, contentDescription = null, tint = Color(0xFF12BD7E))
+//    }
+//
+//    // 위치 정보 확인 및 사용
+//    locationResult.value?.let { location ->
+//        // 여기에 위치 정보를 사용하는 코드를 작성
+//        // 예: 위치 정보를 String으로 변환하여 저장
+//    }
 }

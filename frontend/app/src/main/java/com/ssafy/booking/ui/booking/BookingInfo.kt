@@ -59,6 +59,7 @@ fun BookingInfo(
                 App.prefs.putBookAuthor(bookingDetail?.bookAuthor)
                 App.prefs.putBookImage(bookingDetail?.coverImage)
                 App.prefs.putTitle(bookingDetail?.meetingTitle)
+                App.prefs.putMaxParticipants(bookingDetail?.maxParticipants)
             }
         }
     }

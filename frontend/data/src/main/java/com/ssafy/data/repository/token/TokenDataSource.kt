@@ -3,7 +3,9 @@ package com.ssafy.data.repository.token
 import android.content.Context
 import android.content.SharedPreferences
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.ssafy.domain.model.DeviceToken
+import com.ssafy.domain.model.booking.HashtagResponse
 import com.ssafy.domain.model.google.AccountInfo
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
@@ -25,6 +27,9 @@ class TokenDataSource @Inject constructor(
         private const val DEVICE_TOKEN = "device_token"
         private const val BOOK_TITLE = "book_title"
         private const val BOOK_AUTHOR = "book_author"
+        private const val MEETING_ID = "meeting_id"
+        private const val MAX_PARTICIPANTS = "max_participants"
+        private const val HASHTAG_LIST = "hashtag_list"
 
     }
     private fun getTokenPreference(context: Context) : SharedPreferences {
@@ -59,7 +64,7 @@ class TokenDataSource @Inject constructor(
         editor.apply()
     }
 
-    fun getString(key: String, defValue: String? = null) : String? {
+    private fun getString(key: String, defValue: String? = null) : String? {
         return prefs.getString(key, defValue)
     }
 
@@ -78,6 +83,17 @@ class TokenDataSource @Inject constructor(
     private fun getLong(key: String, defValue: Long = 0) : Long {
         return prefs.getLong(key, defValue)
     }
+
+    private fun getObject(key: String, defValue: Any) : Any {
+        val json = getString(key, null)
+        return if (json == null) {
+            defValue
+        } else {
+            gson.fromJson(json, defValue::class.java)
+        }
+    }
+
+
 
 
 
@@ -233,4 +249,38 @@ class TokenDataSource @Inject constructor(
         putString(BOOK_AUTHOR, null)
     }
 
+    fun getMeetingId() : Long? {
+        return getLong(MEETING_ID)
+    }
+    fun putMeetingId(meetingId: Long?) {
+        putLong(MEETING_ID, meetingId ?: 0L)
+    }
+    fun removeMeetingId() {
+        putLong(MEETING_ID, 0L)
+    }
+
+    fun getMaxParticipants() : Int? {
+        return getInt(MAX_PARTICIPANTS)
+    }
+    fun putMaxParticipants(maxParticipants: Int?) {
+        putInt(MAX_PARTICIPANTS, maxParticipants ?: 1)
+    }
+    fun removeMaxParticipants() {
+        putInt(MAX_PARTICIPANTS, 1)
+    }
+
+    // 해시태그 리스트
+    fun putHashtagList(key: String, data: List<HashtagResponse>) {
+        val json = gson.toJson(data)
+        putString(key, json)
+
+    fun getHashtagList(key: String): List<HashtagResponse>? {
+        val json = getString(key)
+        return if (json != null) gson.fromJson(
+            json,
+            object : TypeToken<List<HashtagResponse>>() {}.type
+        )
+        else null
+    }
+    }
 }

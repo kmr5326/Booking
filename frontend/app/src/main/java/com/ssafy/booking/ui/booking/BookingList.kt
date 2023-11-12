@@ -61,6 +61,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
 import com.ssafy.booking.R
+import com.ssafy.booking.di.App
 import com.ssafy.booking.ui.common.BottomNav
 import com.ssafy.booking.viewmodel.AppViewModel
 import com.ssafy.booking.viewmodel.BookingViewModel
@@ -154,6 +155,7 @@ fun BookItem(booking: BookingAll,navController: NavController) {
             .padding(12.dp)
             .clickable { // clickable 모디파이어 추가
                 navController.navigate("bookingDetail/$meetingId") // 클릭 시 상세 화면으로 이동
+                App.prefs.putMeetingId(meetingId) // 미팅 아이디 SharedPreference에 저장하기
             }
     ) {
         Image(

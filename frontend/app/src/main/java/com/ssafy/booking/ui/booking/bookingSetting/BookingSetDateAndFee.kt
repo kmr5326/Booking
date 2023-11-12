@@ -36,6 +36,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.ssafy.booking.di.App
 import com.ssafy.booking.ui.AppNavItem
 import com.ssafy.booking.ui.LocalNavigation
 import com.ssafy.booking.viewmodel.BookingViewModel
@@ -112,12 +113,10 @@ fun SetEntryFee(modifier: Modifier = Modifier) {
         Text("설정된 참가비: $enteredFee 원")
     }
 }
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FeeInputField(onFeeChanged: (Int) -> Unit) {
     var fee by remember { mutableStateOf(0) }
-
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -144,15 +143,11 @@ fun FeeInputField(onFeeChanged: (Int) -> Unit) {
         }
     }
 }
-
-
-
 @Composable
 fun SetDateAndFeeBottomButton(
     dateState : String?,
     timeState : String?,
     feeState : Int?,
-
 ) {
     // 현재 Composable 함수와 연관된 Context 가져오기
     val context = LocalContext.current
@@ -170,9 +165,10 @@ fun SetDateAndFeeBottomButton(
                     // 제목 또는 내용이 비어있을 경우 Toast 메시지 표시
                     Toast.makeText(context, "독서모임의 모임 일정과 참가비를 모두 입력해주세요.", Toast.LENGTH_LONG).show()
                 } else {
-                    // 모두 입력된 경우 네비게이션
-                            navController.navigate("bookingDetail/$meetingId") // 클릭 시 상세 화면으로 이동
-
+                    // 원래 있던 모임의 번호를 불러와서,
+                    val meetingId = App.prefs.getMeetingId()
+                    // 클릭 시 원래 있었던 모임 화면으로 이동
+                    navController.navigate("bookingDetail/$meetingId")
                 }
             },
             modifier = Modifier
