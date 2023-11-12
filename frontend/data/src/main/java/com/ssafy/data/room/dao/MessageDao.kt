@@ -9,8 +9,8 @@ import com.ssafy.data.room.entity.MessageEntity
 
 @Dao
 interface MessageDao {
-    @Query("SELECT * FROM messageEntity WHERE chatroom_id = :chatroomId ORDER BY time_stamp DESC LIMIT 30")
-    fun getAllMessage(chatroomId: Int): LiveData<List<MessageEntity>>
+    @Query("SELECT * FROM messageEntity WHERE chatroom_id = :chatroomId ORDER BY time_stamp DESC LIMIT :totalMessageCount")
+    fun getAllMessage(chatroomId: Int, totalMessageCount: Int): LiveData<List<MessageEntity>>
 
     @Query("SELECT * FROM messageEntity WHERE chatroom_id = :chatroomId AND message_id < :lastMessageId ORDER BY time_stamp DESC LIMIT :limit")
     fun getMessagesBefore(chatroomId: Int, lastMessageId: Int, limit: Int): LiveData<List<MessageEntity>>

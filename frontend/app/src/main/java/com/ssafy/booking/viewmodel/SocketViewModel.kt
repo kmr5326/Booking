@@ -52,6 +52,11 @@ class SocketViewModel @Inject constructor(
 
     private val _userInfoMap = MutableLiveData<Map<Long, UserInfoResponseByPk>>()
     val userInfoMap: LiveData<Map<Long, UserInfoResponseByPk>> = _userInfoMap
+    private val _finalMessages = MutableLiveData<List<MessageEntity>>()
+    val finalMessages: LiveData<List<MessageEntity>> = _finalMessages
+
+    private val _totalMessageCount = MutableLiveData(20)
+    val totalMessageCount: LiveData<Int> = _totalMessageCount
 
     // 채팅방 사용자 정보 가져오기
     fun loadUserInfo(memberId: Long) {
@@ -68,25 +73,21 @@ class SocketViewModel @Inject constructor(
         }
     }
 
-    private val _finalMessages = MutableLiveData<List<MessageEntity>>()
-    val finalMessages: LiveData<List<MessageEntity>> get() = _finalMessages
-    private var allMessagesSource: LiveData<List<MessageEntity>>? = null
-    private var latestMessagesSource: LiveData<List<MessageEntity>>? = null
-    
+
     // 각 채팅방 별 뷰모델 상태 초기화 (이전 채팅방이 나오는 문제 해결)
     // 메모리 누수 방지
     override fun onCleared() {
         super.onCleared()
         _finalMessages.value = emptyList()
         _userInfoMap.value = emptyMap()
-        allMessagesSource = null
-        latestMessagesSource = null
     }
 
     // 전체 메시지 불러오기
     fun loadAllMessage(chatId: Int) {
         viewModelScope.launch {
-            messageDao.getAllMessage(chatId).asFlow()
+            val count = _totalMessageCount.value ?: 20
+            Log.d("TEST", "전체 메시지 불러오기 메시지 개수 : ${count}")
+            messageDao.getAllMessage(chatId, count).asFlow()
                 .collect { allMessages ->
                     _finalMessages.postValue(allMessages)
                 }
@@ -99,58 +100,66 @@ class SocketViewModel @Inject constructor(
             val currentMessages = _finalMessages.value.orEmpty()
             if (currentMessages.isNotEmpty()) {
                 val lastMessageId = currentMessages.last().messageId
-                if (lastMessageId != null) {
-                    messageDao.getMessagesBefore(chatId, lastMessageId, 30).asFlow()
+                lastMessageId?.let {
+                    val newCount = (_totalMessageCount.value ?: 0) + 20
+                    Log.d("TEST", "이전의 메시지 불러오기 메시지 개수 : $newCount")
+                    messageDao.getMessagesBefore(chatId, lastMessageId, newCount).asFlow()
                         .distinctUntilChanged()
                         .collect { additionalMessages ->
-                            `_finalMessages`.postValue(currentMessages + additionalMessages)
+                            _finalMessages.postValue(currentMessages + additionalMessages)
+                            _totalMessageCount.postValue(newCount)
                         }
                 }
             }
         }
     }
 
-    // Room에 저장된 최신 메시지 불러오기 ForEach Mark -> SQLITE로 최적화
-    fun loadLatestMessage(chatId: Int) {
-        viewModelScope.launch {
-            messageDao.getUnusedMessage(chatId).asFlow()
-                .distinctUntilChanged()  // 중복 데이터 제거
-                .collect { newMessages ->
-                    val currentMessages = _finalMessages.value.orEmpty()
-                    val uniqueNewMessages =
-                        newMessages.filterNot { it.messageId in currentMessages.map { msg -> msg.messageId } } // 증복 등장 방지
-                    _finalMessages.postValue(uniqueNewMessages + currentMessages) // 새 메시지 추가
-                    val messageIds = uniqueNewMessages.mapNotNull { it.messageId }
-                    messageDao.markUsedMessages(messageIds)
-                }
-        }
-    }
 
-    // 2초 마다 최신 메시지 갱신
-    private val _setPollingMessage = MutableLiveData<Boolean>(false)
-    val setPollingMessage: LiveData<Boolean> get() = _setPollingMessage
-    private var PollingJob: Job? = null
-    fun starMessagePolling(chatId: Int) {
-        PollingJob = viewModelScope.launch(Dispatchers.Main) {
-            while (isActive) {
-                loadLatestMessage(chatId)
-                delay(2000)
-            }
-        }
-    }
-    // 갱신 중지
-    fun stopMessagePolling() {
-        PollingJob?.cancel()
-    }
-    // 갱신 ON/OFF
-    fun setPollingMessage(chatId: Int, toggle: Boolean) {
-        _setPollingMessage.value = toggle
-        if (toggle) {
-            starMessagePolling(chatId)
-        } else {
-            stopMessagePolling()
-        }
-    }
+    // Room에 저장된 최신 메시지 불러오기 ForEach Mark -> SQLITE로 최적화
+//    fun loadLatestMessage(chatId: Int) {
+//        viewModelScope.launch {
+//            messageDao.getUnusedMessage(chatId).asFlow()
+//                .distinctUntilChanged()  // 중복 데이터 제거
+//                .collect { newMessages ->
+//                    val currentMessages = _finalMessages.value.orEmpty()
+//                    val uniqueNewMessages =
+//                        newMessages.filterNot { it.messageId in currentMessages.map { msg -> msg.messageId } } // 증복 등장 방지
+//                    _finalMessages.postValue(uniqueNewMessages + currentMessages) // 새 메시지 추가
+//                    val messageIds = uniqueNewMessages.mapNotNull { it.messageId }
+//                    messageDao.markUsedMessages(messageIds)
+//                    Log.d("TEST", "최신메시지")
+//                    Log.d("TEST", "${uniqueNewMessages}")
+//                }
+//        }
+//    }
+//
+//    // 2초 마다 최신 메시지 갱신
+//    private val _setPollingMessage = MutableLiveData<Boolean>(false)
+//    val setPollingMessage: LiveData<Boolean> get() = _setPollingMessage
+//    private var PollingJob: Job? = null
+//    fun starMessagePolling(chatId: Int) {
+//        PollingJob = viewModelScope.launch(Dispatchers.Main) {
+////            while (isActive) {
+////                loadLatestMessage(chatId)
+////                delay(2000)
+////            }
+//        }
+//    }
+//
+//    // 갱신 중지
+//    fun stopMessagePolling() {
+//        PollingJob?.cancel()
+//    }
+//
+//    // 갱신 ON/OFF
+//    fun setPollingMessage(chatId: Int, toggle: Boolean) {
+//        _setPollingMessage.value = toggle
+//        if (toggle) {
+//            starMessagePolling(chatId)
+//        } else {
+//            stopMessagePolling()
+//        }
+//    }
 
     // STOMP 메시지 수신할 때마다 마지막으로 읽은 메시지 갱신
     fun postLastReadMessageId(chatroomId: Int) =
@@ -182,7 +191,7 @@ class SocketViewModel @Inject constructor(
                     // 새 메시지 저장
                     if (existingEntity == null) {
                         messageDao.insertMessage(messageEntity)
-                    // 이미 있는 메시지 읽은 수 업데이트
+                        // 이미 있는 메시지 읽은 수 업데이트
                     } else if (existingEntity.readCount!! < messageEntity.readCount!!) {
                         existingEntity.messageId?.let {
                             existingEntity.readCount?.let { cnt ->
@@ -197,7 +206,7 @@ class SocketViewModel @Inject constructor(
                 Log.e("CHAT_DETAIL", "postLastRead $e")
             }
         }
-    
+
     // STOMP 소켓 연결
     fun connectToChat(chatId: String) {
         stompConnection = stomp.connect().subscribe {
@@ -205,7 +214,8 @@ class SocketViewModel @Inject constructor(
                 Event.Type.OPENED -> {
                     // 토픽 구독
                     topic = stomp.join("/subscribe/$chatId").subscribe({ stompMessage ->
-                        val kafkaMessage: KafkaMessage = gson.fromJson(stompMessage, KafkaMessage::class.java)
+                        val kafkaMessage: KafkaMessage =
+                            gson.fromJson(stompMessage, KafkaMessage::class.java)
                         viewModelScope.launch(Dispatchers.Main) {
                             try {
                                 // 메시지 수신 응답 신호 보내기
@@ -218,12 +228,15 @@ class SocketViewModel @Inject constructor(
                         Log.e("CHAT", "SOCKETVM Error :", throwable)
                     })
                 }
+
                 Event.Type.CLOSED -> {
                     Log.d("CHAT", "SOCKETVM $it CLOSED!!!")
                 }
+
                 Event.Type.ERROR -> {
                     Log.d("CHAT", "SOCKETVM $it ERROR!!!")
                 }
+
                 else -> {
                     Log.d("CHAT", "SOCKETVM else")
                 }

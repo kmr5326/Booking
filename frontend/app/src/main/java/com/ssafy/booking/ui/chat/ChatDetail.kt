@@ -65,6 +65,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -109,6 +110,7 @@ fun ChatDetail(
     val chatId = chatId ?: return
     val meetingTitle = meetingTitle ?: return
     val memberList = memberListString?.split(",")?.map { it.toInt() } ?: return
+
     val userInfoMap by socketViewModel.userInfoMap.observeAsState(emptyMap())
     val messages by socketViewModel.finalMessages.observeAsState(initial = emptyList())
 
@@ -120,36 +122,44 @@ fun ChatDetail(
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(topBarState)
     val coroutineScope = rememberCoroutineScope()
 
-    // 최신 메시지 폴링 시작
     LaunchedEffect(Unit) {
-        if (chatId != null) {
-            socketViewModel.loadAllMessage(chatId.toInt())
-            socketViewModel.setPollingMessage(chatId.toInt(), true)
-            isLoading = false
-        }
+        socketViewModel.loadAllMessage(chatId.toInt())
+        isLoading = false
     }
-    // 최신 메시지 폴링 중지
-    DisposableEffect(Unit) {
-        onDispose {
-            if (chatId != null) {
-                socketViewModel.setPollingMessage(chatId.toInt(), false)
-            }
-        }
+    LaunchedEffect(messages.size) {
+        socketViewModel.loadAllMessage(chatId.toInt())
     }
-    // 소켓 연결 + 읽었다고 보내기
+
+// 최신 메시지 폴링 시작
+//    LaunchedEffect(Unit) {
+//        if (chatId != null) {
+//            socketViewModel.setPollingMessage(chatId.toInt(), true)
+//            isLoading = false
+//        }
+//    }
+// 최신 메시지 폴링 중지
+//    DisposableEffect(Unit) {
+//        onDispose {
+//            if (chatId != null) {
+//                socketViewModel.setPollingMessage(chatId.toInt(), false)
+//            }
+//        }
+//    }
+
+// 소켓 연결 + 읽었다고 보내기
     chatId.let {
         LaunchedEffect(Unit) {
             socketViewModel.connectToChat(chatId)
             socketViewModel.postLastReadMessageId(chatId.toInt())
         }
     }
-    // 유저 정보 매핑
+// 유저 정보 매핑
     LaunchedEffect(messages) {
         memberList.forEach { memberId ->
             socketViewModel.loadUserInfo(memberId.toLong())
         }
     }
-    // 로딩 후 스크롤
+// 로딩 후 첫 스크롤
     LaunchedEffect(isLoading, messages) {
         if (!isLoading && messages.isNotEmpty()) {
             coroutineScope.launch {
@@ -160,21 +170,25 @@ fun ChatDetail(
             }
         }
     }
-    // 무한 스크롤
+// 무한 스크롤
     LaunchedEffect(listState.firstVisibleItemScrollOffset) {
         if (listState.firstVisibleItemIndex <= 1 && listState.firstVisibleItemScrollOffset <= 1) {
             socketViewModel.loadMoreMessages(chatId.toInt())
         }
     }
-    // 맨 밑 스크롤 유지
+// 맨 밑 스크롤 유지
     LaunchedEffect(messages.size) {
         if (listState.isScrolledToTheBottom()) {
             if (messages.isNotEmpty()) {
+                Log.d("TEST", "스크롤 유지하겠습니다. ${messages.size}")
+                Log.d("TEST", "스크롤 유지하겠습니다. ${messages[0]}")
+                Log.d("TEST", "스크롤 유지하겠습니다. ${messages[messages.size - 1]}")
                 listState.animateScrollToItem(messages.size - 1)
             }
         }
     }
-    // 자신의 정보 불러오기
+
+// 자신의 정보 불러오기
     var memberId by remember { mutableStateOf<Long?>(null) }
     var nickname by remember { mutableStateOf("") }
     val loginId = App.prefs.getLoginId()
@@ -188,7 +202,7 @@ fun ChatDetail(
         memberId = response.body()?.memberPk
         nickname = response.body()?.nickname ?: ""
     }
-    // 나갈 때 소켓 연결 해제
+// 나갈 때 소켓 연결 해제
     DisposableEffect(chatId) {
         onDispose {
             if (chatId != null) {
@@ -196,8 +210,8 @@ fun ChatDetail(
             }
         }
     }
-    
-    // 무한스크롤을 위한 역순
+
+// 무한스크롤을 위한 역순
     val reversedMessages = messages.reversed()
 
     ModalNavigationDrawer(
@@ -297,7 +311,7 @@ fun ChatDetail(
                         chatId,
                         memberId,
                         nickname,
-                        coroutineScope
+                        coroutineScope,
                     )
                 }
             }
@@ -307,6 +321,8 @@ fun ChatDetail(
 
 // 맨 밑 탐지
 fun LazyListState.isScrolledToTheBottom(): Boolean {
+    Log.d("TEST", "${layoutInfo.visibleItemsInfo.lastOrNull()?.index}")
+    Log.d("TEST", "맨밑입니다.")
     if (layoutInfo.visibleItemsInfo.lastOrNull()?.index != null) {
         return layoutInfo.visibleItemsInfo.lastOrNull()?.index!! >= layoutInfo.totalItemsCount - 5
     } else {
@@ -323,7 +339,7 @@ fun MessageList(
     userInfoMap: Map<Long, UserInfoResponseByPk>,
     chatId: String?
 ) {
-    
+
     Box(
         modifier = modifier
             .background(Color(0xFF9bbbd4))
@@ -441,12 +457,14 @@ fun MessageItem(
                         (nextMessage == null || nextTime != curTime || nextMessage.senderId != message.senderId)
                     ) {
                         Column(modifier = Modifier.align(Alignment.Bottom)) {
-                            if (message.readCount!! > 0) {
-                                Text(
-                                    text = "${message.readCount}",
-                                    fontSize = 12.sp,
-                                    color = Color(0xFFFEF01B),
-                                )
+                            Row(modifier = Modifier.align(Alignment.End)) {
+                                if (message.readCount!! > 0) {
+                                    Text(
+                                        text = "${message.readCount}",
+                                        fontSize = 12.sp,
+                                        color = Color(0xFFFEF01B),
+                                    )
+                                }
                             }
                             Text(
                                 text = curTime,
@@ -509,7 +527,7 @@ fun InputText(
     chatId: String?,
     memberId: Long?,
     nickname: String,
-    coroutineScope: CoroutineScope
+    coroutineScope: CoroutineScope,
 ) {
     var text by rememberSaveable(stateSaver = TextFieldValue.Saver) {
         mutableStateOf(TextFieldValue(""))
@@ -546,7 +564,7 @@ fun InputText(
                 coroutineScope.launch {
                     socketViewModel.sendMessage(message, chatId?.toLong())
                     delay(500)
-                    listState.animateScrollToItem(messages.size)
+                    listState.animateScrollToItem(Int.MAX_VALUE)
                 }
             },
             enabled = text.text.isNotBlank(),
