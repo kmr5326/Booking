@@ -39,6 +39,9 @@ CREATE TABLE meetinginfos (
                               meeting_id BIGINT,
                               date DATETIME,
                               location VARCHAR(255),
+                              address VARCHAR(255),
+                              lat DOUBLE,
+                              lgt DOUBLE,
                               fee INT,
                               FOREIGN KEY (meeting_id) REFERENCES meetings(meeting_id)
 );
