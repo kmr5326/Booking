@@ -36,13 +36,48 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            // FCM SDK (and your app) can post notifications.
+        } else {
+            // TODO: Inform user that that your app will not show notifications.
+        }
+    }
+    fun askNotificationPermission() {
+        try {
+            // This is only necessary for API level >= 33 (TIRAMISU)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                if (ContextCompat.checkSelfPermission(
+                        this,
+                        Manifest.permission.POST_NOTIFICATIONS
+                    ) == PackageManager.PERMISSION_GRANTED
+                ) {
+                    // FCM SDK (and your app) can post notifications.
+                } else if (shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS)) {
+                    // TODO: Display an educational UI to the user
+                } else {
+                    // Directly ask for the permission
+                    requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                }
+            }
+        } catch (e: Exception) {
+            // Handle the exception
+            e.printStackTrace()
+            // TODO: Inform the user about the error, possibly retry or log
+        }
+    }
+
     @Inject
     lateinit var googleSignInClient: GoogleSignInClient
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        askNotificationPermission() // 알림 권한 요청
 //        WindowCompat.setDecorFitsSystemWindows(window, false)
+        askNotificationPermission()
 
         /** KakaoSDK init */
         KakaoSdk.init(this, "c983af9ff87c243a4acecc793d087699")
@@ -69,38 +104,5 @@ class MainActivity : ComponentActivity() {
             )
         }
         fusedLocationClient.lastLocation.addOnSuccessListener { }
-    }
-
-    private val requestPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { isGranted: Boolean ->
-        if (isGranted) {
-            // FCM SDK (and your app) can post notifications.
-        } else {
-            // TODO: Inform user that that your app will not show notifications.
-        }
-    }
-    private fun askNotificationPermission() {
-        try {
-            // This is only necessary for API level >= 33 (TIRAMISU)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                if (ContextCompat.checkSelfPermission(
-                        this,
-                        Manifest.permission.POST_NOTIFICATIONS
-                    ) == PackageManager.PERMISSION_GRANTED
-                ) {
-                    // FCM SDK (and your app) can post notifications.
-                } else if (shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS)) {
-                    // TODO: Display an educational UI to the user
-                } else {
-                    // Directly ask for the permission
-                    requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-                }
-            }
-        } catch (e: Exception) {
-            // Handle the exception
-            e.printStackTrace()
-            // TODO: Inform the user about the error, possibly retry or log
-        }
     }
 }
