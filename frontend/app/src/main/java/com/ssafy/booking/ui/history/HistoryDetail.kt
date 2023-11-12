@@ -114,7 +114,6 @@ fun RecordList(
     Box {
         LazyColumn(
             state = listState,
-            modifier = Modifier.padding(16.dp)
         ) {
             itemsIndexed(recordList) { index, record ->
                 RecorItem(navController, record) {}

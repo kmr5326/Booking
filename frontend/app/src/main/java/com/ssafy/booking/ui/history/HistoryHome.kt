@@ -105,7 +105,7 @@ fun HistoryItem(
         Column(
             modifier = Modifier.weight(1f)
         ) {
-            Text(text = historyItem.title, fontWeight = FontWeight.ExtraBold, fontSize = 16.sp)
+            Text(text = historyItem.title, fontWeight = FontWeight.ExtraBold)
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = historyItem.leaderId,

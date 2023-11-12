@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun RecordSummary(
-    HistoryId: Int
+    RecordId: Int
 ) {
     Box(
         contentAlignment = Alignment.Center,
