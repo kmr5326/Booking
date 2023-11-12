@@ -23,7 +23,8 @@ public class HashtagMeetingService {
         log.info("[Booking:HashtagMeeting] saveHashtags({}, {})", meetingId, hashtagList);
 
         return Flux.fromIterable(hashtagList)
-                .flatMap(content -> hashtagService.findByContent(content).switchIfEmpty(hashtagService.save(content)))
+                .flatMap(content ->
+                        hashtagService.findByContent(content).switchIfEmpty(hashtagService.saveHashtag(content)))
                 .flatMap(hashtag -> mapHashtagToMeeting(meetingId, hashtag))
                 .onErrorResume(error -> {
                     log.error("[Booking:HashtagMeeting ERROR] saveHashtags : {}", error.getMessage());
@@ -47,23 +48,21 @@ public class HashtagMeetingService {
     public Mono<Void> updateHashtags(Long meetingId, List<String> hashtagList) {
         log.info("[Booking:HashtagMeeting] updateHashtags({}, {})", meetingId, hashtagList);
 
-        return deleteAllByMeetingId(meetingId)
-                .then(saveHashtags(meetingId, hashtagList))
+        return this.deleteAllByMeetingId(meetingId)
+                .then(this.saveHashtags(meetingId, hashtagList))
                 .onErrorResume(error -> {
                     log.error("[Booking:HashtagMeeting ERROR] updateHashtags : {}", error.getMessage());
                     return Mono.error(error);
-                })
-                .then();
+                });
     }
 
     public Mono<Void> deleteAllByMeetingId(Long meetingId) {
-        log.info("[Booking:HashtagMeeting] deleteHashtagsByMeetingId({})", meetingId);
+        log.info("[Booking:HashtagMeeting] deleteAllByMeetingId({})", meetingId);
 
         return hashtagMeetingRepository.deleteAllByMeetingId(meetingId)
                 .onErrorResume(error -> {
                     log.error("[Booking:HashtagMeeting ERROR] deleteHashtagsByMeetingId : {}", error.getMessage());
                     return Mono.error(new RuntimeException("해시태그 삭제 실패"));
-                })
-                .then();
+                });
     }
 }
