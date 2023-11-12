@@ -172,7 +172,7 @@ fun ChatDetail(
     }
 // 무한 스크롤
     LaunchedEffect(listState.firstVisibleItemScrollOffset) {
-        if (listState.firstVisibleItemIndex <= 1 && listState.firstVisibleItemScrollOffset <= 1) {
+        if (listState.firstVisibleItemIndex <= 5 && listState.firstVisibleItemScrollOffset <= 5) {
             socketViewModel.loadMoreMessages(chatId.toInt())
         }
     }

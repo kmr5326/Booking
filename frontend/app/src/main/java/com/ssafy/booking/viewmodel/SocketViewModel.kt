@@ -191,6 +191,9 @@ class SocketViewModel @Inject constructor(
                     // 새 메시지 저장
                     if (existingEntity == null) {
                         messageDao.insertMessage(messageEntity)
+                        val newCount = (_totalMessageCount.value ?: 0) + 1
+                        Log.d("TEST", "새 메시지 저장 ${_totalMessageCount.value}")
+                        _totalMessageCount.postValue(newCount)
                         // 이미 있는 메시지 읽은 수 업데이트
                     } else if (existingEntity.readCount!! < messageEntity.readCount!!) {
                         existingEntity.messageId?.let {
