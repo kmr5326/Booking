@@ -114,53 +114,6 @@ class SocketViewModel @Inject constructor(
         }
     }
 
-
-    // Room에 저장된 최신 메시지 불러오기 ForEach Mark -> SQLITE로 최적화
-//    fun loadLatestMessage(chatId: Int) {
-//        viewModelScope.launch {
-//            messageDao.getUnusedMessage(chatId).asFlow()
-//                .distinctUntilChanged()  // 중복 데이터 제거
-//                .collect { newMessages ->
-//                    val currentMessages = _finalMessages.value.orEmpty()
-//                    val uniqueNewMessages =
-//                        newMessages.filterNot { it.messageId in currentMessages.map { msg -> msg.messageId } } // 증복 등장 방지
-//                    _finalMessages.postValue(uniqueNewMessages + currentMessages) // 새 메시지 추가
-//                    val messageIds = uniqueNewMessages.mapNotNull { it.messageId }
-//                    messageDao.markUsedMessages(messageIds)
-//                    Log.d("TEST", "최신메시지")
-//                    Log.d("TEST", "${uniqueNewMessages}")
-//                }
-//        }
-//    }
-//
-//    // 2초 마다 최신 메시지 갱신
-//    private val _setPollingMessage = MutableLiveData<Boolean>(false)
-//    val setPollingMessage: LiveData<Boolean> get() = _setPollingMessage
-//    private var PollingJob: Job? = null
-//    fun starMessagePolling(chatId: Int) {
-//        PollingJob = viewModelScope.launch(Dispatchers.Main) {
-////            while (isActive) {
-////                loadLatestMessage(chatId)
-////                delay(2000)
-////            }
-//        }
-//    }
-//
-//    // 갱신 중지
-//    fun stopMessagePolling() {
-//        PollingJob?.cancel()
-//    }
-//
-//    // 갱신 ON/OFF
-//    fun setPollingMessage(chatId: Int, toggle: Boolean) {
-//        _setPollingMessage.value = toggle
-//        if (toggle) {
-//            starMessagePolling(chatId)
-//        } else {
-//            stopMessagePolling()
-//        }
-//    }
-
     // STOMP 메시지 수신할 때마다 마지막으로 읽은 메시지 갱신
     fun postLastReadMessageId(chatroomId: Int) =
         viewModelScope.launch(Dispatchers.IO) {

@@ -130,22 +130,6 @@ fun ChatDetail(
         socketViewModel.loadAllMessage(chatId.toInt())
     }
 
-// 최신 메시지 폴링 시작
-//    LaunchedEffect(Unit) {
-//        if (chatId != null) {
-//            socketViewModel.setPollingMessage(chatId.toInt(), true)
-//            isLoading = false
-//        }
-//    }
-// 최신 메시지 폴링 중지
-//    DisposableEffect(Unit) {
-//        onDispose {
-//            if (chatId != null) {
-//                socketViewModel.setPollingMessage(chatId.toInt(), false)
-//            }
-//        }
-//    }
-
 // 소켓 연결 + 읽었다고 보내기
     chatId.let {
         LaunchedEffect(Unit) {
@@ -180,9 +164,6 @@ fun ChatDetail(
     LaunchedEffect(messages.size) {
         if (listState.isScrolledToTheBottom()) {
             if (messages.isNotEmpty()) {
-                Log.d("TEST", "스크롤 유지하겠습니다. ${messages.size}")
-                Log.d("TEST", "스크롤 유지하겠습니다. ${messages[0]}")
-                Log.d("TEST", "스크롤 유지하겠습니다. ${messages[messages.size - 1]}")
                 listState.animateScrollToItem(messages.size - 1)
             }
         }
