@@ -97,6 +97,8 @@ fun Main(
             tokenDataSource.putNickName(it.nickname)
             tokenDataSource.putProfileImage(it.profileImage)
             tokenDataSource.putMemberPk(it.memberPk)
+            tokenDataSource.putLat(it.lat.toFloat())
+            tokenDataSource.putLgt(it.lgt.toFloat())
             Log.d("test33", "$it")
             Log.d("test3", "${it.nickname}")
         }

@@ -59,7 +59,7 @@ class TokenDataSource @Inject constructor(
         editor.apply()
     }
 
-    private fun getString(key: String, defValue: String? = null) : String? {
+    fun getString(key: String, defValue: String? = null) : String? {
         return prefs.getString(key, defValue)
     }
 
@@ -78,6 +78,9 @@ class TokenDataSource @Inject constructor(
     private fun getLong(key: String, defValue: Long = 0) : Long {
         return prefs.getLong(key, defValue)
     }
+
+
+
 
 
     // 토큰 부분

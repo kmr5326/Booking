@@ -90,7 +90,7 @@ fun SetLocationSearch() {
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(8.dp)
-                        .shadow(4.dp, RoundedCornerShape(4.dp)),
+                        .shadow(4.dp, RoundedCornerShape(2.dp)),
                 ) {
                     Column(
                         modifier = Modifier

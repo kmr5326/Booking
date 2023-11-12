@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberImagePainter
 import com.ssafy.booking.R
+import com.ssafy.booking.di.App
 import com.ssafy.booking.viewmodel.BookingViewModel
 import com.ssafy.domain.model.booking.BookingDetail
 
@@ -52,6 +53,13 @@ fun BookingInfo(
         getBookingDetailResponse?.body()?.let { response ->
             Log.d("test334", "$response")
             bookingDetail = response // 상태 업데이트
+            bookingDetail?.let {
+                App.prefs.putBookTitle(bookingDetail?.bookTitle)
+                App.prefs.putDescription(bookingDetail?.description)
+                App.prefs.putBookAuthor(bookingDetail?.bookAuthor)
+                App.prefs.putBookImage(bookingDetail?.coverImage)
+                App.prefs.putTitle(bookingDetail?.meetingTitle)
+            }
         }
     }
     Column(

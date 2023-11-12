@@ -137,31 +137,24 @@ class BookingViewModel @Inject constructor(
         }
 
     // POST - 모임 세팅
-    var title = mutableStateOf(
-        if (getBookingDetailResponse.value != null ) {
-            getBookingDetailResponse.value?.body()?.meetingTitle
-        } else {
-            ""
-        }
-    )
-    var description = mutableStateOf(
-        if (getBookingDetailResponse.value != null ) {
-            getBookingDetailResponse.value?.body()?.description
-        } else {
-            ""
-        }
-    )
-    var bookgImage = mutableStateOf(
-        if (getBookingDetailResponse.value != null ) {
-            getBookingDetailResponse.value?.body()?.coverImage
-        } else {
-            ""
-        }
-    )
-    var fee = mutableStateOf({0})
-    var lng = mutableStateOf({0.0})
-    var lat = mutableStateOf({0.0})
-    var location = mutableStateOf({""})
-    var date = mutableStateOf({""})
+    val title = MutableLiveData("")
+    val description = MutableLiveData("")
+    val fee = MutableLiveData(0)
+    val lgt = MutableLiveData(0.0)
+    val lat = MutableLiveData(0.0)
+    val location = MutableLiveData("")
+    val date = MutableLiveData("")
+
+//    var description = mutableStateOf(
+//        ""
+//    )
+//    var bookgImage = mutableStateOf(
+//            ""
+//    )
+//    var fee = mutableStateOf({0})
+//    var lng = mutableStateOf({0.0})
+//    var lat = mutableStateOf({0.0})
+//    var location = mutableStateOf({""})
+//    var date = mutableStateOf({""})
     
 }
