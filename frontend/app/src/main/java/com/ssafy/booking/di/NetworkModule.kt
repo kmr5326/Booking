@@ -8,6 +8,7 @@ import com.ssafy.data.remote.api.BookingApi
 import com.ssafy.data.remote.api.ChatApi
 import com.ssafy.data.remote.api.FirebaseApi
 import com.ssafy.data.remote.api.GoogleApi
+import com.ssafy.data.remote.api.LocationApi
 import com.ssafy.data.remote.api.MemberApi
 import com.ssafy.data.remote.api.MyBookApi
 import com.ssafy.data.remote.api.MyPageApi
@@ -61,10 +62,16 @@ class NetworkModule {
     class AppInterceptor : Interceptor {
         @Throws(IOException::class)
         override fun intercept(chain: Interceptor.Chain): Response = with(chain) {
-            val accessToken = App.prefs.getToken() // ViewModel에서 지정한 key로 JWT 토큰을 가져온다.
-            val newRequest = request().newBuilder()
-                .addHeader("authorization", "Bearer $accessToken") // 헤더에 authorization라는 key로 JWT 를 넣어준다.
-                .build()
+            val request = request()
+            val newRequestBuilder = request.newBuilder()
+
+            // 카카오 API 요청인 경우, authorization 헤더를 추가하지 않음
+            if (!request.url.host.contains("dapi.kakao.com")) {
+                val accessToken = App.prefs.getToken() // JWT 토큰을 가져온다
+                newRequestBuilder.addHeader("authorization", "Bearer $accessToken") // 헤더에 JWT 추가
+            }
+
+            val newRequest = newRequestBuilder.build()
             proceed(newRequest)
         }
     }
@@ -125,6 +132,12 @@ class NetworkModule {
     @Singleton
     fun provideMyBookApi(retrofit: Retrofit) : MyBookApi {
         return retrofit.create(MyBookApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideLocationApi(retrofit: Retrofit) : LocationApi {
+        return retrofit.create(LocationApi::class.java)
     }
 
 //    @Provides

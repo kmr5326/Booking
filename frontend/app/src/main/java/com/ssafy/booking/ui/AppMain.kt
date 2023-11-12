@@ -23,11 +23,15 @@ import com.ssafy.booking.ui.book.BookDetail
 import com.ssafy.booking.ui.book.BookHome
 import com.ssafy.booking.ui.booking.BookingDetail
 import com.ssafy.booking.ui.booking.Main
+import com.ssafy.booking.ui.booking.bookingSetting.SetDateAndFee
+import com.ssafy.booking.ui.booking.bookingSetting.SetLocation
+import com.ssafy.booking.ui.booking.bookingSetting.SetTitle
 import com.ssafy.booking.ui.chat.ChatDetail
 import com.ssafy.booking.ui.chat.ChatHome
 import com.ssafy.booking.ui.common.SettingPage
 import com.ssafy.booking.ui.history.HistoryDetail
 import com.ssafy.booking.ui.history.HistoryHome
+import com.ssafy.booking.ui.location.SettingAddress
 import com.ssafy.booking.ui.history.HistoryRecord
 import com.ssafy.booking.ui.login.Greeting
 import com.ssafy.booking.ui.login.SignInScreen
@@ -68,6 +72,11 @@ sealed class AppNavItem(
     object BookingDetail : AppNavItem("bookingDetail/{meetingId}")
     object MyBookRegister : AppNavItem("profile/book/{isbn}")
     object MyBookDetail : AppNavItem("profile/book/detail/{isbn}")
+    object SettingAddress : AppNavItem("setting/address")
+    object BookingSetTitle : AppNavItem("booking/setting/title")
+    object BookingSetLocation : AppNavItem("booking/setting/location")
+    object BookingSetDateAndFee : AppNavItem("booking/setting/dateandfee")
+
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -186,6 +195,21 @@ fun Route(googleSignInClient: GoogleSignInClient) {
             composable("profile/book/detail/{isbn}") {navBackStackEntry->
                 val isbn = navBackStackEntry.arguments!!.getString("isbn")
                 MyBookDetail(isbn)
+            }
+            composable("setting/address") {
+                SettingAddress(navController, appViewModel)
+            }
+            composable("booking/setting/title"){
+                SetTitle()
+            }
+            composable("booking/setting/location")
+            {
+                SetLocation()
+            }
+
+            composable("booking/setting/dateandfee")
+            {
+                SetDateAndFee()
             }
         }
     }
