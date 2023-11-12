@@ -13,13 +13,14 @@ import androidx.navigation.NavController
 import com.ssafy.booking.ui.LocalNavigation
 import com.ssafy.booking.ui.common.BottomNav
 import com.ssafy.booking.ui.common.HorizontalDivider
-import com.ssafy.booking.ui.common.TabBar
 import com.ssafy.booking.ui.common.TopBar
+
 import com.ssafy.booking.viewmodel.AppViewModel
+import com.ssafy.booking.viewmodel.BookingViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HistoryRecord(
+fun RecordDetail(
 
 ) {
     val navController = LocalNavigation.current

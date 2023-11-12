@@ -27,6 +27,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.ssafy.booking.R
 import com.ssafy.booking.ui.AppNavItem
@@ -38,9 +39,10 @@ import com.ssafy.booking.viewmodel.AppViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HistoryHome(
-    navController: NavController,
-    appViewModel: AppViewModel
+
 ) {
+    val navController = LocalNavigation.current
+    val appViewModel: AppViewModel = hiltViewModel()
 //    val viewModel : HistoryViewModel = hiltViewModel()
 
     Scaffold(
