@@ -32,4 +32,15 @@ public class ParticipantStateService {
                                 .build()))
                 .then();
     }
+
+    public Mono<Void> attendMeeting(MeetingInfo meetingInfo) {
+        return participantStateRepository.findById(meetingInfo.getMeetinginfoId())
+                .flatMap(participantState -> {
+                    if (!participantState.getPaymentStatus()) {
+                        return Mono.error(new RuntimeException("참가비 x"));
+                    }
+                    return participantStateRepository.save(participantState.updateAttendance(true));
+                })
+                .then();
+    }
 }
