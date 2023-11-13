@@ -3,6 +3,7 @@ package com.ssafy.booking.ui.booking
 
 import android.content.Context
 import android.util.Log
+import android.view.Gravity
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -78,7 +79,8 @@ fun BookingDetail(meetingId: Long) {
                         )
                         1 -> BookingParticipants(
                             meetingId = meetingId,
-                            isLeadered = isLeadered
+                            isLeadered = isLeadered,
+                            status = status
                         )
                         2 -> BookingBoard(
                             meetingId = meetingId,
@@ -122,9 +124,13 @@ fun BottomBarForParticipant(meetingId: Long, bookingViewModel: BookingViewModel,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Button(onClick = {
+
             val request = BookingJoinRequest(meetingId = meetingId)
             bookingViewModel.postBookingJoin(meetingId, request)
-            Toast.makeText(context, "참가신청이 완료됐습니다.", Toast.LENGTH_LONG).show()
+
+            val toastTop = Toast.makeText(context, "참가신청이 완료됐습니다.", Toast.LENGTH_LONG)
+            toastTop.setGravity(Gravity.TOP,0,3)
+            toastTop.show()
         },
             modifier = Modifier
                 .fillMaxWidth()
