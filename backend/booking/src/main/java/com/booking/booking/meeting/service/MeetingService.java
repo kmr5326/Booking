@@ -187,7 +187,7 @@ public class MeetingService {
                     }
                     return waitlistService.enrollMeeting(meeting.getMeetingId(), member.memberPk())
                             .then(NotificationUtil.enrollNotification(
-                                    new EnrollNotificationRequest(member.memberPk(), meeting.getMeetingTitle())));
+                                    new EnrollNotificationRequest(meeting.getLeaderId(), meeting.getMeetingTitle())));
                 });
     }
 
