@@ -6,6 +6,7 @@ import com.ssafy.domain.model.booking.BookingDetail
 import com.ssafy.domain.model.booking.BookingJoinRequest
 import com.ssafy.domain.model.booking.BookingModifyRequest
 import com.ssafy.domain.model.booking.BookingParticipants
+import com.ssafy.domain.model.booking.BookingRejectRequest
 import com.ssafy.domain.model.booking.BookingStartRequest
 import com.ssafy.domain.model.booking.BookingWaiting
 import com.ssafy.domain.model.booking.SearchResponse
@@ -50,6 +51,10 @@ interface BookingApi {
     @POST("/api/booking/meeting/{meetingId}/accept/{memberId}")
 //    suspend fun postBookingAccept(@Body request: BookingAcceptRequest): Response<Unit>
     suspend fun postBookingAccept(@Path("meetingId") meetingId: Long,@Path("memberId") memberId: Int,@Body request: BookingAcceptRequest): Response<Unit>
+
+    @Headers("Content-Type: application/json;charset=UTF-8")
+    @POST("/api/booking/meeting/{meetingId}/reject/{memberId}")
+    suspend fun postBookingReject(@Path("meetingId") meetingId: Long,@Path("memberId") memberId: Int,@Body request: BookingRejectRequest): Response<Unit>
 
     @Headers("Content-Type: application/json;charset=UTF-8")
     @POST("/api/booking/meeting/info/")

@@ -15,6 +15,7 @@ import com.ssafy.domain.model.booking.BookingDetail
 import com.ssafy.domain.model.booking.BookingJoinRequest
 import com.ssafy.domain.model.booking.BookingModifyRequest
 import com.ssafy.domain.model.booking.BookingParticipants
+import com.ssafy.domain.model.booking.BookingRejectRequest
 import com.ssafy.domain.model.booking.BookingStartRequest
 import com.ssafy.domain.model.booking.BookingWaiting
 import com.ssafy.domain.model.booking.SearchResponse
@@ -129,6 +130,14 @@ class BookingViewModel @Inject constructor(
     fun postBookingAccept(meetingId: Long,memberId:Int,request: BookingAcceptRequest) =
         viewModelScope.launch {
             _postBookingAcceptResponse.value = bookingUseCase.postBookingAccept(meetingId,memberId,request)
+        }
+
+    // POST - 모임 참여 거절
+private val _postBookingRejectResponse = MutableLiveData<Response<Unit>>()
+    val postBookingRejectResponse: LiveData<Response<Unit>> get() = _postBookingRejectResponse
+    fun postBookingReject(meetingId: Long,memberId:Int,request: BookingRejectRequest) =
+        viewModelScope.launch {
+            _postBookingRejectResponse.value = bookingUseCase.postBookingReject(meetingId,memberId,request)
         }
 
     // POST - 모임 시작

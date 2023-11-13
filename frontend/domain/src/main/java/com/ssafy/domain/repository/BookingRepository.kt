@@ -8,6 +8,7 @@ import com.ssafy.domain.model.booking.BookingDetail
 import com.ssafy.domain.model.booking.BookingJoinRequest
 import com.ssafy.domain.model.booking.BookingModifyRequest
 import com.ssafy.domain.model.booking.BookingParticipants
+import com.ssafy.domain.model.booking.BookingRejectRequest
 import com.ssafy.domain.model.booking.BookingStartRequest
 import com.ssafy.domain.model.booking.BookingWaiting
 import com.ssafy.domain.model.booking.SearchResponse
@@ -21,6 +22,7 @@ interface BookingRepository {
     suspend fun getSearchList(query:String,display:Int,start:Int,sort:String) : Response<SearchResponse>
     suspend fun postBookingJoin(meetingId: Long,request : BookingJoinRequest) : Response<Unit>
     suspend fun postBookingAccept(meetingId: Long,memberId:Int,request: BookingAcceptRequest) : Response<Unit>
+    suspend fun postBookingReject(meetingId: Long,memberId:Int,request:BookingRejectRequest) : Response<Unit>
     suspend fun postBookingStart(request: BookingStartRequest) : Response<Unit>
     suspend fun patchBookingDetail(request: BookingModifyRequest) : Response<Unit>
 }
