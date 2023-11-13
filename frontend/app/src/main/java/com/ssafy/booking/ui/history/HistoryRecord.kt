@@ -44,8 +44,16 @@ fun HistoryRecord(
                 verticalArrangement = Arrangement.Center,
             ) {
                 Row {
+//                  if 녹음이 없다면
+//                  if 방장이면 리코드 컨트롤러 보임
                     RecordController()
-                    RecordUploader()
+//                  FileUploader()
+//                  else if 방장이 아니면 '등록된 녹음이 없습니다.'
+
+//----------------------------------------------------------------------
+
+//                  else if 녹음이 있다면
+//                  PlayerController()
                 }
                 val tempPk = 1
                 TabBar(

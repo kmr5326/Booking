@@ -11,7 +11,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 @HiltViewModel
-class RecordViewModel @Inject constructor(
+class PlayerViewModel @Inject constructor(
 
 ) : ViewModel() {
     private val mediaPlayer = MediaPlayer()
