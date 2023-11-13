@@ -51,6 +51,7 @@ public class MeetingService {
     private final ParticipantStateService participantStateService;
     private final WaitlistService waitlistService;
     private final PostService postService;
+    private final MemberUtil memberUtil;
 
     private final static double RADIUS = 10.0;
 
@@ -58,7 +59,7 @@ public class MeetingService {
     public Mono<Meeting> createMeeting(String userEmail, MeetingRequest meetingRequest) {
         log.info("[Booking:Meeting] createMeeting({}, {})", userEmail, meetingRequest);
 
-        return Mono.zip(MemberUtil.getMemberInfoByEmail(userEmail),
+        return Mono.zip(memberUtil.getMemberInfoByEmail(userEmail),
                         BookUtil.getBookByIsbn(meetingRequest.bookIsbn()))
                 .flatMap(tuple -> handleCreateMeeting(tuple.getT1(), tuple.getT2(), meetingRequest))
                 .onErrorResume(error -> {
@@ -83,7 +84,7 @@ public class MeetingService {
     public Flux<MeetingListResponse> findAllByLocation(String userEmail) {
         log.info("[Booking:Meeting] findAllByLocation({})", userEmail);
 
-        return MemberUtil.getMemberInfoByEmail(userEmail)
+        return memberUtil.getMemberInfoByEmail(userEmail)
                 .flatMapMany(member -> meetingRepository.findAllByRadius(member.lat(), member.lgt(), RADIUS))
                 .flatMap(this::buildMeetingListResponse)
                 .onErrorResume(error -> {
@@ -95,7 +96,7 @@ public class MeetingService {
     public Flux<MeetingListResponse> findAllByHashtagId(String userEmail, Long hashtagId) {
         log.info("[Booking:Meeting] - findAllByHashtagId({}, {})", userEmail, hashtagId);
 
-        return MemberUtil.getMemberInfoByEmail(userEmail)
+        return memberUtil.getMemberInfoByEmail(userEmail)
                 .flatMapMany(member ->
                         meetingRepository.findAllByHashtagId(member.lat(), member.lgt(), RADIUS, hashtagId))
                 .flatMap(this::buildMeetingListResponse)
@@ -108,7 +109,7 @@ public class MeetingService {
     public Flux<MeetingListResponse> findAllByTitle(String userEmail, String title) {
         log.info("[Booking:Meeting] - findAllByTitle({}, {})", userEmail, title);
 
-        return MemberUtil.getMemberInfoByEmail(userEmail)
+        return memberUtil.getMemberInfoByEmail(userEmail)
                 .flatMapMany(member ->
                         meetingRepository.findAllByMeetingTitle(member.lat(), member.lgt(), RADIUS, "%" + title + "%"))
                 .flatMap(this::buildMeetingListResponse)
@@ -121,7 +122,7 @@ public class MeetingService {
     public Flux<MeetingListResponse> findAllByMemberId(Integer memberId) {
         log.info("[Booking:Meeting] - findAllByMemberId({})", memberId);
 
-        return MemberUtil.getMemberInfoByPk(memberId)
+        return memberUtil.getMemberInfoByPk(memberId)
                 .flatMapMany(member -> meetingRepository.findAllByMemberId(member.memberPk()))
                 .flatMap(this::buildMeetingListResponse)
                 .onErrorResume(error -> {
@@ -168,7 +169,7 @@ public class MeetingService {
 
         return Mono.zip(meetingRepository.findById(meetingId)
                                 .switchIfEmpty(Mono.error(new RuntimeException("존재하지 않는 모임"))),
-                        MemberUtil.getMemberInfoByEmail(userEmail))
+                        memberUtil.getMemberInfoByEmail(userEmail))
                 .flatMap(tuple -> handleEnrollMeeting(tuple.getT1(), tuple.getT2()))
                 .onErrorResume(error -> {
                     log.error("[Booking:Meeting ERROR] enrollMeeting : {}", error.getMessage());
@@ -199,7 +200,7 @@ public class MeetingService {
 
         return Mono.zip(meetingRepository.findByMeetingId(meetingId)
                                 .switchIfEmpty(Mono.error(new RuntimeException("존재하지 않는 모임"))),
-                        MemberUtil.getMemberInfoByEmail(userEmail))
+                        memberUtil.getMemberInfoByEmail(userEmail))
                 .flatMap(tuple -> {
                     Meeting meeting = tuple.getT1();
                     Integer leaderId = tuple.getT2().memberPk();
@@ -235,7 +236,7 @@ public class MeetingService {
 
         return Mono.zip(meetingRepository.findByMeetingId(meetingId)
                                 .switchIfEmpty(Mono.error(new RuntimeException("존재하지 않는 모임"))),
-                        MemberUtil.getMemberInfoByEmail(userEmail))
+                        memberUtil.getMemberInfoByEmail(userEmail))
                 .flatMap(tuple -> {
                     Meeting meeting = tuple.getT1();
                     Integer leaderId = tuple.getT2().memberPk();
@@ -268,7 +269,7 @@ public class MeetingService {
 
         return Mono.zip(meetingRepository.findByMeetingId(meetingId)
                                 .switchIfEmpty(Mono.error(new RuntimeException("존재하지 않는 모임"))),
-                        MemberUtil.getMemberInfoByEmail(userEmail))
+                        memberUtil.getMemberInfoByEmail(userEmail))
                 .flatMap(tuple -> {
                     Meeting meeting = tuple.getT1();
                     Integer leaderId = tuple.getT2().memberPk();
@@ -343,7 +344,7 @@ public class MeetingService {
     public Mono<Void> deleteMeeting(String userEmail, Long meetingId) {
         log.info("[Booking:Meeting] deleteMeeting({}, {})", userEmail, meetingId);
 
-        return Mono.zip(MemberUtil.getMemberInfoByEmail(userEmail),
+        return Mono.zip(memberUtil.getMemberInfoByEmail(userEmail),
                         meetingRepository.findByMeetingId(meetingId)
                                 .switchIfEmpty(Mono.error(new RuntimeException("존재하지 않는 미팅"))))
                 .flatMap(tuple -> {
@@ -379,7 +380,7 @@ public class MeetingService {
 
         return Mono.zip(meetingRepository.findByMeetingId(meetingInfoRequest.meetingId())
                                 .switchIfEmpty(Mono.error(new RuntimeException("존재하지 않는 모임"))),
-                        MemberUtil.getMemberInfoByEmail(userEmail))
+                        memberUtil.getMemberInfoByEmail(userEmail))
                 .flatMap(tuple -> {
                     Meeting meeting = tuple.getT1();
                     Integer leaderId = tuple.getT2().memberPk();
@@ -405,8 +406,8 @@ public class MeetingService {
         log.info("[Booking:Meeting] finishMeetingInfo({}, {})", userEmail, meetingId);
 
         return Mono.zip(meetingRepository.findByMeetingId(meetingId)
-                                .switchIfEmpty(Mono.error(new RuntimeException("존재하지 않는 모임"))),
-                        MemberUtil.getMemberInfoByEmail(userEmail))
+                        .switchIfEmpty(Mono.error(new RuntimeException("존재하지 않는 모임"))),
+                memberUtil.getMemberInfoByEmail(userEmail))
                 .flatMap(tuple -> {
                     Meeting meeting = tuple.getT1();
                     MemberResponse member = tuple.getT2();
@@ -490,9 +491,9 @@ public class MeetingService {
     public Mono<Post> createPost(String userEmail, PostRequest postRequest) {
         log.info("[Booking:Meeting] createPost({}, {})", userEmail, postRequest);
 
-        return Mono.zip(MemberUtil.getMemberInfoByEmail(userEmail),
-                        meetingRepository.findByMeetingId(postRequest.meetingId())
-                                .switchIfEmpty(Mono.error(new RuntimeException("존재하지 않는 미팅"))))
+        return Mono.zip(memberUtil.getMemberInfoByEmail(userEmail),
+                meetingRepository.findByMeetingId(postRequest.meetingId())
+                        .switchIfEmpty(Mono.error(new RuntimeException("존재하지 않는 미팅"))))
                 .flatMap(tuple -> {
                     Integer memberId = tuple.getT1().memberPk();
 
@@ -527,7 +528,7 @@ public class MeetingService {
 
         return postService.findByPostId(postId)
                 .switchIfEmpty(Mono.error(new RuntimeException("게시글 없음")))
-                .flatMap(post -> MemberUtil.getMemberInfoByPk(post.getMemberId())
+                .flatMap(post -> memberUtil.getMemberInfoByPk(post.getMemberId())
                         .flatMap(member -> Mono.just(new PostDetailResponse(post, member))))
                 .onErrorResume(error -> {
                     log.error("[Booking:Meeting ERROR] findByPostId : {}", error.getMessage());
@@ -538,9 +539,9 @@ public class MeetingService {
     public Mono<PostDetailResponse> updatePost(String userEmail, PostUpdateRequest postUpdateRequest) {
         log.info("[Booking:Meeting] updatePost({}, {})", userEmail, postUpdateRequest);
 
-        return Mono.zip(MemberUtil.getMemberInfoByEmail(userEmail),
-                        postService.findByPostId(postUpdateRequest.postId())
-                                .switchIfEmpty(Mono.error(new RuntimeException("존재하지 않는 게시글"))))
+        return Mono.zip(memberUtil.getMemberInfoByEmail(userEmail),
+                postService.findByPostId(postUpdateRequest.postId())
+                        .switchIfEmpty(Mono.error(new RuntimeException("존재하지 않는 게시글"))))
                 .flatMap(tuple -> {
                     MemberResponse member = tuple.getT1();
                     Post post = tuple.getT2();
@@ -560,9 +561,9 @@ public class MeetingService {
     public Mono<Void> deletePost(String userEmail, Long postId) {
         log.info("[Booking:Meeting] deletePost({}, {})", userEmail, postId);
 
-        return Mono.zip(MemberUtil.getMemberInfoByEmail(userEmail),
-                        postService.findByPostId(postId)
-                                .switchIfEmpty(Mono.error(new RuntimeException("존재하지 않는 게시글"))))
+        return Mono.zip(memberUtil.getMemberInfoByEmail(userEmail),
+                postService.findByPostId(postId)
+                        .switchIfEmpty(Mono.error(new RuntimeException("존재하지 않는 게시글"))))
                 .flatMap(tuple -> {
                     MemberResponse member = tuple.getT1();
                     Post post = tuple.getT2();

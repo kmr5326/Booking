@@ -15,7 +15,7 @@ import reactor.core.publisher.Mono;
 @Service
 public class PostService {
     private final PostRepository postRepository;
-
+    private final MemberUtil memberUtil;
     public Mono<Post> createPost(Post post) {
         return postRepository.save(post)
                 .onErrorResume(error -> {
@@ -26,7 +26,7 @@ public class PostService {
 
     public Flux<PostListResponse> findAllByMeetingId(Long meetingId) {
         return postRepository.findAllByMeetingId(meetingId)
-                .flatMap(post -> MemberUtil.getMemberInfoByPk(post.getMemberId())
+                .flatMap(post -> memberUtil.getMemberInfoByPk(post.getMemberId())
                         .flatMap(member -> Mono.just(new PostListResponse(post, member))))
                 .onErrorResume(error -> {
                     log.error("[Booking:Post ERROR] findAllByMeetingId : {}", error.getMessage());
