@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -87,15 +88,6 @@ fun MyProfile(profileData: ProfileData) {
     val imageLoader = LocalImageLoader.current
     val context = LocalContext.current
 
-//    val imageTest by viewModel.naverCloudGetResponse.observeAsState()
-//    var bitmap : Bitmap? by remember { mutableStateOf(null) }
-//
-//    LaunchedEffect(imageTest) {
-//        imageTest?.let{
-//            val inputStream = imageTest!!.body()?.byteStream()
-//            bitmap = BitmapFactory.decodeStream(inputStream)
-//        }
-//    }
 
     Card(
         colors = CardDefaults.cardColors(
@@ -120,7 +112,7 @@ fun MyProfile(profileData: ProfileData) {
                 contentDescription = null,
                 imageLoader=imageLoader,
                 modifier = Modifier
-                    .size(64.dp)
+                    .size(100.dp)
                     .clip(CircleShape),
                 error = painterResource(id = R.drawable.basic_profile)
             )
@@ -136,6 +128,14 @@ fun MyProfile(profileData: ProfileData) {
                     Text(text = "팔로잉 ${profileData.followings?.followingsCnt}", color = colorResource(id = R.color.font_color))
                     Spacer(modifier = Modifier.size(16.dp))
                     Text(text = "팔로워 ${profileData.followers?.followersCnt}", color = colorResource(id = R.color.font_color))
+                }
+                Spacer(modifier = Modifier.size(4.dp))
+                if(profileData.isI == true) {
+                    Text(text = "마일리지 : ${profileData.myProfile?.point}")
+                } else {
+                    Button(onClick = { /*TODO*/ }) {
+                        Text("팔로우")
+                    }
                 }
             }
             Spacer(modifier = Modifier.size(40.dp))

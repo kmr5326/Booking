@@ -1,6 +1,7 @@
 package com.ssafy.booking.ui.profile
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -88,7 +89,9 @@ fun FollowerListScreen(
         } else {
             // lazyColumn 으로 팔로워 목록 구성하고
             // 해당 유저 클릭 시 해당 유저 프로필 페이지로 이동하기
-
+            userFollowersResponse.followers.forEach{
+                Text(text = "${it?.memberPk}")
+            }
         }
     }
 }
@@ -105,6 +108,11 @@ fun FollowingListScreen(
         } else {
             // lazyColumn 으로 팔로잉 목록 구성하고
             // 해당 유저 클릭 시 해당 유저 프로필 페이지로 이동하기
+            Row {
+                userFollowingsResponse.followings.forEach{
+                    Text("${it?.memberPk}")
+                }
+            }
         }
     }
 }

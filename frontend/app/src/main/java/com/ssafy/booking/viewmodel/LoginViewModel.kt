@@ -56,6 +56,15 @@ class LoginViewModel : ViewModel() {
         }
     }
 
+    fun googleLoginCallBack(
+        context: Context,
+        navController: NavController,
+        accountInfo: AccountInfo
+    ) {
+        val loginId = "Google_" + accountInfo.loginId
+        onLoginSuccess(context, loginId, navController, accountInfo.name)
+    }
+
     fun onLoginSuccess(
         context: Context,
         loginId: String,
@@ -120,14 +129,17 @@ class LoginViewModel : ViewModel() {
         try {
             val account = accountTask.result ?: return
             val credential = GoogleAuthProvider.getCredential(account.idToken, null)
+            Log.d("구글로그인?", "$account, $credential")
             firebaseAuth.signInWithCredential(credential)
                 .addOnCompleteListener(context as Activity) { task ->
                     if (task.isSuccessful) {
+                        Log.d("구글로그인?", "태스크 성공 / ${account.idToken.orEmpty()} / ${account.displayName.orEmpty()} / ${AccountInfo.Type.GOOGLE}")
                         viewModel.signInGoogle(
                             AccountInfo(
-                                account.idToken.orEmpty(),
-                                account.displayName.orEmpty(),
-                                AccountInfo.Type.GOOGLE
+                                loginId = account.id.orEmpty(),
+                                tokenId = account.idToken.orEmpty(),
+                                name = account.displayName.orEmpty(),
+                                type = AccountInfo.Type.GOOGLE
                             )
                         )
                     } else {

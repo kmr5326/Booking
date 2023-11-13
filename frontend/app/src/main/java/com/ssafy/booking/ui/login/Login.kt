@@ -17,6 +17,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -24,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -42,6 +44,7 @@ import com.kakao.sdk.auth.model.OAuthToken
 import com.kakao.sdk.common.model.ClientError
 import com.kakao.sdk.common.model.ClientErrorCause
 import com.kakao.sdk.user.UserApiClient
+import com.ssafy.booking.R
 import com.ssafy.booking.di.App
 import com.ssafy.booking.ui.AppNavItem
 import com.ssafy.booking.ui.LocalNavigation
@@ -116,7 +119,7 @@ fun Greeting(
 
             KakaoLoginButton(context, navController, loginViewModel)
 //            TempLoginButton(navController)
-//            GoogleLoginButton(mainViewModel, googleSignInClient, navController, loginViewModel)
+            GoogleLoginButton(mainViewModel, googleSignInClient, navController, loginViewModel)
 //            SignInBtn()
         }
     }
@@ -125,7 +128,9 @@ fun Greeting(
 @Composable
 fun TempLoginButton(navController: NavController) {
     Button(
-        modifier = Modifier.width(200.dp).clip(RoundedCornerShape(5.dp)),
+        modifier = Modifier
+            .width(200.dp)
+            .clip(RoundedCornerShape(5.dp)),
         shape = RoundedCornerShape(5.dp),
         onClick = {
             navController.navigate(AppNavItem.Main.route) {
@@ -161,30 +166,35 @@ fun GoogleLoginButton(
                 if (indent != null) {
                     val task: Task<GoogleSignInAccount> =
                         GoogleSignIn.getSignedInAccountFromIntent(indent)
+                    Log.d("구글로그인?","${task} // $indent")
                     loginViewModel.handleSignInResult(context, task, viewModel, firebaseAuth)
                 }
+            } else {
+                Log.d("구글로그인", "안돌았어")
             }
         }
 
-    if (accountInfo != null) {
-        navController.navigate(AppNavItem.Main.route) {
-            popUpTo("login") { inclusive = true }
-            launchSingleTop = true
+    LaunchedEffect(accountInfo) {
+        accountInfo?.let {
+            loginViewModel.googleLoginCallBack(context, navController, accountInfo!!)
         }
-        Log.i("UserInfo", "정보들 : $accountInfo")
-    } else {
-        Button(
-            onClick = { startForResult.launch(googleSignInClient.signInIntent) },
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFFffffff),
-                contentColor = Color(0xFF258fff)
-            )
-        ) {
-            Text(
-                "Login With Google",
-                fontWeight = FontWeight.Bold
-            )
-        }
+    }
+
+    Button(
+        modifier = Modifier
+            .width(200.dp)
+            .clip(RoundedCornerShape(5.dp)),
+        shape = RoundedCornerShape(5.dp),
+        onClick = { startForResult.launch(googleSignInClient.signInIntent) },
+        colors = ButtonDefaults.buttonColors(
+            containerColor = colorResource(id = R.color.font_color),
+            contentColor = colorResource(id = R.color.background_color)
+        )
+    ) {
+        Text(
+            "구글로 로그인하기",
+            fontWeight = FontWeight.Bold,
+        )
     }
 }
 
@@ -196,7 +206,9 @@ fun KakaoLoginButton(
     loginViewModel: LoginViewModel
 ) {
     Button(
-        modifier = Modifier.width(200.dp).clip(RoundedCornerShape(5.dp)),
+        modifier = Modifier
+            .width(200.dp)
+            .clip(RoundedCornerShape(5.dp)),
         shape = RoundedCornerShape(5.dp),
         onClick = {
             // 카카오톡이 설치되어 있으면 카카오톡으로 로그인, 아니면 카카오계정으로 로그인
