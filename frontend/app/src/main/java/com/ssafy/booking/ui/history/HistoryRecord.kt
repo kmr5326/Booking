@@ -43,36 +43,40 @@ fun HistoryRecord(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
             ) {
-                Row {
-//                  if 녹음이 없다면
-//                  if 방장이면 리코드 컨트롤러 보임
-                    RecordController()
-                  FileUploader()
-//                  else if 방장이 아니면 '등록된 녹음이 없습니다.'
 
 //----------------------------------------------------------------------
-1
-//                  else if 녹음이 있다면
-                  PlayerController()
-                }
-                val tempPk = 1
+//                  if 녹음이 없다면
                 TabBar(
-                    listOf("녹음 기록 분석", "독서 모임 요약"),
+                    listOf("녹음 파일 업로드", "녹음기"),
                     contentForTab = { index ->
                         when (index) {
-                            0 -> RecordDetail()
-                            1 -> RecordSummary(tempPk)
+                            0 -> FileUploader() // 방장이면 업로드 가능, 사용자는 '아직 등록된 녹음이 없습니다.'
+                            1 -> RecordController()
                         }
                     }
                 )
 
 
             }
+//                  if 방장이면 리코드 컨트롤러 보임
+//                  else if 방장이 아니면 '등록된 녹음이 없습니다.'
+
+//----------------------------------------------------------------------
+//                  else if 녹음이 있다면
+//                  PlayerController()
+//                }
+//                val tempPk = 1
+//                TabBar(
+//                    listOf("녹음 기록 분석", "독서 모임 요약"),
+//                    contentForTab = { index ->
+//                        when (index) {
+//                            0 -> RecordDetail()
+//                            1 -> RecordSummary(tempPk)
+//                        }
+//                    }
+//                )
+//----------------------------------------------------------------------
+
         }
     }
-}
-
-@Composable
-fun MeetingInfo() {
-
 }

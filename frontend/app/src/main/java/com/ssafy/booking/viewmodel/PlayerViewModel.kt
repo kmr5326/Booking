@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
+// 플레이어 상태 관리
 @HiltViewModel
 class PlayerViewModel @Inject constructor(
 
@@ -65,7 +66,6 @@ class PlayerViewModel @Inject constructor(
         val durationMillis = mediaPlayer.duration
         _totalDuration.value = durationMillis
     }
-
 
 
     override fun onCleared() {
