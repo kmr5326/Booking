@@ -32,10 +32,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberImagePainter
+import com.google.gson.Gson
 import com.ssafy.booking.R
 import com.ssafy.booking.di.App
 import com.ssafy.booking.viewmodel.BookingViewModel
 import com.ssafy.domain.model.booking.BookingDetail
+import com.ssafy.domain.model.booking.HashtagResponse
 
 @Composable
 fun BookingInfo(
@@ -60,6 +62,9 @@ fun BookingInfo(
                 App.prefs.putBookImage(bookingDetail?.coverImage)
                 App.prefs.putTitle(bookingDetail?.meetingTitle)
                 App.prefs.putMaxParticipants(bookingDetail?.maxParticipants)
+                App.prefs.putHashtagList(bookingDetail?.hashtagList)
+
+
             }
         }
     }

@@ -5,6 +5,7 @@ import com.ssafy.domain.model.booking.BookingAll
 import com.ssafy.domain.model.booking.BookingCreateRequest
 import com.ssafy.domain.model.booking.BookingDetail
 import com.ssafy.domain.model.booking.BookingJoinRequest
+import com.ssafy.domain.model.booking.BookingModifyRequest
 import com.ssafy.domain.model.booking.BookingParticipants
 import com.ssafy.domain.model.booking.BookingStartRequest
 import com.ssafy.domain.model.booking.BookingWaiting
@@ -45,6 +46,9 @@ class BookingUseCase @Inject constructor(private val repository: BookingReposito
     }
     suspend fun postBookingStart(request : BookingStartRequest): Response<Unit> {
         return repository.postBookingStart(request)
+    }
+    suspend fun patchBookingDetail(request:BookingModifyRequest): Response<Unit> {
+        return repository.patchBookingDetail(request)
     }
 }
 

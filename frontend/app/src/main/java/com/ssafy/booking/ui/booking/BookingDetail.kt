@@ -4,6 +4,7 @@ package com.ssafy.booking.ui.booking
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -11,10 +12,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
@@ -58,34 +62,61 @@ fun BookingDetail(meetingId: Long) {
 
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BookingJoinRequestButton(meetingId:Long) {
+fun BookingJoinRequestButton(meetingId: Long) {
     val context = LocalContext.current
     val bookingViewModel: BookingViewModel = hiltViewModel()
     val postBookingJoinResponse by bookingViewModel.postBookingJoinResponse.observeAsState()
     val navController = LocalNavigation.current
 
-    Button(onClick = {
-        navController.navigate(AppNavItem.BookingSetLocation.route)
-    }) {
-        Text(text = "로케이트")
+    Scaffold(
+        bottomBar = {
+            // 하단 바에 버튼 추가
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Button(onClick = {
+                    navController.navigate(AppNavItem.BookingSetTitle.route)
+                    // 모임 수정 관련 로직
+                }) {
+                    Text(text = "모임 수정")
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+                Button(onClick = {
+                    navController.navigate(AppNavItem.BookingSetLocation.route)
+                    // 모임 확정 관련 로직
+                }) {
+                    Text(text = "모임 확정")
+                }
+            }
+        }
+    ) { paddingValues ->
+        // 주요 콘텐츠
+        Column(
+            modifier = Modifier.padding(paddingValues)
+        ) {
+            Button(onClick = {
+                navController.navigate(AppNavItem.BookingSetLocation.route)
+            }) {
+                Text(text = "로케이트")
+            }
+            Button(onClick = {
+                navController.navigate(AppNavItem.BookingSetTitle.route)
+            }) {
+                Text(text = "타이틀")
+            }
+            Button(onClick = {
+                navController.navigate(AppNavItem.BookingSetDateAndFee.route)
+            }) {
+                Text(text = "데이트타임")
+            }
+        }
     }
-    Button(onClick = {
-        navController.navigate(AppNavItem.BookingSetTitle.route)
-    }) {
-        Text(text = "타이틀")
-    }
-//    Button(onClick = {
-//        navController.navigate(AppNavItem.BookingSetEntryFee.route)
-//    }) {
-//        Text(text = "피")
-//    }
-    Button(onClick = {
-        navController.navigate(AppNavItem.BookingSetDateAndFee.route)
-    }) {
-        Text(text = "데이트타임")
-    }
-
+}
 //    Button(onClick = {
 //        val request = BookingJoinRequest(meetingId = meetingId)
 //        Log.d("test334", "$request")
@@ -99,4 +130,3 @@ fun BookingJoinRequestButton(meetingId:Long) {
 //    {
 //        Text("모임 참가 신청하기")
 //    }
-}

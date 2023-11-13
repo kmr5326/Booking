@@ -13,6 +13,7 @@ import com.ssafy.domain.model.booking.BookingAll
 import com.ssafy.domain.model.booking.BookingCreateRequest
 import com.ssafy.domain.model.booking.BookingDetail
 import com.ssafy.domain.model.booking.BookingJoinRequest
+import com.ssafy.domain.model.booking.BookingModifyRequest
 import com.ssafy.domain.model.booking.BookingParticipants
 import com.ssafy.domain.model.booking.BookingStartRequest
 import com.ssafy.domain.model.booking.BookingWaiting
@@ -23,6 +24,8 @@ import com.ssafy.domain.usecase.MyPageUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import retrofit2.Response
+import java.time.LocalDate
+import java.time.LocalTime
 import javax.inject.Inject
 
 @HiltViewModel
@@ -139,14 +142,23 @@ class BookingViewModel @Inject constructor(
     // POST - 모임 세팅
     val title = MutableLiveData("")
     val description = MutableLiveData("")
+    val maxParticipants = MutableLiveData(1)
     val lgt = MutableLiveData("")
     val lat = MutableLiveData("")
     val location = MutableLiveData("")
     val placeName = MutableLiveData("")
-    val date = MutableLiveData("")
-    val time = MutableLiveData("")
+    val date = MutableLiveData<LocalDate>()
+    val time = MutableLiveData<LocalTime>()
+
     val fee = MutableLiveData(0)
 
+    // PATCH - 모임 수정
+    private val _patchBookingDetailResponse = MutableLiveData<Response<Unit>>()
+    val patchBookingDetailResponse: LiveData<Response<Unit>> get() = _patchBookingDetailResponse
+    fun patchBookingDetail(request: BookingModifyRequest) =
+        viewModelScope.launch {
+            _patchBookingDetailResponse.value = bookingUseCase.patchBookingDetail(request)
+        }
 
 //    var description = mutableStateOf(
 //        ""

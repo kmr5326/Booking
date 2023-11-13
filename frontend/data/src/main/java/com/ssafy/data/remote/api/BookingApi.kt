@@ -4,6 +4,7 @@ import com.ssafy.domain.model.booking.BookingAll
 import com.ssafy.domain.model.booking.BookingCreateRequest
 import com.ssafy.domain.model.booking.BookingDetail
 import com.ssafy.domain.model.booking.BookingJoinRequest
+import com.ssafy.domain.model.booking.BookingModifyRequest
 import com.ssafy.domain.model.booking.BookingParticipants
 import com.ssafy.domain.model.booking.BookingStartRequest
 import com.ssafy.domain.model.booking.BookingWaiting
@@ -14,6 +15,7 @@ import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Headers
+import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -64,4 +66,8 @@ interface BookingApi {
         @Query("start") start: Int,    // start도 마찬가지로 Int 타입이 적합, 이거 안 되면 String
         @Query("sort") sort: String
     ): Response<SearchResponse>
+
+    @Headers("Content-Type: application/json;charset=UTF-8")
+    @PATCH("/api/booking/meeting/")
+    suspend fun patchBookingDetail(@Body request: BookingModifyRequest): Response<Unit>
 }

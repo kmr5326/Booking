@@ -6,6 +6,7 @@ import javax.inject.Inject
 import com.ssafy.domain.model.booking.BookingCreateRequest
 import com.ssafy.domain.model.booking.BookingDetail
 import com.ssafy.domain.model.booking.BookingJoinRequest
+import com.ssafy.domain.model.booking.BookingModifyRequest
 import com.ssafy.domain.model.booking.BookingParticipants
 import com.ssafy.domain.model.booking.BookingStartRequest
 import com.ssafy.domain.model.booking.BookingWaiting
@@ -45,6 +46,9 @@ class BookingRepositoryImpl @Inject constructor(
     }
     override suspend fun postBookingStart(request: BookingStartRequest): Response<Unit> {
         return bookingApi.postBookingStart(request)
+    }
+    override suspend fun patchBookingDetail(request: BookingModifyRequest) : Response<Unit> {
+        return bookingApi.patchBookingDetail(request)
     }
 }
 

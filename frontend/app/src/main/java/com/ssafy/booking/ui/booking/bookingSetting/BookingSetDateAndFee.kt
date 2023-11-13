@@ -2,8 +2,8 @@ package com.ssafy.booking.ui.booking.bookingSetting
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
+import android.util.Log
 import android.widget.Toast
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,6 +24,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -37,10 +38,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ssafy.booking.di.App
-import com.ssafy.booking.ui.AppNavItem
 import com.ssafy.booking.ui.LocalNavigation
 import com.ssafy.booking.viewmodel.BookingViewModel
+import com.ssafy.domain.model.booking.BookingStartRequest
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.LocalTime
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -51,19 +53,23 @@ fun SetDateAndFee() {
     val dateState by bookingViewModel.date.observeAsState()
     val timeState by bookingViewModel.time.observeAsState()
     val feeState by bookingViewModel.fee.observeAsState()
+    val placeNameState by bookingViewModel.placeName.observeAsState()
+    val locationState by bookingViewModel.location.observeAsState()
 
     Scaffold(
         bottomBar = {
-            // 바텀 버튼을 Scaffold의 bottomBar로 설정합니다.
-            SetDateAndFeeBottomButton(dateState, timeState, feeState)
+            if ( dateState != null && timeState != null && feeState != null) {
+                // 바텀 버튼을 Scaffold의 bottomBar로 설정합니다.
+                SetDateAndFeeBottomButton(dateState!!, timeState!!, feeState, bookingViewModel)
+            }
         }
     ) { innerPadding ->
         Column(modifier = Modifier.padding(innerPadding)) {
             DatePickerComposable(onDateSelected = { date ->
-                bookingViewModel.date.value = date.toString()
+                bookingViewModel.date.value = date
             })
             TimePickerComposable(onTimeSelected = { time ->
-                bookingViewModel.time.value = time.toString()
+                bookingViewModel.time.value = time
             })
             Text("선택된 날짜: ${dateState ?: "없음"}")
             Text("선택된 시간: ${timeState ?: "없음"}")
@@ -117,6 +123,7 @@ fun SetEntryFee(modifier: Modifier = Modifier) {
 @Composable
 fun FeeInputField(onFeeChanged: (Int) -> Unit) {
     var fee by remember { mutableStateOf(0) }
+    val bookingViewModel: BookingViewModel = hiltViewModel()
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -125,6 +132,7 @@ fun FeeInputField(onFeeChanged: (Int) -> Unit) {
             onValueChange = { newValue ->
                 fee = newValue.toIntOrNull() ?: 0
                 onFeeChanged(fee)
+                bookingViewModel.fee.value = fee
             },
             label = { Text("참가비 입력") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -145,13 +153,24 @@ fun FeeInputField(onFeeChanged: (Int) -> Unit) {
 }
 @Composable
 fun SetDateAndFeeBottomButton(
-    dateState : String?,
-    timeState : String?,
+    dateState : LocalDate,
+    timeState : LocalTime,
     feeState : Int?,
+    bookingViewModel: BookingViewModel
 ) {
     // 현재 Composable 함수와 연관된 Context 가져오기
     val context = LocalContext.current
     val navController = LocalNavigation.current
+
+    val bookingStartRequestResponse by bookingViewModel.postBookingStartResponse.observeAsState()
+    LaunchedEffect(bookingStartRequestResponse) {
+        bookingStartRequestResponse?.let { response ->
+            if (response.isSuccessful) { // Assuming 'isSuccessful' is a flag in your response indicating success
+                val meetingId = App.prefs.getMeetingId()
+                navController.navigate("bookingDetail/$meetingId")
+            }
+        }
+    }
 
     Box(
         contentAlignment = Alignment.BottomCenter,
@@ -161,14 +180,26 @@ fun SetDateAndFeeBottomButton(
     ) {
         Button(
             onClick = {
-                if (dateState.isNullOrEmpty() || timeState.isNullOrEmpty() || feeState == null) {
+                val date = LocalDateTime.of(bookingViewModel.date.value, bookingViewModel.time.value).withSecond(0)
+                Log.d("date", date.toString())
+                Log.d("date", feeState.toString())
+                Log.d("date",dateState.toString())
+                Log.d("date",timeState.toString())
+                if (date == null || feeState == null) {
                     // 제목 또는 내용이 비어있을 경우 Toast 메시지 표시
                     Toast.makeText(context, "독서모임의 모임 일정과 참가비를 모두 입력해주세요.", Toast.LENGTH_LONG).show()
                 } else {
-                    // 원래 있던 모임의 번호를 불러와서,
-                    val meetingId = App.prefs.getMeetingId()
-                    // 클릭 시 원래 있었던 모임 화면으로 이동
-                    navController.navigate("bookingDetail/$meetingId")
+                    Log.d("date123", date.toString())
+                    val request = BookingStartRequest(
+                        meetingId = App.prefs.getMeetingId()!!,
+                        date = date.toString(),
+                        fee = bookingViewModel.fee.value!!,
+                        lat = App.prefs.getMeetingLat()!!,
+                        lgt = App.prefs.getMeetingLgt()!!,
+                        address = App.prefs.getMeetingAddress()!!,
+                        location = App.prefs.getMeetingLocation()!!,
+                    )
+                    bookingViewModel.postBookingStart(request)
                 }
             },
             modifier = Modifier
