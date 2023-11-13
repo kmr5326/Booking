@@ -13,6 +13,7 @@ import com.booking.booking.hashtag.service.HashtagService;
 import com.booking.booking.hashtagmeeting.service.HashtagMeetingService;
 import com.booking.booking.meeting.domain.Meeting;
 import com.booking.booking.meeting.domain.MeetingState;
+import com.booking.booking.meeting.dto.request.MeetingAttendRequest;
 import com.booking.booking.meeting.dto.request.MeetingRequest;
 import com.booking.booking.meeting.dto.request.MeetingUpdateRequest;
 import com.booking.booking.meeting.dto.response.MeetingDetailResponse;
@@ -186,7 +187,7 @@ public class MeetingService {
                     }
                     return waitlistService.enrollMeeting(meeting.getMeetingId(), member.memberPk())
                             .then(NotificationUtil.enrollNotification(
-                                    new EnrollNotificationRequest(meeting.getMeetingId(), meeting.getMeetingTitle())));
+                                    new EnrollNotificationRequest(member.memberPk(), meeting.getMeetingTitle())));
                 });
     }
 
@@ -420,8 +421,10 @@ public class MeetingService {
                 .then();
     }
 
-    public Mono<Void> attendMeeting(String userEmail, Long meetingId) {
-        log.info("[Booking:Meeting] attendMeeting({}, {})", userEmail, meetingId);
+    public Mono<Void> attendMeeting(String userEmail, MeetingAttendRequest meetingAttendRequest) {
+        log.info("[Booking:Meeting] attendMeeting({}, {})", userEmail, meetingAttendRequest);
+
+
 
         return Mono.empty();
     }
