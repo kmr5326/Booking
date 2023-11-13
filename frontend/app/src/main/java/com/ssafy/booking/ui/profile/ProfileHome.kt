@@ -143,7 +143,12 @@ fun MyProfile(profileData: ProfileData) {
                 }
                 Spacer(modifier = Modifier.size(4.dp))
                 if(profileData.isI == true) {
-                    Text(text = "마일리지 : ${profileData.myProfile?.point}")
+                    Text(
+                        text = "마일리지 : ${profileData.myProfile?.point}",
+                        modifier = Modifier.clickable{
+                            navController.navigate("pay/ready/0")
+                        }
+                        )
                 } else {
                     isFollowNow?.let {
                         if (it.value == true) {

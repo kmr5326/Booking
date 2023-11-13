@@ -48,7 +48,7 @@ fun KakaoPayReadyScreen(
                 },
                 placeholder = { Text("충전 금액") },
                 maxLines = 1, // 최대 6줄 입력 가능
-                modifier = Modifier.height(192.dp)
+//                modifier = Modifier.height(192.dp)
             )
             Spacer(modifier = Modifier.height(12.dp))
             Button(

@@ -28,6 +28,7 @@ import com.ssafy.booking.ui.booking.bookingSetting.SetLocation
 import com.ssafy.booking.ui.booking.bookingSetting.SetTitle
 import com.ssafy.booking.ui.chat.ChatDetail
 import com.ssafy.booking.ui.chat.ChatHome
+import com.ssafy.booking.ui.common.KakaoPayReadyScreen
 import com.ssafy.booking.ui.common.SettingPage
 import com.ssafy.booking.ui.history.HistoryDetail
 import com.ssafy.booking.ui.history.HistoryHome
@@ -76,6 +77,7 @@ sealed class AppNavItem(
     object BookingSetTitle : AppNavItem("booking/setting/title")
     object BookingSetLocation : AppNavItem("booking/setting/location")
     object BookingSetDateAndFee : AppNavItem("booking/setting/dateandfee")
+    object KakaoPayReady : AppNavItem("pay/ready/{amount}")
 
 }
 
@@ -210,6 +212,11 @@ fun Route(googleSignInClient: GoogleSignInClient) {
             composable("booking/setting/dateandfee")
             {
                 SetDateAndFee()
+            }
+            composable("pay/ready/{amount}")
+            {navBackStackEntry->
+                val firstAmount = navBackStackEntry.arguments?.getString("amount") ?: "0"
+                KakaoPayReadyScreen(firstAmount = firstAmount)
             }
         }
     }

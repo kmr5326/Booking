@@ -68,5 +68,5 @@ class UseCaseModule {
 
     @Provides
     @Singleton
-    fun provideNaverCloudUseCase(repository: KakaoPayRepository) = KakaoPayUseCase(repository)
+    fun provideKakaoPayUseCase(repository: KakaoPayRepository) = KakaoPayUseCase(repository)
 }
