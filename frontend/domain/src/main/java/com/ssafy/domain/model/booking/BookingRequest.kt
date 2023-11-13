@@ -29,14 +29,27 @@ data class BookingRejectRequest (
 )
 
 // 모임 확정하기
-data class BookingStartRequest (
-    val meetingId : Long,
-    val date : LocalDateTime,
-    val location : String,
-    val fee : Integer
-)
+data class BookingStartRequest(
+    val meetingId: Long,
+    val date: String,
+    val location: String,
+    val address: String,
+    val fee: Int,
+    val lat: Double,
+    val lgt: Double,
+
+    )
 
 // 모임 나가기
 data class BookingExitRequest (
     val meetingId : Long,
+)
+
+// 모임 수정하기
+data class BookingModifyRequest(
+    val meetingId: Long,
+    val meetingTitle: String,
+    val description: String,
+    val maxParticipants: Int,
+    val hashtagList: List<String>,
 )

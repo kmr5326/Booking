@@ -34,12 +34,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.wear.compose.material.MaterialTheme.colors
 import coil.compose.rememberImagePainter
 import com.ssafy.booking.ui.LocalNavigation
 import com.ssafy.booking.viewmodel.BookingViewModel
 import com.ssafy.domain.model.booking.BookingAcceptRequest
 import com.ssafy.domain.model.booking.BookingDetail
 import com.ssafy.domain.model.booking.BookingParticipants
+import com.ssafy.domain.model.booking.BookingRejectRequest
 import com.ssafy.domain.model.booking.BookingWaiting
 
 @Composable
@@ -145,8 +147,14 @@ fun WaitingListItem(waiting: BookingWaiting, meetingId: Long, bookingViewModel: 
             // 체크 버튼
             Button(
                 onClick = {
-                    val request = BookingAcceptRequest(meetingId = meetingId, memberId = waiting.memberPk)
-                    bookingViewModel.postBookingAccept(meetingId,waiting.memberPk,request) }, // 여기서는 대기자의 ID를 파라미터로 전달
+                    val request =
+                        BookingAcceptRequest(meetingId = meetingId, memberId = waiting.memberPk)
+                    bookingViewModel.postBookingAccept(meetingId, waiting.memberPk, request)
+                    // 다시 쏴서 리스트 갱신해
+                    bookingViewModel.getParticipants(meetingId)
+                    bookingViewModel.getWaitingList(meetingId)
+                }
+                , // 여기서는 대기자의 ID를 파라미터로 전달
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Green)
             ) {
                 Icon(
@@ -158,7 +166,13 @@ fun WaitingListItem(waiting: BookingWaiting, meetingId: Long, bookingViewModel: 
             Spacer(modifier = Modifier.width(8.dp)) // 버튼 사이의 간격 추가
             // 엑스 버튼
             Button(
-                onClick = { /* 여기에 거절 로직 */ },
+                onClick = {
+                    val request = BookingRejectRequest(meetingId = meetingId, memberId = waiting.memberPk)
+                    bookingViewModel.postBookingReject(meetingId,waiting.memberPk,request)
+                    // 다시 쏴서 리스트 갱신해
+                    bookingViewModel.getParticipants(meetingId)
+                    bookingViewModel.getWaitingList(meetingId)
+                },
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
             ) {
                 Icon(

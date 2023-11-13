@@ -38,7 +38,6 @@ data class BookingAll (
     val hashtagList : List<HashtagResponse>,
 )
 
-// 모임 상세 조회
 
 data class ParticipantResponse(
     @SerializedName("memberPk")
@@ -58,14 +57,21 @@ data class ParticipantResponse(
 
 data class MeetingInfoResponse(
     @SerializedName("date")
-    val date : LocalDateTime,
+    val date : String,
     @SerializedName("location")
     val location : String,
+    @SerializedName("address")
+    val address : String,
+    @SerializedName("lat")
+    val lat : Double,
+    @SerializedName("lgt")
+    val lgt : Double,
     @SerializedName("fee")
     val fee : Int,
     )
 
 
+// 모임 상세 조회
 
 data class BookingDetail (
     @SerializedName("meetingId")
@@ -90,33 +96,17 @@ data class BookingDetail (
     val lat : Double,
     @SerializedName("lgt")
     val lgt : Double,
+    @SerializedName("curParticipants")
+    val curParticipants : Int,
     @SerializedName("maxParticipants")
     val maxParticipants : Int,
-    @SerializedName("participantList")
-    val participantList : List<ParticipantResponse>,
-    @SerializedName("memberPk")
-    val memberPk: Int,
-    @SerializedName("loginId")
-    val loginId: String,
-    @SerializedName("nickName")
-    val nickName : String,
-    @SerializedName("profileImage")
-    val profileImage: String?,
-    @SerializedName("attendanceStatus")
-    val attendanceStatus: Boolean,
-    @SerializedName("paymentStatus")
-    val paymentStatus: Boolean,
-
+    @SerializedName("meetingState")
+    val meetingState : String,
     @SerializedName("hashtagList")
     val hashtagList : List<HashtagResponse>,
     @SerializedName("meetingInfoList")
     val meetingInfoList : List<MeetingInfoResponse>,
-    @SerializedName("date")
-    val date: LocalDateTime,
-    @SerializedName("location")
-    val location : String,
-    @SerializedName("fee")
-    val fee : Int
+
 )
 
 // 모임 참여자 목록
