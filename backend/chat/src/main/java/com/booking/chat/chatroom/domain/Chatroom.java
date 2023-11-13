@@ -31,6 +31,8 @@ public class Chatroom {
 
     private String meetingTitle;
 
+    private String coverImage;
+
     private String lastMessage;
 
     @CreatedDate
@@ -47,6 +49,7 @@ public class Chatroom {
                        .leaderId(initChatroomRequest.leaderId())
                        .memberList(List.of(initChatroomRequest.leaderId()))
                        .meetingTitle(initChatroomRequest.meetingTitle())
+                       .coverImage(initChatroomRequest.coverImage())
                        .lastMessageReceivedTime(LocalDateTime.now())
                        .build();
     }
