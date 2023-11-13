@@ -55,5 +55,17 @@ class BookingUseCase @Inject constructor(private val repository: BookingReposito
     suspend fun patchBookingDetail(request:BookingModifyRequest): Response<Unit> {
         return repository.patchBookingDetail(request)
     }
+    suspend fun postBookingExit(meetingId: Long): Response<Unit> {
+        return repository.postBookingExit(meetingId)
+    }
+    suspend fun deleteBooking(meetingId: Long): Response<Unit> {
+        return repository.deleteBooking(meetingId)
+    }
+    suspend fun patchBookingEnd(meetingId: Long): Response<Unit> {
+        return repository.patchBookingEnd(meetingId)
+    }
+    suspend fun patchBookingAttend(meetingId: Long): Response<Unit> {
+        return repository.patchBookingAttend(meetingId)
+    }
 }
 

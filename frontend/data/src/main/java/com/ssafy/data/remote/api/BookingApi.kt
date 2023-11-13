@@ -14,6 +14,7 @@ import com.ssafy.domain.model.mypage.UserInfoResponse
 import retrofit2.Response
 
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Headers
 import retrofit2.http.PATCH
@@ -75,4 +76,25 @@ interface BookingApi {
     @Headers("Content-Type: application/json;charset=UTF-8")
     @PATCH("/api/booking/meeting/")
     suspend fun patchBookingDetail(@Body request: BookingModifyRequest): Response<Unit>
+    
+    // 모임 나가기
+    @Headers("Content-Type: application/json;charset=UTF-8")
+    @POST("/api/booking/meeting/{meetingId}/exit")
+    suspend fun postBookingExit(@Path("meetingId") meetingId: Long): Response<Unit>
+    
+    // 모임 삭제
+    @Headers("Content-Type: application/json;charset=UTF-8")
+    @DELETE("/api/booking/meeting/{meetingId}")
+    suspend fun deleteBooking(@Path("meetingId") meetingId: Long): Response<Unit>
+    
+    // 모임 종료
+    @Headers("Content-Type: application/json;charset=UTF-8")
+    @PATCH("/api/booking/meeting/info/{meetingId}")
+    suspend fun patchBookingEnd(@Path("meetingId") meetingId: Long): Response<Unit>
+    
+    // 모임 출석체크
+    @Headers("Content-Type: application/json;charset=UTF-8")
+    @PATCH("/api/booking/meeting/attend/{meetingId}")
+    suspend fun patchBookingAttend(@Path("meetingId") meetingId: Long): Response<Unit>    
+
 }

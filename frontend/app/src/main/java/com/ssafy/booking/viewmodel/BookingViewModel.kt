@@ -169,16 +169,37 @@ private val _postBookingRejectResponse = MutableLiveData<Response<Unit>>()
             _patchBookingDetailResponse.value = bookingUseCase.patchBookingDetail(request)
         }
 
-//    var description = mutableStateOf(
-//        ""
-//    )
-//    var bookgImage = mutableStateOf(
-//            ""
-//    )
-//    var fee = mutableStateOf({0})
-//    var lng = mutableStateOf({0.0})
-//    var lat = mutableStateOf({0.0})
-//    var location = mutableStateOf({""})
-//    var date = mutableStateOf({""})
+    // POST - 모임 나가기
+    private val _postBookingExitResponse = MutableLiveData<Response<Unit>>()
+    val postBookingExitResponse: LiveData<Response<Unit>> get() = _postBookingExitResponse
+    fun postBookingExit(meetingId: Long) =
+        viewModelScope.launch {
+            _postBookingExitResponse.value = bookingUseCase.postBookingExit(meetingId)
+        }
+
+    // DELETE - 모임 삭제
+    private val _deleteBookingResponse = MutableLiveData<Response<Unit>>()
+    val deleteBookingResponse: LiveData<Response<Unit>> get() = _deleteBookingResponse
+    fun deleteBooking(meetingId: Long) =
+        viewModelScope.launch {
+            _deleteBookingResponse.value = bookingUseCase.deleteBooking(meetingId)
+        }
+
+    // PATCH - 모임 종료
+    private val _patchBookingEndResponse = MutableLiveData<Response<Unit>>()
+    val patchBookingEndResponse: LiveData<Response<Unit>> get() = _patchBookingEndResponse
+    fun patchBookingEnd(meetingId: Long) =
+        viewModelScope.launch {
+            _patchBookingEndResponse.value = bookingUseCase.patchBookingEnd(meetingId)
+        }
+
+    // PATCH - 모임 출석
+    private val _patchBookingAttendResponse = MutableLiveData<Response<Unit>>()
+    val patchBookingAttendResponse: LiveData<Response<Unit>> get() = _patchBookingAttendResponse
+    fun patchBookingAttend(meetingId: Long) =
+        viewModelScope.launch {
+            _patchBookingAttendResponse.value = bookingUseCase.patchBookingAttend(meetingId)
+        }
+
     
 }

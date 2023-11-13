@@ -45,6 +45,10 @@ data class BookingExitRequest (
     val meetingId : Long,
 )
 
+
+
+
+
 // 모임 수정하기
 data class BookingModifyRequest(
     val meetingId: Long,
