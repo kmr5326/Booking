@@ -16,6 +16,9 @@
     사용한다면 이 권한을 요청해야 합니다. -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
+    <!--  오디오 녹음 권한 요청-->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+
     <application
         android:name=".di.App"
         android:allowBackup="false"
