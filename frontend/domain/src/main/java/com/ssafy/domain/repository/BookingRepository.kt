@@ -25,4 +25,8 @@ interface BookingRepository {
     suspend fun postBookingReject(meetingId: Long,memberId:Int,request:BookingRejectRequest) : Response<Unit>
     suspend fun postBookingStart(request: BookingStartRequest) : Response<Unit>
     suspend fun patchBookingDetail(request: BookingModifyRequest) : Response<Unit>
+    suspend fun postBookingExit(meetingId: Long) : Response<Unit>
+    suspend fun deleteBooking(meetingId: Long) : Response<Unit>
+    suspend fun patchBookingEnd(meetingId: Long) : Response<Unit>
+    suspend fun patchBookingAttend(meetingId: Long) : Response<Unit>
 }
