@@ -33,7 +33,6 @@ public class MessageService {
     private final NotificationService notificationService;
     private final ReactiveRedisTemplate<String, Set<Long>> reactiveRedisTemplate;
 
-
     public void processAndSend(KafkaMessage kafkaMessage, Long chatroomId) {
         save(kafkaMessage, chatroomId)
             .retry(3L)
