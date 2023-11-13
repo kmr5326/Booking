@@ -30,6 +30,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -85,9 +86,19 @@ import okhttp3.logging.HttpLoggingInterceptor
 fun MyProfile(profileData: ProfileData) {
     val navController = LocalNavigation.current
     val viewModel: MyPageViewModel = hiltViewModel()
-    val imageLoader = LocalImageLoader.current
     val context = LocalContext.current
+    val imageLoader = context.imageLoader
+    val tokenDataSource = TokenDataSource(context)
+    val memberPk : Long = tokenDataSource.getMemberPk()
+    val isFollowNow = viewModel.isFollowNow.observeAsState()
+    var followerCnt : Int by remember { mutableStateOf(0) }
 
+    LaunchedEffect(Unit) {
+        viewModel.checkFollowNow(memberPk, profileData)
+        profileData.followers?.followersCnt?.let {
+            followerCnt = it
+        }
+    }
 
     Card(
         colors = CardDefaults.cardColors(
@@ -125,16 +136,35 @@ fun MyProfile(profileData: ProfileData) {
                 Row(
                     modifier = Modifier.clickable { navController.navigate("profile/follow/${profileData.myProfile!!.memberPk}") }
                 ) {
-                    Text(text = "팔로잉 ${profileData.followings?.followingsCnt}", color = colorResource(id = R.color.font_color))
+                    Text(text = "팔로워 ${followerCnt}", color = colorResource(id = R.color.font_color))
+//                    Text(text = "팔로워 ${profileData.followers?.followersCnt}", color = colorResource(id = R.color.font_color))
                     Spacer(modifier = Modifier.size(16.dp))
-                    Text(text = "팔로워 ${profileData.followers?.followersCnt}", color = colorResource(id = R.color.font_color))
+                    Text(text = "팔로잉 ${profileData.followings?.followingsCnt}", color = colorResource(id = R.color.font_color))
                 }
                 Spacer(modifier = Modifier.size(4.dp))
                 if(profileData.isI == true) {
                     Text(text = "마일리지 : ${profileData.myProfile?.point}")
                 } else {
-                    Button(onClick = { /*TODO*/ }) {
-                        Text("팔로우")
+                    isFollowNow?.let {
+                        if (it.value == true) {
+                            profileData.myProfile?.let {
+                                Button(onClick = {
+                                    viewModel.deleteFollow(it.memberPk)
+                                    followerCnt--
+                                }) {
+                                    Text("언팔로우")
+                                }
+                            }
+                        } else {
+                            profileData.myProfile?.let {
+                                Button(onClick = {
+                                    viewModel.postFollow(it.memberPk)
+                                    followerCnt++
+                                }) {
+                                    Text("팔로우")
+                                }
+                            }
+                        }
                     }
                 }
             }
