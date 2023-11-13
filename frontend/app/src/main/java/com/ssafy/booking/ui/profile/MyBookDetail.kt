@@ -54,6 +54,8 @@ import com.ssafy.booking.viewmodel.MyBookViewModel
 import com.ssafy.data.repository.token.TokenDataSource
 import com.ssafy.domain.model.mybook.MyBookListResponse
 import com.ssafy.domain.model.mybook.MyBookMemoRegisterRequest
+import java.time.LocalDate
+import java.time.LocalDate.now
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -167,7 +169,7 @@ fun DetailBookSuccessView(
     ) {
         Text(text = "한줄평")
         Spacer(modifier = Modifier.padding(10.dp))
-        OneLineMemos(myBookDetailResponse)
+        OneLineMemos(myBookDetailResponse, memberPk, myBookDetailResponse.bookInfo.isbn)
         OutlinedTextField(
             value = memo, // 이 부분을 뷰모델의 상태로 연결하거나 필요에 따라 변경
             onValueChange = { newValue ->
@@ -196,7 +198,8 @@ fun DetailBookSuccessView(
                         isbn = myBookDetailResponse.bookInfo.isbn,
                         content = memo
                     )
-                    viewModel.postBookMemo(result)
+                    viewModel.postBookMemo(result, now().toString())
+                    memo = ""
                 }
             ),
             shape = RoundedCornerShape(12.dp)
@@ -211,10 +214,21 @@ fun DetailBookErrorView() {
 
 @Composable
 fun OneLineMemos(
-    myBookDetailResponse : MyBookListResponse
+    myBookDetailResponse : MyBookListResponse,
+    memberPk: Long,
+    isbn: String?
 ) {
-    myBookDetailResponse!!.notes?.let {
-        myBookDetailResponse!!.notes!!.forEach { note ->
+    val viewModel: MyBookViewModel = hiltViewModel()
+    val notesList by viewModel.notesList.observeAsState(emptyList())
+
+    LaunchedEffect(Unit) {
+        isbn?.let {
+            viewModel.getMyBookDetailResponse(memberPk,isbn)
+        }
+    }
+
+    if(notesList != null) {
+        notesList.forEach {note->
             Row(modifier = Modifier
                 .fillMaxWidth()
                 .padding(10.dp)) {
@@ -223,7 +237,5 @@ fun OneLineMemos(
             }
             Spacer(modifier = Modifier.padding(4.dp))
         }
-    } ?: run {
-        Text(text = "없음.")
     }
 }

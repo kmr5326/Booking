@@ -81,11 +81,11 @@ fun ProfileModifierScreen() {
     val viewModel : MyPageViewModel = hiltViewModel()
     val naverResult by viewModel.naverCloudPutResponse.observeAsState()
 
-    LaunchedEffect(Unit) {
-        memberPk?.let {
-            viewModel.GetToNaverCloud(memberPk)
-        }
-    }
+//    LaunchedEffect(Unit) {
+//        memberPk?.let {
+//            viewModel.GetToNaverCloud(memberPk)
+//        }
+//    }
 
 //    LaunchedEffect(Unit) {
 //        Log.d("test", "$nick, $pImg, $nickname")
@@ -103,15 +103,15 @@ fun ProfileModifierScreen() {
 //        }
 //    }
 
-    val imageTest by viewModel.naverCloudGetResponse.observeAsState()
-    var bitmap : Bitmap? by remember { mutableStateOf(null) }
-
-    LaunchedEffect(imageTest) {
-        imageTest?.let{
-            val inputStream = imageTest!!.body()?.byteStream()
-            bitmap = BitmapFactory.decodeStream(inputStream)
-        }
-    }
+//    val imageTest by viewModel.naverCloudGetResponse.observeAsState()
+//    var bitmap : Bitmap? by remember { mutableStateOf(null) }
+//
+//    LaunchedEffect(imageTest) {
+//        imageTest?.let{
+//            val inputStream = imageTest!!.body()?.byteStream()
+//            bitmap = BitmapFactory.decodeStream(inputStream)
+//        }
+//    }
 
     // 갤러리 접근
     val launcher = rememberLauncherForActivityResult(

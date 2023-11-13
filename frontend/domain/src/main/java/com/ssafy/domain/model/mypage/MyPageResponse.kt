@@ -90,7 +90,9 @@ data class FollowersList (
     @SerializedName("nickname")
     val nickname: String,
     @SerializedName("profileImage")
-    val profileImage: String
+    val profileImage: String,
+    @SerializedName("memberPk")
+    val memberPk: Long
 )
 
 data class UserFollowersResponse (

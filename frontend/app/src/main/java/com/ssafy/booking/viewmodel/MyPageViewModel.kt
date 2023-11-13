@@ -2,6 +2,7 @@ package com.ssafy.booking.viewmodel
 
 import android.net.Uri
 import android.util.Log
+import androidx.compose.runtime.MutableState
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
@@ -127,6 +128,20 @@ class MyPageViewModel @Inject constructor(
             _getUserFollowersResponse.value = myPageUseCase.getUserFollowers(memberPk)
         }
 
+    // 팔로우, 언팔로우 확인
+    private var _isFollowNow = MutableLiveData<Boolean>(null)
+    val isFollowNow : LiveData<Boolean> get() = _isFollowNow
+
+    fun checkFollowNow(memberPk: Long, profileData:ProfileData) {
+        profileData.followers?.followers?.let {followerList->
+            followerList.forEach{follower->
+                if (follower?.memberPk == memberPk) {
+                    _isFollowNow.value = true
+                }
+            }
+        }
+    }
+
     // GET - 팔로잉 수 요청 로직
     private val _getUserFollowingsResponse = MutableLiveData<Response<UserFollowingsResponse>>()
     val getUserFollowingsResponse: LiveData<Response<UserFollowingsResponse>> get() = _getUserFollowingsResponse
@@ -161,6 +176,7 @@ class MyPageViewModel @Inject constructor(
     fun postFollow(memberPk: Long) =
         viewModelScope.launch {
             _postFollow.value = myPageUseCase.postFollow(memberPk)
+            _isFollowNow.value = true
         }
 
     // DELETE - unfollow 요청하기
@@ -170,6 +186,7 @@ class MyPageViewModel @Inject constructor(
     fun deleteFollow(memberPk: Long) =
         viewModelScope.launch {
             _deleteFollow.value = myPageUseCase.deleteFollow(memberPk)
+            _isFollowNow.value = false
         }
 
     // 최종 마이페이지 작업 로직

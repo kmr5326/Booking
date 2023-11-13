@@ -13,7 +13,9 @@ data class ChatRoom (
     @SerializedName("lastMessage")
     val lastMessage : String?,
     @SerializedName("memberList")
-    val memberList: List<Int>
+    val memberList: List<Int>,
+    @SerializedName("coverImage")
+    val coverImage: String
 )
 
 data class MessageResponse (

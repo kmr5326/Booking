@@ -37,6 +37,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ssafy.booking.R
 import com.ssafy.booking.ui.LocalNavigation
 import com.ssafy.booking.ui.MainActivity
+import com.ssafy.booking.viewmodel.MainViewModel
 import com.ssafy.booking.viewmodel.SettingViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -45,6 +46,7 @@ fun SettingPage() {
     val navController = LocalNavigation.current
     val settingViewModel: SettingViewModel = hiltViewModel()
     val context = LocalContext.current
+    val mainViewModel : MainViewModel = hiltViewModel()
 
     Scaffold(
         topBar = {
@@ -212,6 +214,7 @@ fun SettingPage() {
                     Button(
                         onClick = {
                             settingViewModel.logout()
+                            mainViewModel.signOutGoogle()
                             navController.navigate("login") {
                                 popUpTo("login") { inclusive = true }
                             }
@@ -232,6 +235,7 @@ fun SettingPage() {
                     Button(
                         onClick = {
                             val loginId = settingViewModel.getLoginId()
+                            mainViewModel.signOutGoogle()
                             Log.d("jmkim", "$loginId")
                             loginId?.let {
                                 settingViewModel.postUserDelete(loginId)
