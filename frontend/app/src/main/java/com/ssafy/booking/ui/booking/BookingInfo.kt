@@ -42,6 +42,7 @@ import com.ssafy.domain.model.booking.HashtagResponse
 @Composable
 fun BookingInfo(
     meetingId : Long,
+    isLeadered : Boolean
 )
 {
     // 뷰모델 연결
@@ -50,6 +51,7 @@ fun BookingInfo(
     var bookingDetail by remember { mutableStateOf<BookingDetail?>(null) }
     LaunchedEffect(Unit) {
         bookingViewModel.getBookingDetail(meetingId)
+
     }
     LaunchedEffect(getBookingDetailResponse) {
         getBookingDetailResponse?.body()?.let { response ->
@@ -63,8 +65,6 @@ fun BookingInfo(
                 App.prefs.putTitle(bookingDetail?.meetingTitle)
                 App.prefs.putMaxParticipants(bookingDetail?.maxParticipants)
                 App.prefs.putHashtagList(bookingDetail?.hashtagList)
-
-
             }
         }
     }

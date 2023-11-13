@@ -45,7 +45,7 @@ import com.ssafy.domain.model.booking.BookingRejectRequest
 import com.ssafy.domain.model.booking.BookingWaiting
 
 @Composable
-fun BookingParticipants(meetingId:Long) {
+fun BookingParticipants(meetingId:Long,isLeadered : Boolean) {
     // 뷰모델 연결
     val bookingViewModel: BookingViewModel = hiltViewModel()
     val getParticipantsResponse by bookingViewModel.getParticipantsResponse.observeAsState()
