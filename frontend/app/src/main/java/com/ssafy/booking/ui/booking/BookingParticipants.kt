@@ -45,7 +45,7 @@ import com.ssafy.domain.model.booking.BookingRejectRequest
 import com.ssafy.domain.model.booking.BookingWaiting
 
 @Composable
-fun BookingParticipants(meetingId:Long) {
+fun BookingParticipants(meetingId:Long,isLeadered : Boolean,status :String) {
     // 뷰모델 연결
     val bookingViewModel: BookingViewModel = hiltViewModel()
     val getParticipantsResponse by bookingViewModel.getParticipantsResponse.observeAsState()
@@ -82,11 +82,16 @@ fun BookingParticipants(meetingId:Long) {
         }
 
         Divider(modifier = Modifier.padding(vertical = 8.dp))
-
-        // 이 부분 방장이고, 대기자가 있을 때만 보여야 함
-        Text(text = "대기자 목록")
-        waitingList.forEach { waiting ->
-            WaitingListItem(meetingId = meetingId,waiting = waiting, bookingViewModel = bookingViewModel)
+        // 방장이면서 모임이 준비중일 때만 대기자 목록을 표시
+        if (isLeadered && status == "PREPARING") {
+            Text(text = "대기자 목록")
+            waitingList.forEach { waiting ->
+                WaitingListItem(
+                    meetingId = meetingId,
+                    waiting = waiting,
+                    bookingViewModel = bookingViewModel
+                )
+            }
         }
     }
 }
