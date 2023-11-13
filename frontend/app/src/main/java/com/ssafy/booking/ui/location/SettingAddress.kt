@@ -7,6 +7,7 @@ import android.os.Looper
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material.icons.Icons
@@ -33,6 +34,16 @@ import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
+import com.naver.maps.geometry.LatLng
+import com.naver.maps.map.CameraPosition
+import com.naver.maps.map.compose.CameraPositionState
+import com.naver.maps.map.compose.ExperimentalNaverMapApi
+import com.naver.maps.map.compose.MapProperties
+import com.naver.maps.map.compose.MapUiSettings
+import com.naver.maps.map.compose.Marker
+import com.naver.maps.map.compose.MarkerState
+import com.naver.maps.map.compose.NaverMap
+import com.naver.maps.map.compose.rememberCameraPositionState
 import com.ssafy.booking.R
 import com.ssafy.booking.di.App
 import com.ssafy.booking.viewmodel.AppViewModel
@@ -41,6 +52,7 @@ import com.ssafy.booking.viewmodel.LocationViewModel
 import com.ssafy.booking.viewmodel.MyPageViewModel
 import com.ssafy.data.repository.token.TokenDataSource
 import com.ssafy.domain.model.SignInRequest
+import com.ssafy.domain.model.booking.MeetingInfoResponse
 import com.ssafy.domain.model.mypage.AddressnModifyRequest
 
 // 최상단 컴포저블
@@ -50,11 +62,13 @@ fun SettingAddress(
     appViewModel: AppViewModel
 )
 {
+
     Column {
         Text(text = "내 위치 설정하기")
 //        SearchInput()
         ReadLocation()
         SetCurrentLocation()
+        SettingLocationMap()
     }
     // 제목
 }
@@ -220,4 +234,39 @@ fun SetCurrentLocation() {
         Text(text="내 위치 수정하기")
 }
 
+}
+
+@OptIn(ExperimentalNaverMapApi::class)
+@Composable
+fun SettingLocationMap() {
+    var mapProperties by remember {
+        mutableStateOf(
+            MapProperties(maxZoom = 20.0, minZoom = 5.0)
+        )
+    }
+    var mapUiSettings by remember {
+        mutableStateOf(
+            MapUiSettings(isLocationButtonEnabled = true)
+        )
+    }
+
+    // meetingInfo의 위도, 경도를 사용하여 약속장소
+    val initLat = App.prefs.getLat().toDouble()
+    val initLgt = App.prefs.getLgt().toDouble()
+    val currentLocation = LatLng(initLat, initLgt)
+    val cameraPositionState: CameraPositionState = rememberCameraPositionState {
+        // 카메라 초기 위치를 meetingInfo의 위치로 설정합니다.
+        position = CameraPosition(currentLocation, 10.0)
+    }
+
+    Box() {
+        NaverMap(properties = mapProperties, uiSettings = mapUiSettings, cameraPositionState = cameraPositionState) {
+            // meetingInfo 위치에 마커 찍기
+            Marker(
+                state = MarkerState(position = currentLocation),
+                captionText = "내 동네 위치"
+            )
+
+        }
+    }
 }
