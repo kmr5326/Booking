@@ -303,21 +303,24 @@ public class MeetingService {
     public Mono<Void> updateMeeting(String userEmail, MeetingUpdateRequest meetingUpdateRequest) {
         log.info("[Booking:Meeting] updateMeeting({}, {})", userEmail, meetingUpdateRequest);
 
-        // TODO 현재 인원 수 보다 작게 수정 불가
         return Mono.zip(MemberUtil.getMemberInfoByEmail(userEmail),
                         meetingRepository.findByMeetingId(meetingUpdateRequest.meetingId())
-                                .switchIfEmpty(Mono.error(new RuntimeException("존재하지 않는 미팅"))))
+                                .switchIfEmpty(Mono.error(new RuntimeException("존재하지 않는 미팅"))),
+                        participantService.countAllByMeetingId(meetingUpdateRequest.meetingId()))
                 .flatMap(tuple -> {
                     Integer memberId = tuple.getT1().memberPk();
                     Meeting meeting = tuple.getT2();
+                    Integer curParticipants = tuple.getT3();
 
                     if (!memberId.equals(meeting.getLeaderId())) {
                         return Mono.error(new RuntimeException("미팅 수정 권한 없음"));
-                    } else if(meeting.getMeetingState().equals(MeetingState.ONGOING)
+                    } else if (meeting.getMeetingState().equals(MeetingState.ONGOING)
                             || meeting.getMeetingState().equals(MeetingState.RESTART)) {
                         return Mono.error(new RuntimeException("진행 중에는 미팅 수정 불가"));
-                    } else if(meeting.getMeetingState().equals(MeetingState.FINISH)) {
+                    } else if (meeting.getMeetingState().equals(MeetingState.FINISH)) {
                         return Mono.error(new RuntimeException("종료 후에는 미팅 수정 불가"));
+                    } else if (curParticipants > meeting.getMaxParticipants()) {
+                        return Mono.error(new RuntimeException("현재 인원 수보다 작게 수정 불가"));
                     }
                     return handleUpdateMeeting(meeting, meetingUpdateRequest);
                 })
