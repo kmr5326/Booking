@@ -64,8 +64,6 @@ fun BookingDetail(meetingId: Long) {
         val leaderId = getBookingDetailResponse?.body()?.leaderId
         isLeadered = memberPk == leaderId?.toLong()
     }
-
-
     Scaffold(
         bottomBar = {
             if (status == "PREPARING") {

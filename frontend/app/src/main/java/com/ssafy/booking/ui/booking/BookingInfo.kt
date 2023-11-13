@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -87,7 +88,6 @@ fun BookingInfo(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .verticalScroll(rememberScrollState())
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -141,14 +141,16 @@ fun BookingInfo(
                 } ?: Text(text = "해시태그 없음")
             }
 
-            MeetingInfoTimeline(bookingDetail = bookingDetail) // 모임 정보 타임라인
         }
+        MeetingInfoTimeline(bookingDetail = bookingDetail) // 모임 정보 타임라인
+
     }
+
 
     }
 
 @Composable
-fun MeetingInfoCard(meetingInfo: MeetingInfoResponse) {
+fun MeetingInfoCard(meetingInfo: MeetingInfoResponse, isFirstItem: Boolean) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -157,14 +159,18 @@ fun MeetingInfoCard(meetingInfo: MeetingInfoResponse) {
         Column(
             modifier = Modifier.padding(16.dp)
         ) {
+            if (isFirstItem) {
+                // 첫 번째 항목에만 표시할 추가 텍스트
+                Text(text = "첫 번째 모임 정보입니다")
+                Map(meetingInfo = meetingInfo)
+
+            }
             Text(text = "모임 일정")
-            Text(text = meetingInfo.date?: "모임 일정이 아직 정해지지 않았습니다.")
+            Text(text = meetingInfo.date ?: "모임 일정이 아직 정해지지 않았습니다.")
             Text(text = "참가비")
             Text(text = "${meetingInfo.fee?: "아직 정해지지 않았습니다."}")
             Text(text = "모임 장소")
-            Text(text = meetingInfo.location?: "아직 정해지지 않았습니다.")
-            Text(text="모임 주소")
-            Text(text=meetingInfo.address?: "아직 정해지지 않았습니다.")
+            Text(text = meetingInfo.location ?: "아직 정해지지 않았습니다.")
         }
     }
 }
@@ -172,23 +178,21 @@ fun MeetingInfoCard(meetingInfo: MeetingInfoResponse) {
 @Composable
 fun MeetingInfoTimeline(bookingDetail: BookingDetail?) {
     bookingDetail?.meetingInfoList?.let { meetingInfoList ->
-        LazyColumn {
-            // 첫 번째 아이템에 대한 지도 표시
-            item {
-                if (meetingInfoList.isNotEmpty()) {
-                    Map(meetingInfoList.first())
-                }
-            }
-            // 나머지 아이템에 대한 정보 카드 표시
-            items(meetingInfoList) { meetingInfo ->
-                MeetingInfoCard(meetingInfo)
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .fillMaxHeight()
+        ) {
+            itemsIndexed(meetingInfoList) { index, meetingInfo ->
+                // 첫 번째 항목인지 여부에 따라 MeetingInfoCard 호출
+                MeetingInfoCard(meetingInfo, isFirstItem = index == 0)
             }
         }
     } ?: Text(text = "아직 모임 정보가 없습니다.")
 }
 
-
 // 지도
+//@OptIn(ExperimentalNaverMapApi::class)
 @OptIn(ExperimentalNaverMapApi::class)
 @Composable
 fun Map(meetingInfo: MeetingInfoResponse) {
@@ -210,7 +214,7 @@ fun Map(meetingInfo: MeetingInfoResponse) {
         position = CameraPosition(currentLocation, 20.0)
     }
 
-    Box(Modifier.height(200.dp).width(200.dp)) {
+    Box() {
         NaverMap(properties = mapProperties, uiSettings = mapUiSettings, cameraPositionState = cameraPositionState) {
             // meetingInfo 위치에 마커 찍기
             Marker(
