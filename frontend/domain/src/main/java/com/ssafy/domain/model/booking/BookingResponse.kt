@@ -139,6 +139,82 @@ data class BookingWaiting (
     val memberPk : Int
 )
 
+// 해시태그 기반 모임 조회
+data class BookingListByHashtag (
+    @SerializedName("meetingId")
+    val meetingId : Long,
+    @SerializedName("bookIsbn")
+    val bookIsbn : String,
+    @SerializedName("bookTitle")
+    val bookTitle : String,
+    @SerializedName("coverImage")
+    val coverImage : String,
+    @SerializedName("meetingTitle")
+    val meetingTitle : String,
+    @SerializedName("curParticipants")
+    val curParticipants : Int,
+    @SerializedName("maxParticipants")
+    val maxParticipants : Int,
+    @SerializedName("lat")
+    val lat : Double,
+    @SerializedName("lgt")
+    val lgt : Double,
+    @SerializedName("meetingState")
+    val meetingState : String,
+    @SerializedName("hashtagList")
+    val hashtagList : List<HashtagResponse>,
+)
+
+data class BookingListByMemberPk (
+    @SerializedName("meetingId")
+    val meetingId : Long,
+    @SerializedName("bookIsbn")
+    val bookIsbn : String,
+    @SerializedName("bookTitle")
+    val bookTitle : String,
+    @SerializedName("coverImage")
+    val coverImage : String,
+    @SerializedName("meetingTitle")
+    val meetingTitle : String,
+    @SerializedName("curParticipants")
+    val curParticipants : Int,
+    @SerializedName("maxParticipants")
+    val maxParticipants : Int,
+    @SerializedName("lat")
+    val lat : Double,
+    @SerializedName("lgt")
+    val lgt : Double,
+    @SerializedName("meetingState")
+    val meetingState : String,
+    @SerializedName("hashtagList")
+    val hashtagList : List<HashtagResponse>,
+)
+
+data class BookingListByTitle(
+    @SerializedName("meetingId")
+    val meetingId : Long,
+    @SerializedName("bookIsbn")
+    val bookIsbn : String,
+    @SerializedName("bookTitle")
+    val bookTitle : String,
+    @SerializedName("coverImage")
+    val coverImage : String,
+    @SerializedName("meetingTitle")
+    val meetingTitle : String,
+    @SerializedName("curParticipants")
+    val curParticipants : Int,
+    @SerializedName("maxParticipants")
+    val maxParticipants : Int,
+    @SerializedName("lat")
+    val lat : Double,
+    @SerializedName("lgt")
+    val lgt : Double,
+    @SerializedName("meetingState")
+    val meetingState : String,
+    @SerializedName("hashtagList")
+    val hashtagList : List<HashtagResponse>,
+)
+
 // 네이버 검색 api
 data class SearchResponse(
     val items : List<SearchItem>
