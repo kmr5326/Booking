@@ -73,7 +73,7 @@ public class MessageService {
         ProducerRecord<String, KafkaMessage> record = new ProducerRecord<>("Chatroom-" + chatroomId, null, null, kafkaMessage);
         record.headers().add("chatroomId", chatroomId.toString().getBytes(StandardCharsets.UTF_8));
         kafkaTemplate.send(record);
-
+        log.info(" kafka message publish success to {}", chatroomId);
         // test
         // notificationService.sendChattingNotification(kafkaMessage.getSenderId()).subscribe();
     }
