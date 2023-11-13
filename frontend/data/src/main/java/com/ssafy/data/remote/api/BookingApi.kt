@@ -4,7 +4,9 @@ import com.ssafy.domain.model.booking.BookingAll
 import com.ssafy.domain.model.booking.BookingCreateRequest
 import com.ssafy.domain.model.booking.BookingDetail
 import com.ssafy.domain.model.booking.BookingJoinRequest
+import com.ssafy.domain.model.booking.BookingModifyRequest
 import com.ssafy.domain.model.booking.BookingParticipants
+import com.ssafy.domain.model.booking.BookingRejectRequest
 import com.ssafy.domain.model.booking.BookingStartRequest
 import com.ssafy.domain.model.booking.BookingWaiting
 import com.ssafy.domain.model.booking.SearchResponse
@@ -14,6 +16,7 @@ import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Headers
+import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -50,6 +53,10 @@ interface BookingApi {
     suspend fun postBookingAccept(@Path("meetingId") meetingId: Long,@Path("memberId") memberId: Int,@Body request: BookingAcceptRequest): Response<Unit>
 
     @Headers("Content-Type: application/json;charset=UTF-8")
+    @POST("/api/booking/meeting/{meetingId}/reject/{memberId}")
+    suspend fun postBookingReject(@Path("meetingId") meetingId: Long,@Path("memberId") memberId: Int,@Body request: BookingRejectRequest): Response<Unit>
+
+    @Headers("Content-Type: application/json;charset=UTF-8")
     @POST("/api/booking/meeting/info/")
     suspend fun postBookingStart(@Body request: BookingStartRequest): Response<Unit>
 
@@ -64,4 +71,8 @@ interface BookingApi {
         @Query("start") start: Int,    // start도 마찬가지로 Int 타입이 적합, 이거 안 되면 String
         @Query("sort") sort: String
     ): Response<SearchResponse>
+
+    @Headers("Content-Type: application/json;charset=UTF-8")
+    @PATCH("/api/booking/meeting/")
+    suspend fun patchBookingDetail(@Body request: BookingModifyRequest): Response<Unit>
 }

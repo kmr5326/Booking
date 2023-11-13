@@ -1,5 +1,6 @@
 package com.ssafy.booking.viewmodel
 
+import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -31,6 +32,7 @@ class LocationViewModel @Inject constructor(
             if (response.isSuccessful) {
                 // 성공적인 응답 처리
                 _getAddressResponse.value = response
+                Log.d("위경도변환",response.body().toString())
             } else {
                 // 에러 응답 처리
                 errorMessage.value = response.errorBody()?.string() ?: "에러1"

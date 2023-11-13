@@ -8,6 +8,7 @@ import com.ssafy.domain.model.DeviceToken
 import com.ssafy.domain.model.booking.HashtagResponse
 import com.ssafy.domain.model.google.AccountInfo
 import dagger.hilt.android.qualifiers.ApplicationContext
+import okhttp3.internal.cache2.Relay.Companion.edit
 import javax.inject.Inject
 
 class TokenDataSource @Inject constructor(
@@ -30,6 +31,10 @@ class TokenDataSource @Inject constructor(
         private const val MEETING_ID = "meeting_id"
         private const val MAX_PARTICIPANTS = "max_participants"
         private const val HASHTAG_LIST = "hashtag_list"
+        private const val MEETING_LGT = "meeting_lgt"
+        private const val MEETING_LAT = "meeting_lat"
+        private const val MEETING_ADDRESS = "meeting_address"
+        private const val MEETING_LOCATION = "meeting_location"
 
     }
     private fun getTokenPreference(context: Context) : SharedPreferences {
@@ -39,7 +44,7 @@ class TokenDataSource @Inject constructor(
     private val editor by lazy { prefs.edit() }
     private val gson = Gson()
 
-    private fun putString(key: String, data: String?) {
+    fun putString(key: String, data: String?) {
         editor.putString(key, data)
         editor.apply()
     }
@@ -269,18 +274,58 @@ class TokenDataSource @Inject constructor(
         putInt(MAX_PARTICIPANTS, 1)
     }
 
-    // 해시태그 리스트
-    fun putHashtagList(key: String, data: List<HashtagResponse>) {
-        val json = gson.toJson(data)
-        putString(key, json)
-
-    fun getHashtagList(key: String): List<HashtagResponse>? {
-        val json = getString(key)
-        return if (json != null) gson.fromJson(
-            json,
-            object : TypeToken<List<HashtagResponse>>() {}.type
-        )
-        else null
+    // 리스트를 JSON 문자열로 변환하여 저장하는 함수
+    fun putHashtagList(list: List<HashtagResponse>?) {
+        val gson = Gson()
+        val json = gson.toJson(list)
+        putString("hashtagList", json)
     }
+
+    fun putMeetingLgt(lgt: Double) {
+        putLong(MEETING_LGT, lgt.toLong())
+    }
+    fun getMeetingLgt() : Double? {
+        return getLong(MEETING_LGT).toDouble()
+    }
+    fun removeMeetingLgt() {
+        putLong(MEETING_LGT, 0L)
+    }
+    fun putMeetingLat(lat: Double) {
+        putLong(MEETING_LAT, lat.toLong())
+    }
+    fun getMeetingLat() : Double? {
+        return getLong(MEETING_LAT).toDouble()
+    }
+    fun removeMeetingLat() {
+        putLong(MEETING_LAT, 0L)
+    }
+    fun putMeetingAddress(address: String?) {
+        putString(MEETING_ADDRESS, address)
+    }
+    fun getMeetingAddress() : String? {
+        return getString(MEETING_ADDRESS)
+    }
+    fun removeMeetingAddress() {
+        putString(MEETING_ADDRESS, null)
+    }
+    fun putMeetingLocation(location: String?) {
+        putString(MEETING_LOCATION, location)
+    }
+    fun getMeetingLocation() : String? {
+        return getString(MEETING_LOCATION)
+    }
+    fun removeMeetingLocation() {
+        putString(MEETING_LOCATION, null)
+    }
+
+
+    // 해시태그 리스트
+    // 리스트를 JSON 문자열로 변환하여 저장하는 함수
+// SharedPreferences에서 리스트를 읽는 함수
+    fun getHashtagList(): List<HashtagResponse> {
+        val gson = Gson()
+        val json = getString("hashtagList", "")
+        val type = object : TypeToken<List<HashtagResponse>>() {}.type
+        return gson.fromJson(json, type) ?: emptyList()
     }
 }

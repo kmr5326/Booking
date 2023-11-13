@@ -146,6 +146,10 @@ fun SearchResult(bookingViewModel: BookingViewModel,locationViewModel: LocationV
                                 bookingViewModel.lgt.value = item.x
                                 bookingViewModel.placeName.value = item.placeName
                                 showSearchResults.value = false
+                                App.prefs.putMeetingLat(item.y.toDouble())
+                                App.prefs.putMeetingLgt(item.x.toDouble())
+                                App.prefs.putMeetingAddress(item.addressName)
+                                App.prefs.putMeetingLocation(item.placeName)
                             },
                     ) {
                         Column(
