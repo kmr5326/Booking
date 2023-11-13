@@ -40,4 +40,14 @@ public class MeetingInfoService {
                     return Mono.error(new RuntimeException("미팅정보 목록 조회 실패"));
                 });
     }
+
+    public Mono<MeetingInfo> findByMeetingId(Long meetingId) {
+        log.info("[Booking:MeetingInfo] findByMeetingId({})", meetingId);
+
+        return meetingInfoRepository.findLatestByMeetingId(meetingId)
+                .onErrorResume(error -> {
+                    log.error("[Booking:MeetingInfo ERROR] findByMeetingId : {}", error.getMessage());
+                    return Mono.error(new RuntimeException("미팅정보 목록 조회 실패"));
+                });
+    }
 }

@@ -37,6 +37,8 @@ import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.LocalDateTime;
+
 @Slf4j
 @RequiredArgsConstructor
 @Service
@@ -304,21 +306,24 @@ public class MeetingService {
     public Mono<Void> updateMeeting(String userEmail, MeetingUpdateRequest meetingUpdateRequest) {
         log.info("[Booking:Meeting] updateMeeting({}, {})", userEmail, meetingUpdateRequest);
 
-        // TODO 현재 인원 수 보다 작게 수정 불가
         return Mono.zip(memberUtil.getMemberInfoByEmail(userEmail),
                         meetingRepository.findByMeetingId(meetingUpdateRequest.meetingId())
-                                .switchIfEmpty(Mono.error(new RuntimeException("존재하지 않는 미팅"))))
+                                .switchIfEmpty(Mono.error(new RuntimeException("존재하지 않는 미팅"))),
+                        participantService.countAllByMeetingId(meetingUpdateRequest.meetingId()))
                 .flatMap(tuple -> {
                     Integer memberId = tuple.getT1().memberPk();
                     Meeting meeting = tuple.getT2();
+                    Integer curParticipants = tuple.getT3();
 
                     if (!memberId.equals(meeting.getLeaderId())) {
                         return Mono.error(new RuntimeException("미팅 수정 권한 없음"));
-                    } else if(meeting.getMeetingState().equals(MeetingState.ONGOING)
+                    } else if (meeting.getMeetingState().equals(MeetingState.ONGOING)
                             || meeting.getMeetingState().equals(MeetingState.RESTART)) {
                         return Mono.error(new RuntimeException("진행 중에는 미팅 수정 불가"));
-                    } else if(meeting.getMeetingState().equals(MeetingState.FINISH)) {
+                    } else if (meeting.getMeetingState().equals(MeetingState.FINISH)) {
                         return Mono.error(new RuntimeException("종료 후에는 미팅 수정 불가"));
+                    } else if (curParticipants > meeting.getMaxParticipants()) {
+                        return Mono.error(new RuntimeException("현재 인원 수보다 작게 수정 불가"));
                     }
                     return handleUpdateMeeting(meeting, meetingUpdateRequest);
                 })
@@ -354,9 +359,9 @@ public class MeetingService {
                     return handleDeleteMeeting(meetingId);
                 })
                 .onErrorResume(error -> {
-                        log.error("[Booking:Meeting ERROR] deleteMeeting : {}", error.getMessage());
-                        return Mono.error(new RuntimeException("미팅 삭제 실패"));
-                    });
+                    log.error("[Booking:Meeting ERROR] deleteMeeting : {}", error.getMessage());
+                    return Mono.error(new RuntimeException("미팅 삭제 실패"));
+                });
     }
 
     private Mono<Void> handleDeleteMeeting(Long meetingId) {
@@ -422,12 +427,65 @@ public class MeetingService {
                 .then();
     }
 
+    private double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
+        final double EARTH_RADIUS = 6371000;
+
+        double lat1Rad = Math.toRadians(lat1);
+        double lon1Rad = Math.toRadians(lon1);
+        double lat2Rad = Math.toRadians(lat2);
+        double lon2Rad = Math.toRadians(lon2);
+
+        double c = Math.acos(Math.cos(lat1Rad) * Math.cos(lat2Rad) * Math.cos(lon2Rad-lon1Rad)
+                + Math.sin(lat1Rad) * Math.sin(lat2Rad)) ;
+
+        // 거리 (미터 단위)
+        return EARTH_RADIUS * c;
+    }
+
     public Mono<Void> attendMeeting(String userEmail, MeetingAttendRequest meetingAttendRequest) {
         log.info("[Booking:Meeting] attendMeeting({}, {})", userEmail, meetingAttendRequest);
 
+        return Mono.zip(meetingRepository.findByMeetingId(meetingAttendRequest.meetingId())
+                                .switchIfEmpty(Mono.error(new RuntimeException("존재하지 않는 모임"))),
+                        memberUtil.getMemberInfoByEmail(userEmail))
+                .flatMap(tuple -> {
+                    Meeting meeting = tuple.getT1();
+                    MemberResponse member = tuple.getT2();
 
+                    if (!meeting.getMeetingState().equals(MeetingState.ONGOING)) {
+                        return Mono.error(new RuntimeException("진행 중인 모임 아님"));
+                    }
+                    return handleAttendMeeting(member.memberPk(), meetingAttendRequest);
+                })
+                .onErrorResume(error -> {
+                    log.error("[Booking:Meeting ERROR] attendMeeting : {}", error.getMessage());
+                    return Mono.error(error);
+                });
+    }
 
-        return Mono.empty();
+    private Mono<Void> handleAttendMeeting(Integer memberId, MeetingAttendRequest meetingAttendRequest) {
+        return participantService.existsByMeetingIdAndMemberId(meetingAttendRequest.meetingId(), memberId)
+                .flatMap(exists -> {
+                    if (!exists) {
+                        return Mono.error(new RuntimeException("모임 참가자가 아님"));
+                    }
+
+                    LocalDateTime now = LocalDateTime.now();
+                    return meetingInfoService.findByMeetingId(meetingAttendRequest.meetingId())
+                            .flatMap(meetingInfo -> {
+                                LocalDateTime meetingTime = meetingInfo.getDate();
+                                if (calculateDistance(meetingInfo.getLat(), meetingInfo.getLgt(),
+                                        meetingAttendRequest.lat(), meetingAttendRequest.lgt()) > 100) {
+                                    return Mono.error(new RuntimeException("거리가 너무 멀다"));
+                                } else if (now.isBefore(meetingTime.minusMinutes(10))
+                                        || now.isAfter(meetingTime.plusMinutes(10))) {
+                                    return Mono.error(new RuntimeException("출석 시간 아님"));
+                                } else {
+                                    return participantStateService.attendMeeting(meetingInfo);
+                                }
+                            })
+                            .then();
+                });
     }
 
     public Mono<Post> createPost(String userEmail, PostRequest postRequest) {
