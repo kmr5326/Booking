@@ -1,5 +1,6 @@
 package com.ssafy.booking.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ssafy.domain.model.google.AccountInfo
@@ -16,7 +17,9 @@ class MainViewModel @Inject constructor(
     val accountInfo = accountUseCase.getAccountInfo()
 
     fun signInGoogle(accountInfo: AccountInfo) {
+        Log.d("구글로그인!","test")
         viewModelScope.launch {
+            Log.d("구글로그인!","$accountInfo")
             accountUseCase.signInGoogle(accountInfo)
         }
     }

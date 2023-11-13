@@ -9,6 +9,7 @@ import com.ssafy.booking.model.MyBookState
 import com.ssafy.domain.model.mybook.MyBookListResponse
 import com.ssafy.domain.model.mybook.MyBookMemoRegisterRequest
 import com.ssafy.domain.model.mybook.MyBookRegisterRequest
+import com.ssafy.domain.model.mybook.Notes
 import com.ssafy.domain.usecase.MyBookUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -43,11 +44,20 @@ class MyBookViewModel @Inject constructor(
             }
         }
     // 내 서재 상세 조회
+    private val _notesList = MutableLiveData<List<Notes>>()
+    val notesList: LiveData<List<Notes>> get() = _notesList
+
     private val _myBookDetailResponse = MutableLiveData<Response<MyBookListResponse>>()
     val myBookDetailResponse : LiveData<Response<MyBookListResponse>> get() = _myBookDetailResponse
     fun getMyBookDetailResponse(memberPk: Long, isbn: String) =
         viewModelScope.launch {
-            _myBookDetailResponse.value = myBookUseCase.getBookDetail(memberPk, isbn)
+            val response = myBookUseCase.getBookDetail(memberPk, isbn)
+            _myBookDetailResponse.value = response
+            response.body()?.let {response ->
+                 _notesList.value = response.notes ?: emptyList()
+            } ?: run {
+                Log.d("메모가져오기", "메모 가져오던 중 에러 발생")
+            }
         }
 
     private val _postBookRegisterResult = MutableLiveData<Response<Unit>>()
@@ -62,8 +72,12 @@ class MyBookViewModel @Inject constructor(
     private val _postBookMemoResult = MutableLiveData<Response<Unit>>()
     val postBookMemoResult : LiveData<Response<Unit>> get() = _postBookMemoResult
 
-    fun postBookMemo(request: MyBookMemoRegisterRequest) =
+    fun postBookMemo(request: MyBookMemoRegisterRequest, createdAt: String) =
         viewModelScope.launch {
+            val currentList = _notesList.value.orEmpty()
+            val updatedList = currentList + Notes(request.content, createdAt)
+            _notesList.value = updatedList
+
             _postBookMemoResult.value = myBookUseCase.postBookMemo(request)
         }
 

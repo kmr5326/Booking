@@ -53,6 +53,7 @@ import com.ssafy.booking.viewmodel.MyBookViewModel
 import com.ssafy.data.repository.token.TokenDataSource
 import com.ssafy.domain.model.mybook.MyBookMemoRegisterRequest
 import com.ssafy.domain.model.mybook.MyBookRegisterRequest
+import java.time.LocalDate.now
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -199,7 +200,7 @@ fun CreateMyBook(
                                 isbn= book.isbn,
                                 content = memo
                             )
-                            viewModel.postBookMemo(memoType)
+                            viewModel.postBookMemo(memoType, now().toString())
                         }
                         val bookRegisterInfo = MyBookRegisterRequest(
                             memberPk = memberPk,

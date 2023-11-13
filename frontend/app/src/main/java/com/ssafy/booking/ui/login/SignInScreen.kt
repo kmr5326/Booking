@@ -51,6 +51,7 @@ import com.google.android.gms.location.LocationServices
 import com.ssafy.booking.R
 import com.ssafy.booking.ui.AppNavItem
 import com.ssafy.booking.ui.LocalNavigation
+import com.ssafy.booking.viewmodel.MainViewModel
 import com.ssafy.booking.viewmodel.SignInViewModel
 import com.ssafy.data.repository.token.TokenDataSource
 import com.ssafy.domain.model.SignInRequest
@@ -66,6 +67,7 @@ fun SignInScreen(
     var permissionsGranted by remember { mutableStateOf(false) }
 
     val viewModel: SignInViewModel = hiltViewModel()
+    val googleViewModel : MainViewModel = hiltViewModel()
     val signInResponse: Response<String>? by viewModel.signInResponse.observeAsState()
 
     val navController = LocalNavigation.current
@@ -88,6 +90,8 @@ fun SignInScreen(
             } else {
                 // 에러 처리
                 Log.i("token", "${signInResponse?.code()}")
+                Log.i("token", "${signInResponse?.errorBody()!!.string()}")
+                Log.i("token", "${signInResponse?.body()}")
                 if (signInResponse?.code() == 400) {
                     // 닉네임 중복
                     setIsNickNameError(true)
@@ -133,6 +137,7 @@ fun SignInScreen(
     val years = (2023 downTo 1950).map { it.toString() }
     val months = (1..12).map { it.toString() }
     val days = (1..31).map { it.toString() }
+    val providerType = loginId.substring(0,5)
 
     val genderOptions = listOf("FEMALE", "MALE")
 
@@ -359,24 +364,46 @@ fun SignInScreen(
                 if (!isError) {
                     Button(
                         onClick = {
-                        val request = SignInRequest(
-                            loginId = loginId,
-                            address = myLocation,
-                            age = 2023 - selectedYear.toInt(),
-                            email = email,
-                            fullName = name,
-                            gender = selectedGender,
-                            nickname = nickName,
-                            profileImage = null,
-                            provider = "kakao"
-                        )
-                        viewModel.signIn(request)},
+                            if(providerType == "kakao") {
+                                val request = SignInRequest(
+                                    loginId = loginId,
+                                    address = myLocation,
+                                    age = 2023 - selectedYear.toInt(),
+                                    email = email,
+                                    fullName = name,
+                                    gender = selectedGender,
+                                    nickname = nickName,
+                                    profileImage = null,
+                                    provider = "kakao"
+                                )
+                                viewModel.signIn(request)
+                            } else {
+                                val request = SignInRequest(
+                                    loginId = loginId,
+                                    address = myLocation,
+                                    age = 2023 - selectedYear.toInt(),
+                                    email = email,
+                                    fullName = name,
+                                    gender = selectedGender,
+                                    nickname = nickName,
+                                    profileImage = null,
+                                    provider = "google"
+                                )
+                                viewModel.signIn(request)
+                            }
+                        },
                         colors = ButtonDefaults.buttonColors(
                             containerColor = colorResource(id = R.color.booking_1),
                             contentColor = colorResource(id = R.color.font_color)
                         )
                         ) {
                         Text(text = "회원 가입")
+                    }
+                    Button(onClick = {
+                        googleViewModel.signOutGoogle()
+                        navController.navigate("login")
+                    }) {
+                        Text(text = "돌아가기")
                     }
                 }
             }
