@@ -306,7 +306,7 @@ public class MeetingService {
     public Mono<Void> updateMeeting(String userEmail, MeetingUpdateRequest meetingUpdateRequest) {
         log.info("[Booking:Meeting] updateMeeting({}, {})", userEmail, meetingUpdateRequest);
 
-        return Mono.zip(MemberUtil.getMemberInfoByEmail(userEmail),
+        return Mono.zip(memberUtil.getMemberInfoByEmail(userEmail),
                         meetingRepository.findByMeetingId(meetingUpdateRequest.meetingId())
                                 .switchIfEmpty(Mono.error(new RuntimeException("존재하지 않는 미팅"))),
                         participantService.countAllByMeetingId(meetingUpdateRequest.meetingId()))
@@ -447,7 +447,7 @@ public class MeetingService {
 
         return Mono.zip(meetingRepository.findByMeetingId(meetingAttendRequest.meetingId())
                                 .switchIfEmpty(Mono.error(new RuntimeException("존재하지 않는 모임"))),
-                        MemberUtil.getMemberInfoByEmail(userEmail))
+                        memberUtil.getMemberInfoByEmail(userEmail))
                 .flatMap(tuple -> {
                     Meeting meeting = tuple.getT1();
                     MemberResponse member = tuple.getT2();
