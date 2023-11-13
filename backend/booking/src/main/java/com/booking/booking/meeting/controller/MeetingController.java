@@ -1,6 +1,7 @@
 package com.booking.booking.meeting.controller;
 
 import com.booking.booking.global.utils.JwtUtil;
+import com.booking.booking.meeting.dto.request.MeetingAttendRequest;
 import com.booking.booking.meeting.dto.request.MeetingRequest;
 import com.booking.booking.meeting.dto.request.MeetingUpdateRequest;
 import com.booking.booking.meeting.dto.response.MeetingDetailResponse;
@@ -192,12 +193,12 @@ public class MeetingController {
                         Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, error.getMessage())));
     }
 
-    @PatchMapping("/attend/{meetingId}")
+    @PatchMapping("/attend")
     public Mono<ResponseEntity<Void>> attendMeeting(@RequestHeader(AUTHORIZATION) String token,
-                                                    @PathVariable Long meetingId) {
+                                                    @RequestBody MeetingAttendRequest meetingAttendRequest) {
         String userEmail = JwtUtil.getLoginEmailByToken(token);
 
-        return meetingService.attendMeeting(userEmail, meetingId)
+        return meetingService.attendMeeting(userEmail, meetingAttendRequest)
                 .thenReturn(ResponseEntity.ok().<Void>build())
                 .onErrorResume(error ->
                         Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, error.getMessage())));
