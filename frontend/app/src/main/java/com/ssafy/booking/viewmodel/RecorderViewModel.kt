@@ -6,7 +6,13 @@ import android.os.Environment
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -26,6 +32,15 @@ class RecorderViewModel @Inject constructor(
     private val _recordingState = MutableLiveData<RecordingState>(RecordingState.STOPPED)
     val recordingState: LiveData<RecordingState> = _recordingState
     private var recordingFilePath: String? = null
+
+    // 녹음 시간
+    private var recordingStartTime = 0L
+    private val _recordingDuration = MutableLiveData<Long>(0)
+    val recordingDuration: LiveData<Long> = _recordingDuration
+
+    // 녹음 파형
+    private val _amplitude = MutableLiveData<Int>()
+    val amplitude: LiveData<Int> = _amplitude
 
     init {
         setupRecordingFilePath()
@@ -55,18 +70,23 @@ class RecorderViewModel @Inject constructor(
             }
             prepare()
         }
+        recordingStartTime = System.currentTimeMillis()
         mediaRecorder?.start()
+        startTimer()
         _recordingState.value = RecordingState.STARTED
     }
 
     fun pauseRecording() {
         mediaRecorder?.pause()
         _recordingState.value = RecordingState.PAUSED
+        stopTimer()
     }
 
     fun resumeRecording() {
         mediaRecorder?.resume()
         _recordingState.value = RecordingState.RESUMED
+        recordingStartTime = System.currentTimeMillis() - _recordingDuration.value!!
+        startTimer()
     }
 
     fun stopRecording() {
@@ -79,10 +99,33 @@ class RecorderViewModel @Inject constructor(
         } else {
             // 파일이 없는 경우, 다운로드 불가능 알림
         }
+        stopTimer()
+    }
+
+    private var timerJob: Job? = null
+    private fun startTimer() {
+        timerJob = viewModelScope.launch(Dispatchers.IO) {
+            while (isActive) {
+                val currentTime = System.currentTimeMillis()
+                _recordingDuration.postValue(currentTime - recordingStartTime)
+                _amplitude.postValue(mediaRecorder?.maxAmplitude ?: 0)
+                delay(50)
+            }
+        }
+    }
+    private fun stopTimer() {
+        timerJob?.cancel()
     }
 
     private fun checkFileExists(filePath: String?): Boolean {
         return filePath != null && File(filePath).exists()
+    }
+
+    fun convertMillisToTimeFormat(millis: Int): String {
+        val totalSeconds = millis / 1000
+        val minutes = totalSeconds / 60
+        val seconds = totalSeconds % 60
+        return String.format("%02d:%02d", minutes, seconds)
     }
 
     override fun onCleared() {

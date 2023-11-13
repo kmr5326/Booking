@@ -30,15 +30,22 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.geometry.Offset
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -48,6 +55,7 @@ import com.ssafy.booking.viewmodel.PlayerViewModel
 import com.ssafy.booking.viewmodel.RecordingState
 import com.ssafy.booking.R
 import com.ssafy.booking.viewmodel.RecorderViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
 
 
 @Composable
@@ -56,6 +64,8 @@ fun RecordController(
     val context = LocalContext.current
     val recorderViewModel: RecorderViewModel = hiltViewModel()
     val recordingState by recorderViewModel.recordingState.observeAsState(RecordingState.STOPPED)
+
+    val recordingDuration by recorderViewModel.recordingDuration.observeAsState(0)
 
     // 권한 요청
     val requestPermissionLauncher = rememberLauncherForActivityResult(
@@ -103,9 +113,12 @@ fun RecordController(
         // 나머지 컨트롤 - 중앙 정렬
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-            modifier = Modifier.align(Alignment.Center)
+            verticalArrangement = Arrangement.Center, // 요소들을 상단과 하단에 분산 배치
+            modifier = Modifier.fillMaxSize()
         ) {
+            Spacer(modifier = Modifier.padding(40.dp))
+            AmplitudeIndicator()
+            Spacer(modifier = Modifier.padding(40.dp))
             // 시작
             if (recordingState == RecordingState.STOPPED) {
                 IconButton(
@@ -154,6 +167,49 @@ fun RecordController(
                     )
                 }
             }
+            Text(text="${recorderViewModel.convertMillisToTimeFormat(recordingDuration.toInt())}")
         }
     }
 }
+
+@Composable
+fun AmplitudeIndicator(
+
+) {
+    val recorderViewModel: RecorderViewModel = hiltViewModel()
+    val amplitude by recorderViewModel.amplitude.observeAsState(0)
+    val amplitudes = remember { mutableStateListOf<Int>() }
+
+    LaunchedEffect(amplitude) {
+        amplitudes.add(0, amplitude)
+        if (amplitudes.size > MAX_AMPLITUDE_SIZE) {
+            amplitudes.removeLast()
+        }
+    }
+
+    Canvas(modifier = Modifier
+        .fillMaxWidth()
+        .height(200.dp)) {
+        val centerY = size.height / 2
+        val maxAmplitudeHeight = size.height * 1f  // 그래프의 최대 높이
+        var offsetX = size.width
+
+        amplitudes.forEach { currentAmplitude ->
+            val lineLength = (currentAmplitude / MAX_AMPLITUDE).toFloat() * maxAmplitudeHeight
+            offsetX -= LINE_SPACE
+            if (offsetX < 0) return@forEach
+
+            drawLine(
+                color = Color(0xFF00C68E),
+                start = Offset(offsetX, centerY - lineLength / 2),
+                end = Offset(offsetX, centerY + lineLength / 2),
+                strokeWidth = LINE_WIDTH
+            )
+        }
+    }
+}
+
+private const val MAX_AMPLITUDE = 32767f
+private const val MAX_AMPLITUDE_SIZE = 100  // 표시할 최대 진폭 수
+private const val LINE_WIDTH = 5f
+private const val LINE_SPACE = 10f
