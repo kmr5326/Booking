@@ -14,6 +14,7 @@ import com.ssafy.data.remote.api.BookingApi
 import com.ssafy.data.remote.api.ChatApi
 import com.ssafy.data.remote.api.FirebaseApi
 import com.ssafy.data.remote.api.GoogleApi
+import com.ssafy.data.remote.api.KakaoPayApi
 import com.ssafy.data.remote.api.LocationApi
 import com.ssafy.data.remote.api.MemberApi
 import com.ssafy.data.remote.api.MyBookApi
@@ -148,6 +149,12 @@ class NetworkModule {
     @Singleton
     fun provideLocationApi(@Named("defaultRetrofit") retrofit: Retrofit) : LocationApi {
         return retrofit.create(LocationApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideKakaoPayApi(@Named("defaultRetrofit") retrofit: Retrofit) : KakaoPayApi {
+        return retrofit.create(KakaoPayApi::class.java)
     }
 
 //    @Provides
