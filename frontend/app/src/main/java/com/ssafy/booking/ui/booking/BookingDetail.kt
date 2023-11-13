@@ -99,21 +99,21 @@ fun BookingJoinRequestButton(meetingId: Long) {
         Column(
             modifier = Modifier.padding(paddingValues)
         ) {
-            Button(onClick = {
-                navController.navigate(AppNavItem.BookingSetLocation.route)
-            }) {
-                Text(text = "로케이트")
-            }
-            Button(onClick = {
-                navController.navigate(AppNavItem.BookingSetTitle.route)
-            }) {
-                Text(text = "타이틀")
-            }
-            Button(onClick = {
-                navController.navigate(AppNavItem.BookingSetDateAndFee.route)
-            }) {
-                Text(text = "데이트타임")
-            }
+//            Button(onClick = {
+//                navController.navigate(AppNavItem.BookingSetLocation.route)
+//            }) {
+//                Text(text = "로케이트")
+//            }
+//            Button(onClick = {
+//                navController.navigate(AppNavItem.BookingSetTitle.route)
+//            }) {
+//                Text(text = "타이틀")
+//            }
+//            Button(onClick = {
+//                navController.navigate(AppNavItem.BookingSetDateAndFee.route)
+//            }) {
+//                Text(text = "데이트타임")
+//            }
         }
     }
 }
