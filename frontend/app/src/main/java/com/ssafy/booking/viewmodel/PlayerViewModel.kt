@@ -71,5 +71,6 @@ class PlayerViewModel @Inject constructor(
     override fun onCleared() {
         super.onCleared()
         _sliderPosition.value = 0
+        _totalDuration.value = 0
     }
 }
