@@ -54,6 +54,7 @@ fun SettingAddress(
         Text(text = "내 위치 설정하기")
 //        SearchInput()
         ReadLocation()
+        SetCurrentLocation()
     }
     // 제목
 }
@@ -64,36 +65,33 @@ fun ReadLocation() {
     val locationViewModel: LocationViewModel = hiltViewModel()
     val isLoading = locationViewModel.isLoading.value
 //    val addressData = locationViewModel.getAddressResponse.value
-    val addressData by locationViewModel.getAddressResponse.observeAsState()
+    val addressData by locationViewModel.initialAddressResponse.observeAsState()
     val errorMessage = locationViewModel.errorMessage.value
-
+    val (myAddress, setMyAddress) = remember { mutableStateOf("") }
     LaunchedEffect(Unit) {
-        val lat = App.prefs.getLat().toString()
-        val lgt = App.prefs.getLgt().toString()
-        locationViewModel.getAddress(lat, lgt)
-        Log.d("위치",addressData.toString())
+        if (myAddress == "") {
+            val lat = App.prefs.getLat().toString()
+            val lgt = App.prefs.getLgt().toString()
+            locationViewModel.getInitialAddress(lat,lgt)
+            val address = addressData?.body()?.documents?.firstOrNull()?.address?.addressName
+            setMyAddress(address?: "")
+//        Log.d("위치",addressData.toString())
+        }
     }
     Row() {
         if (isLoading) {
             Text(text = "주소 정보를 불러오는 중")
         } else {
-            if (addressData != null) {
-//                Text(text = addressData.body()?.documents?.get(0).toString())
-                val addressName = addressData!!.body()?.documents?.firstOrNull()?.address?.addressName
-//                val region1 = addressData.body()?.documents?.firstOrNull()?.address?.region2DepthName
-//                val region2 = addressData.body()?.documents?.firstOrNull()?.address?.region3DepthName
-                Text(text = addressName ?: "주소 정보가 없습니다.")
-
+            if (myAddress != "") {
+                Text(text = myAddress ?: "주소 정보가 없습니다.")
             } else {
                 Text(text = "주소가 없습니다.")
             }
         }
         if (errorMessage != null) {
-            Text(text = errorMessage)
+            Text(text = "주소를 불러오지 못했습니다. 서비스 지역이 아닌 지 확인해주세요.")
         }
-
     }
-    SetCurrentLocation()
 }
 
 @Composable
@@ -169,22 +167,16 @@ fun SetCurrentLocation() {
     }
     LaunchedEffect(myLocation) {
         // 리턴 @LaunchedEffect 하면 나머지 코드 블럭 실행 안 하고 종료.
-        val (lat, lgt) = extractLatitudeLongitude(myLocation) ?: return@LaunchedEffect
 
-        Log.d("위치",myLocation)
-        Log.d("위치",lat.toString())
-        Log.d("위치",lgt.toString())
-
-        locationViewModel.getAddress(lgt.toString(), lat.toString())
-        // 이상한 곳에 위경도를 쏘면 주소가 안 뜨는데, 그럴 때는 주소를 불러오지 않음.
-        if (getAddressResponse?.body()?.documents!!.isNotEmpty()) {
-            setAddressName(getAddressResponse?.body()?.documents?.firstOrNull()?.address?.addressName!!)
-        }
     }
 
     if (addressName != "") {
         Text(text="현재 내 위치")
         Text(text = addressName)
+    }
+    else {
+        Text(text="현재 내 위치")
+        Text(text = "주소를 불러오지 못했습니다.")
     }
     Button(
         onClick = {
@@ -194,15 +186,26 @@ fun SetCurrentLocation() {
                     Manifest.permission.ACCESS_COARSE_LOCATION
                 )
             )
+            val (lat, lgt) = extractLatitudeLongitude(myLocation) ?: return@Button
+
+            Log.d("위치",myLocation)
+            Log.d("위치",lat.toString())
+            Log.d("위치",lgt.toString())
+            // 경도,위도 쏴서 주소 받아오기.
+            locationViewModel.getAddress(lat.toString(), lgt.toString())
+            // 이상한 곳에 위경도를 쏘면 주소가 안 뜨는데, 그럴 때는 주소를 불러오지 않음.
+            if (getAddressResponse?.body()?.documents?.isNotEmpty() == true) {
+                setAddressName(getAddressResponse?.body()?.documents?.firstOrNull()?.address?.addressName ?: return@Button)
+            }
                   },
         colors = ButtonDefaults.buttonColors(
             containerColor = colorResource(id = R.color.booking_1),
             contentColor = colorResource(id = R.color.font_color)
         )
     ) {
-            Icon(Icons.Outlined.LocationOn, contentDescription = null, tint = Color(0xFF12BD7E))
+            Icon(Icons.Outlined.LocationOn, contentDescription = null, tint = Color(0xFFffffff))
             Text(text = "현재 내 위치 불러오기")
-            Icon(Icons.Outlined.KeyboardArrowRight, contentDescription = null, tint = Color(0xFF12BD7E))
+            Icon(Icons.Outlined.KeyboardArrowRight, contentDescription = null, tint = Color(0xFFffffff))
     }
 
     Button(

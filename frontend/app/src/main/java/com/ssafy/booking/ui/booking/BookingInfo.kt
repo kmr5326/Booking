@@ -3,6 +3,7 @@ package com.ssafy.booking.ui.booking
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -12,9 +13,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Card
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -33,11 +38,22 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberImagePainter
 import com.google.gson.Gson
+import com.naver.maps.geometry.LatLng
+import com.naver.maps.map.CameraPosition
+import com.naver.maps.map.compose.CameraPositionState
+import com.naver.maps.map.compose.ExperimentalNaverMapApi
+import com.naver.maps.map.compose.MapProperties
+import com.naver.maps.map.compose.MapUiSettings
+import com.naver.maps.map.compose.Marker
+import com.naver.maps.map.compose.MarkerState
+import com.naver.maps.map.compose.NaverMap
+import com.naver.maps.map.compose.rememberCameraPositionState
 import com.ssafy.booking.R
 import com.ssafy.booking.di.App
 import com.ssafy.booking.viewmodel.BookingViewModel
 import com.ssafy.domain.model.booking.BookingDetail
 import com.ssafy.domain.model.booking.HashtagResponse
+import com.ssafy.domain.model.booking.MeetingInfoResponse
 
 @Composable
 fun BookingInfo(
@@ -125,16 +141,82 @@ fun BookingInfo(
                 } ?: Text(text = "해시태그 없음")
             }
 
-            val meetingInfo = bookingDetail?.meetingInfoList?.lastOrNull()
-            Text(text = "모임 일정")
-            Text(text = "${meetingInfo?.date ?: "모임 일정이 아직 정해지지 않았습니다."}")
-
-            Text(text = "참가비")
-            Text(text = "${meetingInfo?.fee ?: "아직 정해지지 않았습니다."}")
-            Text(text = "모임 장소")
-            Text(text = " ${meetingInfo?.location ?: "아직 정해지지 않았습니다."}")
+            MeetingInfoTimeline(bookingDetail = bookingDetail) // 모임 정보 타임라인
         }
     }
 
     }
 
+@Composable
+fun MeetingInfoCard(meetingInfo: MeetingInfoResponse) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp),
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
+            Text(text = "모임 일정")
+            Text(text = meetingInfo.date?: "모임 일정이 아직 정해지지 않았습니다.")
+            Text(text = "참가비")
+            Text(text = "${meetingInfo.fee?: "아직 정해지지 않았습니다."}")
+            Text(text = "모임 장소")
+            Text(text = meetingInfo.location?: "아직 정해지지 않았습니다.")
+            Text(text="모임 주소")
+            Text(text=meetingInfo.address?: "아직 정해지지 않았습니다.")
+        }
+    }
+}
+
+@Composable
+fun MeetingInfoTimeline(bookingDetail: BookingDetail?) {
+    bookingDetail?.meetingInfoList?.let { meetingInfoList ->
+        LazyColumn {
+            // 첫 번째 아이템에 대한 지도 표시
+            item {
+                if (meetingInfoList.isNotEmpty()) {
+                    Map(meetingInfoList.first())
+                }
+            }
+            // 나머지 아이템에 대한 정보 카드 표시
+            items(meetingInfoList) { meetingInfo ->
+                MeetingInfoCard(meetingInfo)
+            }
+        }
+    } ?: Text(text = "아직 모임 정보가 없습니다.")
+}
+
+
+// 지도
+@OptIn(ExperimentalNaverMapApi::class)
+@Composable
+fun Map(meetingInfo: MeetingInfoResponse) {
+    var mapProperties by remember {
+        mutableStateOf(
+            MapProperties(maxZoom = 20.0, minZoom = 5.0)
+        )
+    }
+    var mapUiSettings by remember {
+        mutableStateOf(
+            MapUiSettings(isLocationButtonEnabled = true)
+        )
+    }
+
+    // meetingInfo의 위도, 경도를 사용하여 약속장소
+    val currentLocation = LatLng(meetingInfo.lat, meetingInfo.lgt)
+    val cameraPositionState: CameraPositionState = rememberCameraPositionState {
+        // 카메라 초기 위치를 meetingInfo의 위치로 설정합니다.
+        position = CameraPosition(currentLocation, 20.0)
+    }
+
+    Box(Modifier.height(200.dp).width(200.dp)) {
+        NaverMap(properties = mapProperties, uiSettings = mapUiSettings, cameraPositionState = cameraPositionState) {
+            // meetingInfo 위치에 마커 찍기
+            Marker(
+                state = MarkerState(position = currentLocation),
+                captionText = meetingInfo.location ?: "정해진 위치 없음"
+            )
+        }
+    }
+}

@@ -45,6 +45,27 @@ class LocationViewModel @Inject constructor(
         }
     }
 
+    //
+
+    // 초기 주소 변환 응답
+    private val _initialAddressResponse = MutableLiveData<Response<AddressResponse>>()
+    val initialAddressResponse: LiveData<Response<AddressResponse>> get() = _initialAddressResponse
+    // 초기 주소 요청 함수
+    fun getInitialAddress(lng: String, lat: String) = viewModelScope.launch {
+        isLoading.value = true
+        try {
+            val response = locationUseCase.getAddress(lng, lat)
+            if (response.isSuccessful) {
+                _initialAddressResponse.value = response
+            } else {
+                errorMessage.value = response.errorBody()?.string() ?: "에러1"
+            }
+        } catch (e: Exception) {
+            errorMessage.value = e.message ?: "에러2"
+        } finally {
+            isLoading.value = false
+        }
+    }
 
     ///////////////////////////////////////
 
