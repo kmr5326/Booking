@@ -2,6 +2,7 @@ package com.ssafy.booking.ui.chat
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -35,6 +36,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -43,6 +45,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
+import coil.request.CachePolicy
+import coil.request.ImageRequest
 import com.ssafy.booking.R
 import com.ssafy.booking.ui.LocalNavigation
 import com.ssafy.booking.ui.common.BottomNav
@@ -73,7 +78,7 @@ fun ChatHome(
     var memId by remember { mutableStateOf<Long?>(null) }
     val loginId: String? = tokenDataSource.getLoginId()
     val getUserInfoResponse by myPageViewModel.getUserInfoResponse.observeAsState()
-    
+
     // 사용자 정보 조회
     LaunchedEffect(loginId) {
         val result = loginId?.let {
@@ -172,8 +177,9 @@ fun ChatItem(
     val chatViewModel: ChatViewModel = hiltViewModel()
     chatViewModel.saveLocalChatId(chat.chatroomId)
     chatViewModel.getLastReadMessageId(chat.chatroomId)
+    val context = LocalContext.current
 
-    val lastReadMessageIds  by chatViewModel.lastReadMessageIds
+    val lastReadMessageIds by chatViewModel.lastReadMessageIds
     val lastReadMessageId = lastReadMessageIds[chat.chatroomId]
 
     Row(
@@ -184,26 +190,18 @@ fun ChatItem(
                 onRowClick(chat)
                 val memberListString = chat.memberList.joinToString(",")
                 navController.navigate("chatDetail/${chat.chatroomId}/${memberListString}/${chat.meetingTitle}")
-            })
+            }),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        // 개인 채팅방 이미지
-        if (chat.memberList.size <= 1) {
-            Image(
-                painter = painterResource(id = R.drawable.main1),
-                contentDescription = "Chat Image",
-                modifier = Modifier
-                    .size(70.dp, 70.dp)
-                    .clip(RoundedCornerShape(36.dp)) // 박스를 둥글게
-            )
-            // 채팅방 이미지
-        } else {
-            Image(
-                painter = painterResource(id = R.drawable.main1),
-                contentDescription = "Chat Image",
-                modifier = Modifier
-                    .size(70.dp, 70.dp)
-            )
-        }
+        AsyncImage(
+            model = chat.coverImage,
+            contentDescription = "채팅방 이미지",
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .size(75.dp)
+                .clip(CircleShape),
+            error = painterResource(id = R.drawable.main1)
+        )
         Spacer(modifier = Modifier.width(16.dp))
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -250,7 +248,7 @@ fun ChatItem(
                         .background(Color.Red, shape = CircleShape)
                 ) {
                     Text(
-                        text = "${chat.lastMessageIdx - (lastReadMessageId ?: 0) -1 }",
+                        text = "${chat.lastMessageIdx - (lastReadMessageId ?: 0) - 1}",
                         fontWeight = FontWeight.ExtraBold,
                         fontSize = 12.sp,
                         color = Color.White

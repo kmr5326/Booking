@@ -63,6 +63,7 @@ import coil.compose.rememberImagePainter
 import com.ssafy.booking.R
 import com.ssafy.booking.di.App
 import com.ssafy.booking.ui.common.BottomNav
+import com.ssafy.booking.utils.MyFirebaseMessagingService
 import com.ssafy.booking.viewmodel.AppViewModel
 import com.ssafy.booking.viewmodel.BookingViewModel
 import com.ssafy.data.repository.token.TokenDataSource
@@ -80,6 +81,12 @@ fun Main(
     val tokenDataSource = TokenDataSource(context)
     val loginId = tokenDataSource.getLoginId()
     val deviceToken: String? = tokenDataSource.getDeviceToken()
+
+    MyFirebaseMessagingService.getFirebaseToken { token ->
+        val tokenDataSource = TokenDataSource(context)
+        tokenDataSource.putDeviceToken(token)
+    }
+
     // LaunchedEffect를 사용하여 한 번만 API 호출
     LaunchedEffect(Unit) {
         bookingViewModel.postDeivceToken(DeviceToken(deviceToken))

@@ -1,75 +1,92 @@
 package com.ssafy.booking.viewmodel
 
-import android.content.Context
-import android.media.MediaPlayer
-import android.net.Uri
-import android.os.Looper
+import android.media.MediaRecorder
+import android.os.Build
+import android.os.Environment
+import android.provider.MediaStore.Audio.Media
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import java.io.File
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import javax.inject.Inject
+
+enum class RecordingState {
+    STARTED, PAUSED, RESUMED, STOPPED
+}
 
 @HiltViewModel
 class RecordViewModel @Inject constructor(
 
 ) : ViewModel() {
-    private val mediaPlayer = MediaPlayer()
-
-    private val _sliderPosition = MutableLiveData(0)
-    val sliderPosition: LiveData<Int> = _sliderPosition
-    private val _totalDuration = MutableLiveData(0)
-    val totalDuration: LiveData<Int> = _totalDuration
+    private var mediaRecorder: MediaRecorder? = null
+    private val _recordingState = MutableLiveData<RecordingState>(RecordingState.STOPPED)
+    val recordingState: LiveData<RecordingState> = _recordingState
+    private var recordingFilePath: String? = null
 
     init {
-        // MediaPlayer 설정
-        mediaPlayer.setOnPreparedListener {
-            setTotalDuration(mediaPlayer)
-        }
-        mediaPlayer.setOnCompletionListener {
-            // 재생 완료 시 처리
-        }
+        setupRecordingFilePath()
     }
 
-    fun playAudio(context: Context, audioFile: Uri) {
-        mediaPlayer.reset()
-        mediaPlayer.setDataSource(context, audioFile)
-        mediaPlayer.prepare()
-        mediaPlayer.start()
-        startUpdatingPlaybackPosition()
+    private fun setupRecordingFilePath() {
+        val downloadDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+        val bookingDir = File(downloadDir, "Booking")
+        if (!bookingDir.exists()) {
+            bookingDir.mkdirs() // "booking" 폴더가 없으면 생성
+        }
+        val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+        val recordingFileName = "booking_$timestamp.m4a"
+        val recordingFile = File(bookingDir, recordingFileName)
+        recordingFilePath = recordingFile.absolutePath
     }
 
-    private fun startUpdatingPlaybackPosition() {
-        val handler = android.os.Handler(Looper.getMainLooper())
-        val updateTask = object : Runnable {
-            override fun run() {
-                _sliderPosition.value = mediaPlayer.currentPosition
-                handler.postDelayed(this, 1000)
+    fun startRecording() {
+        mediaRecorder = MediaRecorder().apply {
+            setAudioSource(MediaRecorder.AudioSource.MIC)
+            setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
+            setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
+            setOutputFile(recordingFilePath)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                setAudioEncodingBitRate(128000)
+                setAudioSamplingRate(44100)
             }
+            prepare()
         }
-        handler.postDelayed(updateTask, 1000)
-    }
-    fun updateSliderPosition(newPosition: Int) {
-        _sliderPosition.value = newPosition
-        mediaPlayer.seekTo(newPosition)
+        mediaRecorder?.start()
+        _recordingState.value = RecordingState.STARTED
     }
 
-    fun convertMillisToTimeFormat(millis: Int): String {
-        val totalSeconds = millis / 1000
-        val minutes = totalSeconds / 60
-        val seconds = totalSeconds % 60
-        return String.format("%02d:%02d", minutes, seconds)
+    fun pauseRecording() {
+        mediaRecorder?.pause()
+        _recordingState.value = RecordingState.PAUSED
     }
 
-    fun setTotalDuration(mediaPlayer: MediaPlayer) {
-        val durationMillis = mediaPlayer.duration
-        _totalDuration.value = durationMillis
+    fun resumeRecording() {
+        mediaRecorder?.resume()
+        _recordingState.value = RecordingState.RESUMED
     }
 
+    fun stopRecording() {
+        mediaRecorder?.stop()
+        mediaRecorder?.release()
+        mediaRecorder = null
+        _recordingState.value = RecordingState.STOPPED
+        if (recordingFilePath != null && checkFileExists(recordingFilePath)) {
+            // 파일이 존재하는 경우, 다운로드 가능
+        } else {
+            // 파일이 없는 경우, 다운로드 불가능 알림
+        }
+    }
 
+    private fun checkFileExists(filePath: String?): Boolean {
+        return filePath != null && File(filePath).exists()
+    }
 
     override fun onCleared() {
         super.onCleared()
-        _sliderPosition.value = 0
+        mediaRecorder?.release()
     }
 }
