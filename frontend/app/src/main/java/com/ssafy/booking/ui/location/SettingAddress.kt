@@ -36,6 +36,7 @@ import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.CameraPosition
+import com.naver.maps.map.LocationTrackingMode
 import com.naver.maps.map.compose.CameraPositionState
 import com.naver.maps.map.compose.CircleOverlay
 import com.naver.maps.map.compose.ExperimentalNaverMapApi
@@ -45,6 +46,7 @@ import com.naver.maps.map.compose.Marker
 import com.naver.maps.map.compose.MarkerState
 import com.naver.maps.map.compose.NaverMap
 import com.naver.maps.map.compose.rememberCameraPositionState
+import com.naver.maps.map.util.FusedLocationSource
 import com.ssafy.booking.R
 import com.ssafy.booking.di.App
 import com.ssafy.booking.viewmodel.AppViewModel
@@ -268,15 +270,24 @@ fun SettingLocationMap() {
     }
 
     Box() {
-        NaverMap(properties = mapProperties, uiSettings = mapUiSettings, cameraPositionState = cameraPositionState) {
+        NaverMap(
+            properties = mapProperties,
+            uiSettings = mapUiSettings,
+            cameraPositionState = cameraPositionState
+        ) {
+            val context = LocalContext.current
+            // 현재 위치 추적을 위한 LocationSource 설정
+//            val locationSource = FusedLocationSource(context, LOCATION_PERMISSION_REQUEST_CODE)
+//            naverMap.locationSource = locationSource
+//            // 위치 추적 모드 활성화
+//            naverMap.locationTrackingMode = LocationTrackingMode.Follow
             // meetingInfo 위치에 마커 찍기
             Marker(
                 state = MarkerState(position = currentLocation),
                 captionText = "내 동네 위치"
             )
             CircleOverlay(
-                center = currentLocation,
-                radius = 10000.0, // 10km
+                center = currentLocation, radius = 10000.0, // 10km
                 color = Color(0, 0, 255, 100), // 반투명한 파란색, ]
             )
         }
