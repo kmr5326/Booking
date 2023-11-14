@@ -22,7 +22,7 @@ public class ParticipantController {
 
     @GetMapping("/{meetingId}")
     public ResponseEntity<Flux<ParticipantResponse>> findAllByMeetingId(@PathVariable("meetingId") Long meetingId) {
-        Flux<ParticipantResponse> participantResponseFlux = participantService.findAllByMeetingId(meetingId)
+        Flux<ParticipantResponse> participantResponseFlux = participantService.findAllResponseByMeetingId(meetingId)
                 .onErrorResume(error ->
                         Flux.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, error.getMessage())));
 

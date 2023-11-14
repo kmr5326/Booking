@@ -17,6 +17,7 @@ import reactor.core.publisher.Mono;
 @Service
 public class ParticipantService {
     private final ParticipantRepository participantRepository;
+    private final MemberUtil memberUtil;
 
     public Mono<Integer> countAllByMeetingId(Long meetingId) {
         log.info("[Booking:Participant] countAllByMeetingId({})", meetingId);
@@ -39,22 +40,31 @@ public class ParticipantService {
                     return participantRepository.save(
                             Participant.builder()
                                     .memberId(memberId).meetingId(meeting.getMeetingId())
-                                    .attendanceStatus(false).paymentStatus(false)
                                     .build());
                 })
-                .then()
                 .doOnError(error -> {
                     log.error("[Booking:Participant ERROR] addParticipant : {}", error.getMessage());
                     throw new RuntimeException("참가자 추가 실패");
+                })
+                .then();
+    }
+
+    public Flux<ParticipantResponse> findAllResponseByMeetingId(Long meetingId) {
+        log.info("[Booking:Participant] findAllByMeetingId({})", meetingId);
+
+        return this.findAllByMeetingId(meetingId)
+                .flatMap(participant -> memberUtil.getMemberInfoByPk(participant.getMemberId())
+                        .flatMap(member -> Mono.just(new ParticipantResponse(member))))
+                .onErrorResume(error -> {
+                    log.error("[Booking:Participant ERROR] findAllByMeetingId : {}", error.getMessage());
+                    return Flux.error(new RuntimeException("참가자 목록 조회 실패"));
                 });
     }
 
-    public Flux<ParticipantResponse> findAllByMeetingId(Long meetingId) {
+    public Flux<Participant> findAllByMeetingId(Long meetingId) {
         log.info("[Booking:Participant] findAllByMeetingId({})", meetingId);
 
         return participantRepository.findAllByMeetingId(meetingId)
-                .flatMap(participant -> MemberUtil.getMemberInfoByPk(participant.getMemberId())
-                        .flatMap(member -> Mono.just(new ParticipantResponse(member, participant))))
                 .onErrorResume(error -> {
                     log.error("[Booking:Participant ERROR] findAllByMeetingId : {}", error.getMessage());
                     return Flux.error(new RuntimeException("참가자 목록 조회 실패"));
@@ -65,6 +75,12 @@ public class ParticipantService {
         log.info("[Booking:Participant] existsByMeetingIdAndMemberId({}, {})", meetingId, memberId);
 
         return participantRepository.existsByMeetingIdAndMemberId(meetingId, memberId);
+    }
+
+    public Mono<Void> deleteByMeetingIdAndMemberId(Long meetingId, Integer memberId) {
+        log.info("[Booking:Participant] deleteByMeetingIdAndMemberId({}, {})", meetingId, memberId);
+
+        return participantRepository.deleteByMeetingIdAndMemberId(meetingId, memberId);
     }
 
     public Mono<Void> deleteAllByMeetingId(Long meetingId) {

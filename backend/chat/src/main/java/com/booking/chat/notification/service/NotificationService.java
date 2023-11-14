@@ -2,6 +2,7 @@ package com.booking.chat.notification.service;
 
 import com.booking.chat.notification.domain.NotificationInformation;
 import com.booking.chat.notification.dto.request.DeviceTokenInitRequest;
+import com.booking.chat.notification.dto.request.EnrollNotificationRequest;
 import com.booking.chat.notification.dto.response.NotificationResponse;
 import com.booking.chat.notification.repository.NotificationInformationRepository;
 import com.google.api.core.ApiFuture;
@@ -27,22 +28,17 @@ public class NotificationService {
         return notificationInformationRepository.findByMemberId(memberId)
                                                 .flatMap(existingInfo -> {
                                                     // 정보가 이미 있으면 업데이트
-                                                    existingInfo.update(
-                                                        deviceTokenInitRequest.deviceToken());
-                                                    return notificationInformationRepository.save(
-                                                        existingInfo);
+                                                    existingInfo.update(deviceTokenInitRequest.deviceToken());
+                                                    return notificationInformationRepository.save(existingInfo);
                                                 })
                                                 .switchIfEmpty(
                                                     // 정보가 없으면 새로 만들어 저장
                                                     Mono.defer(
                                                         () -> notificationInformationRepository.save(
                                                             NotificationInformation.builder()
-                                                                                   ._id(
-                                                                                       UUID.randomUUID())
-                                                                                   .memberId(
-                                                                                       memberId)
-                                                                                   .deviceToken(
-                                                                                       deviceTokenInitRequest.deviceToken())
+                                                                                   ._id(UUID.randomUUID())
+                                                                                   .memberId(memberId)
+                                                                                   .deviceToken(deviceTokenInitRequest.deviceToken())
                                                                                    .build()
                                                         ))
                                                 )
@@ -52,8 +48,7 @@ public class NotificationService {
     public Mono<Void> sendChattingNotification(Long memberId) {
         return notificationInformationRepository.findByMemberId(memberId)
                                                 .flatMap(info -> {
-                                                    log.info(" notification send to {} member ",
-                                                        memberId);
+                                                    log.info(" notification send to {} member ", memberId);
 
                                                     Notification notification = Notification.builder()
                                                                                             .setBody("안녕하세요")
@@ -103,9 +98,47 @@ public class NotificationService {
                                                     return send(message).then();
                                                 })
                                                 .onErrorResume(e -> {
-                                                    // Log the error or take some action
                                                     log.error("Error sending chatting notification: {}", e.getMessage());
-                                                    // Return an empty Mono to swallow the error
+                                                    return Mono.empty();
+                                                })
+                                                .then();
+    }
+
+    public Mono<Void> sendEnrollNotification(EnrollNotificationRequest enrollNotificationRequest) {
+        return notificationInformationRepository.findByMemberId(enrollNotificationRequest.memberId())
+                                                .doOnNext(info -> {
+                                                    // 데이터가 방출될 때 info 객체를 로깅
+                                                    if (info.getDeviceToken() == null || info.getDeviceToken().isEmpty()) {
+                                                        log.error("Device token is null or empty for member {}", enrollNotificationRequest.memberId());
+                                                    } else {
+                                                        log.info("Device token for member {} is present: {}", enrollNotificationRequest.memberId(), info.getDeviceToken());
+                                                    }
+                                                })
+                                                .flatMap(info -> {
+                                                    if (info.getDeviceToken() == null || info.getDeviceToken().trim().isEmpty()) {
+                                                        log.error("Device token is null or empty for member {}", enrollNotificationRequest.memberId());
+                                                        return Mono.error(new IllegalArgumentException("Device token is null or empty"));
+                                                    }
+                                                    log.info("Notification send to {} member", enrollNotificationRequest.memberId());
+
+                                                    String body = "%s 모임에 가입 신청이 들어왔습니다.".formatted(enrollNotificationRequest.meetingTitle());
+
+                                                    Notification notification = Notification.builder()
+                                                                                            .setBody(body)
+                                                                                            .setTitle("BOOKING ")
+                                                                                            .build();
+
+                                                    Message message = Message.builder()
+                                                                             .setNotification(notification)
+                                                                             .setToken(info.getDeviceToken())
+                                                                             .build();
+
+
+
+                                                    return send(message).then();
+                                                })
+                                                .onErrorResume(e -> {
+                                                    log.error("Error sending chatting notification: {}", e.getMessage());
                                                     return Mono.empty();
                                                 })
                                                 .then();
@@ -124,7 +157,7 @@ public class NotificationService {
                 // ApiFuture에서 예외가 발생하면 CompletableFuture도 예외로 마크
                 completableFuture.completeExceptionally(e);
             }
-        }, MoreExecutors.directExecutor()); // directExecutor는 현재 스레드에서 리스너를 실행합니다.
+        }, MoreExecutors.directExecutor()); // 현재 스레드에서 리스너를 실행
 
         return Mono.fromFuture(completableFuture)
                    .then();
