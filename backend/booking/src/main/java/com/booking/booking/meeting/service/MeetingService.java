@@ -508,7 +508,11 @@ public class MeetingService {
                                 }
 
                                 return meetingInfoService.findByMeetingId(meetingId)
-                                        .flatMap(meetingInfo -> memberUtil.payRequest(token, meetingInfo.getFee()));
+                                        .flatMap(meetingInfo ->
+                                                participantStateService.findByMeetingIdAndMemberId(meetingInfo.getMeetinginfoId(), member.memberPk())
+                                                .switchIfEmpty(Mono.error(new RuntimeException("참여 중 아님")))
+                                                .then(memberUtil.payRequest(token, meetingInfo.getFee()))
+                                                .then(participantStateService.payMeeting(meetingInfo)));
                             });
                 })
                 .onErrorResume(error -> {
