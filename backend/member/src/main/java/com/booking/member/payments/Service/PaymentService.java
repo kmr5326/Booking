@@ -1,9 +1,6 @@
 package com.booking.member.payments.Service;
 
-import com.booking.member.payments.dto.ApprovalResponseDto;
-import com.booking.member.payments.dto.ReadyPaymentRequestDto;
-import com.booking.member.payments.dto.ReadyPaymentResponseDto;
-import com.booking.member.payments.dto.SendRequestDto;
+import com.booking.member.payments.dto.*;
 import reactor.core.publisher.Mono;
 
 public interface PaymentService {
@@ -13,4 +10,6 @@ public interface PaymentService {
     Mono<ApprovalResponseDto> approvePayment(String pgToken);
 
     Mono<Void> sendPoint(SendRequestDto req,String loginId);
+
+    Mono<Void> resendPoint(ReSendRequestDto req);
 }

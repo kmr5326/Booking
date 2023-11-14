@@ -9,6 +9,7 @@ public record BookResponse(
         String genre,
         LocalDate publishDate,
         String content,
-        String isbn
+        String isbn,
+        Integer meetingCnt
 ) {
 }
