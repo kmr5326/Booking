@@ -51,33 +51,31 @@ fun BookingParticipants( meetingId : Long,
                          ) {
     // 뷰모델 연결
     val bookingViewModel: BookingViewModel = hiltViewModel()
-//    val getParticipantsResponse by bookingViewModel.getParticipantsResponse.observeAsState()
-//    val getWaitingListResponse by bookingViewModel.getWaitingListResponse.observeAsState()
+    val getParticipantsResponse by bookingViewModel.getParticipantsResponse.observeAsState()
+    val getWaitingListResponse by bookingViewModel.getWaitingListResponse.observeAsState()
     var participantsList by remember { mutableStateOf<List<BookingParticipants>>(emptyList()) }
     var waitingList by remember { mutableStateOf<List<BookingWaiting>>(emptyList()) }
 
-//    LaunchedEffect(Unit) {
-//        bookingViewModel.getWaitingList(meetingId)
-//        bookingViewModel.getParticipants(meetingId)
-//    }
+    LaunchedEffect(Unit) {
+        bookingViewModel.getWaitingList(meetingId)
+        bookingViewModel.getParticipants(meetingId)
+    }
 //
-//    // 참가자 바뀔 떄마다 업데이트
-//    LaunchedEffect(getParticipantsResponse) {
-//        getParticipantsResponse?.body()?.let { response ->
-//            Log.d("참가대기자", "$response")
-//            participantsList = response // 상태 업데이트
-//        }
-//    }
+    // 참가자 바뀔 떄마다 업데이트
+    LaunchedEffect(getParticipantsResponse) {
+        getParticipantsResponse?.body()?.let { response ->
+            Log.d("참가대기자", "$response")
+            participantsList = response // 상태 업데이트
+        }
+    }
 
     // 대기자 바뀔 때마다 업데이트
-//    LaunchedEffect(getWaitingListResponse) {
-//        getWaitingListResponse?.body()?.let { response ->
-//            Log.d("참가대기자", "$response")
-//            waitingList = response // 상태 업데이트
-//        }
-//    }
-//    participantsList = newList // 새로운 참가자 리스트
-//    waitingList = newWaitingList // 새로운 대기자 리스트 (예비로 작성한 코드)
+    LaunchedEffect(getWaitingListResponse) {
+        getWaitingListResponse?.body()?.let { response ->
+            Log.d("참가대기자", "$response")
+            waitingList = response // 상태 업데이트
+        }
+    }
     Column {
         Text(text = "참가자 목록")
         participantsList.forEach { participant ->
