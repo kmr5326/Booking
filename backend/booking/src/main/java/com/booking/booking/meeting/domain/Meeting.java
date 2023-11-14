@@ -6,8 +6,12 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.relational.core.mapping.Table;
+
+import java.time.LocalDateTime;
 
 @Getter
 @Builder
@@ -34,6 +38,12 @@ public class Meeting {
 
     private MeetingState meetingState;
 
+    @CreatedDate
+    private LocalDateTime createdAt;
+
+    @LastModifiedDate
+    private LocalDateTime updatedAt;
+
     public Meeting updateState(MeetingState state) {
         return Meeting.builder()
                 .meetingId(meetingId)
@@ -45,6 +55,7 @@ public class Meeting {
                 .description(description)
                 .maxParticipants(maxParticipants)
                 .meetingState(state)
+                .createdAt(createdAt)
                 .build();
     }
 
@@ -59,6 +70,7 @@ public class Meeting {
                 .description(meetingUpdateRequest.description())
                 .maxParticipants(meetingUpdateRequest.maxParticipants())
                 .meetingState(meetingState)
+                .createdAt(createdAt)
                 .build();
     }
 }

@@ -5,11 +5,11 @@ import com.booking.member.follows.dto.FollowingsResponseDto;
 import reactor.core.publisher.Mono;
 
 public interface FollowService {
-    Mono<Void> follow(String loginId,String targetNickname);
+    Mono<Void> follow(String loginId,Integer targetMemberPk);
 
-    Mono<Void> unfollow(String loginId,String targetNickname);
+    Mono<Void> unfollow(String loginId,Integer targetMemberPk);
 
-    Mono<FollowersResponseDto> getFollowers(String nickname);
+    Mono<FollowersResponseDto> getFollowers(Integer memberPk);
 
-    Mono<FollowingsResponseDto> getFollowings(String nickname);
+    Mono<FollowingsResponseDto> getFollowings(Integer memberPk);
 }

@@ -20,11 +20,11 @@ public class FollowController {
 
     private final FollowService followService;
 
-    @PostMapping("/{nickname}")
+    @PostMapping("/{memberPk}")
     public Mono<ResponseEntity<String>> follow(@AuthenticationPrincipal UserDetails user,
-                                          @PathVariable String nickname){
-        log.info("팔로우 요청 {} 대상 {}",user.getUsername(),nickname);
-        return followService.follow(user.getUsername(), nickname)
+                                          @PathVariable Integer memberPk){
+        log.info("팔로우 요청 {} 대상 {}",user.getUsername(),memberPk);
+        return followService.follow(user.getUsername(), memberPk)
                 .then(Mono.just(ResponseEntity.ok().body("")))
                 .onErrorResume(e->{
                     log.error(e.getMessage());
@@ -32,11 +32,11 @@ public class FollowController {
                 });
     }
 
-    @DeleteMapping("/{nickname}")
+    @DeleteMapping("/{memberPk}")
     public Mono<ResponseEntity<String>> unfollow(@AuthenticationPrincipal UserDetails user,
-                                             @PathVariable String nickname){
-        log.info("언팔로우 요청 {} 대상 {}",user.getUsername(),nickname);
-        return followService.unfollow(user.getUsername(), nickname)
+                                             @PathVariable Integer memberPk){
+        log.info("언팔로우 요청 {} 대상 {}",user.getUsername(),memberPk);
+        return followService.unfollow(user.getUsername(), memberPk)
                 .then(Mono.just(ResponseEntity.ok().body("")))
                 .onErrorResume(e->{
                     log.error(e.getMessage());
@@ -44,17 +44,17 @@ public class FollowController {
                 });
     }
 
-    @GetMapping("/followers/{nickname}")
-    public Mono<ResponseEntity<FollowersResponseDto>> getFollowers(@PathVariable String nickname){
-        log.info("팔로워 조회 : {}",nickname);
-        return followService.getFollowers(nickname)
+    @GetMapping("/followers/{memberPk}")
+    public Mono<ResponseEntity<FollowersResponseDto>> getFollowers(@PathVariable Integer memberPk){
+        log.info("팔로워 조회 : {}",memberPk);
+        return followService.getFollowers(memberPk)
                 .map(resp -> ResponseEntity.ok().body(resp));
     }
 
-    @GetMapping("/followings/{nickname}")
-    public Mono<ResponseEntity<FollowingsResponseDto>> getFollowings(@PathVariable String nickname){
-        log.info("팔로잉 조회 : {}",nickname);
-        return followService.getFollowings(nickname)
+    @GetMapping("/followings/{memberPk}")
+    public Mono<ResponseEntity<FollowingsResponseDto>> getFollowings(@PathVariable Integer memberPk){
+        log.info("팔로잉 조회 : {}",memberPk);
+        return followService.getFollowings(memberPk)
                 .map(resp -> ResponseEntity.ok().body(resp));
     }
 }

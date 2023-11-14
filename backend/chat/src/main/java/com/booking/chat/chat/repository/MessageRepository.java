@@ -11,4 +11,7 @@ public interface MessageRepository extends ReactiveMongoRepository<Message, Long
     @Tailable
     @Query("{ chatroomId:  ?0}")
     Flux<Message> findByChatRoomId(Long roomId);
+
+    Flux<Message> findByChatroomIdAndMessageIdGreaterThanEqual(Long chatroomId, Long lastMessageId);
+
 }

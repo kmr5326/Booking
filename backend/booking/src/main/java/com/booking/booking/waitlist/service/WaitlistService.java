@@ -15,6 +15,7 @@ import reactor.core.publisher.Mono;
 @Service
 public class WaitlistService {
     private final WaitlistRepository waitlistRepository;
+    private final MemberUtil memberUtil;
 
     public Mono<Boolean> existsByMeetingIdAndMemberId(Long meetingId, Integer memberId) {
         log.info("[Booking:Waitlist] existsByMeetingIdAndMemberId({}, {})", meetingId, memberId);
@@ -40,18 +41,17 @@ public class WaitlistService {
                 .onErrorResume(error -> {
                     log.info("[Booking:Waitlist ERROR] deleteByMeetingIdAndMemberId : {}", error.getMessage());
                     return Mono.error(new RuntimeException("대기 목록 삭제 실패"));
-                })
-                .then();
+                });
     }
 
-    public Flux<WaitlistResponse> findAllByMeetingMeetingId(Long meetingId) {
-        log.info("[Booking:Waitlist] findAllByMeetingMeetingId({})", meetingId);
+    public Flux<WaitlistResponse> findAllByMeetingId(Long meetingId) {
+        log.info("[Booking:Waitlist] findAllByMeetingId({})", meetingId);
 
         return waitlistRepository.findAllByMeetingId(meetingId)
-                .flatMap(waitlist -> MemberUtil.getMemberInfoByPk(waitlist.getMemberId())
-                                .flatMap(memberInfo -> Mono.just(new WaitlistResponse(memberInfo))))
+                .flatMap(waitlist -> memberUtil.getMemberInfoByPk(waitlist.getMemberId())
+                        .flatMap(member -> Mono.just(new WaitlistResponse(member))))
                 .onErrorResume(error -> {
-                    log.info("[Booking:Waitlist ERROR] findAllByMeetingMeetingId : {}", error.getMessage());
+                    log.info("[Booking:Waitlist ERROR] findAllByMeetingId : {}", error.getMessage());
                     return Flux.error(new RuntimeException("대기자 목록 조회 실패"));
                 });
     }

@@ -5,12 +5,14 @@ import com.booking.booking.stt.domain.Transcription;
 import com.booking.booking.stt.dto.request.SttRequestDto;
 import com.booking.booking.stt.dto.request.SummaryControllerDto;
 import com.booking.booking.stt.dto.request.SummaryRequest;
+import com.booking.booking.stt.dto.request.TranscriptionModificationRequest;
 import com.booking.booking.stt.dto.response.LoadSummaryResponse;
 import com.booking.booking.stt.dto.response.SttResponseDto;
 import com.booking.booking.stt.dto.response.CreateSummaryResponse;
 import com.booking.booking.stt.dto.response.TranscriptionResponse;
 import com.booking.booking.stt.repository.SummaryRepository;
 import com.booking.booking.stt.repository.TranscriptionRepository;
+import javassist.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,6 +23,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -69,13 +72,13 @@ public class SttServiceImpl implements SttService{
                     }).then(Mono.error(new RuntimeException("Server error")));
                 })
                 .bodyToMono(SttResponseDto.class)
-                .flatMap(sttResponseDto -> saveTranscription(sttResponseDto,requestDto.fileName()).thenReturn(sttResponseDto))
+                .flatMap(sttResponseDto -> saveTranscription(sttResponseDto,requestDto.fileName(), requestDto.meetingInfoId()).thenReturn(sttResponseDto))
                 .doOnNext(resp-> log.info("stt 결과 {}",resp));
     }
 
     @Override
-    public Mono<TranscriptionResponse> findTranscriptionByFileName(String fileName) {
-        return transcriptionRepository.findByFileName(fileName)
+    public Mono<TranscriptionResponse> findTranscriptionByMeetingInfoId(long meetingInfoId) {
+        return transcriptionRepository.findByMeetingInfoId(meetingInfoId)
                 .flatMap(transcription -> Mono.just(new TranscriptionResponse(transcription)))
                 .switchIfEmpty(Mono.error(new RuntimeException("Not found Transcription")));
 
@@ -113,8 +116,19 @@ public class SttServiceImpl implements SttService{
                 .flatMap(summary -> Mono.just(new LoadSummaryResponse(summary)));
     }
 
-    private Mono<Transcription> saveTranscription(SttResponseDto sttResponseDto,String fileName) {
-        Transcription transcription = Transcription.of(sttResponseDto,fileName);
+    @Override
+    public Mono<String> modifyTranscription(TranscriptionModificationRequest request) {
+        return transcriptionRepository.findById(request.getId())
+                .flatMap(transcription -> {
+                    transcription.setExcludeId(request);
+                    return transcriptionRepository.save(transcription);
+                })
+                .switchIfEmpty(Mono.error(new NotFoundException("Not found transcription")))
+                .thenReturn("transcription modification");
+    }
+
+    private Mono<Transcription> saveTranscription(SttResponseDto sttResponseDto,String fileName,long meetingInfoId) {
+        Transcription transcription = Transcription.of(sttResponseDto,fileName,meetingInfoId);
         return transcriptionRepository.save(transcription);
     }
 
