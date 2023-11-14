@@ -57,9 +57,10 @@ public class PaymentController {
     }
 
     @PostMapping("/send")
-    public Mono<ResponseEntity<Void>> sendPoint(@AuthenticationPrincipal UserDetails user,
+    public Mono<ResponseEntity<String>> sendPoint(@AuthenticationPrincipal UserDetails user,
                                              @RequestBody SendRequestDto req) {
         return paymentService.sendPoint(req,user.getUsername())
-                .then(Mono.just(ResponseEntity.noContent().build()));
+                .then(Mono.just(ResponseEntity.ok().body("sending")))
+                .onErrorResume(e->Mono.just(ResponseEntity.badRequest().body(e.getMessage())));
     }
 }
