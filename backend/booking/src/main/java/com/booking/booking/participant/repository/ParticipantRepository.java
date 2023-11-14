@@ -10,4 +10,5 @@ public interface ParticipantRepository extends R2dbcRepository<Participant, Long
     Flux<Participant> findAllByMeetingId(Long meetingId);
     Mono<Boolean> existsByMeetingIdAndMemberId(Long meetingId, Integer memberId);
     Mono<Void> deleteAllByMeetingId(Long meetingId);
+    Mono<Void> deleteByMeetingIdAndMemberId(Long meetingId, Integer memberId);
 }

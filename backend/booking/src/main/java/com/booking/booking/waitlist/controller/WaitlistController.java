@@ -22,7 +22,7 @@ public class WaitlistController {
 
     @GetMapping("/{meetingId}")
     public ResponseEntity<Flux<WaitlistResponse>> findAllByMeetingMeetingId(@PathVariable("meetingId") Long meetingId) {
-        Flux<WaitlistResponse> waitlistResponseFlux = waitlistService.findAllByMeetingMeetingId(meetingId)
+        Flux<WaitlistResponse> waitlistResponseFlux = waitlistService.findAllByMeetingId(meetingId)
                 .onErrorResume(error ->
                         Flux.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, error.getMessage())));
 

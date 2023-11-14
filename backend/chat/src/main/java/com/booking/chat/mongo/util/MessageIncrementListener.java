@@ -19,7 +19,13 @@ public class MessageIncrementListener extends AbstractMongoEventListener<Message
 
     @Override
     public void onBeforeConvert(BeforeConvertEvent<Message> event) {
-        event.getSource().setAutoIncrementId(sequenceGeneratorService.generateSequence(Message.SEQUENCE_NAME));
+//        long chatroomId = event.getSource().getChatroomId();
+//        chatroomService.findByChatroomId(chatroomId)
+//            .publishOn(Schedulers.boundedElastic())
+//            .doOnNext(chatroom -> {
+//                chatroom.updateIndex();
+//                chatroomService.save(chatroom).subscribe();
+//            }).subscribe();
     }
 
     @Override
