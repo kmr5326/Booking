@@ -204,6 +204,17 @@ public class MeetingController {
                         Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, error.getMessage())));
     }
 
+    @PatchMapping("/pay/{meetingId}")
+    public Mono<ResponseEntity<Void>> payMeeting(@RequestHeader(AUTHORIZATION) String token,
+                                                 @PathVariable("meetingId") Long meetingId) {
+        String userEmail = JwtUtil.getLoginEmailByToken(token);
+
+        return meetingService.payMeeting(token, userEmail, meetingId)
+                .thenReturn(ResponseEntity.ok().<Void>build())
+                .onErrorResume(error ->
+                        Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, error.getMessage())));
+    }
+
     @PostMapping("/post/")
     public Mono<ResponseEntity<Long>> createPost(@RequestHeader(AUTHORIZATION) String token,
                                                  @RequestBody PostRequest postRequest) {
@@ -253,5 +264,4 @@ public class MeetingController {
                 .onErrorResume(error ->
                         Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, error.getMessage())));
     }
-
 }
