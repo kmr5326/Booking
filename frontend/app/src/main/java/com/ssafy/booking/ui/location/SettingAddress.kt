@@ -37,6 +37,7 @@ import com.google.android.gms.location.LocationServices
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.CameraPosition
 import com.naver.maps.map.compose.CameraPositionState
+import com.naver.maps.map.compose.CircleOverlay
 import com.naver.maps.map.compose.ExperimentalNaverMapApi
 import com.naver.maps.map.compose.MapProperties
 import com.naver.maps.map.compose.MapUiSettings
@@ -273,7 +274,11 @@ fun SettingLocationMap() {
                 state = MarkerState(position = currentLocation),
                 captionText = "내 동네 위치"
             )
-
+            CircleOverlay(
+                center = currentLocation,
+                radius = 10000.0, // 10km
+                color = Color(0, 0, 255, 100), // 반투명한 파란색, ]
+            )
         }
     }
 }
