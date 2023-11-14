@@ -68,6 +68,8 @@ data class MeetingInfoResponse(
     val lgt : Double,
     @SerializedName("fee")
     val fee : Int,
+    @SerializedName("meetinginfoId")
+    val meetinginfoId : Long,
     )
 
 
