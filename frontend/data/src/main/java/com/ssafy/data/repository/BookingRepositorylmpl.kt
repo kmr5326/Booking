@@ -76,7 +76,7 @@ class BookingRepositoryImpl @Inject constructor(
     override suspend fun getBookingByMemberPk(memberPk: Long): Response<List<BookingListByMemberPk>> {
         return bookingApi.getBookingByMemberPk(memberPk)
     }
-    override suspend fun getBookingByTitle(title: String): Response<List<BookingListByTitle>> {
+    override suspend fun getBookingByTitle(title: String): Response<List<BookingAll>> {
         return bookingApi.getBookingByTitle(title)
     }
 

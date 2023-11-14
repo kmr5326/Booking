@@ -58,11 +58,25 @@ fun BookingDetail(meetingId: Long) {
     var isLeadered = false
     // 모임 진행 상황
     val status = getBookingDetailResponse?.body()?.meetingState
+    var leaderId : Int? = null
     val snackbarHostState = remember { SnackbarHostState() }
-    LaunchedEffect(Unit) {
+    LaunchedEffect(getBookingDetailResponse?.body()?.leaderId) {
+        bookingViewModel.getBookingDetail(meetingId)
         val memberPk = App.prefs.getMemberPk()
-        val leaderId = getBookingDetailResponse?.body()?.leaderId
-        isLeadered = memberPk == leaderId?.toLong()
+        leaderId = getBookingDetailResponse?.body()?.leaderId
+        if (memberPk == leaderId?.toLong()) {
+            isLeadered = true
+            Log.d("같냐", "같다")
+        }
+        else {
+            isLeadered = false
+            Log.d("같냐",memberPk.toString())
+            Log.d("같냐",leaderId.toString())
+            Log.d("같냐", "다르다")
+            Log.d("같냐", getBookingDetailResponse?.body()?.leaderId.toString())
+
+        }
+//        isLeadered = memberPk == leaderId?.toLong()
     }
     Scaffold(
         bottomBar = {

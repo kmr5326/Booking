@@ -113,6 +113,6 @@ interface BookingApi {
     // 모임 목록 조회 - title
     @Headers("Content-Type: application/json;charset=UTF-8")
     @GET("/api/booking/meeting/title/{title}")
-    suspend fun getBookingByTitle(@Path("title") title: String): Response<List<BookingListByTitle>>
+    suspend fun getBookingByTitle(@Path("title") title: String): Response<List<BookingAll>>
 
 }

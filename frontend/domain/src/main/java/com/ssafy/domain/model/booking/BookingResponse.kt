@@ -74,7 +74,6 @@ data class MeetingInfoResponse(
 
 
 // 모임 상세 조회
-
 data class BookingDetail (
     @SerializedName("meetingId")
     val meetingId : Long,

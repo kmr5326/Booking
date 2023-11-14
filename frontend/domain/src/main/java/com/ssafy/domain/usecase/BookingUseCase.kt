@@ -76,7 +76,7 @@ class BookingUseCase @Inject constructor(private val repository: BookingReposito
     suspend fun getBookingByMemberPk(memberPk:Long): Response<List<BookingListByMemberPk>> {
         return repository.getBookingByMemberPk(memberPk)
     }
-    suspend fun getBookingByTitle(title:String): Response<List<BookingListByTitle>> {
+    suspend fun getBookingByTitle(title:String): Response<List<BookingAll>> {
         return repository.getBookingByTitle(title)
     }
 }

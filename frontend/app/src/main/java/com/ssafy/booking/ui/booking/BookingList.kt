@@ -41,6 +41,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -66,9 +67,15 @@ import com.ssafy.booking.ui.common.BottomNav
 import com.ssafy.booking.utils.MyFirebaseMessagingService
 import com.ssafy.booking.viewmodel.AppViewModel
 import com.ssafy.booking.viewmodel.BookingViewModel
+import com.ssafy.booking.viewmodel.LocationViewModel
 import com.ssafy.data.repository.token.TokenDataSource
 import com.ssafy.domain.model.DeviceToken
 import com.ssafy.domain.model.booking.BookingAll
+import com.ssafy.domain.model.booking.BookingListByTitle
+import hilt_aggregated_deps._com_ssafy_booking_di_App_GeneratedInjector
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Main(
@@ -76,45 +83,63 @@ fun Main(
     appViewModel: AppViewModel
 ) {
     val bookingViewModel: BookingViewModel = hiltViewModel()
+    val locationViewModel : LocationViewModel = hiltViewModel()
     val userInfoState by bookingViewModel.getUserInfoResponse.observeAsState()
     val context = LocalContext.current
     val tokenDataSource = TokenDataSource(context)
     val loginId = tokenDataSource.getLoginId()
     val deviceToken: String? = tokenDataSource.getDeviceToken()
-
+    var myLocation by remember { mutableStateOf("대한민국") }
     MyFirebaseMessagingService.getFirebaseToken { token ->
         val tokenDataSource = TokenDataSource(context)
         tokenDataSource.putDeviceToken(token)
     }
 
+    // 검색어 상태를 저장하는 변수
+    var searchQuery by remember { mutableStateOf("") }
+
+    // 검색 결과 상태를 저장하는 변수
+    val searchResultState by bookingViewModel.getBookingByTitleResponse.observeAsState()
+
+    // 검색어가 변경될 때마다 검색 함수를 호출
+    LaunchedEffect(searchQuery) {
+        bookingViewModel.getBookingByTitle(searchQuery)
+    }
+
+
+
     // LaunchedEffect를 사용하여 한 번만 API 호출
     LaunchedEffect(Unit) {
         bookingViewModel.postDeivceToken(DeviceToken(deviceToken))
-
-        // 메인 화면 가자마자 userInfo 조회n
-        Log.d("test1", "${tokenDataSource.getLoginId()}")
-        Log.d("test2", "$loginId")
         bookingViewModel.getUserInfo(loginId!!)
-
-        // 전체 북킹 목록 조회
         bookingViewModel.getBookingAllList()
-    }
+        // 위치 세팅
+        val lat = App.prefs.getLat().toString()
+        val lgt = App.prefs.getLgt().toString()
+        locationViewModel.getAddress(lat, lgt)
 
+    }
+    val addressResponse by locationViewModel.getAddressResponse.observeAsState()
+    LaunchedEffect(addressResponse) {
+        val address = addressResponse?.body()?.documents?.firstOrNull()?.address?.addressName ?: "위치"
+        val address1 = addressResponse?.body()?.documents?.firstOrNull()?.address?.region2DepthName ?: "위치"
+        val address2 = addressResponse?.body()?.documents?.firstOrNull()?.address?.region3DepthName ?: "불러오는 중..."
+        myLocation = "$address1 $address2"
+        App.prefs.putUserAddress(address)
+    }
     LaunchedEffect(userInfoState) {
         userInfoState?.body()?.let {
             tokenDataSource.putNickName(it.nickname)
             tokenDataSource.putProfileImage(it.profileImage)
             tokenDataSource.putMemberPk(it.memberPk)
             tokenDataSource.putLat(it.lat.toFloat())
-            tokenDataSource.putLgt(it.lgt.toFloat())
-            Log.d("test33", "$it")
-            Log.d("test3", "${it.nickname}")
         }
     }
     Scaffold(
         topBar = {
-            HomeTopBar(navController, appViewModel)
-//            TopBar("하남동")
+            HomeTopBar(navController, appViewModel, myLocation, bookingViewModel, searchQuery, onSearchQueryChanged = { query ->
+                searchQuery = query
+            })
         },
         bottomBar = {
             BottomNav(navController, appViewModel)
@@ -130,7 +155,13 @@ fun Main(
                 .padding(paddingValues)
                 .fillMaxHeight()
         ) {
-                BookList(navController, appViewModel,bookingViewModel)
+            if (searchQuery.isEmpty()) {
+                // 검색어가 비어있으면 기존 모임 목록을 표시
+                BookList(navController, appViewModel, bookingViewModel)
+            } else {
+                // 검색어가 있으면 검색 결과를 보여주는 Composable을 표시
+                SearchResultsList(searchResultState?.body(),navController)
+            }
             }
         }
     }
@@ -281,7 +312,13 @@ fun MyFloatingActionButton(navController: NavController, appViewModel: AppViewMo
 }
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeTopBar(navController: NavController, appViewModel: AppViewModel) {
+fun HomeTopBar(navController: NavController, appViewModel: AppViewModel,myLocation:String,bookingViewModel: BookingViewModel,searchQuery: String,
+               onSearchQueryChanged: (String) -> Unit) {
+
+    // 검색 결과 상태를 저장하는 변수
+    val searchResultState by bookingViewModel.getBookingByTitleResponse.observeAsState()
+    // 사용자가 검색어를 입력할 때 마다 호출됩니다.
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -305,7 +342,7 @@ fun HomeTopBar(navController: NavController, appViewModel: AppViewModel) {
                         navController.navigate("setting/address")
                     }
             ) {
-                Text(text = "하남동", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color(0xFFffffff))
+                Text(text = myLocation, fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color(0xFFffffff))
                 Icon(Icons.Filled.ArrowDropDown, contentDescription = null, tint = Color(0xFFffffff))
             }
             Icon(
@@ -317,13 +354,13 @@ fun HomeTopBar(navController: NavController, appViewModel: AppViewModel) {
             )
         }
         // 검색 창
-        var title by rememberSaveable(stateSaver = TextFieldValue.Saver) {
-            mutableStateOf(TextFieldValue(""))
-        }
+//        var title by rememberSaveable(stateSaver = TextFieldValue.Saver) {
+//            mutableStateOf(TextFieldValue(""))
+//        }
         OutlinedTextField(
-            value = title, // 이 부분을 뷰모델의 상태로 연결하거나 필요에 따라 변경
-            onValueChange = { title = it },
-            placeholder = { Text("찾는 도서가 있나요?", fontSize = 11.sp, color = Color.Gray) },
+            value = searchQuery, // 이 부분을 뷰모델의 상태로 연결하거나 필요에 따라 변경
+            onValueChange = onSearchQueryChanged,
+            placeholder = { Text("찾으시는 모임의 제목이 있으신가요?", fontSize = 11.sp, color = Color.Gray) },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp)
@@ -339,5 +376,20 @@ fun HomeTopBar(navController: NavController, appViewModel: AppViewModel) {
             textStyle = TextStyle(color = Color.Gray, fontSize = 11.sp, baselineShift = BaselineShift.None),
             leadingIcon = { Icon(Icons.Outlined.Search, contentDescription = null, tint = Color(0xFF12BD7E)) }
         )
+    }
+}
+@Composable
+fun SearchResultsList(
+    searchResults: List<BookingAll>?,
+    navController: NavController
+) {
+    LazyColumn {
+        searchResults?.let { results ->
+            items(results) { booking ->
+                BookItem(booking = booking, navController)
+            }
+        } ?: item {
+//            Text("검색 결과가 없습니다.")
+        }
     }
 }

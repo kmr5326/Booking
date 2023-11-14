@@ -62,7 +62,6 @@ fun SettingAddress(
     appViewModel: AppViewModel
 )
 {
-
     Column {
         Text(text = "내 위치 설정하기")
 //        SearchInput()
@@ -76,37 +75,45 @@ fun SettingAddress(
 // 현재 위치로 설정
 @Composable
 fun ReadLocation() {
-    val locationViewModel: LocationViewModel = hiltViewModel()
-    val isLoading = locationViewModel.isLoading.value
-//    val addressData = locationViewModel.getAddressResponse.value
-    val addressData by locationViewModel.initialAddressResponse.observeAsState()
-    val errorMessage = locationViewModel.errorMessage.value
-    val (myAddress, setMyAddress) = remember { mutableStateOf("") }
+    var userAddress by remember { mutableStateOf("") }
+
     LaunchedEffect(Unit) {
-        if (myAddress == "") {
-            val lat = App.prefs.getLat().toString()
-            val lgt = App.prefs.getLgt().toString()
-            locationViewModel.getInitialAddress(lat,lgt)
-            val address = addressData?.body()?.documents?.firstOrNull()?.address?.addressName
-            setMyAddress(address?: "")
-//        Log.d("위치",addressData.toString())
-        }
+        userAddress = App.prefs.getUserAddress()?:"유저 주소가 없습니다."
     }
-    Row() {
-        if (isLoading) {
-            Text(text = "주소 정보를 불러오는 중")
-        } else {
-            if (myAddress != "") {
-                Text(text = myAddress ?: "주소 정보가 없습니다.")
-            } else {
-                Text(text = "주소가 없습니다.")
-            }
-        }
-        if (errorMessage != null) {
-            Text(text = "주소를 불러오지 못했습니다. 서비스 지역이 아닌 지 확인해주세요.")
-        }
-    }
+
+    Text(text = userAddress)
 }
+//    val locationViewModel: LocationViewModel = hiltViewModel()
+//    val isLoading = locationViewModel.isLoading.value
+////    val addressData = locationViewModel.getAddressResponse.value
+//    val addressData by locationViewModel.initialAddressResponse.observeAsState()
+//    val errorMessage = locationViewModel.errorMessage.value
+//    val (myAddress, setMyAddress) = remember { mutableStateOf("") }
+//    LaunchedEffect(Unit) {
+//        if (myAddress == "") {
+//            val lat = App.prefs.getLat().toString()
+//            val lgt = App.prefs.getLgt().toString()
+//            locationViewModel.getInitialAddress(lat,lgt)
+//            val address = addressData?.body()?.documents?.firstOrNull()?.address?.addressName
+//            setMyAddress(address?: "")
+////        Log.d("위치",addressData.toString())
+//
+//        }
+//    }
+//    Row() {
+//        if (isLoading) {
+//            Text(text = "주소 정보를 불러오는 중")
+//        } else {
+//            if (myAddress != "") {
+//                Text(text = myAddress ?: "주소 정보가 없습니다.")
+//            } else {
+//                Text(text = "주소가 없습니다.")
+//            }
+//        }
+//        if (errorMessage != null) {
+//            Text(text = "주소를 불러오지 못했습니다. 서비스 지역이 아닌 지 확인해주세요.")
+//        }
+//    }
 
 @Composable
 fun SetCurrentLocation() {

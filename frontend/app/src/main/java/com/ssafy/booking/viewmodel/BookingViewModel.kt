@@ -221,8 +221,8 @@ private val _postBookingRejectResponse = MutableLiveData<Response<Unit>>()
         }
 
     // GET - 제목으로 모임 목록 조회
-    private val _getBookingByTitleResponse = MutableLiveData<Response<List<BookingListByTitle>>>()
-    val getBookingByTitleResponse: LiveData<Response<List<BookingListByTitle>>> get() = _getBookingByTitleResponse
+    private val _getBookingByTitleResponse = MutableLiveData<Response<List<BookingAll>>>()
+    val getBookingByTitleResponse: LiveData<Response<List<BookingAll>>> get() = _getBookingByTitleResponse
     fun getBookingByTitle(title: String) =
         viewModelScope.launch {
             _getBookingByTitleResponse.value = bookingUseCase.getBookingByTitle(title)
