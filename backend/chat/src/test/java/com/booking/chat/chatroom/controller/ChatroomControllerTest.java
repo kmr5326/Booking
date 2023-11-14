@@ -8,15 +8,20 @@ import static org.springframework.restdocs.operation.preprocess.Preprocessors.pr
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
+import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
 import static org.springframework.restdocs.webtestclient.WebTestClientRestDocumentation.document;
 import static org.springframework.restdocs.webtestclient.WebTestClientRestDocumentation.documentationConfiguration;
 
+import com.booking.chat.chat.dto.response.MessageResponse;
 import com.booking.chat.chatroom.domain.Chatroom;
 import com.booking.chat.chatroom.dto.request.ExitChatroomRequest;
 import com.booking.chat.chatroom.dto.request.InitChatroomRequest;
 import com.booking.chat.chatroom.dto.request.JoinChatroomRequest;
+import com.booking.chat.chatroom.dto.request.LastMessageRequest;
 import com.booking.chat.chatroom.dto.response.ChatroomListResponse;
 import com.booking.chat.util.ControllerTest;
+import java.time.LocalDateTime;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -74,7 +79,7 @@ class ChatroomControllerTest extends ControllerTest {
     void joinChatroomTest() throws Exception {
 
         JoinChatroomRequest joinChatroomRequest = new JoinChatroomRequest(1L, 1L);
-        when(chatroomService.joinChatroom(any())).thenReturn(Mono.empty());
+        when(chatroomService.joinChatroom(any())).thenReturn(Mono.just(1L));
 
         webTestClient.post()
                      .uri(BASE_URL + "/join")
@@ -100,7 +105,7 @@ class ChatroomControllerTest extends ControllerTest {
     void exitChatroomTest() throws Exception {
 
         ExitChatroomRequest exitChatroomRequest = new ExitChatroomRequest(1L, 1L);
-        when(chatroomService.exitChatroom(any())).thenReturn(Mono.empty());
+        when(chatroomService.exitChatroom(any())).thenReturn(Mono.just(1L));
 
         webTestClient.post()
                      .uri(BASE_URL + "/exit")
@@ -125,10 +130,10 @@ class ChatroomControllerTest extends ControllerTest {
     @Test
     void getChatroomListTest() throws Exception {
 
-        ChatroomListResponse chatroomListResponse = new ChatroomListResponse(1L, "미팅 이름",
+        ChatroomListResponse chatroomListResponse = new ChatroomListResponse(1L, 1L, "meetingTitle","lastMessage",
             List.of(1L, 2L, 3L));
 
-        ChatroomListResponse chatroomListResponse2 = new ChatroomListResponse(2L, "미팅 이름2",
+        ChatroomListResponse chatroomListResponse2 = new ChatroomListResponse(2L, 1L, "meetingTitle2","lastMessage2",
             List.of(1L, 2L, 3L));
 
         when(chatroomService.getChatroomListByMemberIdOrderByDesc(any())).thenReturn(
@@ -145,13 +150,72 @@ class ChatroomControllerTest extends ControllerTest {
                          preprocessResponse(prettyPrint()),
                          responseFields(
                              fieldWithPath("[]").description("속한 채팅방 목록 dto"),
-                             fieldWithPath("[].chatroomId").type(JsonFieldType.NUMBER)
-                                                           .description("모임 PK"),
-                             fieldWithPath("[].meetingTitle").type(JsonFieldType.STRING)
-                                                             .description("미팅방 이름"),
-                             fieldWithPath("[].memberList[]").type(JsonFieldType.ARRAY)
-                                                             .description("채팅방 멤버들 PK 배열")
+                             fieldWithPath("[].chatroomId").type(JsonFieldType.NUMBER).description("채팅방 PK"),
+                             fieldWithPath("[].lastMessageIdx").type(JsonFieldType.NUMBER).description("마지막 메세지 PK"),
+                             fieldWithPath("[].meetingTitle").type(JsonFieldType.STRING).description("미팅방 이름"),
+                             fieldWithPath("[].lastMessage").type(JsonFieldType.STRING).description("마지막 수신된 메세지"),
+                             fieldWithPath("[].memberList[]").type(JsonFieldType.ARRAY).description("채팅방 멤버들 PK 배열")
                          )
                      ));
+    }
+
+    @DisplayName("회원 채팅방 입장하면, 마지막 읽은 메세지부터 전송한다")
+    @Test
+    void enterChatroomTest() throws Exception {
+
+        LastMessageRequest lastMessageRequest = new LastMessageRequest(1L);
+
+        MessageResponse messageResponse1 = new MessageResponse(1L, 2L , 3L, "HELLO WEB FLUX!!!!!", 2, LocalDateTime.now());
+        MessageResponse messageResponse2 = new MessageResponse(2L, 4L , 3L, "BYE WEB FLUX!!!!!", 5, LocalDateTime.now());
+
+        when(chatroomService.enterChatroom(any(), any(), any())).thenReturn(Flux.just(messageResponse1, messageResponse2));
+
+        webTestClient.post()
+            .uri(BASE_URL + "/{chatroomId}", 1L)
+                     .header("Authorization", "Bearer: token")
+                     .contentType(MediaType.APPLICATION_JSON)
+                     .bodyValue(objectMapper.writeValueAsString(lastMessageRequest))
+                     .exchange()
+                     .expectStatus()
+                     .isOk()
+                     .expectBody()
+                     .consumeWith(document("chatroom/enter",
+                         preprocessRequest(prettyPrint()),
+                         preprocessResponse(prettyPrint()),
+                         pathParameters(
+                            parameterWithName("chatroomId").description("채팅방 PK")
+                         ),
+                         responseFields(
+                             fieldWithPath("[]").description("요청한 시점부터의 마지막까지의 메세지"),
+                             fieldWithPath("[].chatroomId").type(JsonFieldType.NUMBER).description("채팅방 PK"),
+                             fieldWithPath("[].messageId").type(JsonFieldType.NUMBER).description("메세지 ID"),
+                             fieldWithPath("[].senderId").type(JsonFieldType.NUMBER).description("메세지 보낸 회원 PK"),
+                             fieldWithPath("[].content").type(JsonFieldType.STRING).description("메세지 내용"),
+                             fieldWithPath("[].readCount").type(JsonFieldType.NUMBER).description("안읽은 사람 수"),
+                             fieldWithPath("[].timestamp").description("메세지 전송 시각")
+                         ),
+                         requestFields(
+                             fieldWithPath("lastMessageIndex").type(JsonFieldType.NUMBER).description("회원의 마지막 읽은 메세지")
+                         )
+                     ));
+    }
+
+    @DisplayName("회원 채팅방 소켓 끊으면, 접속 목록에서 삭제된다")
+    @Test
+    void disconnectChatroomTest() throws Exception {
+
+        when(chatroomService.disconnectChatroom(any(), any())).thenReturn(Mono.empty());
+
+        webTestClient.delete()
+                     .uri(BASE_URL + "/{chatroomId}", 1L)
+                     .header("Authorization", "Bearer: token")
+                     .exchange()
+                     .expectStatus()
+                     .isNoContent()
+                        .expectBody()
+                        .consumeWith(document("chatroom/disconnect",
+                            pathParameters(
+                                parameterWithName("chatroomId").description("채팅방 PK")
+                            )));
     }
 }

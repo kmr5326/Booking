@@ -136,7 +136,7 @@ public class MeetingControllerTest extends ControllerTest {
                 5,
                 new ArrayList<>(Arrays.asList(hashtagResponse2))));
         Flux<MeetingResponse> f = Flux.fromIterable(mockResponses);
-        when(meetingService.findAll()).thenReturn(f);
+        when(meetingService.findAllByLocation()).thenReturn(f);
 
         FieldDescriptor[] meetingResponseFields = new FieldDescriptor[]{
                 fieldWithPath("[]").description("모임 목록"),
