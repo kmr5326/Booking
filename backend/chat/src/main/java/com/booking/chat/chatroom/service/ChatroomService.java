@@ -41,9 +41,9 @@ public class ChatroomService {
                                  .flatMap(existingChatroom -> Mono.<Chatroom>error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Chatroom with given meetingId already exists")))
                                  .switchIfEmpty(Mono.defer(() -> {
                                      Chatroom chatroom = Chatroom.createWithLeader(initChatroomRequest);
-                                     return chatroomRepository.save(chatroom);
-//                                         .flatMap(savedChatroom -> createKafkaTopic(initChatroomRequest.meetingId())
-//                                             .thenReturn(savedChatroom));
+                                     return chatroomRepository.save(chatroom)
+                                         .flatMap(savedChatroom -> createKafkaTopic(initChatroomRequest.meetingId())
+                                             .thenReturn(savedChatroom));
                                  }));
     }
 

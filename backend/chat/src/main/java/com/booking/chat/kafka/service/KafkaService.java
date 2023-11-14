@@ -21,7 +21,8 @@ public class KafkaService {
         NewTopic newTopic = new NewTopic(topicName, partitions, replicationFactor);
 
         kafkaAdmin.createOrModifyTopics(newTopic);
-        send(chatroomId);
+        log.info("new Topic : {} ", topicName);
+        // send(chatroomId);
     }
 
     public void createTopic(Long chatroomId) {
