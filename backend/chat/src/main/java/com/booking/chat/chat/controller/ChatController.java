@@ -41,9 +41,9 @@ public class ChatController {
     }
 
     @PostMapping("/stress/{chatroomId}")
-    public void stressTest(@PathVariable Long chatroomId, @RequestBody KafkaMessage kafkaMessage) {
+    public Mono<Void> stressTest(@PathVariable Long chatroomId, @RequestBody KafkaMessage kafkaMessage) {
 
-        messageService.processAndSend(kafkaMessage, chatroomId);
+        return messageService.processAndSend(kafkaMessage, chatroomId);
     }
 
 }
