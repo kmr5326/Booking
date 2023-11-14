@@ -31,6 +31,7 @@ public class BookService {
     private final ReactiveMongoTemplate reactiveMongoTemplate;
 
     public Mono<Void> initializeSave(List<Book> bookList) {
+        bookList.forEach(book -> book.setMeetingCnt(0));
         return bookRepository.saveAll(bookList)
                              .then();
     }
@@ -87,6 +88,19 @@ public class BookService {
                     log.info("신작 도서 조회: {}", titles);
                 })
                 .flatMapMany(Flux::fromIterable)
+                .map(BookResponse::new);
+    }
+
+    public Mono<Void> increaseBookMeetingCnt(String isbn){
+        return bookRepository.findById(isbn)
+                .flatMap(book -> {
+                    book.setMeetingCnt(book.getMeetingCnt()+1);
+                    return bookRepository.save(book);
+                }).then();
+    }
+
+    public Flux<BookResponse> loadPopularBooks() {
+        return bookRepository.findTop30ByOrderByMeetingCntDesc()
                 .map(BookResponse::new);
     }
 }
