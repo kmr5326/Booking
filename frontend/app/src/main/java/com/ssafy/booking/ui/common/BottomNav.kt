@@ -47,14 +47,14 @@ fun BottomNav(
     navController: NavController,
     appViewModel: AppViewModel
 ) {
-    // 현재 백 스택 엔트리를 관찰합니다.
+    // 현재 백 스택 엔트리를 관찰
     val navBackStackEntry by navController.currentBackStackEntryAsState()
-    // 현재 라우트를 결정합니다.
+    // 현재 라우트를 결정
     val currentRoute = navBackStackEntry?.destination?.route
-    // 아이템 목록을 정의합니다.
+    // 아이템 목록을 정의
     val items = listOf(
         AppNavItem.Book,
-        AppNavItem.History,
+        AppNavItem.MyBooking,
         AppNavItem.Main,
         AppNavItem.Chat,
         AppNavItem.Profile
@@ -72,7 +72,7 @@ fun BottomNav(
                 icon = {
                     val icon = when (item) {
                         AppNavItem.Book -> Icons.Outlined.FavoriteBorder
-                        AppNavItem.History -> Icons.Outlined.DateRange
+                        AppNavItem.MyBooking -> Icons.Outlined.DateRange
                         AppNavItem.Main -> Icons.Outlined.Home
                         AppNavItem.Chat -> Icons.Outlined.Send
                         AppNavItem.Profile -> Icons.Outlined.AccountCircle
@@ -85,7 +85,7 @@ fun BottomNav(
                 label = {
                     val label = when (item) {
                         AppNavItem.Book -> "도서"
-                        AppNavItem.History -> "이전 모임"
+                        AppNavItem.MyBooking -> "나의 북킹"
                         AppNavItem.Main -> "홈"
                         AppNavItem.Chat -> "채팅"
                         AppNavItem.Profile -> "프로필"
@@ -125,148 +125,3 @@ fun BottomNav(
     }
 }
 
-// @Composable
-// fun BottomNav(
-//    navController: NavController, appViewModel: AppViewModel
-// ) {
-//    Btn(navController, appViewModel)
-// }
-//
-// @Composable
-// fun Btn(
-//    navController: NavController,
-//    appViewModel: AppViewModel,
-// ) {
-//    val imgLength = 30
-//    val horPadVal = 20
-//    Row(
-//        modifier = Modifier
-//            .fillMaxWidth()
-//            .height(80.dp)
-//            .padding(bottom = 20.dp)
-//            .background(color = colorResource(id = R.color.background_color)),
-//        horizontalArrangement = Arrangement.Center,
-//        verticalAlignment = Alignment.Bottom,
-//    ) {
-//        Box(
-//            contentAlignment = Alignment.Center, modifier = Modifier.padding(end = horPadVal.dp)
-//        ) {
-//            val btnBook = painterResource(R.drawable.btn_book)
-//            Image(painter = btnBook, contentDescription = null, modifier = Modifier
-//                .clickable(interactionSource = remember { MutableInteractionSource() },
-//                    indication = null,
-//                    onClick = {
-//                        navController.navigate(AppNavItem.Book.route) {
-//                            launchSingleTop = true
-//                            popUpTo(AppNavItem.Main.route)
-//                        }
-//                    })
-//                .width(imgLength.dp)
-//                .height(imgLength.dp))
-//        }
-//        Box(
-//            contentAlignment = Alignment.Center,
-//            modifier = Modifier.padding(horizontal = horPadVal.dp)
-//        ) {
-//            val btnHistory = painterResource(R.drawable.btn_history)
-//            Image(painter = btnHistory, contentDescription = null, modifier = Modifier
-//                .clickable(interactionSource = remember { MutableInteractionSource() },
-//                    indication = null,
-//                    onClick = {
-//                        navController.navigate(AppNavItem.History.route) {
-//                            launchSingleTop = true
-//                            popUpTo(AppNavItem.Main.route)
-//                        }
-//                    })
-//                .width(imgLength.dp)
-//                .height(imgLength.dp))
-//        }
-//        Box(
-//            contentAlignment = Alignment.Center,
-//            modifier = Modifier.padding(horizontal = horPadVal.dp)
-//        ) {
-//            val btnHome = painterResource(R.drawable.btn_home)
-//            Image(painter = btnHome, contentDescription = null, modifier = Modifier
-//                .clickable(interactionSource = remember { MutableInteractionSource() },
-//                    indication = null,
-//                    onClick = {
-//                        navController.navigate(AppNavItem.Main.route) {
-//                            launchSingleTop = true
-//                            popUpTo(AppNavItem.Main.route)
-//                        }
-//                    })
-//                .width(55.dp)
-//                .height(55.dp))
-//        }
-//        Box(
-//            contentAlignment = Alignment.Center,
-//            modifier = Modifier.padding(horizontal = horPadVal.dp)
-//        ) {
-//            val btnChat = painterResource(R.drawable.btn_chat)
-//            Image(painter = btnChat, contentDescription = null, modifier = Modifier
-//                .clickable(interactionSource = remember { MutableInteractionSource() },
-//                    indication = null,
-//                    onClick = {
-//                        navController.navigate(AppNavItem.Chat.route) {
-//                            launchSingleTop = true
-//                            popUpTo(AppNavItem.Main.route)
-//                        }
-//                    })
-//                .width(imgLength.dp)
-//                .height(imgLength.dp))
-//        }
-//        Box(
-//            contentAlignment = Alignment.Center, modifier = Modifier.padding(start = horPadVal.dp)
-//        ) {
-//            val btnProfile = painterResource(R.drawable.btn_profile)
-//            Image(painter = btnProfile, contentDescription = null, modifier = Modifier
-//                .clickable(interactionSource = remember { MutableInteractionSource() },
-//                    indication = null,
-//                    onClick = {
-//                        navController.navigate(AppNavItem.Profile.route) {
-//                            launchSingleTop = true
-//                            popUpTo(AppNavItem.Main.route)
-//                        }
-//                    })
-//                .width(imgLength.dp)
-//                .height(imgLength.dp))
-//        }
-//    }
-// }
-
-//
-// // 홈 스크린
-// @Composable
-// fun HomeScreen() {
-//    Box(
-//        modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
-//    ) {
-//        Text(
-//            text = "Home Screen", fontFamily = Serif, fontSize = 22.sp
-//        )
-//    }
-// }
-//
-// // 프로필
-// @Composable
-// fun ProfileScreen() {
-//    Box(
-//        modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
-//    ) {
-//        Text(
-//            text = "Profile Screen", fontFamily = Serif, fontSize = 22.sp
-//        )
-//    }
-// }
-//
-// // 설정
-// @Composable
-// fun SettingScreen() {
-//    Box(
-//        modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
-//    ) {
-//        Text(
-//            text = "Setting Screen", fontFamily = Serif, fontSize = 22.sp
-//        )
-//    }
-// }
