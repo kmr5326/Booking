@@ -43,7 +43,6 @@ import com.ssafy.booking.ui.LocalNavigation
 import com.ssafy.booking.ui.common.BackTopBar
 import com.ssafy.booking.ui.common.TabBar
 import com.ssafy.booking.viewmodel.BookingViewModel
-import com.ssafy.domain.model.booking.BookingDetail
 import com.ssafy.domain.model.booking.BookingJoinRequest
 
 val tabTitles = listOf("모임 정보", "참가자", "게시판")

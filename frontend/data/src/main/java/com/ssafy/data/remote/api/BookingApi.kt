@@ -103,7 +103,7 @@ interface BookingApi {
     // 모임 목록 조회 - 해시태그
     @Headers("Content-Type: application/json;charset=UTF-8")
     @GET("/api/booking/meeting/hashtag/{hashtagId}")
-    suspend fun getBookingByHashtag(@Path("hashtagId") hashtagId: Long): Response<List<BookingListByHashtag>>
+    suspend fun getBookingByHashtag(@Path("hashtagId") hashtagId: Long): Response<List<BookingAll>>
 
     // 모임 목록 조회 - memberPk
     @Headers("Content-Type: application/json;charset=UTF-8")
@@ -113,6 +113,6 @@ interface BookingApi {
     // 모임 목록 조회 - title
     @Headers("Content-Type: application/json;charset=UTF-8")
     @GET("/api/booking/meeting/title/{title}")
-    suspend fun getBookingByTitle(@Path("title") title: String): Response<List<BookingListByTitle>>
+    suspend fun getBookingByTitle(@Path("title") title: String): Response<List<BookingAll>>
 
 }
