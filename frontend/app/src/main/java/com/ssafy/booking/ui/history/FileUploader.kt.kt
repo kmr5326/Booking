@@ -1,31 +1,84 @@
 package com.ssafy.booking.ui.history
 
 import android.media.Image
+import android.net.Uri
+import android.provider.OpenableColumns
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
+import coil.compose.rememberAsyncImagePainter
+import coil.request.CachePolicy
+import coil.request.ImageRequest
 import com.ssafy.booking.R
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 
 @Composable
 fun FileUploader() {
+    val context = LocalContext.current
+
+    var recordUri by remember { mutableStateOf<RequestBody?>(null) }
+    var downloadUri by remember { mutableStateOf<Uri?>(null) }
+    var fileName by remember { mutableStateOf<String>("") }
+
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let {
+            downloadUri = uri
+
+            val contentResolver = context.contentResolver
+
+            // 실제 파일 이름을 가져오기
+            val cursor = contentResolver.query(uri, null, null, null, null)
+            val nameIndex = cursor?.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+            fileName = if (cursor != null && nameIndex != null && cursor.moveToFirst()) {
+                cursor.getString(nameIndex)
+            } else {
+                "Unknown"
+            }
+            cursor?.close()
+
+            val inputStream = contentResolver.openInputStream(uri)
+            recordUri = inputStream?.readBytes()?.toRequestBody("audio/m4a".toMediaTypeOrNull())
+        }
+    }
+
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier
@@ -37,7 +90,7 @@ fun FileUploader() {
         ) {
             IconButton(
                 onClick = {
-                    // 클릭 이벤트 처리
+                    launcher.launch("audio/*")
                 },
                 modifier = Modifier
                     .size(100.dp),
@@ -48,10 +101,28 @@ fun FileUploader() {
                     tint = Color(0xFF00C68E)
                 )
             }
-            Text(
-                text = "녹음 파일 업로드",
-                fontWeight = FontWeight.ExtraBold
-            )
+            downloadUri?.let { uri ->
+                Text(
+                    text = "${fileName}",
+                    modifier = Modifier
+                        .padding(16.dp)
+                )
+                Text(
+                    text = "녹음파일 등록",
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .border(BorderStroke(1.dp, Color.Black))
+                        .clickable {
+//                            NAVER CLOVA RECORDER POST
+                        }
+                )
+            } ?: run {
+                Text(
+                    text = "오디오 파일을 선택해주세요",
+                    modifier = Modifier
+                        .padding(16.dp)
+                )
+            }
         }
     }
 }
