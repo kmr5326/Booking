@@ -4,6 +4,9 @@ import com.ssafy.domain.model.booking.BookingAll
 import com.ssafy.domain.model.booking.BookingCreateRequest
 import com.ssafy.domain.model.booking.BookingDetail
 import com.ssafy.domain.model.booking.BookingJoinRequest
+import com.ssafy.domain.model.booking.BookingListByHashtag
+import com.ssafy.domain.model.booking.BookingListByMemberPk
+import com.ssafy.domain.model.booking.BookingListByTitle
 import com.ssafy.domain.model.booking.BookingModifyRequest
 import com.ssafy.domain.model.booking.BookingParticipants
 import com.ssafy.domain.model.booking.BookingRejectRequest
@@ -95,6 +98,21 @@ interface BookingApi {
     // 모임 출석체크
     @Headers("Content-Type: application/json;charset=UTF-8")
     @PATCH("/api/booking/meeting/attend/{meetingId}")
-    suspend fun patchBookingAttend(@Path("meetingId") meetingId: Long): Response<Unit>    
+    suspend fun patchBookingAttend(@Path("meetingId") meetingId: Long): Response<Unit>
+
+    // 모임 목록 조회 - 해시태그
+    @Headers("Content-Type: application/json;charset=UTF-8")
+    @GET("/api/booking/meeting/hashtag/{hashtagId}")
+    suspend fun getBookingByHashtag(@Path("hashtagId") hashtagId: Long): Response<List<BookingListByHashtag>>
+
+    // 모임 목록 조회 - memberPk
+    @Headers("Content-Type: application/json;charset=UTF-8")
+    @GET("/api/booking/meeting/member/{memberPk}")
+    suspend fun getBookingByMemberPk(@Path("memberPk") memberPk: Long): Response<List<BookingListByMemberPk>>
+
+    // 모임 목록 조회 - title
+    @Headers("Content-Type: application/json;charset=UTF-8")
+    @GET("/api/booking/meeting/title/{title}")
+    suspend fun getBookingByTitle(@Path("title") title: String): Response<List<BookingListByTitle>>
 
 }

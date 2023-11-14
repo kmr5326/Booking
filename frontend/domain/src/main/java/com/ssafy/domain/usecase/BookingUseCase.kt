@@ -5,6 +5,9 @@ import com.ssafy.domain.model.booking.BookingAll
 import com.ssafy.domain.model.booking.BookingCreateRequest
 import com.ssafy.domain.model.booking.BookingDetail
 import com.ssafy.domain.model.booking.BookingJoinRequest
+import com.ssafy.domain.model.booking.BookingListByHashtag
+import com.ssafy.domain.model.booking.BookingListByMemberPk
+import com.ssafy.domain.model.booking.BookingListByTitle
 import com.ssafy.domain.model.booking.BookingModifyRequest
 import com.ssafy.domain.model.booking.BookingParticipants
 import com.ssafy.domain.model.booking.BookingRejectRequest
@@ -66,6 +69,15 @@ class BookingUseCase @Inject constructor(private val repository: BookingReposito
     }
     suspend fun patchBookingAttend(meetingId: Long): Response<Unit> {
         return repository.patchBookingAttend(meetingId)
+    }
+    suspend fun getBookingByHashtag(hashtagId:Long): Response<List<BookingListByHashtag>> {
+        return repository.getBookingByHashtag(hashtagId)
+    }
+    suspend fun getBookingByMemberPk(memberPk:Long): Response<List<BookingListByMemberPk>> {
+        return repository.getBookingByMemberPk(memberPk)
+    }
+    suspend fun getBookingByTitle(title:String): Response<List<BookingListByTitle>> {
+        return repository.getBookingByTitle(title)
     }
 }
 
