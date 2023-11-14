@@ -1,5 +1,6 @@
 package com.booking.booking.global.config;
 
+import io.micrometer.common.lang.NonNullApi;
 import io.r2dbc.pool.ConnectionPool;
 import io.r2dbc.pool.ConnectionPoolConfiguration;
 import io.r2dbc.spi.ConnectionFactory;
@@ -14,6 +15,7 @@ import java.time.Duration;
 
 @Configuration
 @EnableR2dbcAuditing
+@NonNullApi
 public class MariaDbConfig extends AbstractR2dbcConfiguration {
     @Value("${maria.url}")
     private String url;
@@ -36,10 +38,10 @@ public class MariaDbConfig extends AbstractR2dbcConfiguration {
                 .initialSize(10)
                 .minIdle(2)
                 .maxSize(10)
-                .maxAcquireTime(Duration.ofSeconds(5))
-                .maxCreateConnectionTime(Duration.ofSeconds(5))
-                .maxLifeTime(Duration.ofSeconds(3600))
-                .maxIdleTime(Duration.ofSeconds(3600))
+                .maxAcquireTime(Duration.ofSeconds(10))
+                .maxCreateConnectionTime(Duration.ofSeconds(10))
+                .maxLifeTime(Duration.ofSeconds(-1))
+                .maxIdleTime(Duration.ofSeconds(-1))
                 .build();
 
         return new ConnectionPool(connectionPoolConfiguration);

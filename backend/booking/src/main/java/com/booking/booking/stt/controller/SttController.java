@@ -1,6 +1,7 @@
 package com.booking.booking.stt.controller;
 
 import com.booking.booking.stt.dto.request.SttRequestDto;
+import com.booking.booking.stt.dto.request.TranscriptionModificationRequest;
 import com.booking.booking.stt.dto.response.LoadSummaryResponse;
 import com.booking.booking.stt.dto.response.SttResponseDto;
 import com.booking.booking.stt.dto.request.SummaryControllerDto;
@@ -39,9 +40,9 @@ public class SttController {
     }
 
     @GetMapping("/stt")
-    public Mono<ResponseEntity<TranscriptionResponse>> loadTranscriptionByFileName(@RequestParam("filename") String filename){
-        log.info("Load Transcription filename: {}",filename);
-        return sttService.findTranscriptionByFileName(filename)
+    public Mono<ResponseEntity<TranscriptionResponse>> loadTranscriptionByMeetingInfoId(@RequestParam("meetingInfoId") long meetingInfoId){
+        log.info("Load Transcription meetingInfoId: {}",meetingInfoId);
+        return sttService.findTranscriptionByMeetingInfoId(meetingInfoId)
                 .flatMap(resp->Mono.just(ResponseEntity.ok().body(resp)))
                 .onErrorResume(e->{
                     log.error("Load Transcription Error: {}",e.getMessage());
@@ -54,5 +55,16 @@ public class SttController {
         log.info("Load latest summary by transcriptionId : {}",transcriptionId);
         return sttService.findFirstByTranscriptionId(transcriptionId)
                 .flatMap(resp -> Mono.just(ResponseEntity.ok().body(resp)));
+    }
+
+    @PostMapping("/stt/modification")
+    public Mono<ResponseEntity<String>> modifyTranscription(@RequestBody TranscriptionModificationRequest request) {
+        log.info("Transcription modification : {}",request);
+        return sttService.modifyTranscription(request)
+                .flatMap(resp->Mono.just(ResponseEntity.ok().body(resp)))
+                .onErrorResume(e->{
+                    log.error("transcription modification error : {}",e.getMessage());
+                    return Mono.just(ResponseEntity.badRequest().body(e.getMessage()));
+                });
     }
 }

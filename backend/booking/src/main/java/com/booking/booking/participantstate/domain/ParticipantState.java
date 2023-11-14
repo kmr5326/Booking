@@ -24,4 +24,24 @@ public class ParticipantState {
     private Boolean attendanceStatus;
 
     private Boolean paymentStatus;
+
+    public ParticipantState updateAttendance(Boolean attendance) {
+        return ParticipantState.builder()
+                .stateId(stateId)
+                .memberId(memberId)
+                .meetinginfoId(meetinginfoId)
+                .attendanceStatus(attendance)
+                .paymentStatus(paymentStatus)
+                .build();
+    }
+
+    public ParticipantState updatePayment(Boolean payment) {
+        return ParticipantState.builder()
+                .stateId(stateId)
+                .memberId(memberId)
+                .meetinginfoId(meetinginfoId)
+                .attendanceStatus(attendanceStatus)
+                .paymentStatus(payment)
+                .build();
+    }
 }

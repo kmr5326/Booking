@@ -18,7 +18,12 @@ public class ParticipantStateService {
     private final ParticipantService participantService;
 
     public Flux<ParticipantState> findParticipantStatesByMeetingId(Long meetingId) {
+        log.info("[Booking:ParticipantState] findParticipantStatesByMeetingId({})", meetingId);
         return participantStateRepository.findParticipantStatesByMeetingId(meetingId);
+    }
+
+    public Mono<ParticipantState> findByMeetingIdAndMemberId(Long meetingId, Integer memberId) {
+        return participantStateRepository.findByMeetinginfoIdAndMemberId(meetingId, memberId);
     }
 
     public Mono<Void> startMeeting(MeetingInfo meetingInfo) {
@@ -30,6 +35,23 @@ public class ParticipantStateService {
                                 .attendanceStatus(false)
                                 .paymentStatus(false)
                                 .build()))
+                .then();
+    }
+
+    public Mono<Void> attendMeeting(MeetingInfo meetingInfo) {
+        return participantStateRepository.findById(meetingInfo.getMeetinginfoId())
+                .flatMap(participantState -> {
+                    if (!participantState.getPaymentStatus()) {
+                        return Mono.error(new RuntimeException("참가비 x"));
+                    }
+                    return participantStateRepository.save(participantState.updateAttendance(true));
+                })
+                .then();
+    }
+
+    public Mono<Void> payMeeting(MeetingInfo meetingInfo) {
+        return participantStateRepository.findById(meetingInfo.getMeetinginfoId())
+                .flatMap(participantState -> participantStateRepository.save(participantState.updatePayment(true)))
                 .then();
     }
 }

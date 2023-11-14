@@ -67,6 +67,7 @@ dependencies {
 
     // r2dbc
     runtimeOnly group: 'org.mariadb', name: 'r2dbc-mariadb', version: '1.0.3'
+    // implementation group: 'io.r2dbc', name: 'r2dbc-pool', version: '1.0.0.RELEASE'
 
     //actuator
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-actuator', version: '3.1.0'

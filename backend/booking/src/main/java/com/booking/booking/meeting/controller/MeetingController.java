@@ -182,12 +182,23 @@ public class MeetingController {
                         Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, error.getMessage())));
     }
 
-    @PatchMapping("/info/{meetingId}")
+    @PatchMapping("/finish/{meetingId}")
     public Mono<ResponseEntity<Void>> finishMeeting(@RequestHeader(AUTHORIZATION) String token,
                                                     @PathVariable Long meetingId) {
         String userEmail = JwtUtil.getLoginEmailByToken(token);
 
-        return meetingService.finishMeeting(userEmail, meetingId)
+        return meetingService.finishMeeting(userEmail, meetingId, true)
+                .thenReturn(ResponseEntity.ok().<Void>build())
+                .onErrorResume(error ->
+                        Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, error.getMessage())));
+    }
+
+    @PatchMapping("/restart/{meetingId}")
+    public Mono<ResponseEntity<Void>> restartMeeting(@RequestHeader(AUTHORIZATION) String token,
+                                                    @PathVariable Long meetingId) {
+        String userEmail = JwtUtil.getLoginEmailByToken(token);
+
+        return meetingService.finishMeeting(userEmail, meetingId, false)
                 .thenReturn(ResponseEntity.ok().<Void>build())
                 .onErrorResume(error ->
                         Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, error.getMessage())));
@@ -199,6 +210,17 @@ public class MeetingController {
         String userEmail = JwtUtil.getLoginEmailByToken(token);
 
         return meetingService.attendMeeting(userEmail, meetingAttendRequest)
+                .thenReturn(ResponseEntity.ok().<Void>build())
+                .onErrorResume(error ->
+                        Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, error.getMessage())));
+    }
+
+    @PatchMapping("/pay/{meetingId}")
+    public Mono<ResponseEntity<Void>> payMeeting(@RequestHeader(AUTHORIZATION) String token,
+                                                 @PathVariable("meetingId") Long meetingId) {
+        String userEmail = JwtUtil.getLoginEmailByToken(token);
+
+        return meetingService.payMeeting(token, userEmail, meetingId)
                 .thenReturn(ResponseEntity.ok().<Void>build())
                 .onErrorResume(error ->
                         Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, error.getMessage())));
@@ -253,5 +275,4 @@ public class MeetingController {
                 .onErrorResume(error ->
                         Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, error.getMessage())));
     }
-
 }
