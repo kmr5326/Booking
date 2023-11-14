@@ -51,4 +51,10 @@ public class BookController {
         return bookService.increaseBookMeetingCnt(isbn)
                 .then(Mono.just(ResponseEntity.ok().build()));
     }
+
+    @GetMapping("/popular")
+    public Flux<BookResponse> loadPopularBooks() {
+        log.info("모임 인기 도서 리스트");
+        return bookService.loadPopularBooks();
+    }
 }

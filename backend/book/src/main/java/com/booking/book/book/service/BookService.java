@@ -115,4 +115,9 @@ public class BookService {
                     return bookRepository.save(book);
                 }).then();
     }
+
+    public Flux<BookResponse> loadPopularBooks() {
+        return bookRepository.findTop30ByOrderByMeetingCntDesc()
+                .map(BookResponse::new);
+    }
 }
