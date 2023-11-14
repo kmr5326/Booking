@@ -22,7 +22,7 @@ public class ParticipantStateService {
     }
 
     public Mono<ParticipantState> findByMeetingIdAndMemberId(Long meetingId, Integer memberId) {
-        return participantStateRepository.findByMeetinginfoIdAndAndMemberId(meetingId, memberId);
+        return participantStateRepository.findByMeetinginfoIdAndMemberId(meetingId, memberId);
     }
 
     public Mono<Void> startMeeting(MeetingInfo meetingInfo) {
