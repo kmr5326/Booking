@@ -18,8 +18,8 @@ services:
     image: mongo
     restart: on-failure
     container_name: booking-mongodb
-#    ports:
-#      - "27018:27017"
+    ports:
+      - "27018:27017"
     environment:
       MONGO_INITDB_ROOT_USERNAME: booking
       MONGO_INITDB_ROOT_PASSWORD: booking123!
