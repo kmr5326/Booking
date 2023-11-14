@@ -1,14 +1,12 @@
 package com.booking.booking.global.utils;
 
+import com.booking.booking.global.dto.request.PaymentRequest;
 import com.booking.booking.global.dto.response.MemberResponse;
 import io.netty.channel.ChannelOption;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.handler.timeout.WriteTimeoutHandler;
-import java.time.Duration;
-import java.util.concurrent.TimeUnit;
-import javax.net.ssl.SSLException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -21,11 +19,18 @@ import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
 import reactor.netty.resources.ConnectionProvider;
 
+import javax.net.ssl.SSLException;
+import java.time.Duration;
+import java.util.concurrent.TimeUnit;
+
 @Slf4j
 @Component
 public class MemberUtil {
 
     private final WebClient webClient;
+    private final String AUTHORIZATION = "Authorization";
+    private final String RECIEVER = "kakao_3144707067";
+//    private final String RECIEVER = "google_113902342240727897270";
 
     public MemberUtil(@Value("${gateway.url}") String gatewayUrl) throws SSLException {
         ConnectionProvider provider = ConnectionProvider.builder("ApiConnections")
@@ -58,27 +63,36 @@ public class MemberUtil {
 
     public Mono<MemberResponse> getMemberInfoByEmail(String userEmail) {
         log.info("[Booking:MemberUtil] getMemberInfoByEmail({})", userEmail);
-        return makeRequest("/api/members/memberInfo/" + userEmail);
+        return makeGetRequest("/api/members/memberInfo/" + userEmail);
     }
 
     public Mono<MemberResponse> getMemberInfoByPk(Integer memberPk) {
         log.info("[Booking:MemberUtil] getMemberInfoByPk({})", memberPk);
-        return makeRequest("/api/members/memberInfo-pk/" + memberPk);
+        return makeGetRequest("/api/members/memberInfo-pk/" + memberPk);
     }
 
-    public Mono<MemberResponse> getMemberInfoByNickname(String nickname) {
-        log.info("[Booking:MemberUtil] getMemberInfoByNickname({})", nickname);
-        return makeRequest("/api/members/memberInfo-nick/" + nickname);
-    }
-
-    private Mono<MemberResponse> makeRequest(String path) {
+    private Mono<MemberResponse> makeGetRequest(String path) {
         return webClient.get()
                         .uri(path)
                         .retrieve()
                         .onStatus(HttpStatus::is4xxClientError,
-                            response -> Mono.error(new RuntimeException("회원정보 응답 에러 4xx")))
+                            response -> Mono.error(new RuntimeException("회원정보 응답 에러")))
                         .onStatus(HttpStatus::is5xxServerError,
-                            response -> Mono.error(new RuntimeException("회원정보 응답 에러 5xx")))
+                            response -> Mono.error(new RuntimeException("회원정보 응답 에러")))
                         .bodyToMono(MemberResponse.class);
+    }
+
+    public Mono<Void> payRequest(String token, Integer fee) {
+        return webClient.post()
+                .uri("/api/payments/send")
+                .header(AUTHORIZATION, token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(Mono.just(new PaymentRequest(RECIEVER, fee)), PaymentRequest.class)
+                .retrieve()
+                .onStatus(HttpStatus::is4xxClientError,
+                        response -> Mono.error(new RuntimeException("참가비 응답 에러")))
+                .onStatus(HttpStatus::is5xxServerError,
+                        response -> Mono.error(new RuntimeException("참가비 응답 에러")))
+                .bodyToMono(Void.class);
     }
 }

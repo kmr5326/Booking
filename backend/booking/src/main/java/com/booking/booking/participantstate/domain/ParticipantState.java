@@ -34,4 +34,14 @@ public class ParticipantState {
                 .paymentStatus(paymentStatus)
                 .build();
     }
+
+    public ParticipantState updatePayment(Boolean payment) {
+        return ParticipantState.builder()
+                .stateId(stateId)
+                .memberId(memberId)
+                .meetinginfoId(meetinginfoId)
+                .attendanceStatus(attendanceStatus)
+                .paymentStatus(payment)
+                .build();
+    }
 }

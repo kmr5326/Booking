@@ -5,6 +5,7 @@ import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.r2dbc.repository.R2dbcRepository;
 import org.springframework.data.repository.query.Param;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 public interface ParticipantStateRepository extends R2dbcRepository<ParticipantState, Long> {
     @Query("SELECT ps.* " +
@@ -12,4 +13,6 @@ public interface ParticipantStateRepository extends R2dbcRepository<ParticipantS
             "WHERE ps.meetinginfo_id = " +
             "        (SELECT MAX(meetinginfo_id) FROM meetinginfos WHERE meeting_id = :meetingId)")
     Flux<ParticipantState> findParticipantStatesByMeetingId(@Param("meetingId") Long meetingId);
+
+    Mono<ParticipantState> findByMeetinginfoIdAndAndMemberId(Long meetinginfoId, Integer memberId);
 }
