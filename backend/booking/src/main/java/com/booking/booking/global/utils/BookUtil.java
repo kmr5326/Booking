@@ -35,4 +35,21 @@ public class BookUtil {
                         response -> Mono.error(new RuntimeException("책 정보 응답 에러")))
                 .bodyToMono(BookResponse.class);
     }
+
+    public static Mono<Void> increaseMeetingCount(String isbn) {
+        log.info("[Booking:BookUtil] increaseMeetingCount({})", isbn);
+
+        WebClient webClient = WebClient.builder().build();
+        URI uri = URI.create(GATEWAY_URL + "/api/book/" + isbn);
+
+        return webClient.post()
+                .uri(uri)
+                .retrieve()
+                .onStatus(HttpStatus::is4xxClientError,
+                        response -> Mono.error(new RuntimeException("책 증가 에러")))
+                .onStatus(HttpStatus::is5xxServerError,
+                        response -> Mono.error(new RuntimeException("책 증가 에러")))
+                .bodyToMono(Void.class);
+
+    }
 }
