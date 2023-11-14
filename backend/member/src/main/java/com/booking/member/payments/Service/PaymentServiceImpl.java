@@ -5,10 +5,7 @@ import com.booking.member.members.repository.MemberRepository;
 import com.booking.member.payments.Repository.PaymentRepository;
 import com.booking.member.payments.domain.Payment;
 import com.booking.member.payments.domain.PaymentType;
-import com.booking.member.payments.dto.ApprovalResponseDto;
-import com.booking.member.payments.dto.ReadyPaymentRequestDto;
-import com.booking.member.payments.dto.ReadyPaymentResponseDto;
-import com.booking.member.payments.dto.SendRequestDto;
+import com.booking.member.payments.dto.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,7 +18,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
-import java.time.LocalDateTime;
+import static com.booking.member.payments.domain.Payment.paymentTypeReceive;
+import static com.booking.member.payments.domain.Payment.paymentTypeSend;
 
 @Service
 @RequiredArgsConstructor
@@ -150,21 +148,27 @@ public class PaymentServiceImpl implements PaymentService {
             log.error("포인트 부족");
             return Mono.error(new RuntimeException("포인트가 부족합니다."));
         }
-        Payment paymentSend= Payment.builder()
-                .approved_at(LocalDateTime.now())
-                .amount(req.amount())
-                .type(PaymentType.Send)
-                .payer(sender)
-                .receiver(receiver)
-                .build();
 
-        Payment paymentReceive = Payment.builder()
-                .approved_at(LocalDateTime.now())
-                .amount(req.amount())
-                .type(PaymentType.Receive)
-                .payer(sender)
-                .receiver(receiver)
-                .build();
+        Payment paymentSend= paymentTypeSend(sender,receiver, req.amount());
+        Payment paymentReceive = paymentTypeReceive(sender,receiver, req.amount());
+
+        paymentRepository.save(paymentSend);
+        paymentRepository.save(paymentReceive);
+        sender.setPoint(sender.getPoint()-req.amount());
+        receiver.setPoint(receiver.getPoint()+req.amount());
+        memberRepository.save(sender);
+        memberRepository.save(receiver);
+        return Mono.empty();
+    }
+
+    @Override
+    public Mono<Void> resendPoint(ReSendRequestDto req) {
+        Member sender=memberRepository.findByLoginId("kakao_3144707067");
+        Member receiver=memberRepository.findById(req.receiverMemberPk()).orElseThrow(()->new UsernameNotFoundException("없는 사용자"));
+
+        Payment paymentSend= paymentTypeSend(sender,receiver, req.amount());
+        Payment paymentReceive = paymentTypeReceive(sender,receiver, req.amount());
+
         paymentRepository.save(paymentSend);
         paymentRepository.save(paymentReceive);
         sender.setPoint(sender.getPoint()-req.amount());

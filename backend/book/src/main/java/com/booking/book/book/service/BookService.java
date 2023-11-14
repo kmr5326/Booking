@@ -31,6 +31,7 @@ public class BookService {
     private final ReactiveMongoTemplate reactiveMongoTemplate;
 
     public Mono<Void> initializeSave(List<Book> bookList) {
+        bookList.forEach(book -> book.setMeetingCnt(0));
         return bookRepository.saveAll(bookList)
                              .then();
     }

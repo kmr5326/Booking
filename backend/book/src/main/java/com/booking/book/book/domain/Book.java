@@ -4,10 +4,8 @@ import com.booking.book.global.data.LocalDateConverter;
 import com.opencsv.bean.CsvBindByPosition;
 import com.opencsv.bean.CsvCustomBindByPosition;
 import java.time.LocalDate;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+
+import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.TextIndexed;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -50,5 +48,9 @@ public class Book {
     private String content;
 
     @TextScore private Float score;
+
+    @Field("meeting_cnt")
+    @Setter
+    private Integer meetingCnt;
 
 }
