@@ -7,6 +7,7 @@ import android.view.Gravity
 import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,8 +15,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
@@ -32,7 +35,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -52,15 +58,15 @@ val tabTitles = listOf("모임 정보", "참가자", "게시판")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BookingDetail(meetingId: Long) {
+
     val bookingViewModel: BookingViewModel = hiltViewModel()
     val getBookingDetailResponse by bookingViewModel.getBookingDetailResponse.observeAsState()
     val getParticipantsResponse by bookingViewModel.getParticipantsResponse.observeAsState()
     val getWaitingListResponse by bookingViewModel.getWaitingListResponse.observeAsState()
     val createBookingSuccess by bookingViewModel.createBookingSuccess.observeAsState()
-
+    val postBookingJoinResponse by bookingViewModel.postBookingJoinResponse.observeAsState()
     val context = LocalContext.current
     val navController = LocalNavigation.current
-    
     // 리더인지 아닌지
     var memberRole by remember { mutableStateOf("GUEST") }
     // 모임 진행 상황
@@ -71,7 +77,7 @@ fun BookingDetail(meetingId: Long) {
         bookingViewModel.getWaitingList(meetingId)
     }
     // 3개 중 하나라도 바뀌면 리렌더링
-    LaunchedEffect(getBookingDetailResponse, getParticipantsResponse, getWaitingListResponse,createBookingSuccess) {
+    LaunchedEffect(getBookingDetailResponse, getParticipantsResponse, getWaitingListResponse,createBookingSuccess,postBookingJoinResponse,bookingViewModel.getWaitingListResponse.value) {
         meetingState = getBookingDetailResponse?.body()?.meetingState ?: "PREPARING"
         // 리더인지 확인
         val memberPk = App.prefs.getMemberPk().toInt()
@@ -95,7 +101,19 @@ fun BookingDetail(meetingId: Long) {
         }
     }
 
-    Scaffold { paddingValues ->
+    Scaffold( bottomBar = {
+        BottomBar(
+            memberRole,
+            meetingState,
+            meetingId,
+            bookingViewModel,
+            context,
+            navController,
+
+        )
+    })
+
+    { paddingValues ->
         LazyColumn(modifier = Modifier.padding(paddingValues)) {
             item {
                 BackTopBar(title = "모임 상세")
@@ -127,16 +145,8 @@ fun BookingDetail(meetingId: Long) {
                 )
             }
 
-            item {
-                BottomBar(
-                    memberRole,
-                    meetingState,
-                    meetingId,
-                    bookingViewModel,
-                    context,
-                    navController
-                )
-            }}
+
+            }
         }
     }
 
@@ -156,8 +166,10 @@ fun BottomBar(memberRole:String,meetingState:String,meetingId:Long,bookingViewMo
 fun preparingBottomBar(memberRole:String,meetingId:Long,bookingViewModel: BookingViewModel,context:Context ,navController:NavController) {
     when (memberRole) {
         "LEADER" -> {
-            ModifyButton(navController,meetingId,bookingViewModel,context)
-            StartButton(navController,meetingId,bookingViewModel,context)
+            Row(modifier = Modifier.fillMaxWidth()) {
+                ModifyButton(navController, meetingId, bookingViewModel, context, Modifier.weight(1f).fillMaxWidth())
+                StartButton(navController, meetingId, bookingViewModel, context, Modifier.weight(1f).fillMaxWidth())
+            }
         }
         "PARTICIPANT" ->
             ExitButton(navController,meetingId,bookingViewModel,context)
@@ -175,14 +187,22 @@ fun preparingBottomBar(memberRole:String,meetingId:Long,bookingViewModel: Bookin
 fun ongoingBottomBar(memberRole:String,meetingId:Long,bookingViewModel: BookingViewModel,context:Context ,navController:NavController){
     when (memberRole) {
         "LEADER" -> {
-            EndButton(navController,meetingId,bookingViewModel,context) // 종료
-            RestartButton(navController,meetingId,bookingViewModel,context) // 한 번 더
-            AttendCheckButton(navController,meetingId,bookingViewModel,context)
-            PayRequestButton(navController,meetingId,bookingViewModel,context)
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    AttendCheckButton(navController, meetingId, bookingViewModel, context, Modifier.weight(1f).fillMaxWidth())
+                    PayRequestButton(navController, meetingId, bookingViewModel, context, Modifier.weight(1f).fillMaxWidth())
+                }
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    RestartButton(navController, meetingId, bookingViewModel, context, Modifier.weight(1f).fillMaxWidth())
+                    EndButton(navController, meetingId, bookingViewModel, context, Modifier.weight(1f).fillMaxWidth())
+                }
+            }
         }
         "PARTICIPANT" -> {
-            AttendCheckButton(navController,meetingId,bookingViewModel,context)
-            PayRequestButton(navController,meetingId,bookingViewModel,context)
+            Row(modifier = Modifier.fillMaxWidth()) {
+                AttendCheckButton(navController, meetingId, bookingViewModel, context, Modifier.weight(1f).fillMaxWidth())
+                PayRequestButton(navController, meetingId, bookingViewModel, context, Modifier.weight(1f).fillMaxWidth())
+            }
         }
         else -> {
             // 게스트
@@ -199,19 +219,29 @@ fun finishBottomBar(memberRole:String,meetingId:Long){
 // 모임 가입 신청 버튼
 @Composable
 fun JoinRequestButton(navController: NavController,meetingId:Long,bookingViewModel: BookingViewModel,context: Context){
+    var refreshKey by remember { mutableStateOf(0) }
+    LaunchedEffect(refreshKey) {
+        bookingViewModel.getBookingDetail(meetingId)
+        bookingViewModel.getParticipants(meetingId)
+        bookingViewModel.getWaitingList(meetingId)
+
+    }
     // 모임 참가신청
     Button(onClick = {
+        refreshKey++
         val request = BookingJoinRequest(meetingId = meetingId)
         bookingViewModel.postBookingJoin(meetingId, request)
         val toastTop = Toast.makeText(context, "참가신청이 완료됐습니다.", Toast.LENGTH_LONG)
-        toastTop.setGravity(Gravity.TOP,0,0)
         toastTop.show()
+        // 버튼을 누르면 BookingParticipants 탭으로 이동하도록
+        navController.navigate("bookingDetail/$meetingId")
     },
         modifier = Modifier
-            .fillMaxWidth()
             .height(50.dp)
     ) {
-        Text("모임 참가 신청하기")
+        Text("이 모임에 참가 신청하기",
+            textAlign = TextAlign.Center, // 텍스트 가운데 정렬,
+            fontWeight = FontWeight.SemiBold)
     }
 
 }
@@ -222,12 +252,26 @@ fun StartButton(
     navController: NavController,
     meetingId: Long,
     bookingViewModel: BookingViewModel,
-    context: Context
+    context: Context,
+    modifier: Modifier = Modifier
 ){
-    Button(onClick = {
-        navController.navigate(AppNavItem.BookingSetLocation.route)
-    }) {
-        Text(text = "모임 확정")
+    Box(contentAlignment = Alignment.Center, modifier = Modifier) {
+        Button(
+            onClick = { navController.navigate(AppNavItem.BookingSetLocation.route) },
+            modifier = Modifier
+                .fillMaxWidth(0.95f) // 화면의 95% 크기
+                .padding(bottom = 5.dp)
+                .height(50.dp),
+            colors = ButtonDefaults . buttonColors (containerColor =
+            Color(0xFF00C68E)),
+            shape = RoundedCornerShape(6.dp) // 각진 모서리
+        ) {
+            Text(
+                text = "확정하기",
+                textAlign = TextAlign.Center, // 텍스트 가운데 정렬,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
     }
 }
 // 모임 수정 버튼
@@ -236,12 +280,26 @@ fun ModifyButton(
     navController: NavController,
     meetingId: Long,
     bookingViewModel: BookingViewModel,
-    context: Context
+    context: Context,
+    modifier: Modifier = Modifier
 ){
-    Button(onClick = {
-        navController.navigate(AppNavItem.BookingSetTitle.route)
-    }) {
-        Text(text = "모임 수정")
+    Box(contentAlignment = Alignment.Center, modifier = Modifier) {
+        Button(
+            onClick = { navController.navigate(AppNavItem.BookingSetTitle.route) },
+            modifier = Modifier
+                .fillMaxWidth(0.95f) // 화면의 95% 크기
+                .padding(bottom = 5.dp)
+                .height(50.dp),
+            colors = ButtonDefaults . buttonColors (containerColor =
+            Color(0xFF00C68E)),
+            shape = RoundedCornerShape(6.dp) // 각진 모서리
+        ) {
+            Text(
+                text = "수정하기",
+                textAlign = TextAlign.Center, // 텍스트 가운데 정렬,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
     }
 }
 
@@ -253,17 +311,27 @@ fun ExitButton(
     bookingViewModel: BookingViewModel,
     context: Context
 ){
-    Button(onClick = {
-        bookingViewModel.postBookingExit(meetingId)
-        val toastTop = Toast.makeText(context, "모임나가기.", Toast.LENGTH_LONG)
-        toastTop.setGravity(Gravity.TOP,0,0)
-        toastTop.show()
-    },
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(50.dp)
-    ) {
-        Text("모임 나가기")
+    Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxWidth()) {
+        Button(
+            onClick = {  bookingViewModel.postBookingExit(meetingId)
+                val toastTop = Toast.makeText(context, "모임나가기.", Toast.LENGTH_LONG)
+                toastTop.setGravity(Gravity.TOP,0,0)
+                toastTop.show()
+                navController.navigate(AppNavItem.Main.route) },
+            modifier = Modifier
+                .fillMaxWidth(0.95f) // 화면의 95% 크기
+                .padding(bottom = 5.dp)
+                .height(50.dp),
+            colors = ButtonDefaults . buttonColors (containerColor =
+            Color(0xFF00C68E)),
+            shape = RoundedCornerShape(6.dp) // 각진 모서리
+        ) {
+            Text(
+                text = "나가기",
+                textAlign = TextAlign.Center, // 텍스트 가운데 정렬,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
     }
 }
 // 모임 출첵 버튼
@@ -272,21 +340,35 @@ fun AttendCheckButton(
     navController : NavController,
     meetingId : Long,
     bookingViewModel : BookingViewModel,
-    context : Context
+    context : Context,
+    modifier: Modifier = Modifier
 ){
     // 출석체크 버튼
-    Button(onClick = {
-        bookingViewModel.patchBookingAttend(meetingId)
+    Box(contentAlignment = Alignment.Center, modifier = modifier) {
+        Button(
+            onClick = {
+                bookingViewModel.patchBookingAttend(meetingId)
 
-        val toastTop = Toast.makeText(context, "출석체크가 완료되었습니다.", Toast.LENGTH_LONG)
-        toastTop.setGravity(Gravity.TOP,0,0)
-        toastTop.show()
-    },
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(50.dp)
-    ) {
-        Text("출석 체크하기")
+                val toastTop = Toast.makeText(context, "출석체크가 완료되었습니다.", Toast.LENGTH_LONG)
+                toastTop.setGravity(Gravity.TOP, 0, 0)
+                toastTop.show()
+            },
+            modifier = Modifier
+                .fillMaxWidth(0.95f) // 화면의 95% 크기
+                .padding(bottom = 5.dp)
+                .height(50.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor =
+                Color(0xFF00C68E)
+            ),
+            shape = RoundedCornerShape(6.dp) // 각진 모서리
+        ) {
+            Text(
+                "출석 체크",
+                textAlign = TextAlign.Center, // 텍스트 가운데 정렬,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
     }
 }
 // 모임 종료 버튼
@@ -295,23 +377,36 @@ fun EndButton(
     navController : NavController,
     meetingId : Long,
     bookingViewModel : BookingViewModel,
-    context : Context
+    context : Context,
+    modifier: Modifier = Modifier
 ){
     // 모임종료 버튼
-    Button(
-        onClick = {
-            bookingViewModel.patchBookingEnd(meetingId)
-            val toastTop = Toast.makeText(context, "모임이 종료되었습니다.", Toast.LENGTH_LONG)
-            toastTop.setGravity(Gravity.TOP, 0, 0)
-            toastTop.show()
-        },
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(50.dp)
-    ) {
-        Text("모임 종료하기")
+    Box(contentAlignment = Alignment.Center, modifier = modifier) {
+        Button(
+            onClick = {
+                bookingViewModel.patchBookingEnd(meetingId)
+                val toastTop = Toast.makeText(context, "모임이 종료되었습니다.", Toast.LENGTH_LONG)
+                toastTop.setGravity(Gravity.TOP, 0, 0)
+                toastTop.show()
+                navController.navigate(AppNavItem.Main.route)
+            },
+            modifier = Modifier
+                .fillMaxWidth(0.95f) // 화면의 95% 크기
+                .padding(bottom = 5.dp)
+                .height(50.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor =
+                Color(0xFF00C68E)
+            ),
+            shape = RoundedCornerShape(6.dp) // 각진 모서리
+        ) {
+            Text(
+                "모임 종료",
+                textAlign = TextAlign.Center, // 텍스트 가운데 정렬,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
     }
-
 }
 // 모임 다시 시작(한 번 더 ) 버튼
 @Composable
@@ -319,23 +414,35 @@ fun RestartButton(
     navController : NavController,
     meetingId : Long,
     bookingViewModel : BookingViewModel,
-    context : Context
+    context : Context,
+    modifier: Modifier = Modifier
 ) {
     // 한번 더 하기 버튼
-    Button(
-        onClick = {
+    Box(contentAlignment = Alignment.Center, modifier = modifier) {
+        Button(
+            onClick = {
 //                    bookingViewModel.patchBookingEnd(meetingId)
-            val toastTop = Toast.makeText(context, "한 번 더하기(구현 중).", Toast.LENGTH_LONG)
-            toastTop.setGravity(Gravity.TOP, 0, 0)
-            toastTop.show()
-        },
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(50.dp)
-    ) {
-        Text("한번 더하기 (아직 구현 중)")
+                val toastTop = Toast.makeText(context, "한 번 더하기(구현 중).", Toast.LENGTH_LONG)
+                toastTop.setGravity(Gravity.TOP, 0, 0)
+                toastTop.show()
+            },
+            modifier = Modifier
+                .fillMaxWidth(0.95f) // 화면의 95% 크기
+                .padding(bottom = 5.dp)
+                .height(50.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor =
+                Color(0xFF00C68E)
+            ),
+            shape = RoundedCornerShape(6.dp) // 각진 모서리
+        ) {
+            Text(
+                "한번 더 하기",
+                textAlign = TextAlign.Center, // 텍스트 가운데 정렬,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
     }
-    
 }
 
 // 참가비 결제 버튼
@@ -344,42 +451,124 @@ fun PayRequestButton(
     navController : NavController,
     meetingId : Long,
     bookingViewModel : BookingViewModel,
-    context : Context
-){
-    Button(onClick = { /*TODO*/ }) {
-        Text(text="참가비 결제하기")
+    context : Context,
+    modifier: Modifier = Modifier
+){Box(contentAlignment = Alignment.Center, modifier = modifier) {
+    Button(
+        onClick = {
+//                    bookingViewModel.patchBookingEnd(meetingId)
+            val toastTop = Toast.makeText(context, "참가비 결제가 완료되었습니다.", Toast.LENGTH_LONG)
+            toastTop.setGravity(Gravity.TOP, 0, 0)
+            toastTop.show()
+        },
+        modifier = Modifier
+            .fillMaxWidth(0.95f) // 화면의 95% 크기
+            .padding(bottom = 5.dp)
+            .height(50.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor =
+            Color(0xFF00C68E)
+        ),
+        shape = RoundedCornerShape(6.dp) // 각진 모서리
+    ) {
+        Text(
+            "참가비 결제",
+            textAlign = TextAlign.Center, // 텍스트 가운데 정렬,
+            fontWeight = FontWeight.SemiBold
+        )
     }
+}
 }
 
 // 참가신청 승인 대기 버튼 ( 기다리는 중..)
 @Composable
-fun WaitingButton(
-) {
-    Button(onClick = { /*TODO*/ }) {
-        Text(text = "가입 승인 대기 중..")
+fun WaitingButton() {
+    Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxWidth()) {
+          Button(
+                onClick = { /*TODO*/ },
+                modifier = Modifier
+                .fillMaxWidth(0.95f) // 화면의 95% 크기
+                .padding(bottom = 5.dp)
+                .height(50.dp),
+                    colors = ButtonDefaults . buttonColors (containerColor =
+                Color(0xff2f4858)),
+            shape = RoundedCornerShape(6.dp) // 각진 모서리
+        ) {
+            Text(
+                text = "가입 승인을 기다리고 있습니다.",
+                textAlign = TextAlign.Center, // 텍스트 가운데 정렬,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
     }
 }
 // 이미 참가한 사람에게 보여지는 버튼
 @Composable
 fun AlreadyJoinButton() {
-    Button(onClick = { /*TODO*/ }) {
-        Text(text = "이미 참가한 모임입니다.")
+    Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxWidth()) {
+        Button(
+            onClick = { /*TODO*/ },
+            modifier = Modifier
+                .fillMaxWidth(0.95f) // 화면의 95% 크기
+                .padding(bottom = 5.dp)
+                .height(50.dp),
+            colors = ButtonDefaults . buttonColors (containerColor =
+            Color(0xff2f4858)),
+            shape = RoundedCornerShape(6.dp) // 각진 모서리
+        ) {
+            Text(
+                text = "이미 참가중인 모임입니다.",
+                textAlign = TextAlign.Center, // 텍스트 가운데 정렬,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
     }
+
 }
 
 // 이미 진행중인 모임에 대해 보여지는 버튼
 @Composable
 fun AlreadyOngoingButton() {
-    Button(onClick = { /*TODO*/ }) {
-        Text(text = "이미 진행중인 모임입니다.")
+    Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxWidth()) {
+        Button(
+            onClick = { /*TODO*/ },
+            modifier = Modifier
+                .fillMaxWidth(0.95f) // 화면의 95% 크기
+                .padding(bottom = 5.dp)
+                .height(50.dp),
+            colors = ButtonDefaults . buttonColors (containerColor =
+            Color(0xff2f4858)),
+            shape = RoundedCornerShape(6.dp) // 각진 모서리
+        ) {
+            Text(
+                text = "이미 진행중인 모임입니다.",
+                textAlign = TextAlign.Center, // 텍스트 가운데 정렬,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
     }
 }
 
 // 이미 종료된 모임에 대해 보여지는 버튼
 @Composable
 fun AlreadyEndButton(){
-    Button(onClick = { /*TODO*/ }) {
-        Text(text = "이미 종료된 모임입니다.")
+    Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxWidth()) {
+        Button(
+            onClick = { /*TODO*/ },
+            modifier = Modifier
+                .fillMaxWidth(0.95f) // 화면의 95% 크기
+                .padding(bottom = 5.dp)
+                .height(50.dp),
+            colors = ButtonDefaults . buttonColors (containerColor =
+            Color(0xff2f4858)),
+            shape = RoundedCornerShape(6.dp) // 각진 모서리
+        ) {
+            Text(
+                text = "종료된 모임입니다.",
+                textAlign = TextAlign.Center, // 텍스트 가운데 정렬,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
     }
 
 }

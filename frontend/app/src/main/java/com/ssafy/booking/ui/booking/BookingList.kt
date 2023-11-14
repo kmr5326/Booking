@@ -207,7 +207,7 @@ fun BookItem(booking: BookingAll,navController: NavController) {
             contentDescription = "Book Image",
             modifier = Modifier
                 .size(80.dp, 100.dp)
-                .clip(RoundedCornerShape(10.dp)),
+                .clip(RoundedCornerShape(8.dp)),
             contentScale = ContentScale.Crop // 이미지의 비율 유지하면서 영역 채우기
         )
         Spacer(modifier = Modifier.width(16.dp))
