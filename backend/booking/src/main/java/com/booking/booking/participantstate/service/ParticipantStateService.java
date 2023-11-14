@@ -18,6 +18,7 @@ public class ParticipantStateService {
     private final ParticipantService participantService;
 
     public Flux<ParticipantState> findParticipantStatesByMeetingId(Long meetingId) {
+        log.info("[Booking:ParticipantState] findParticipantStatesByMeetingId({})", meetingId);
         return participantStateRepository.findParticipantStatesByMeetingId(meetingId);
     }
 

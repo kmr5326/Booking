@@ -1,5 +1,6 @@
 package com.booking.booking.global.utils;
 
+import com.booking.booking.global.dto.request.PaymentRequest;
 import com.booking.booking.global.dto.request.ReSendRequestDto;
 import com.booking.booking.global.dto.response.MemberResponse;
 import io.netty.channel.ChannelOption;
@@ -83,18 +84,17 @@ public class MemberUtil {
     }
 
     public Mono<Void> payRequest(String token, Integer fee) {
-        return Mono.empty();
-        //        return webClient.post()
-//                .uri("/api/payments/send")
-//                .header(AUTHORIZATION, token)
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .body(Mono.just(new PaymentRequest(RECIEVER, fee)), PaymentRequest.class)
-//                .retrieve()
-//                .onStatus(HttpStatus::is4xxClientError,
-//                        response -> Mono.error(new RuntimeException("참가비 응답 에러")))
-//                .onStatus(HttpStatus::is5xxServerError,
-//                        response -> Mono.error(new RuntimeException("참가비 응답 에러")))
-//                .bodyToMono(Void.class);
+        return webClient.post()
+                .uri("/api/payments/send")
+                .header(AUTHORIZATION, token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(Mono.just(new PaymentRequest(RECIEVER, fee)), PaymentRequest.class)
+                .retrieve()
+                .onStatus(HttpStatus::is4xxClientError,
+                        response -> Mono.error(new RuntimeException("참가비 응답 에러")))
+                .onStatus(HttpStatus::is5xxServerError,
+                        response -> Mono.error(new RuntimeException("참가비 응답 에러")))
+                .bodyToMono(Void.class);
     }
 
     public Mono<String> paybackRequest(Integer memberId, Integer amount) {
