@@ -71,7 +71,7 @@ public class MessageService {
     }
     private Mono<Void> sendMessageToKafka(KafkaMessage kafkaMessage, Long chatroomId) {
         // Kafka로 메세지와 함께 채팅방 ID를 헤더에 추가하여 전달
-        ProducerRecord<String, KafkaMessage> record = new ProducerRecord<>("Chatroom-" + chatroomId, null, null, kafkaMessage);
+        ProducerRecord<String, KafkaMessage> record = new ProducerRecord<>("Chat", null, null, kafkaMessage);
         record.headers().add("chatroomId", chatroomId.toString().getBytes(StandardCharsets.UTF_8));
         return reactiveKafkaProducerTemplate.send(record)
                                             .doOnSuccess(s -> log.info("Kafka message publish success to {}", chatroomId))
