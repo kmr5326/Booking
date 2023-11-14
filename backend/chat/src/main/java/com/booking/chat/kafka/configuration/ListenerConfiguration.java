@@ -45,4 +45,5 @@ public class ListenerConfiguration {
 
         return new DefaultKafkaConsumerFactory<>(consumerConfiguration, new StringDeserializer(), deserializer);
     }
+
 }
