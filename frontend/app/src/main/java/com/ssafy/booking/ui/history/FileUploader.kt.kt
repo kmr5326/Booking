@@ -2,12 +2,10 @@ package com.ssafy.booking.ui.history
 
 import android.net.Uri
 import android.provider.OpenableColumns
-import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,7 +18,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -33,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ssafy.booking.R
 import com.ssafy.booking.di.App
+import com.ssafy.booking.ui.LocalNavigation
 import com.ssafy.booking.viewmodel.UploaderViewModel
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody
@@ -40,8 +38,11 @@ import okhttp3.RequestBody.Companion.toRequestBody
 
 @Composable
 fun FileUploader(
-    meetingInfoId: String?
+    meetinginfoId: String?,
+    isLeader: Boolean,
+    meetingId: Long?
 ) {
+    val navController = LocalNavigation.current
     val context = LocalContext.current
     val uploaderViewModel: UploaderViewModel = hiltViewModel()
     var recordUri by remember { mutableStateOf<RequestBody?>(null) }
@@ -49,22 +50,8 @@ fun FileUploader(
     var fileName by remember { mutableStateOf<String>("") }
     val loginId = App.prefs.getLoginId()
 
-    val responseState by uploaderViewModel.naverCloudGetResponse.observeAsState()
-    responseState?.let { response ->
-        if (response.isSuccessful) {
-            response.body()?.string()?.let {
-                Log.d("STT", it)
-            }
-        } else {
-            // 실패 처리
-            response.errorBody()?.string()?.let {
-                Log.d("STT", it)
-            }
-        }
-    }
-
     LaunchedEffect(Unit) {
-        uploaderViewModel.GetToNaverCloud(meetingInfoId)
+        uploaderViewModel.GetToNaverCloud(meetinginfoId)
     }
 
     val launcher = rememberLauncherForActivityResult(
@@ -96,45 +83,58 @@ fun FileUploader(
             .fillMaxSize()
             .padding(12.dp)
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            IconButton(
-                onClick = {
-                    launcher.launch("audio/*")
-                },
-                modifier = Modifier
-                    .size(100.dp),
+        if(isLeader) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.baseline_upload_file_24),
-                    contentDescription = "녹음 파일 업로드",
-                    tint = Color(0xFF00C68E)
-                )
-            }
-            downloadUri?.let { uri ->
-                Text(
-                    text = "${fileName}",
+                IconButton(
+                    onClick = {
+                        launcher.launch("audio/*")
+                    },
                     modifier = Modifier
-                        .padding(16.dp)
-                )
-                Button(onClick = {
-                    if (loginId != null) {
-                        uploaderViewModel.enrollRecordFile(
-                            loginId,
-                            meetingInfoId.toString(),
-                            recordUri
-                        )
-                    }
-                }){
-                    Text(text="POST NAVER CLOUD")
+                        .size(100.dp),
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.baseline_upload_file_24),
+                        contentDescription = "녹음 파일 업로드",
+                        tint = Color(0xFF00C68E)
+                    )
                 }
-            } ?: run {
-                Text(
-                    text = "오디오 파일을 선택해주세요",
-                    modifier = Modifier
-                        .padding(16.dp)
-                )
+                downloadUri?.let { uri ->
+                    Text(
+                        text = "${fileName}",
+                        modifier = Modifier
+                            .padding(16.dp)
+                    )
+                    Button(onClick = {
+                        if (loginId != null) {
+                            uploaderViewModel.enrollRecordFile(
+                                loginId,
+                                meetinginfoId.toString(),
+                                recordUri
+                            )
+
+//                          전송 완료 로딩
+                            navController.popBackStack()
+                            navController.navigate("history/detail/$meetingId/$meetinginfoId")
+                        }
+                    }) {
+                        Text(text = "POST NAVER CLOUD")
+                    }
+                } ?: run {
+                    Text(
+                        text = "오디오 파일을 선택해주세요",
+                        modifier = Modifier
+                            .padding(16.dp)
+                    )
+                }
+            }
+        } else if(isLeader == false) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(text = "아직 등록된 녹음 파일이 없습니다.")
             }
         }
     }

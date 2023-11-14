@@ -22,7 +22,6 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun RecordSummary(
-    RecordId: Int
 ) {
     Box(
         contentAlignment = Alignment.Center,

@@ -1,13 +1,14 @@
 package com.ssafy.booking.viewmodel
 
+import android.content.Context
 import android.util.Log
+import android.widget.Toast
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ssafy.booking.di.App
 import com.ssafy.booking.model.UserInfoChangeResult
-import com.ssafy.domain.model.mypage.UserModifyRequest
 import com.ssafy.domain.usecase.NaverCloudUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,7 +22,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class UploaderViewModel @Inject constructor(
-    private val naverCloudUseCase: NaverCloudUseCase
+    private val naverCloudUseCase: NaverCloudUseCase,
 ) : ViewModel() {
     // NAVER CLOUD GET
     private val _naverCloudGetResponse = MutableLiveData<Response<ResponseBody>>()
@@ -43,7 +44,6 @@ class UploaderViewModel @Inject constructor(
 
         viewModelScope.launch {
             // requestBody = inputStream data 를 뜻함.
-            Log.d("STT", "리퀘스트바디 $requestBody")
             if(requestBody != null) {
                 // 클라우드에 보내기
                 naverCloudUseCase.putObject("booking-bucket", "recording/${meetingInfoId}_recording.m4a", requestBody)
