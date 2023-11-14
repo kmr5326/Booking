@@ -1,9 +1,11 @@
 package com.ssafy.booking.di
 
+import com.google.api.ResourceDescriptor.History
 import com.ssafy.data.remote.api.BookSearchApi
 import com.ssafy.data.remote.api.BookingApi
 import com.ssafy.data.remote.api.ChatApi
 import com.ssafy.data.remote.api.FirebaseApi
+import com.ssafy.data.remote.api.HistoryAPi
 import com.ssafy.data.remote.api.LocationApi
 import com.ssafy.data.remote.api.MemberApi
 import com.ssafy.data.remote.api.MyBookApi
@@ -15,6 +17,7 @@ import com.ssafy.data.repository.ChatRepositoryImpl
 import com.ssafy.data.repository.FirebaseRepositoryImpl
 import com.ssafy.data.repository.GoogleDataSourceImpl
 import com.ssafy.data.repository.GoogleRepositoryImpl
+import com.ssafy.data.repository.HistoryRepositoryImpl
 import com.ssafy.data.repository.LocationRepositoryImpl
 import com.ssafy.data.repository.MemberRepositoryImpl
 import com.ssafy.data.repository.MyBookRepositoryImpl
@@ -25,6 +28,7 @@ import com.ssafy.domain.repository.BookingRepository
 import com.ssafy.domain.repository.ChatRepository
 import com.ssafy.domain.repository.FirebaseRepository
 import com.ssafy.domain.repository.GoogleRepository
+import com.ssafy.domain.repository.HistoryRepository
 import com.ssafy.domain.repository.LocationRepository
 import com.ssafy.domain.repository.MemberRepository
 import com.ssafy.domain.repository.MyBookRepository
@@ -102,5 +106,11 @@ class RepositoryModule {
     @Singleton
     fun provideNaverCloudRepository(api: NaverCloudApi) : NaverCloudRepository {
         return NaverCloudRepositoryImpl(api)
+    }
+
+    @Provides
+    @Singleton
+    fun provideHistoryRepository(api: HistoryAPi) : HistoryRepository {
+        return HistoryRepositoryImpl(api)
     }
 }

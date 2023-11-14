@@ -35,6 +35,7 @@ class TokenDataSource @Inject constructor(
         private const val MEETING_LAT = "meeting_lat"
         private const val MEETING_ADDRESS = "meeting_address"
         private const val MEETING_LOCATION = "meeting_location"
+        private const val MEETING_LEADERID = "meeting_leaderId"
 
     }
     private fun getTokenPreference(context: Context) : SharedPreferences {
@@ -316,6 +317,14 @@ class TokenDataSource @Inject constructor(
     }
     fun removeMeetingLocation() {
         putString(MEETING_LOCATION, null)
+    }
+    fun putLeaderId(leaderId: Int?) {
+        if(leaderId != null)
+        putInt(MEETING_LEADERID, leaderId)
+    }
+
+    fun getLeaderId() : Int? {
+        return getInt(MEETING_LEADERID)
     }
 
 

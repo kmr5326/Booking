@@ -2,6 +2,7 @@ package com.ssafy.booking.ui.booking
 
 import android.util.Log
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -51,10 +52,12 @@ import com.naver.maps.map.compose.NaverMap
 import com.naver.maps.map.compose.rememberCameraPositionState
 import com.ssafy.booking.R
 import com.ssafy.booking.di.App
+import com.ssafy.booking.ui.LocalNavigation
 import com.ssafy.booking.viewmodel.BookingViewModel
 import com.ssafy.domain.model.booking.BookingDetail
 import com.ssafy.domain.model.booking.HashtagResponse
 import com.ssafy.domain.model.booking.MeetingInfoResponse
+import io.grpc.Context
 
 @Composable
 fun BookingInfo(
@@ -82,6 +85,7 @@ fun BookingInfo(
                 App.prefs.putTitle(bookingDetail?.meetingTitle)
                 App.prefs.putMaxParticipants(bookingDetail?.maxParticipants)
                 App.prefs.putHashtagList(bookingDetail?.hashtagList)
+                App.prefs.putLeaderId(bookingDetail?.leaderId)
             }
         }
     }
@@ -142,7 +146,7 @@ fun BookingInfo(
             }
 
         }
-        MeetingInfoTimeline(bookingDetail = bookingDetail) // 모임 정보 타임라인
+        MeetingInfoTimeline(bookingDetail = bookingDetail, meetingId) // 모임 정보 타임라인
 
     }
 
@@ -150,11 +154,15 @@ fun BookingInfo(
     }
 
 @Composable
-fun MeetingInfoCard(meetingInfo: MeetingInfoResponse, isFirstItem: Boolean) {
+fun MeetingInfoCard(meetingInfo: MeetingInfoResponse, meetingId:Long, isFirstItem: Boolean) {
+    val navController = LocalNavigation.current
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp),
+            .padding(8.dp)
+            .clickable(onClick = {
+                navController.navigate("history/detail/${meetingId}/${meetingInfo.meetinginfoId}")
+            }),
     ) {
         Column(
             modifier = Modifier.padding(16.dp)
@@ -176,7 +184,10 @@ fun MeetingInfoCard(meetingInfo: MeetingInfoResponse, isFirstItem: Boolean) {
 }
 
 @Composable
-fun MeetingInfoTimeline(bookingDetail: BookingDetail?) {
+fun MeetingInfoTimeline(
+    bookingDetail: BookingDetail?,
+    meetingId: Long
+) {
     bookingDetail?.meetingInfoList?.let { meetingInfoList ->
         LazyColumn(
             modifier = Modifier
@@ -185,7 +196,7 @@ fun MeetingInfoTimeline(bookingDetail: BookingDetail?) {
         ) {
             itemsIndexed(meetingInfoList) { index, meetingInfo ->
                 // 첫 번째 항목인지 여부에 따라 MeetingInfoCard 호출
-                MeetingInfoCard(meetingInfo, isFirstItem = index == 0)
+                MeetingInfoCard(meetingInfo, meetingId, isFirstItem = index == 0)
             }
         }
     } ?: Text(text = "아직 모임 정보가 없습니다.")
