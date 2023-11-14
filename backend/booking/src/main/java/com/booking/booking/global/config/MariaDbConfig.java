@@ -37,7 +37,7 @@ public class MariaDbConfig extends AbstractR2dbcConfiguration {
                 = ConnectionPoolConfiguration.builder(connectionFactory)
                 .initialSize(12)
                 .minIdle(2)
-                .maxSize(10)
+                .maxSize(13)
                 .maxAcquireTime(Duration.ofSeconds(10))
                 .maxCreateConnectionTime(Duration.ofSeconds(10))
                 .maxLifeTime(Duration.ofSeconds(-1))
