@@ -42,7 +42,11 @@ public class Transcription {
     @Setter
     private String fileName;
 
-    public static Transcription of(SttResponseDto dto,String fileName) {
+    @Field("meeting_info_id")
+    @Setter
+    private long meetingInfoId;
+
+    public static Transcription of(SttResponseDto dto,String fileName,long meetingInfoId) {
         Transcription transcription = new Transcription();
         transcription.segments=dto.getSegments();
         transcription.speakers=dto.getSpeakers();
@@ -52,6 +56,7 @@ public class Transcription {
                 .filter(Objects::nonNull) // null이 아닌 text 필드만 필터링
                 .collect(Collectors.joining("\n"));
         transcription.fileName=fileName;
+        transcription.meetingInfoId=meetingInfoId;
         return transcription;
     }
 

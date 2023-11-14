@@ -7,4 +7,6 @@ import reactor.core.publisher.Mono;
 public interface TranscriptionRepository extends ReactiveMongoRepository<Transcription,String> {
 
     Mono<Transcription> findByFileName(String filename);
+
+    Mono<Transcription> findByMeetingInfoId(long meetingInfoId);
 }

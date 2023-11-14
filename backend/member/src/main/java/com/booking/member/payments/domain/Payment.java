@@ -34,6 +34,26 @@ public class Payment {
     private Member payer;
 
     @ManyToOne
-    @JoinColumn(name="receiver")
+    @JoinColumn(name = "receiver")
     private Member receiver;
+
+    public static Payment paymentTypeSend(Member sender, Member receiver,Integer amount) {
+        return Payment.builder()
+                .approved_at(LocalDateTime.now())
+                .amount(amount)
+                .type(PaymentType.Send)
+                .payer(sender)
+                .receiver(receiver)
+                .build();
+    }
+
+    public static Payment paymentTypeReceive(Member sender, Member receiver,Integer amount) {
+        return Payment.builder()
+                .approved_at(LocalDateTime.now())
+                .amount(amount)
+                .type(PaymentType.Receive)
+                .payer(sender)
+                .receiver(receiver)
+                .build();
+    }
 }

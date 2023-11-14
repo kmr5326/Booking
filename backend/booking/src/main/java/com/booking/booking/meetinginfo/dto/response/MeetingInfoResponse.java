@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 
 public record MeetingInfoResponse(
         // TODO stt 가져오기
+        Long meetinginfoId,
         @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
         LocalDateTime date,
         String location,
@@ -16,7 +17,7 @@ public record MeetingInfoResponse(
         Integer fee
 ) {
     public MeetingInfoResponse(MeetingInfo meetingInfo) {
-        this(meetingInfo.getDate(), meetingInfo.getLocation(), meetingInfo.getAddress(),
+        this(meetingInfo.getMeetinginfoId(), meetingInfo.getDate(), meetingInfo.getLocation(), meetingInfo.getAddress(),
                 meetingInfo.getLat(), meetingInfo.getLgt(), meetingInfo.getFee());
     }
 }
