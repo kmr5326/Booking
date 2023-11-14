@@ -12,7 +12,7 @@ import reactor.core.publisher.Mono;
 public interface SttService {
     Mono<SttResponseDto> speechToText(SttRequestDto requestDto);
 
-    Mono<TranscriptionResponse> findTranscriptionByFileName(String fileName);
+    Mono<TranscriptionResponse> findTranscriptionByMeetingInfoId(long meetingInfoId);
 
     Mono<CreateSummaryResponse> summary(SummaryControllerDto req);
 

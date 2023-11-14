@@ -72,13 +72,13 @@ public class SttServiceImpl implements SttService{
                     }).then(Mono.error(new RuntimeException("Server error")));
                 })
                 .bodyToMono(SttResponseDto.class)
-                .flatMap(sttResponseDto -> saveTranscription(sttResponseDto,requestDto.fileName()).thenReturn(sttResponseDto))
+                .flatMap(sttResponseDto -> saveTranscription(sttResponseDto,requestDto.fileName(), requestDto.meetingInfoId()).thenReturn(sttResponseDto))
                 .doOnNext(resp-> log.info("stt 결과 {}",resp));
     }
 
     @Override
-    public Mono<TranscriptionResponse> findTranscriptionByFileName(String fileName) {
-        return transcriptionRepository.findByFileName(fileName)
+    public Mono<TranscriptionResponse> findTranscriptionByMeetingInfoId(long meetingInfoId) {
+        return transcriptionRepository.findByMeetingInfoId(meetingInfoId)
                 .flatMap(transcription -> Mono.just(new TranscriptionResponse(transcription)))
                 .switchIfEmpty(Mono.error(new RuntimeException("Not found Transcription")));
 
@@ -127,8 +127,8 @@ public class SttServiceImpl implements SttService{
                 .thenReturn("transcription modification");
     }
 
-    private Mono<Transcription> saveTranscription(SttResponseDto sttResponseDto,String fileName) {
-        Transcription transcription = Transcription.of(sttResponseDto,fileName);
+    private Mono<Transcription> saveTranscription(SttResponseDto sttResponseDto,String fileName,long meetingInfoId) {
+        Transcription transcription = Transcription.of(sttResponseDto,fileName,meetingInfoId);
         return transcriptionRepository.save(transcription);
     }
 

@@ -1,6 +1,7 @@
 package com.booking.booking.stt.dto.request;
 
 public record SttRequestDto(
-        String fileName
+        String fileName,
+        long meetingInfoId
 ) {
 }

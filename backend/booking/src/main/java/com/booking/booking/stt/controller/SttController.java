@@ -40,9 +40,9 @@ public class SttController {
     }
 
     @GetMapping("/stt")
-    public Mono<ResponseEntity<TranscriptionResponse>> loadTranscriptionByFileName(@RequestParam("filename") String filename){
-        log.info("Load Transcription filename: {}",filename);
-        return sttService.findTranscriptionByFileName(filename)
+    public Mono<ResponseEntity<TranscriptionResponse>> loadTranscriptionByMeetingInfoId(@RequestParam("meetingInfoId") long meetingInfoId){
+        log.info("Load Transcription meetingInfoId: {}",meetingInfoId);
+        return sttService.findTranscriptionByMeetingInfoId(meetingInfoId)
                 .flatMap(resp->Mono.just(ResponseEntity.ok().body(resp)))
                 .onErrorResume(e->{
                     log.error("Load Transcription Error: {}",e.getMessage());
