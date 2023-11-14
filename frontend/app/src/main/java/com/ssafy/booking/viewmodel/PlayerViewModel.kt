@@ -7,19 +7,38 @@ import android.os.Looper
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.ssafy.domain.usecase.NaverCloudUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
+import okhttp3.ResponseBody
+import retrofit2.Response
 import javax.inject.Inject
+
+// 플레이어 상태 관리
+enum class PlayerState {
+    STARTED, PAUSED, INIT
+}
 
 @HiltViewModel
 class PlayerViewModel @Inject constructor(
-
+    private val naverCloudUseCase: NaverCloudUseCase
 ) : ViewModel() {
     private val mediaPlayer = MediaPlayer()
+    private val _playingState = MutableLiveData<PlayerState>(PlayerState.INIT)
+    val playingState: LiveData<PlayerState> = _playingState
 
     private val _sliderPosition = MutableLiveData(0)
     val sliderPosition: LiveData<Int> = _sliderPosition
     private val _totalDuration = MutableLiveData(0)
     val totalDuration: LiveData<Int> = _totalDuration
+
+    private val _naverCloudGetResponse = MutableLiveData<Response<ResponseBody>>()
+    val naverCloudGetResponse : LiveData<Response<ResponseBody>> get() = _naverCloudGetResponse
+    fun GetToNaverCloud(meetingInfoId: String?) =
+        viewModelScope.launch {
+            _naverCloudGetResponse.value = naverCloudUseCase.getObject("booking-bucket", "recording/${meetingInfoId}_recording.m4a")
+        }
 
     init {
         // MediaPlayer 설정
@@ -32,11 +51,25 @@ class PlayerViewModel @Inject constructor(
     }
 
     fun playAudio(context: Context, audioFile: Uri) {
-        mediaPlayer.reset()
-        mediaPlayer.setDataSource(context, audioFile)
-        mediaPlayer.prepare()
-        mediaPlayer.start()
-        startUpdatingPlaybackPosition()
+        if(_playingState.value == PlayerState.INIT) {
+            mediaPlayer.apply {
+                reset() // 현재 재생 중인 오디오가 있으면 리셋
+                setDataSource(context, audioFile) // 새 오디오 파일 설정
+                prepare() // 오디오 준비
+                start() // 재생 시작
+                startUpdatingPlaybackPosition()
+                _playingState.value = PlayerState.STARTED
+            }
+        } else if(_playingState.value == PlayerState.STARTED) {
+            if (mediaPlayer.isPlaying) {
+                mediaPlayer.pause() // 재생 중지
+                _playingState.value = PlayerState.PAUSED
+            }
+        } else if (_playingState.value == PlayerState.PAUSED) {
+            mediaPlayer.start()
+            startUpdatingPlaybackPosition()
+            _playingState.value = PlayerState.STARTED
+        }
     }
 
     private fun startUpdatingPlaybackPosition() {
@@ -49,6 +82,7 @@ class PlayerViewModel @Inject constructor(
         }
         handler.postDelayed(updateTask, 1000)
     }
+
     fun updateSliderPosition(newPosition: Int) {
         _sliderPosition.value = newPosition
         mediaPlayer.seekTo(newPosition)
@@ -67,9 +101,9 @@ class PlayerViewModel @Inject constructor(
     }
 
 
-
     override fun onCleared() {
         super.onCleared()
+        mediaPlayer.release()
         _sliderPosition.value = 0
         _totalDuration.value = 0
     }

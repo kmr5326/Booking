@@ -13,6 +13,9 @@ import com.ssafy.domain.model.booking.BookingAll
 import com.ssafy.domain.model.booking.BookingCreateRequest
 import com.ssafy.domain.model.booking.BookingDetail
 import com.ssafy.domain.model.booking.BookingJoinRequest
+import com.ssafy.domain.model.booking.BookingListByHashtag
+import com.ssafy.domain.model.booking.BookingListByMemberPk
+import com.ssafy.domain.model.booking.BookingListByTitle
 import com.ssafy.domain.model.booking.BookingModifyRequest
 import com.ssafy.domain.model.booking.BookingParticipants
 import com.ssafy.domain.model.booking.BookingRejectRequest
@@ -201,5 +204,27 @@ private val _postBookingRejectResponse = MutableLiveData<Response<Unit>>()
             _patchBookingAttendResponse.value = bookingUseCase.patchBookingAttend(meetingId)
         }
 
-    
+    // GET - 해시태그로 모임 목록 조회
+    private val _getBookingByHashtagResponse = MutableLiveData<Response<List<BookingAll>>>()
+    val getBookingByHashtagResponse: LiveData<Response<List<BookingAll>>> get() = _getBookingByHashtagResponse
+    fun getBookingByHashtag(hashtagId: Long) =
+        viewModelScope.launch {
+            _getBookingByHashtagResponse.value = bookingUseCase.getBookingByHashtag(hashtagId)
+        }
+
+    // GET - 유저 pk로 모임 목록 조회
+    private val _getBookingByMemberPkResponse = MutableLiveData<Response<List<BookingListByMemberPk>>>()
+    val getBookingByMemberPkResponse: LiveData<Response<List<BookingListByMemberPk>>> get() = _getBookingByMemberPkResponse
+    fun getBookingByMemberPk(memberPk: Long) =
+        viewModelScope.launch {
+            _getBookingByMemberPkResponse.value = bookingUseCase.getBookingByMemberPk(memberPk)
+        }
+
+    // GET - 제목으로 모임 목록 조회
+    private val _getBookingByTitleResponse = MutableLiveData<Response<List<BookingAll>>>()
+    val getBookingByTitleResponse: LiveData<Response<List<BookingAll>>> get() = _getBookingByTitleResponse
+    fun getBookingByTitle(title: String) =
+        viewModelScope.launch {
+            _getBookingByTitleResponse.value = bookingUseCase.getBookingByTitle(title)
+        }
 }

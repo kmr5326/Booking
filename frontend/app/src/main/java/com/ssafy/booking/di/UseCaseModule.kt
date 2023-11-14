@@ -6,6 +6,7 @@ import com.ssafy.domain.repository.BookingRepository
 import com.ssafy.domain.repository.ChatRepository
 import com.ssafy.domain.repository.GoogleRepository
 import com.ssafy.domain.repository.KakaoPayRepository
+import com.ssafy.domain.repository.HistoryRepository
 import com.ssafy.domain.repository.LocationRepository
 import com.ssafy.domain.repository.MemberRepository
 import com.ssafy.domain.repository.MyBookRepository
@@ -17,6 +18,7 @@ import com.ssafy.domain.usecase.BookingUseCase
 import com.ssafy.domain.usecase.ChatUseCase
 import com.ssafy.domain.usecase.GetTokenRepoUseCase
 import com.ssafy.domain.usecase.KakaoPayUseCase
+import com.ssafy.domain.usecase.HistoryUseCase
 import com.ssafy.domain.usecase.LocationUseCase
 import com.ssafy.domain.usecase.MyBookUseCase
 import com.ssafy.domain.usecase.MyPageUseCase
@@ -75,4 +77,8 @@ class UseCaseModule {
     @Provides
     @Singleton
     fun provideBookingBoardUseCase(repository: BookingBoardRepository) = BookingBoardUseCase(repository)
+
+    @Provides
+    @Singleton
+    fun provideHistoryUseCase(repository: HistoryRepository) = HistoryUseCase(repository)
 }

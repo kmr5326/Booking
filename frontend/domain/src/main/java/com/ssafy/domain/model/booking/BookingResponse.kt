@@ -68,11 +68,12 @@ data class MeetingInfoResponse(
     val lgt : Double,
     @SerializedName("fee")
     val fee : Int,
+    @SerializedName("meetinginfoId")
+    val meetinginfoId : Long,
     )
 
 
 // 모임 상세 조회
-
 data class BookingDetail (
     @SerializedName("meetingId")
     val meetingId : Long,
@@ -163,6 +164,8 @@ data class BookingListByHashtag (
     val meetingState : String,
     @SerializedName("hashtagList")
     val hashtagList : List<HashtagResponse>,
+    @SerializedName("meetingInfoList")
+    val meetingInfoList : List<MeetingInfoResponse>,
 )
 
 data class BookingListByMemberPk (
@@ -188,6 +191,8 @@ data class BookingListByMemberPk (
     val meetingState : String,
     @SerializedName("hashtagList")
     val hashtagList : List<HashtagResponse>,
+    @SerializedName("meetingInfoList")
+    val meetingInfoList : List<MeetingInfoResponse>,
 )
 
 data class BookingListByTitle(
@@ -213,6 +218,8 @@ data class BookingListByTitle(
     val meetingState : String,
     @SerializedName("hashtagList")
     val hashtagList : List<HashtagResponse>,
+    @SerializedName("meetingInfoList")
+    val meetingInfoList : List<MeetingInfoResponse>,
 )
 
 // 네이버 검색 api

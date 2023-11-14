@@ -133,7 +133,7 @@ fun BookHome(
                         isFirstChange = false
                     }
                 },
-                placeholder = { Text("찾는 도서가 있나요?", fontSize = 14.sp, color = Color.Gray) },
+                placeholder = { Text("찾으시는 도서가 있나요?", fontSize = 14.sp, color = Color.Gray) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)

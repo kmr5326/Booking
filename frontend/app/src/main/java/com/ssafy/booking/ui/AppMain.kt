@@ -22,8 +22,10 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.ssafy.booking.ui.book.BookDetail
 import com.ssafy.booking.ui.book.BookHome
 import com.ssafy.booking.ui.booking.BookingBoardCreate
+import com.ssafy.booking.ui.booking.BookingByHashtag
 import com.ssafy.booking.ui.booking.BookingDetail
 import com.ssafy.booking.ui.booking.Main
+import com.ssafy.booking.ui.booking.MyBooking
 import com.ssafy.booking.ui.booking.bookingSetting.SetDateAndFee
 import com.ssafy.booking.ui.booking.bookingSetting.SetLocation
 import com.ssafy.booking.ui.booking.bookingSetting.SetTitle
@@ -31,8 +33,6 @@ import com.ssafy.booking.ui.chat.ChatDetail
 import com.ssafy.booking.ui.chat.ChatHome
 import com.ssafy.booking.ui.common.KakaoPayReadyScreen
 import com.ssafy.booking.ui.common.SettingPage
-import com.ssafy.booking.ui.history.HistoryDetail
-import com.ssafy.booking.ui.history.HistoryHome
 import com.ssafy.booking.ui.location.SettingAddress
 import com.ssafy.booking.ui.history.HistoryRecord
 import com.ssafy.booking.ui.login.Greeting
@@ -54,9 +54,7 @@ sealed class AppNavItem(
 ) {
     object Book : AppNavItem("book/{checkNum}")
     object BookDetail : AppNavItem("bookDetail/{isbn}")
-    object History : AppNavItem("history")
-    object HistoryDetail : AppNavItem("history/detail")
-    object HistoryRecord : AppNavItem("history/detail/record")
+    object HistoryRecord : AppNavItem("history/detail/{meetingId}/{meetinginfoId}")
     object Main : AppNavItem("main")
     object Chat : AppNavItem("chat")
     object ChatDetail : AppNavItem("chatDetail/{chatId}/{memberList}/{meetingTitle}")
@@ -80,6 +78,9 @@ sealed class AppNavItem(
     object BookingSetDateAndFee : AppNavItem("booking/setting/dateandfee")
     object KakaoPayReady : AppNavItem("pay/ready/{amount}")
     object BookingBoardCreate : AppNavItem("booking/board/create/{meetingId}")
+    object MyBooking : AppNavItem("booking/mybooking")
+    object BookingByHashtag : AppNavItem("booking/search/hashtag/{hashtagId}")
+
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -134,14 +135,10 @@ fun Route(googleSignInClient: GoogleSignInClient) {
                     BookDetail(isbn = it)
                 }
             }
-            composable("history") {
-                HistoryHome()
-            }
-            composable("history/detail") {
-                HistoryDetail()
-            }
-            composable("history/detail/record") {
-                HistoryRecord()
+            composable("history/detail/{meetingId}/{meetinginfoId}") {
+                val meetingId = it.arguments?.getString("meetingId")
+                val meetinginfoId = it.arguments?.getString("meetinginfoId")
+                HistoryRecord(meetingId, meetinginfoId)
             }
             composable("main") {
                 Main(navController, appViewModel)
@@ -213,6 +210,14 @@ fun Route(googleSignInClient: GoogleSignInClient) {
             composable("booking/setting/dateandfee")
             {
                 SetDateAndFee()
+            }
+            composable("booking/mybooking")
+            {
+                MyBooking(navController,appViewModel)
+            }
+            composable("booking/search/hashtag/{hashtagId}") { navBackStackEntry ->
+                val hashtagId = navBackStackEntry.arguments?.getString("hashtagId")?.toLong() ?: 1L
+                BookingByHashtag(navController, hashtagId)
             }
             composable("pay/ready/{amount}")
             {navBackStackEntry->

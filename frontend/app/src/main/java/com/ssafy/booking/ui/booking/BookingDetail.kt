@@ -26,7 +26,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -55,11 +57,11 @@ fun BookingDetail(meetingId: Long) {
     val navController = LocalNavigation.current
     
     // 리더인지 아닌지
-    var isLeadered = false
+    var isLeadered by remember { mutableStateOf(false) }
     // 모임 진행 상황
     val status = getBookingDetailResponse?.body()?.meetingState
     val snackbarHostState = remember { SnackbarHostState() }
-    LaunchedEffect(Unit) {
+    LaunchedEffect(getBookingDetailResponse) {
         val memberPk = App.prefs.getMemberPk()
         val leaderId = getBookingDetailResponse?.body()?.leaderId
         isLeadered = memberPk == leaderId?.toLong()

@@ -16,6 +16,7 @@ import com.ssafy.data.remote.api.ChatApi
 import com.ssafy.data.remote.api.FirebaseApi
 import com.ssafy.data.remote.api.GoogleApi
 import com.ssafy.data.remote.api.KakaoPayApi
+import com.ssafy.data.remote.api.HistoryAPi
 import com.ssafy.data.remote.api.LocationApi
 import com.ssafy.data.remote.api.MemberApi
 import com.ssafy.data.remote.api.MyBookApi
@@ -245,4 +246,9 @@ class NetworkModule {
             .build()
     }
 
+    @Provides
+    @Singleton
+    fun provideHistoryApi(@Named("defaultRetrofit") retrofit: Retrofit): HistoryAPi {
+        return retrofit.create(HistoryAPi::class.java)
+    }
 }

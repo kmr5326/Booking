@@ -1,5 +1,6 @@
 package com.ssafy.domain.usecase
 
+import android.net.Uri
 import com.ssafy.domain.repository.NaverCloudRepository
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
