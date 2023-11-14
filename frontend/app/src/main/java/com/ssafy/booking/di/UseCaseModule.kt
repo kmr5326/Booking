@@ -1,6 +1,7 @@
 package com.ssafy.booking.di
 
 import com.ssafy.domain.repository.BookSearchRepository
+import com.ssafy.domain.repository.BookingBoardRepository
 import com.ssafy.domain.repository.BookingRepository
 import com.ssafy.domain.repository.ChatRepository
 import com.ssafy.domain.repository.GoogleRepository
@@ -11,6 +12,7 @@ import com.ssafy.domain.repository.MyBookRepository
 import com.ssafy.domain.repository.MyPageRepository
 import com.ssafy.domain.repository.NaverCloudRepository
 import com.ssafy.domain.usecase.BookSearchUseCase
+import com.ssafy.domain.usecase.BookingBoardUseCase
 import com.ssafy.domain.usecase.BookingUseCase
 import com.ssafy.domain.usecase.ChatUseCase
 import com.ssafy.domain.usecase.GetTokenRepoUseCase
@@ -69,4 +71,8 @@ class UseCaseModule {
     @Provides
     @Singleton
     fun provideKakaoPayUseCase(repository: KakaoPayRepository) = KakaoPayUseCase(repository)
+
+    @Provides
+    @Singleton
+    fun provideBookingBoardUseCase(repository: BookingBoardRepository) = BookingBoardUseCase(repository)
 }

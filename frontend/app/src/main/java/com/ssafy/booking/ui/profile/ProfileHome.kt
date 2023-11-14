@@ -173,7 +173,7 @@ fun MyProfile(profileData: ProfileData) {
                     }
                 }
             }
-            Spacer(modifier = Modifier.size(40.dp))
+            Spacer(modifier = Modifier.size(20.dp))
             if(profileData.isI == true) {
                 IconButton(
                     onClick = { navController.navigate("profile/modifier") },

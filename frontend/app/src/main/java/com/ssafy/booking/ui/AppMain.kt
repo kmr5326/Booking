@@ -21,6 +21,7 @@ import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.ssafy.booking.ui.book.BookDetail
 import com.ssafy.booking.ui.book.BookHome
+import com.ssafy.booking.ui.booking.BookingBoardCreate
 import com.ssafy.booking.ui.booking.BookingDetail
 import com.ssafy.booking.ui.booking.Main
 import com.ssafy.booking.ui.booking.bookingSetting.SetDateAndFee
@@ -78,7 +79,7 @@ sealed class AppNavItem(
     object BookingSetLocation : AppNavItem("booking/setting/location")
     object BookingSetDateAndFee : AppNavItem("booking/setting/dateandfee")
     object KakaoPayReady : AppNavItem("pay/ready/{amount}")
-
+    object BookingBoardCreate : AppNavItem("booking/board/create/{meetingId}")
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -217,6 +218,11 @@ fun Route(googleSignInClient: GoogleSignInClient) {
             {navBackStackEntry->
                 val firstAmount = navBackStackEntry.arguments?.getString("amount") ?: "0"
                 KakaoPayReadyScreen(firstAmount = firstAmount)
+            }
+            composable("booking/board/create/{meetingId}")
+            {navBackStackEntry ->
+                val meetingId = navBackStackEntry.arguments!!.getString("meetingId")!!.toLong()
+                BookingBoardCreate(meetingId)
             }
         }
     }

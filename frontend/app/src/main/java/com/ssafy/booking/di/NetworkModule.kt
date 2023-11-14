@@ -11,6 +11,7 @@ import com.ssafy.booking.utils.Utils.BASE_URL
 import com.ssafy.booking.utils.Utils.NAVER_CLOUD_URL
 import com.ssafy.data.remote.api.BookSearchApi
 import com.ssafy.data.remote.api.BookingApi
+import com.ssafy.data.remote.api.BookingBoardApi
 import com.ssafy.data.remote.api.ChatApi
 import com.ssafy.data.remote.api.FirebaseApi
 import com.ssafy.data.remote.api.GoogleApi
@@ -157,6 +158,11 @@ class NetworkModule {
         return retrofit.create(KakaoPayApi::class.java)
     }
 
+    @Provides
+    @Singleton
+    fun provideBookingBoardApi(@Named("defaultRetrofit") retrofit: Retrofit) : BookingBoardApi {
+        return retrofit.create(BookingBoardApi::class.java)
+    }
 //    @Provides
 //    @Singleton
 //    fun providePostChatCreateApi(retrofit: Retrofit): PostChatCreateApi {

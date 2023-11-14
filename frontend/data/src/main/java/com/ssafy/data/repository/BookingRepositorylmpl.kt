@@ -55,5 +55,18 @@ class BookingRepositoryImpl @Inject constructor(
     override suspend fun patchBookingDetail(request: BookingModifyRequest) : Response<Unit> {
         return bookingApi.patchBookingDetail(request)
     }
+    override suspend fun postBookingExit(meetingId: Long): Response<Unit> {
+        return bookingApi.postBookingExit(meetingId)
+    }
+    override suspend fun deleteBooking(meetingId: Long): Response<Unit> {
+        return bookingApi.deleteBooking(meetingId)
+    }
+    override suspend fun patchBookingEnd(meetingId: Long): Response<Unit> {
+        return bookingApi.patchBookingEnd(meetingId)
+    }
+    override suspend fun patchBookingAttend(meetingId: Long): Response<Unit> {
+        return bookingApi.patchBookingAttend(meetingId)
+    }
+
 }
 

@@ -2,6 +2,7 @@ package com.ssafy.booking.di
 
 import com.ssafy.data.remote.api.BookSearchApi
 import com.ssafy.data.remote.api.BookingApi
+import com.ssafy.data.remote.api.BookingBoardApi
 import com.ssafy.data.remote.api.ChatApi
 import com.ssafy.data.remote.api.FirebaseApi
 import com.ssafy.data.remote.api.KakaoPayApi
@@ -11,6 +12,7 @@ import com.ssafy.data.remote.api.MyBookApi
 import com.ssafy.data.remote.api.MyPageApi
 import com.ssafy.data.remote.api.NaverCloudApi
 import com.ssafy.data.repository.BookSearchRepositoryImpl
+import com.ssafy.data.repository.BookingBoardRepositoryImpl
 import com.ssafy.data.repository.BookingRepositoryImpl
 import com.ssafy.data.repository.ChatRepositoryImpl
 import com.ssafy.data.repository.FirebaseRepositoryImpl
@@ -23,6 +25,7 @@ import com.ssafy.data.repository.MyBookRepositoryImpl
 import com.ssafy.data.repository.MyPageRepositoryImpl
 import com.ssafy.data.repository.NaverCloudRepositoryImpl
 import com.ssafy.domain.repository.BookSearchRepository
+import com.ssafy.domain.repository.BookingBoardRepository
 import com.ssafy.domain.repository.BookingRepository
 import com.ssafy.domain.repository.ChatRepository
 import com.ssafy.domain.repository.FirebaseRepository
@@ -111,5 +114,11 @@ class RepositoryModule {
     @Singleton
     fun provideKakaoPayRepository(api: KakaoPayApi) : KakaoPayRepository {
         return KakaoPayRepositoryImpl(api)
+    }
+
+    @Provides
+    @Singleton
+    fun provideBookingBoardRepository(api: BookingBoardApi) : BookingBoardRepository {
+        return BookingBoardRepositoryImpl(api)
     }
 }
