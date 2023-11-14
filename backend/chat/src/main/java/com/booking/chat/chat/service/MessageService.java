@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.core.reactive.ReactiveKafkaProducerTemplate;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -29,6 +30,7 @@ public class MessageService {
 
     private final MessageRepository messageRepository;
     private final ChatroomService chatroomService;
+    private final ReactiveKafkaProducerTemplate<String, KafkaMessage> reactiveKafkaProducerTemplate;
     private final KafkaTemplate<String, KafkaMessage> kafkaTemplate;
     private final NotificationService notificationService;
     private final ReactiveRedisTemplate<String, Set<Long>> reactiveRedisTemplate;
@@ -63,18 +65,17 @@ public class MessageService {
                                                        .flatMap(memberId -> notificationService.sendChattingNotification(new NotificationResponse(meetingTitle, message, memberName, memberId, kafkaMessage.extractData(chatroomId))), 5)
                                                        .thenMany(Flux.just(chatroom)); // 작업을 이어갈 Flux 반환
                        })
-                       .then() // 모든 알림이 완료되면 Kafka로 메시지 전송을 계속함
-                       .doOnSuccess(aVoid -> sendMessageToKafka(kafkaMessage, chatroomId))
+                       .then(sendMessageToKafka(kafkaMessage, chatroomId)) // 모든 알림이 완료되면 Kafka로 메시지 전송을 계속함
                        .subscribe();
     }
-    private void sendMessageToKafka(KafkaMessage kafkaMessage, Long chatroomId) {
+    private Mono<Void> sendMessageToKafka(KafkaMessage kafkaMessage, Long chatroomId) {
         // Kafka로 메세지와 함께 채팅방 ID를 헤더에 추가하여 전달
         ProducerRecord<String, KafkaMessage> record = new ProducerRecord<>("Chatroom-" + chatroomId, null, null, kafkaMessage);
         record.headers().add("chatroomId", chatroomId.toString().getBytes(StandardCharsets.UTF_8));
-        kafkaTemplate.send(record);
-        log.info(" kafka message publish success to {}", chatroomId);
-        // test
-        // notificationService.sendChattingNotification(kafkaMessage.getSenderId()).subscribe();
+        return reactiveKafkaProducerTemplate.send(record)
+                                            .doOnSuccess(s -> log.info("Kafka message publish success to {}", chatroomId))
+                                            .doOnError(e -> log.error("Error publishing message to Kafka", e))
+                                            .then();
     }
 
     public Mono<Void> save(KafkaMessage message, Long chatroomId) {
