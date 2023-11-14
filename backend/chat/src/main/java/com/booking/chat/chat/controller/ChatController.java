@@ -11,6 +11,8 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 
@@ -33,6 +35,12 @@ public class ChatController {
     public Flux<Message> findAllByRoomId(@PathVariable Long chatroomId) {
 
         return messageService.findAllByRoomId(chatroomId);
+    }
+
+    @PostMapping("/stress/{chatroomId}")
+    public void stressTest(@PathVariable Long chatroomId, @RequestBody KafkaMessage kafkaMessage) {
+
+        messageService.processAndSend(kafkaMessage, chatroomId);
     }
 
 }
