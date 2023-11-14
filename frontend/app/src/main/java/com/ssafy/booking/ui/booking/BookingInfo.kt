@@ -92,7 +92,6 @@ fun BookingInfo(
     }
     Column(
         modifier = Modifier
-            .fillMaxSize()
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -184,24 +183,43 @@ fun MeetingInfoCard(meetingInfo: MeetingInfoResponse, meetingId:Long, isFirstIte
     }
 }
 
+//@Composable
+//fun MeetingInfoTimeline(
+//    bookingDetail: BookingDetail?,
+//    meetingId: Long
+//) {
+//    bookingDetail?.meetingInfoList?.let { meetingInfoList ->
+//        LazyColumn(
+//            modifier = Modifier
+//                .fillMaxSize()
+//                .fillMaxHeight()
+//        ) {
+//            itemsIndexed(meetingInfoList) { index, meetingInfo ->
+//                // 첫 번째 항목인지 여부에 따라 MeetingInfoCard 호출
+//                MeetingInfoCard(meetingInfo, meetingId, isFirstItem = index == 0)
+//            }
+//        }
+//    } ?: Text(text = "아직 모임 정보가 없습니다.")
+//}
+
 @Composable
 fun MeetingInfoTimeline(
     bookingDetail: BookingDetail?,
     meetingId: Long
 ) {
     bookingDetail?.meetingInfoList?.let { meetingInfoList ->
-        LazyColumn(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
-                .fillMaxHeight()
+//                .verticalScroll(rememberScrollState())
         ) {
-            itemsIndexed(meetingInfoList) { index, meetingInfo ->
-                // 첫 번째 항목인지 여부에 따라 MeetingInfoCard 호출
+            meetingInfoList.forEachIndexed { index, meetingInfo ->
                 MeetingInfoCard(meetingInfo, meetingId, isFirstItem = index == 0)
             }
         }
     } ?: Text(text = "아직 모임 정보가 없습니다.")
 }
+
 
 // 지도
 //@OptIn(ExperimentalNaverMapApi::class)

@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
@@ -55,6 +56,7 @@ fun BookingDetail(meetingId: Long) {
     val getBookingDetailResponse by bookingViewModel.getBookingDetailResponse.observeAsState()
     val getParticipantsResponse by bookingViewModel.getParticipantsResponse.observeAsState()
     val getWaitingListResponse by bookingViewModel.getWaitingListResponse.observeAsState()
+    val createBookingSuccess by bookingViewModel.createBookingSuccess.observeAsState()
 
     val context = LocalContext.current
     val navController = LocalNavigation.current
@@ -69,7 +71,7 @@ fun BookingDetail(meetingId: Long) {
         bookingViewModel.getWaitingList(meetingId)
     }
     // 3개 중 하나라도 바뀌면 리렌더링
-    LaunchedEffect(getBookingDetailResponse, getParticipantsResponse, getWaitingListResponse) {
+    LaunchedEffect(getBookingDetailResponse, getParticipantsResponse, getWaitingListResponse,createBookingSuccess) {
         meetingState = getBookingDetailResponse?.body()?.meetingState ?: "PREPARING"
         // 리더인지 확인
         val memberPk = App.prefs.getMemberPk().toInt()
@@ -93,37 +95,51 @@ fun BookingDetail(meetingId: Long) {
         }
     }
 
-    Scaffold(
-    ) { paddingValues ->
-        Column(modifier = Modifier.padding(paddingValues)) {
-            BackTopBar(title = "모임 상세")
-            TabBar(
-                tabTitles,
-                contentForTab = { index ->
-                    when (index) {
-                        0 -> BookingInfo(
-                            meetingId = meetingId,
-                            memberRole = memberRole,
-                            meetingState = meetingState,
-                        )
-                        1 -> BookingParticipants(
-                            meetingId = meetingId,
-                            memberRole = memberRole,
-                            meetingState = meetingState,
-                        )
-                        2 -> BookingBoard(
-                            meetingId = meetingId,
-                            memberRole = memberRole,
-                            meetingState = meetingState,
-                        )
-                    }
-                }
-            )
-            BottomBar(memberRole,meetingState,meetingId,bookingViewModel,context,navController)
+    Scaffold { paddingValues ->
+        LazyColumn(modifier = Modifier.padding(paddingValues)) {
+            item {
+                BackTopBar(title = "모임 상세")
+            }
+            item {
+                TabBar(
+                    tabTitles,
+                    contentForTab = { index ->
+                        when (index) {
+                            0 -> BookingInfo(
+                                meetingId = meetingId,
+                                memberRole = memberRole,
+                                meetingState = meetingState,
+                            )
 
+                            1 -> BookingParticipants(
+                                meetingId = meetingId,
+                                memberRole = memberRole,
+                                meetingState = meetingState,
+                            )
+
+                            2 -> BookingBoard(
+                                meetingId = meetingId,
+                                memberRole = memberRole,
+                                meetingState = meetingState,
+                            )
+                        }
+                    }
+                )
+            }
+
+            item {
+                BottomBar(
+                    memberRole,
+                    meetingState,
+                    meetingId,
+                    bookingViewModel,
+                    context,
+                    navController
+                )
+            }}
         }
     }
-}
+
 
 
 @Composable
