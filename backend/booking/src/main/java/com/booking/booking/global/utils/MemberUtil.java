@@ -1,13 +1,7 @@
 package com.booking.booking.global.utils;
 
 import com.booking.booking.global.dto.response.MemberResponse;
-import io.netty.channel.ChannelOption;
-import io.netty.handler.ssl.SslContext;
-import io.netty.handler.ssl.SslContextBuilder;
-import io.netty.handler.timeout.ReadTimeoutHandler;
-import io.netty.handler.timeout.WriteTimeoutHandler;
 import java.time.Duration;
-import java.util.concurrent.TimeUnit;
 import javax.net.ssl.SSLException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,27 +25,15 @@ public class MemberUtil {
         ConnectionProvider provider = ConnectionProvider.builder("ApiConnections")
                                                         .maxConnections(16)
                                                         .maxIdleTime(Duration.ofSeconds(30))
-                                                        .pendingAcquireTimeout(Duration.ofSeconds(45))
-                                                        .evictInBackground(Duration.ofSeconds(30))
-                                                        .lifo()
-                                                        .metrics(true)
+                                                        .maxLifeTime(Duration.ofSeconds(60))
+                                                        .pendingAcquireTimeout(Duration.ofSeconds(60))
+                                                        .evictInBackground(Duration.ofSeconds(120))
                                                         .build();
-        SslContext sslContext = SslContextBuilder
-            .forClient()
-            .build();
 
-        HttpClient httpClient = HttpClient.create(provider)
-                                          .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 1000 * 30)
-                                          .doOnConnected(conn ->
-                                              conn.addHandlerLast(new ReadTimeoutHandler(45, TimeUnit.SECONDS))
-                                                  .addHandlerLast(new WriteTimeoutHandler(10, TimeUnit.SECONDS)))
-                                          .responseTimeout(Duration.ofSeconds(60))
-                                          .secure(spec -> spec.sslContext(sslContext)
-                                                              .handshakeTimeout(Duration.ofSeconds(20)));
 
         this.webClient = WebClient.builder()
                                   .baseUrl(gatewayUrl)
-                                  .clientConnector(new ReactorClientHttpConnector(httpClient))
+                                  .clientConnector(new ReactorClientHttpConnector(HttpClient.create(provider)))
                                   .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                                   .build();
     }
