@@ -9,6 +9,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ssafy.booking.model.UserInfoChangeResult
+import com.ssafy.domain.model.RecordFileNameRequest
+import com.ssafy.domain.model.mypage.UserModifyRequest
+import com.ssafy.domain.usecase.HistoryUseCase
 import com.ssafy.domain.usecase.NaverCloudUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,6 +26,7 @@ import javax.inject.Inject
 @HiltViewModel
 class UploaderViewModel @Inject constructor(
     private val naverCloudUseCase: NaverCloudUseCase,
+    private val historyUseCase: HistoryUseCase
 ) : ViewModel() {
     // NAVER CLOUD GET
     private val _naverCloudGetResponse = MutableLiveData<Response<ResponseBody>>()
@@ -35,30 +39,25 @@ class UploaderViewModel @Inject constructor(
     fun GetToNaverCloud(meetingInfoId: String?) =
         viewModelScope.launch {
             _naverCloudGetResponse.value = naverCloudUseCase.getObject("booking-bucket", "recording/${meetingInfoId}_recording.m4a")
+            Log.d("STT_GET", "1 ${_naverCloudGetResponse}")
+            Log.d("STT_GET", "2 ${_naverCloudGetResponse.value}")
         }
 
-    fun enrollRecordFile(loginId: String, meetingInfoId: String, requestBody: RequestBody?) {
-        // pImg 는 파일 이름으로 memberPk_profile.png 형식으로 들어갈 예정.
-//        val requestInfo = UserModifyRequest(loginId = loginId, profileImage = "${meetingInfoId}_recording.m4a")
-//        Log.d("requestInfo", "$requestInfo")
-
+    fun enrollRecordFile(meetingInfoId: String, requestBody: RequestBody?) {
+        val requestInfo = RecordFileNameRequest(fileName = "${meetingInfoId}_recording.m4a", meetingInfoId = meetingInfoId)
         viewModelScope.launch {
-            // requestBody = inputStream data 를 뜻함.
             if(requestBody != null) {
-                // 클라우드에 보내기
+                // POST CLOUD
                 naverCloudUseCase.putObject("booking-bucket", "recording/${meetingInfoId}_recording.m4a", requestBody)
             }
-            // 서버에 보내기
-//            myPageUseCase.patchUserInfo(requestInfo).collect { response ->
-//                Log.d("requestInfo", "$response")
-//                if (response.isSuccessful) {
-//                    // 성공 상태를 StateFlow에 업데이트
-//                    _userInfoChangeResult.value = UserInfoChangeResult.Success(nick, "${meetingInfoId}_recording.m4a", "recording/$meetingInfoId")
-//                } else {
-//                    // 실패 상태를 StateFlow에 업데이트
-//                    _userInfoChangeResult.value = UserInfoChangeResult.Error(true)
-//                }
-//            }
+            // POST SERVER
+            val response = historyUseCase.postRecordFileName(requestInfo)
+            if (response.isSuccessful) {
+                Log.d("HISTORY_TEST", "PostRecordFileName ${response}")
+            } else {
+                Log.d("HISTORY_TEST", "PostRecordFileName ${response}")
+            }
         }
     }
+
 }

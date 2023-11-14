@@ -108,15 +108,11 @@ fun FileUploader(
                     )
                     Button(onClick = {
                         if (loginId != null) {
-                            uploaderViewModel.enrollRecordFile(
-                                loginId,
-                                meetinginfoId.toString(),
-                                recordUri
-                            )
+                            uploaderViewModel.enrollRecordFile(meetinginfoId.toString(), recordUri)
 
 //                          전송 완료 로딩
-                            navController.popBackStack()
-                            navController.navigate("history/detail/$meetingId/$meetinginfoId")
+//                            navController.popBackStack()
+//                            navController.navigate("history/detail/$meetingId/$meetinginfoId")
                         }
                     }) {
                         Text(text = "POST NAVER CLOUD")

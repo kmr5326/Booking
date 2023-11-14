@@ -67,8 +67,6 @@ fun HistoryRecord(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
             ) {
-
-//----------------------------------------------------------------------
                 if (isLoadRecord == false) {
                     TabBar(
                         listOf("녹음 파일 업로드", "녹음기"),
@@ -80,7 +78,7 @@ fun HistoryRecord(
                         }
                     )
                 } else if(isLoadRecord == true) {
-                    PlayerController()
+                    PlayerController(meetinginfoId)
                     TabBar(
                         listOf("녹음 기록 분석", "녹음 모임 요약"),
                         contentForTab = { index ->
@@ -92,23 +90,6 @@ fun HistoryRecord(
                     )
                 }
             }
-
-//----------------------------------------------------------------------
-//                  else if 녹음이 있다면
-//                  PlayerController()
-//                }
-//                val tempPk = 1
-//                TabBar(
-//                    listOf("녹음 기록 분석", "독서 모임 요약"),
-//                    contentForTab = { index ->
-//                        when (index) {
-//                            0 -> RecordDetail()
-//                            1 -> RecordSummary(tempPk)
-//                        }
-//                    }
-//                )
-//----------------------------------------------------------------------
-
         }
     }
 }

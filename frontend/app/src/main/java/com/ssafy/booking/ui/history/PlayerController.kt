@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -24,14 +25,21 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ssafy.booking.viewmodel.PlayerViewModel
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import com.ssafy.booking.R
+import com.ssafy.booking.viewmodel.PlayerState
+import java.io.File
+import java.io.FileInputStream
 
 
 @Composable
 fun PlayerController(
+    meetingInfoId: String?
 ) {
     val context = LocalContext.current
     val playerViewModel : PlayerViewModel = hiltViewModel()
+    val playerState by playerViewModel.playingState.observeAsState()
+
     Box(
     ) {
         Column(
@@ -41,17 +49,25 @@ fun PlayerController(
         ) {
             IconButton(
                 onClick = {
-                    val resourceUri = Uri.parse("android.resource://${context.packageName}/${R.raw.crowd_talking}")
-                    playerViewModel.playAudio(context, resourceUri)
-                },
+                    val file = ("https://kr.object.ncloudstorage.com/booking-bucket/recording/${meetingInfoId}_recording.m4a")
+//                    playerViewModel.playAudio(context, file)
+                }
             ) {
-                Icon(
-                    Icons.Filled.PlayArrow,
-                    contentDescription = "재생",
-                    modifier = Modifier
-                        .size(100.dp),
-                    tint = Color(0xFF00C68E)
-                )
+                if (playerState == PlayerState.STARTED) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.baseline_pause_circle_24),
+                        contentDescription = "정지",
+                        modifier = Modifier.size(100.dp),
+                        tint = Color(0xFFFF1658)
+                    )
+                } else {
+                    Icon(
+                        painter = painterResource(id = R.drawable.baseline_play_arrow_24),
+                        contentDescription = "재생",
+                        modifier = Modifier.size(100.dp),
+                        tint = Color(0xFF00C68E)
+                    )
+                }
             }
             SeekBar(playerViewModel)
         }
@@ -82,7 +98,7 @@ fun SeekBar(
                 inactiveTrackColor = Color(0xFFDAF6EE),
             ),
             modifier = Modifier
-                .size(100.dp)
+                .fillMaxWidth()
         )
         Text(
             text = "${playerViewModel.convertMillisToTimeFormat(sliderPosition)} / ${playerViewModel.convertMillisToTimeFormat(totalDuration)}"
