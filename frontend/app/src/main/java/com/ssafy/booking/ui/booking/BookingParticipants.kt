@@ -45,34 +45,37 @@ import com.ssafy.domain.model.booking.BookingRejectRequest
 import com.ssafy.domain.model.booking.BookingWaiting
 
 @Composable
-fun BookingParticipants(meetingId:Long,isLeadered : Boolean,status :String) {
+fun BookingParticipants( meetingId : Long,
+                         memberRole : String,
+                         meetingState : String,
+                         ) {
     // 뷰모델 연결
     val bookingViewModel: BookingViewModel = hiltViewModel()
-    val getParticipantsResponse by bookingViewModel.getParticipantsResponse.observeAsState()
-    val getWaitingListResponse by bookingViewModel.getWaitingListResponse.observeAsState()
+//    val getParticipantsResponse by bookingViewModel.getParticipantsResponse.observeAsState()
+//    val getWaitingListResponse by bookingViewModel.getWaitingListResponse.observeAsState()
     var participantsList by remember { mutableStateOf<List<BookingParticipants>>(emptyList()) }
     var waitingList by remember { mutableStateOf<List<BookingWaiting>>(emptyList()) }
 
-    LaunchedEffect(Unit) {
-        bookingViewModel.getWaitingList(meetingId)
-        bookingViewModel.getParticipants(meetingId)
-    }
-
-    // 참가자 바뀔 떄마다 업데이트
-    LaunchedEffect(getParticipantsResponse) {
-        getParticipantsResponse?.body()?.let { response ->
-            Log.d("참가대기자", "$response")
-            participantsList = response // 상태 업데이트
-        }
-    }
+//    LaunchedEffect(Unit) {
+//        bookingViewModel.getWaitingList(meetingId)
+//        bookingViewModel.getParticipants(meetingId)
+//    }
+//
+//    // 참가자 바뀔 떄마다 업데이트
+//    LaunchedEffect(getParticipantsResponse) {
+//        getParticipantsResponse?.body()?.let { response ->
+//            Log.d("참가대기자", "$response")
+//            participantsList = response // 상태 업데이트
+//        }
+//    }
 
     // 대기자 바뀔 때마다 업데이트
-    LaunchedEffect(getWaitingListResponse) {
-        getWaitingListResponse?.body()?.let { response ->
-            Log.d("참가대기자", "$response")
-            waitingList = response // 상태 업데이트
-        }
-    }
+//    LaunchedEffect(getWaitingListResponse) {
+//        getWaitingListResponse?.body()?.let { response ->
+//            Log.d("참가대기자", "$response")
+//            waitingList = response // 상태 업데이트
+//        }
+//    }
 //    participantsList = newList // 새로운 참가자 리스트
 //    waitingList = newWaitingList // 새로운 대기자 리스트 (예비로 작성한 코드)
     Column {
@@ -83,7 +86,7 @@ fun BookingParticipants(meetingId:Long,isLeadered : Boolean,status :String) {
 
         Divider(modifier = Modifier.padding(vertical = 8.dp))
         // 방장이면서 모임이 준비중일 때만 대기자 목록을 표시
-        if (isLeadered && status == "PREPARING") {
+        if (memberRole == "LEADER" && meetingState == "PREPARING") {
             Text(text = "대기자 목록")
             waitingList.forEach { waiting ->
                 WaitingListItem(

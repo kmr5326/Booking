@@ -62,7 +62,8 @@ import io.grpc.Context
 @Composable
 fun BookingInfo(
     meetingId : Long,
-    isLeadered : Boolean
+    memberRole : String,
+    meetingState : String
 )
 {
     // 뷰모델 연결
