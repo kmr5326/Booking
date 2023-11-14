@@ -16,15 +16,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.ssafy.booking.viewmodel.HistoryViewModel
 import com.ssafy.booking.viewmodel.PlayerViewModel
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecordDetail(
-
+    meetinginfoId: String?
 ) {
     val playerViewModel: PlayerViewModel = hiltViewModel()
+    val historyViewModel: HistoryViewModel = hiltViewModel()
+
+    historyViewModel.loadTransaction(meetinginfoId)
 
     Box(
         modifier = Modifier

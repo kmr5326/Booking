@@ -91,7 +91,7 @@ fun HistoryRecord(
                         listOf("녹음 기록 분석", "녹음 모임 요약"),
                         contentForTab = { index ->
                             when (index) {
-                                0 -> RecordDetail()
+                                0 -> RecordDetail(meetinginfoId)
                                 1 -> RecordSummary()
                             }
                         }
