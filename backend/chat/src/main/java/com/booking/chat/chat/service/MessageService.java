@@ -117,7 +117,7 @@ public class MessageService {
                                     .flatMap(memberList -> {
                                         if (memberList != null) {
                                             long count = memberList.stream()
-                                                                   .filter(memberId -> !memberId.equals(senderId))
+                                                                   .filter(memberId -> !memberId.toString().equals(senderId.toString()))
                                                                    .count();
                                             return Mono.just((int) count);
                                         } else {
