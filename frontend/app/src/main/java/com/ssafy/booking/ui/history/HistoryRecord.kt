@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -25,12 +26,13 @@ import com.ssafy.booking.ui.common.TabBar
 import com.ssafy.booking.ui.common.TopBar
 import com.ssafy.booking.viewmodel.AppViewModel
 import com.ssafy.booking.viewmodel.UploaderViewModel
+import okhttp3.Request
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HistoryRecord(
     meetingId: String?,
-    meetinginfoId: String?
+    meetinginfoId: String?,
 ) {
     val navController = LocalNavigation.current
     val appViewModel: AppViewModel = hiltViewModel()
@@ -47,8 +49,14 @@ fun HistoryRecord(
     responseState?.let { response ->
         if (response.isSuccessful) {
             isLoadRecord = true
-            Log.d("STT", "녹음파일을 불러왔습니다!")
+            Log.d("STT_TEST", "녹음파일을 불러왔습니다!")
+        } else {
+            Log.d("STT_TEST", "녹음파일을 불러오지 못했습니다.")
         }
+    }
+
+    LaunchedEffect(Unit) {
+        uploaderViewModel.GetToNaverCloud(meetinginfoId)
     }
 
     Scaffold(topBar = {

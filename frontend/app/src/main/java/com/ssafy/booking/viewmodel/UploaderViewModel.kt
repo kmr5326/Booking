@@ -32,15 +32,12 @@ class UploaderViewModel @Inject constructor(
     private val _naverCloudGetResponse = MutableLiveData<Response<ResponseBody>>()
     val naverCloudGetResponse : LiveData<Response<ResponseBody>> get() = _naverCloudGetResponse
 
-    private val _userInfoChangeResult = MutableStateFlow<UserInfoChangeResult?>(null)
-    val userInfoChangeResult: StateFlow<UserInfoChangeResult?> = _userInfoChangeResult.asStateFlow()
-
     // 파일 요청
     fun GetToNaverCloud(meetingInfoId: String?) =
         viewModelScope.launch {
             _naverCloudGetResponse.value = naverCloudUseCase.getObject("booking-bucket", "recording/${meetingInfoId}_recording.m4a")
-            Log.d("STT_GET", "1 ${_naverCloudGetResponse}")
-            Log.d("STT_GET", "2 ${_naverCloudGetResponse.value}")
+            val response = naverCloudUseCase.getObject("booking-bucket", "recording/${meetingInfoId}_recording.m4a")
+            Log.d("STT_TEST", "리스폰스바디  ${response.body()}")
         }
 
     fun enrollRecordFile(meetingInfoId: String, requestBody: RequestBody?) {

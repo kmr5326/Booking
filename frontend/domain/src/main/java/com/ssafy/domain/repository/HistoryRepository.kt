@@ -7,7 +7,10 @@ import com.ssafy.domain.model.ChatRoom
 import com.ssafy.domain.model.LastReadMessageRequest
 import com.ssafy.domain.model.MessageResponse
 import com.ssafy.domain.model.RecordFileNameRequest
+import com.ssafy.domain.model.history.SttResponseDto
 import retrofit2.Response
 interface HistoryRepository {
     suspend fun postRecordFileName(request: RecordFileNameRequest) : Response<Unit>
+
+    suspend fun getSpeakToText(fileName: String) : SttResponseDto
 }

@@ -70,7 +70,6 @@ fun RecordDetail(
             }
         }
     }
-
-
 }
+
 
