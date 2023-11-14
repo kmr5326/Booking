@@ -6,7 +6,6 @@ import com.booking.chat.kafka.domain.KafkaMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -20,7 +19,6 @@ import reactor.core.publisher.Flux;
 @RestController("/api/chat")
 public class ChatController {
 
-    private final KafkaTemplate<String, KafkaMessage> kafkaTemplate;
     private final MessageService messageService;
 
     // 클라이언트에서 /publish/message 로 메시지를 전송

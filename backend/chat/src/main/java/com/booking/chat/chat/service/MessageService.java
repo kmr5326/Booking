@@ -31,9 +31,10 @@ public class MessageService {
     private final MessageRepository messageRepository;
     private final ChatroomService chatroomService;
     private final ReactiveKafkaProducerTemplate<String, KafkaMessage> reactiveKafkaProducerTemplate;
-    private final KafkaTemplate<String, KafkaMessage> kafkaTemplate;
     private final NotificationService notificationService;
     private final ReactiveRedisTemplate<String, Set<Long>> reactiveRedisTemplate;
+    // reactive로 대체
+    private final KafkaTemplate<String, KafkaMessage> kafkaTemplate;
 
     public void processAndSend(KafkaMessage kafkaMessage, Long chatroomId) {
         save(kafkaMessage, chatroomId)
@@ -110,7 +111,6 @@ public class MessageService {
         return messageRepository.findByChatRoomId(roomId);
     }
 
-    // TODO : redis
     private Mono<Integer> getReadCount(Chatroom chatroom, Long senderId) {
         String chatroomKey = "chatroom-%d".formatted(chatroom.get_id());
         return reactiveRedisTemplate.opsForValue().get(chatroomKey)

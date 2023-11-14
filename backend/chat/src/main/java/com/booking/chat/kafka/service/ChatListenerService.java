@@ -15,7 +15,7 @@ public class ChatListenerService {
 
     private final SimpMessagingTemplate simpMessagingTemplate;
 
-    @KafkaListener(topicPattern = "Chatroom-.*", groupId = "chat", containerFactory = "ConcurrentKafkaListenerContainerFactory")
+    @KafkaListener(topicPattern = "Chatroom-.*", groupId = "chat", containerFactory = "kafkaListenerContainerFactory")
     public void listenGroupChat(KafkaMessage message, @Header("chatroomId") String chatroomIdStr) {
         Long chatroomId = Long.valueOf(chatroomIdStr);
 
