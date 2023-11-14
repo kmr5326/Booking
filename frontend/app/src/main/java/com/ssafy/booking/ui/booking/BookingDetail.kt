@@ -57,7 +57,7 @@ fun BookingDetail(meetingId: Long) {
     // 리더인지 아닌지
     var isLeadered = false
     // 모임 진행 상황
-    val status = getBookingDetailResponse?.body()?.meetingState
+    val status = getBookingDetailResponse?.body()?.meetingState?:""
     var leaderId : Int? = null
     val snackbarHostState = remember { SnackbarHostState() }
     LaunchedEffect(getBookingDetailResponse?.body()?.leaderId) {
@@ -106,7 +106,7 @@ fun BookingDetail(meetingId: Long) {
                         1 -> BookingParticipants(
                             meetingId = meetingId,
                             isLeadered = isLeadered,
-                            status = status!!
+                            status = status?:""
                         )
                         2 -> BookingBoard(
                             meetingId = meetingId,

@@ -63,6 +63,7 @@ import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
 import com.ssafy.booking.R
 import com.ssafy.booking.di.App
+import com.ssafy.booking.ui.LocalNavigation
 import com.ssafy.booking.ui.common.BottomNav
 import com.ssafy.booking.utils.MyFirebaseMessagingService
 import com.ssafy.booking.viewmodel.AppViewModel
@@ -238,7 +239,7 @@ fun BookItem(booking: BookingAll,navController: NavController) {
                 modifier = Modifier.fillMaxWidth()
             ) {
                 for (hashtag in booking.hashtagList) {
-                    HashtagChip(tag = hashtag.content) // 각 해시태그에 대한 칩 생성
+                    HashtagChip(tag = hashtag.content,id = hashtag.hashtagId) // 각 해시태그에 대한 칩 생성
                 }
             }
             Row(
@@ -271,13 +272,17 @@ fun BookItem(booking: BookingAll,navController: NavController) {
 }
 // 해시태그 칩
 @Composable
-fun HashtagChip(tag: String) {
+fun HashtagChip(tag: String,id:Long) {
+    val navController = LocalNavigation.current
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier
             .padding(end = 4.dp) // 오른쪽 마진
             .background(Color.LightGray, RoundedCornerShape(10.dp)) // 둥근 사각형의 배경
             .padding(horizontal = 8.dp, vertical = 4.dp) // 내부 패딩
+            .clickable {
+                navController.navigate("booking/search/hashtag/$id")
+            }
     ) {
         Text(
             text = "#${tag}",

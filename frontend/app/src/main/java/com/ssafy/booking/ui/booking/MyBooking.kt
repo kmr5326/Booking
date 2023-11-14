@@ -187,7 +187,7 @@ fun BookingItemByMemberPk(bookingItem: BookingListByMemberPk, navController: Nav
                 modifier = Modifier.fillMaxWidth()
             ) {
                 for (hashtag in bookingItem.hashtagList) {
-                    HashtagChip(tag = hashtag.content) // 각 해시태그에 대한 칩 생성
+                    HashtagChip(tag = hashtag.content,id = hashtag.hashtagId) // 각 해시태그에 대한 칩 생성
                 }
             }
             Row(
