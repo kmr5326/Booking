@@ -15,6 +15,7 @@ import reactor.core.publisher.Mono;
 @Service
 public class WaitlistService {
     private final WaitlistRepository waitlistRepository;
+    private final MemberUtil memberUtil;
 
     public Mono<Boolean> existsByMeetingIdAndMemberId(Long meetingId, Integer memberId) {
         log.info("[Booking:Waitlist] existsByMeetingIdAndMemberId({}, {})", meetingId, memberId);
@@ -47,7 +48,7 @@ public class WaitlistService {
         log.info("[Booking:Waitlist] findAllByMeetingId({})", meetingId);
 
         return waitlistRepository.findAllByMeetingId(meetingId)
-                .flatMap(waitlist -> MemberUtil.getMemberInfoByPk(waitlist.getMemberId())
+                .flatMap(waitlist -> memberUtil.getMemberInfoByPk(waitlist.getMemberId())
                         .flatMap(member -> Mono.just(new WaitlistResponse(member))))
                 .onErrorResume(error -> {
                     log.info("[Booking:Waitlist ERROR] findAllByMeetingId : {}", error.getMessage());

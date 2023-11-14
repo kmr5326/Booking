@@ -17,6 +17,7 @@ import reactor.core.publisher.Mono;
 @Service
 public class ParticipantService {
     private final ParticipantRepository participantRepository;
+    private final MemberUtil memberUtil;
 
     public Mono<Integer> countAllByMeetingId(Long meetingId) {
         log.info("[Booking:Participant] countAllByMeetingId({})", meetingId);
@@ -52,7 +53,7 @@ public class ParticipantService {
         log.info("[Booking:Participant] findAllByMeetingId({})", meetingId);
 
         return this.findAllByMeetingId(meetingId)
-                .flatMap(participant -> MemberUtil.getMemberInfoByPk(participant.getMemberId())
+                .flatMap(participant -> memberUtil.getMemberInfoByPk(participant.getMemberId())
                         .flatMap(member -> Mono.just(new ParticipantResponse(member))))
                 .onErrorResume(error -> {
                     log.error("[Booking:Participant ERROR] findAllByMeetingId : {}", error.getMessage());
