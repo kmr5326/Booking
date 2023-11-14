@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -27,10 +28,10 @@ public class ChatController {
 
     // 클라이언트에서 /publish/message 로 메시지를 전송
     @MessageMapping("/message/{chatroomId}")
-    public void sendMessage(@Payload KafkaMessage kafkaMessage, @DestinationVariable("chatroomId") Long chatroomId) {
+    public Mono<Void> sendMessage(@Payload KafkaMessage kafkaMessage, @DestinationVariable("chatroomId") Long chatroomId) {
         log.info(" {} user request send message to {} chatroom", kafkaMessage.getSenderId(), chatroomId);
 
-        messageService.processAndSend(kafkaMessage, chatroomId);
+        return messageService.processAndSend(kafkaMessage, chatroomId);
     }
 
     @GetMapping(value = "/{chatroomId}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
