@@ -37,17 +37,4 @@ public class ChatController {
         return messageService.findAllByRoomId(chatroomId);
     }
 
-//    @PostMapping("/{chatRoomId}")
-//    public ResponseEntity<String> sendMessage(@PathVariable String chatRoomId, @RequestBody String message) {
-//
-//        KafkaMessage kafkaMessage = KafkaMessage.builder().message(message).build();
-//
-//        try {
-//            kafkaTemplate.send("chat" + chatRoomId, kafkaMessage);
-//            return ResponseEntity.ok("success");
-//        } catch (Exception e) {
-//            log.error("error");
-//            return ResponseEntity.badRequest().body("fail");
-//        }
-//    }
 }
