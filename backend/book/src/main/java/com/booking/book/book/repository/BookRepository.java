@@ -22,4 +22,6 @@ public interface BookRepository extends ReactiveMongoRepository<Book, String> {
 
     @Query("{ 'publishDate' : { $lt: ?0 } }")
     Flux<Book> findByPublishDateBeforeCurrentDateOrderByPublishDateDesc(LocalDateTime currentDate, Pageable pageable);
+
+    Flux<Book> findTop30ByOrderByMeetingCntDesc();
 }
