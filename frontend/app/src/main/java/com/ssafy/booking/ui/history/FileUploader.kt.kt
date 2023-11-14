@@ -1,60 +1,71 @@
 package com.ssafy.booking.ui.history
 
-import android.media.Image
 import android.net.Uri
 import android.provider.OpenableColumns
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ExitToApp
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
-import coil.compose.rememberAsyncImagePainter
-import coil.request.CachePolicy
-import coil.request.ImageRequest
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.ssafy.booking.R
+import com.ssafy.booking.di.App
+import com.ssafy.booking.viewmodel.UploaderViewModel
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 
 @Composable
-fun FileUploader() {
+fun FileUploader(
+    meetingInfoId: String?
+) {
     val context = LocalContext.current
-
+    val uploaderViewModel: UploaderViewModel = hiltViewModel()
     var recordUri by remember { mutableStateOf<RequestBody?>(null) }
     var downloadUri by remember { mutableStateOf<Uri?>(null) }
     var fileName by remember { mutableStateOf<String>("") }
+    val loginId = App.prefs.getLoginId()
+
+    val responseState by uploaderViewModel.naverCloudGetResponse.observeAsState()
+    responseState?.let { response ->
+        if (response.isSuccessful) {
+            response.body()?.string()?.let {
+                Log.d("STT", it)
+            }
+        } else {
+            // 실패 처리
+            response.errorBody()?.string()?.let {
+                Log.d("STT", it)
+            }
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        uploaderViewModel.GetToNaverCloud(meetingInfoId)
+    }
 
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
@@ -107,15 +118,17 @@ fun FileUploader() {
                     modifier = Modifier
                         .padding(16.dp)
                 )
-                Text(
-                    text = "녹음파일 등록",
-                    modifier = Modifier
-                        .padding(16.dp)
-                        .border(BorderStroke(1.dp, Color.Black))
-                        .clickable {
-//                            NAVER CLOVA RECORDER POST
-                        }
-                )
+                Button(onClick = {
+                    if (loginId != null) {
+                        uploaderViewModel.enrollRecordFile(
+                            loginId,
+                            meetingInfoId.toString(),
+                            recordUri
+                        )
+                    }
+                }){
+                    Text(text="POST NAVER CLOUD")
+                }
             } ?: run {
                 Text(
                     text = "오디오 파일을 선택해주세요",
