@@ -70,7 +70,7 @@ class BookingRepositoryImpl @Inject constructor(
     override suspend fun patchBookingAttend(meetingId: Long): Response<Unit> {
         return bookingApi.patchBookingAttend(meetingId)
     }
-    override suspend fun getBookingByHashtag(hashtagId: Long): Response<List<BookingListByHashtag>> {
+    override suspend fun getBookingByHashtag(hashtagId: Long): Response<List<BookingAll>> {
         return bookingApi.getBookingByHashtag(hashtagId)
     }
     override suspend fun getBookingByMemberPk(memberPk: Long): Response<List<BookingListByMemberPk>> {

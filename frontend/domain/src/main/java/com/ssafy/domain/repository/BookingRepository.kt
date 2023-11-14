@@ -32,7 +32,7 @@ interface BookingRepository {
     suspend fun deleteBooking(meetingId: Long) : Response<Unit>
     suspend fun patchBookingEnd(meetingId: Long) : Response<Unit>
     suspend fun patchBookingAttend(meetingId: Long) : Response<Unit>
-    suspend fun getBookingByHashtag(hashtagId:Long) : Response<List<BookingListByHashtag>>
+    suspend fun getBookingByHashtag(hashtagId:Long) : Response<List<BookingAll>>
     suspend fun getBookingByMemberPk(memberPk:Long) : Response<List<BookingListByMemberPk>>
     suspend fun getBookingByTitle(title:String) : Response<List<BookingAll>>
 }

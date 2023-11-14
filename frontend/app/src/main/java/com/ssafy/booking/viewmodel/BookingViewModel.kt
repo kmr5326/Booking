@@ -205,8 +205,8 @@ private val _postBookingRejectResponse = MutableLiveData<Response<Unit>>()
         }
 
     // GET - 해시태그로 모임 목록 조회
-    private val _getBookingByHashtagResponse = MutableLiveData<Response<List<BookingListByHashtag>>>()
-    val getBookingByHashtagResponse: LiveData<Response<List<BookingListByHashtag>>> get() = _getBookingByHashtagResponse
+    private val _getBookingByHashtagResponse = MutableLiveData<Response<List<BookingAll>>>()
+    val getBookingByHashtagResponse: LiveData<Response<List<BookingAll>>> get() = _getBookingByHashtagResponse
     fun getBookingByHashtag(hashtagId: Long) =
         viewModelScope.launch {
             _getBookingByHashtagResponse.value = bookingUseCase.getBookingByHashtag(hashtagId)

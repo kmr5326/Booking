@@ -70,7 +70,7 @@ class BookingUseCase @Inject constructor(private val repository: BookingReposito
     suspend fun patchBookingAttend(meetingId: Long): Response<Unit> {
         return repository.patchBookingAttend(meetingId)
     }
-    suspend fun getBookingByHashtag(hashtagId:Long): Response<List<BookingListByHashtag>> {
+    suspend fun getBookingByHashtag(hashtagId:Long): Response<List<BookingAll>> {
         return repository.getBookingByHashtag(hashtagId)
     }
     suspend fun getBookingByMemberPk(memberPk:Long): Response<List<BookingListByMemberPk>> {
