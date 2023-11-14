@@ -33,7 +33,9 @@ import com.ssafy.domain.model.booking.BookingBoardReadListResponse
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BookingBoard(meetingId:Long, isLeadered : Boolean) {
+fun BookingBoard(meetingId : Long,
+                 memberRole : String,
+                 meetingState : String) {
     val viewModel : BookingBoardViewModel = hiltViewModel()
     val boardList = viewModel.getBookingBoardReadListResponse.observeAsState()
 
