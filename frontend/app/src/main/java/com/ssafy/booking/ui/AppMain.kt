@@ -30,8 +30,6 @@ import com.ssafy.booking.ui.booking.bookingSetting.SetTitle
 import com.ssafy.booking.ui.chat.ChatDetail
 import com.ssafy.booking.ui.chat.ChatHome
 import com.ssafy.booking.ui.common.SettingPage
-import com.ssafy.booking.ui.history.HistoryDetail
-import com.ssafy.booking.ui.history.HistoryHome
 import com.ssafy.booking.ui.location.SettingAddress
 import com.ssafy.booking.ui.history.HistoryRecord
 import com.ssafy.booking.ui.login.Greeting
@@ -53,9 +51,7 @@ sealed class AppNavItem(
 ) {
     object Book : AppNavItem("book/{checkNum}")
     object BookDetail : AppNavItem("bookDetail/{isbn}")
-    object History : AppNavItem("history")
-    object HistoryDetail : AppNavItem("history/detail")
-    object HistoryRecord : AppNavItem("history/detail/record")
+    object HistoryRecord : AppNavItem("history/detail/{meetingId}/{meetinginfoId}")
     object Main : AppNavItem("main")
     object Chat : AppNavItem("chat")
     object ChatDetail : AppNavItem("chatDetail/{chatId}/{memberList}/{meetingTitle}")
@@ -133,14 +129,10 @@ fun Route(googleSignInClient: GoogleSignInClient) {
                     BookDetail(isbn = it)
                 }
             }
-            composable("history") {
-                HistoryHome()
-            }
-            composable("history/detail") {
-                HistoryDetail()
-            }
-            composable("history/detail/record") {
-                HistoryRecord()
+            composable("history/detail/{meetingId}/{meetinginfoId}") {
+                val meetingId = it.arguments?.getString("meetingId")
+                val meetinginfoId = it.arguments?.getString("meetinginfoId")
+                HistoryRecord(meetingId, meetinginfoId)
             }
             composable("main") {
                 Main(navController, appViewModel)

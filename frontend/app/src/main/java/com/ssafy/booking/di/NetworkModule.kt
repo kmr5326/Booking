@@ -14,6 +14,7 @@ import com.ssafy.data.remote.api.BookingApi
 import com.ssafy.data.remote.api.ChatApi
 import com.ssafy.data.remote.api.FirebaseApi
 import com.ssafy.data.remote.api.GoogleApi
+import com.ssafy.data.remote.api.HistoryAPi
 import com.ssafy.data.remote.api.LocationApi
 import com.ssafy.data.remote.api.MemberApi
 import com.ssafy.data.remote.api.MyBookApi
@@ -150,24 +151,6 @@ class NetworkModule {
         return retrofit.create(LocationApi::class.java)
     }
 
-//    @Provides
-//    @Singleton
-//    fun providePostChatCreateApi(retrofit: Retrofit): PostChatCreateApi {
-//        return retrofit.create(PostChatCreateApi::class.java)
-//    }
-//
-//    @Provides
-//    @Singleton
-//    fun providePostChatJoinApi(retrofit: Retrofit): PostChatJoinApi {
-//        return retrofit.create(PostChatJoinApi::class.java)
-//    }
-//
-//    @Provides
-//    @Singleton
-//    fun providePostChatExitApi(retrofit: Retrofit): PostChatExitApi {
-//        return retrofit.create(PostChatExitApi::class.java)
-//    }
-
     private fun getLoggingInterceptor(): HttpLoggingInterceptor =
         HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BODY }
 
@@ -232,4 +215,9 @@ class NetworkModule {
             .build()
     }
 
+    @Provides
+    @Singleton
+    fun provideHistoryApi(@Named("defaultRetrofit") retrofit: Retrofit): HistoryAPi {
+        return retrofit.create(HistoryAPi::class.java)
+    }
 }
