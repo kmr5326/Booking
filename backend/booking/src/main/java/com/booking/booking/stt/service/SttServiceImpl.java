@@ -77,8 +77,8 @@ public class SttServiceImpl implements SttService{
     }
 
     @Override
-    public Mono<TranscriptionResponse> findTranscriptionByFileName(String fileName) {
-        return transcriptionRepository.findByFileName(fileName)
+    public Mono<TranscriptionResponse> findTranscriptionByMeetingInfoId(long meetingInfoId) {
+        return transcriptionRepository.findByMeetingInfoId(meetingInfoId)
                 .flatMap(transcription -> Mono.just(new TranscriptionResponse(transcription)))
                 .switchIfEmpty(Mono.error(new RuntimeException("Not found Transcription")));
 

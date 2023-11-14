@@ -24,6 +24,8 @@ public class TranscriptionResponse {
 
     private String fileName;
 
+    private long meetingInfoId;
+
     public TranscriptionResponse(Transcription transcription){
         this(
                 transcription.getId(),
@@ -31,7 +33,8 @@ public class TranscriptionResponse {
                 transcription.getText(),
                 transcription.getSpeakers(),
                 transcription.getCreatedAt(),
-                transcription.getFileName()
+                transcription.getFileName(),
+                transcription.getMeetingInfoId()
         );
     }
 
