@@ -38,8 +38,8 @@ public class MariaDbConfig extends AbstractR2dbcConfiguration {
                 .initialSize(5)
                 .minIdle(2)
                 .maxSize(5)
-                .maxAcquireTime(Duration.ofSeconds(5))
-                .maxCreateConnectionTime(Duration.ofSeconds(5))
+                .maxAcquireTime(Duration.ofSeconds(10))
+                .maxCreateConnectionTime(Duration.ofSeconds(10))
                 .maxLifeTime(Duration.ofSeconds(-1))
                 .maxIdleTime(Duration.ofSeconds(-1))
                 .build();
