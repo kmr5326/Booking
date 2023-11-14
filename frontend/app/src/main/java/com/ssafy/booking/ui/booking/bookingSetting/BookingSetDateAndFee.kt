@@ -202,8 +202,8 @@ fun SetDateAndFeeBottomButton(
                         meetingId = App.prefs.getMeetingId()!!,
                         date = date.toString(),
                         fee = bookingViewModel.fee.value!!,
-                        lat = App.prefs.getMeetingLat()!!,
-                        lgt = App.prefs.getMeetingLgt()!!,
+                        lat = App.prefs.getMeetingLat()!!.toDouble(),
+                        lgt = App.prefs.getMeetingLgt()!!.toDouble(),
                         address = App.prefs.getMeetingAddress()!!,
                         location = App.prefs.getMeetingLocation()!!,
                     )

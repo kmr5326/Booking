@@ -35,6 +35,11 @@ class TokenDataSource @Inject constructor(
         private const val MEETING_LAT = "meeting_lat"
         private const val MEETING_ADDRESS = "meeting_address"
         private const val MEETING_LOCATION = "meeting_location"
+        private const val CURRENT_LAT = "current_lat"
+        private const val CURRENT_LGT = "current_lgt"
+        private const val USER_ADDRESS =  "user_address"
+        private const val SELECTED_HASHTAGID = "selected_hashtagId"
+        private const val SELECTED_HASHTAGTITLE = "selected_hashtagTitle"
         private const val MEETING_LEADERID = "meeting_leaderId"
 
     }
@@ -282,23 +287,23 @@ class TokenDataSource @Inject constructor(
         putString("hashtagList", json)
     }
 
-    fun putMeetingLgt(lgt: Double) {
-        putLong(MEETING_LGT, lgt.toLong())
+    fun putMeetingLgt(lgt: Float) {
+        putFloat(MEETING_LGT, lgt)
     }
-    fun getMeetingLgt() : Double? {
-        return getLong(MEETING_LGT).toDouble()
+    fun getMeetingLgt() : Float? {
+        return getFloat(MEETING_LGT)
     }
     fun removeMeetingLgt() {
-        putLong(MEETING_LGT, 0L)
+        putFloat(MEETING_LGT, 0f)
     }
-    fun putMeetingLat(lat: Double) {
-        putLong(MEETING_LAT, lat.toLong())
+    fun putMeetingLat(lat: Float) {
+        putFloat(MEETING_LAT, lat)
     }
-    fun getMeetingLat() : Double? {
-        return getLong(MEETING_LAT).toDouble()
+    fun getMeetingLat() : Float? {
+        return getFloat(MEETING_LAT)
     }
     fun removeMeetingLat() {
-        putLong(MEETING_LAT, 0L)
+        putFloat(MEETING_LAT, 0f)
     }
     fun putMeetingAddress(address: String?) {
         putString(MEETING_ADDRESS, address)
@@ -325,6 +330,53 @@ class TokenDataSource @Inject constructor(
 
     fun getLeaderId() : Int? {
         return getInt(MEETING_LEADERID)
+    }
+    fun getCurrentLat() : Float? {
+        return getFloat(CURRENT_LAT)
+    }
+    fun putCurrentLat(lat: Float) {
+        putFloat(CURRENT_LAT, lat)
+    }
+    fun removeCurrentLat() {
+        putFloat(CURRENT_LAT, 0f)
+    }
+    fun getCurrentLgt() : Float? {
+        return getFloat(CURRENT_LGT)
+    }
+    fun putCurrentLgt(lgt: Float) {
+        putFloat(CURRENT_LGT, lgt)
+    }
+    fun removeCurrentLgt() {
+        putFloat(CURRENT_LGT, 0f)
+    }
+
+    fun getUserAddress() : String? {
+        return getString(USER_ADDRESS)
+    }
+    fun putUserAddress(address: String?) {
+        putString(USER_ADDRESS, address)
+    }
+    fun removeUserAddress() {
+        putString(USER_ADDRESS, null)
+    }
+
+    fun getSelectedHashtagId() : Long? {
+        return getLong(SELECTED_HASHTAGID)
+    }
+    fun putSelectedHashtagId(hashtagId: Long?) {
+        putLong(SELECTED_HASHTAGID, hashtagId ?: 0L)
+    }
+    fun removeSelectedHashtagId() {
+        putLong(SELECTED_HASHTAGID, 0L)
+    }
+    fun getSelectedHashtagTitle() : String? {
+        return getString(SELECTED_HASHTAGTITLE)
+    }
+    fun putSelectedHashtagTitle(hashtagTitle: String?) {
+        putString(SELECTED_HASHTAGTITLE, hashtagTitle)
+    }
+    fun removeSelectedHashtagTitle() {
+        putString(SELECTED_HASHTAGTITLE, null)
     }
 
 

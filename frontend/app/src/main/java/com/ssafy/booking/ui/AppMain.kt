@@ -21,6 +21,7 @@ import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.ssafy.booking.ui.book.BookDetail
 import com.ssafy.booking.ui.book.BookHome
+import com.ssafy.booking.ui.booking.BookingByHashtag
 import com.ssafy.booking.ui.booking.BookingDetail
 import com.ssafy.booking.ui.booking.Main
 import com.ssafy.booking.ui.booking.MyBooking
@@ -74,6 +75,7 @@ sealed class AppNavItem(
     object BookingSetLocation : AppNavItem("booking/setting/location")
     object BookingSetDateAndFee : AppNavItem("booking/setting/dateandfee")
     object MyBooking : AppNavItem("booking/mybooking")
+    object BookingByHashtag : AppNavItem("booking/search/hashtag/{hashtagId}")
 
 }
 
@@ -208,6 +210,10 @@ fun Route(googleSignInClient: GoogleSignInClient) {
             composable("booking/mybooking")
             {
                 MyBooking(navController,appViewModel)
+            }
+            composable("booking/search/hashtag/{hashtagId}") { navBackStackEntry ->
+                val hashtagId = navBackStackEntry.arguments?.getString("hashtagId")?.toLong() ?: 1L
+                BookingByHashtag(navController, hashtagId)
             }
         }
     }

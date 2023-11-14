@@ -141,7 +141,7 @@ fun BookingInfo(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 bookingDetail?.hashtagList?.forEach { hashtag ->
-                    HashtagChip(tag = hashtag.content) // 해시태그 칩 표시
+                    HashtagChip(tag = hashtag.content,id = hashtag.hashtagId) // 해시태그 칩 표시
                 } ?: Text(text = "해시태그 없음")
             }
 
