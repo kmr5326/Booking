@@ -21,6 +21,10 @@ public class ParticipantStateService {
         return participantStateRepository.findParticipantStatesByMeetingId(meetingId);
     }
 
+    public Mono<ParticipantState> findByMeetingIdAndMemberId(Long meetingId, Integer memberId) {
+        return participantStateRepository.findByMeetinginfoIdAndAndMemberId(meetingId, memberId);
+    }
+
     public Mono<Void> startMeeting(MeetingInfo meetingInfo) {
         return participantService.findAllByMeetingId(meetingInfo.getMeetingId())
                 .flatMap(participant ->
@@ -41,6 +45,12 @@ public class ParticipantStateService {
                     }
                     return participantStateRepository.save(participantState.updateAttendance(true));
                 })
+                .then();
+    }
+
+    public Mono<Void> payMeeting(MeetingInfo meetingInfo) {
+        return participantStateRepository.findById(meetingInfo.getMeetinginfoId())
+                .flatMap(participantState -> participantStateRepository.save(participantState.updatePayment(true)))
                 .then();
     }
 }

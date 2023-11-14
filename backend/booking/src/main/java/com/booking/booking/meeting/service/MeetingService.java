@@ -488,6 +488,39 @@ public class MeetingService {
                 });
     }
 
+    public Mono<Void> payMeeting(String token, String userEmail, Long meetingId) {
+        log.info("[Booking:Meeting] payMeeting({}, {})", userEmail, meetingId);
+
+        return Mono.zip(meetingRepository.findByMeetingId(meetingId)
+                                .switchIfEmpty(Mono.error(new RuntimeException("존재하지 않는 모임"))),
+                        memberUtil.getMemberInfoByEmail(userEmail))
+                .flatMap(tuple -> {
+                    Meeting meeting = tuple.getT1();
+                    MemberResponse member = tuple.getT2();
+
+                    if (!meeting.getMeetingState().equals(MeetingState.ONGOING)) {
+                        return Mono.error(new RuntimeException("진행 중인 모임 아님"));
+                    }
+                    return participantService.existsByMeetingIdAndMemberId(meetingId, member.memberPk())
+                            .flatMap(exists -> {
+                                if (!exists) {
+                                    return Mono.error(new RuntimeException("모임 참가자가 아님"));
+                                }
+
+                                return meetingInfoService.findByMeetingId(meetingId)
+                                        .flatMap(meetingInfo ->
+                                                participantStateService.findByMeetingIdAndMemberId(meetingInfo.getMeetinginfoId(), member.memberPk())
+                                                .switchIfEmpty(Mono.error(new RuntimeException("참여 중 아님")))
+                                                .then(memberUtil.payRequest(token, meetingInfo.getFee()))
+                                                .then(participantStateService.payMeeting(meetingInfo)));
+                            });
+                })
+                .onErrorResume(error -> {
+                    log.error("[Booking:Meeting ERROR] payMeeting : {}", error.getMessage());
+                    return Mono.error(error);
+                });
+    }
+
     public Mono<Post> createPost(String userEmail, PostRequest postRequest) {
         log.info("[Booking:Meeting] createPost({}, {})", userEmail, postRequest);
 
