@@ -170,7 +170,10 @@ fun SetTitleBottomButton(
             patchBookingDetailResponse?.let {
                 if (it.isSuccessful) {
                     // 성공적인 응답일 경우 네비게이션 진행
-                    navController.navigate("bookingDetail/${meetingId}")
+                    navController.navigate("bookingDetail/${meetingId}") {
+                        popUpTo("booking/setting/title") { inclusive = true }
+                        launchSingleTop = true
+                    }
                 } else {
                     // 실패했을 경우 에러 처리
                     Toast.makeText(context, "수정이 정상적으로 되지 않았습니다.", Toast.LENGTH_SHORT).show()

@@ -40,6 +40,7 @@ class TokenDataSource @Inject constructor(
         private const val USER_ADDRESS =  "user_address"
         private const val SELECTED_HASHTAGID = "selected_hashtagId"
         private const val SELECTED_HASHTAGTITLE = "selected_hashtagTitle"
+        private const val MEETING_LEADERID = "meeting_leaderId"
 
     }
     private fun getTokenPreference(context: Context) : SharedPreferences {
@@ -321,6 +322,14 @@ class TokenDataSource @Inject constructor(
     }
     fun removeMeetingLocation() {
         putString(MEETING_LOCATION, null)
+    }
+    fun putLeaderId(leaderId: Int?) {
+        if(leaderId != null)
+        putInt(MEETING_LEADERID, leaderId)
+    }
+
+    fun getLeaderId() : Int? {
+        return getInt(MEETING_LEADERID)
     }
     fun getCurrentLat() : Float? {
         return getFloat(CURRENT_LAT)

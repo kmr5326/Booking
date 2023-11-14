@@ -116,9 +116,9 @@ fun RecordController(
             verticalArrangement = Arrangement.Center, // 요소들을 상단과 하단에 분산 배치
             modifier = Modifier.fillMaxSize()
         ) {
-            Spacer(modifier = Modifier.padding(40.dp))
+            Spacer(modifier = Modifier.padding(20.dp))
             AmplitudeIndicator()
-            Spacer(modifier = Modifier.padding(40.dp))
+            Spacer(modifier = Modifier.padding(20.dp))
             // 시작
             if (recordingState == RecordingState.STOPPED) {
                 IconButton(

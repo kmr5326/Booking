@@ -58,7 +58,7 @@ fun SetDateAndFee() {
 
     Scaffold(
         bottomBar = {
-            if ( dateState != null && timeState != null && feeState != null) {
+            if (dateState != null && timeState != null && feeState != null) {
                 // 바텀 버튼을 Scaffold의 bottomBar로 설정합니다.
                 SetDateAndFeeBottomButton(dateState!!, timeState!!, feeState, bookingViewModel)
             }
@@ -73,7 +73,7 @@ fun SetDateAndFee() {
             })
             Text("선택된 날짜: ${dateState ?: "없음"}")
             Text("선택된 시간: ${timeState ?: "없음"}")
-             SetEntryFee()
+            SetEntryFee()
         }
     }
 }
@@ -119,6 +119,7 @@ fun SetEntryFee(modifier: Modifier = Modifier) {
         Text("설정된 참가비: $enteredFee 원")
     }
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FeeInputField(onFeeChanged: (Int) -> Unit) {
@@ -151,11 +152,12 @@ fun FeeInputField(onFeeChanged: (Int) -> Unit) {
         }
     }
 }
+
 @Composable
 fun SetDateAndFeeBottomButton(
-    dateState : LocalDate,
-    timeState : LocalTime,
-    feeState : Int?,
+    dateState: LocalDate,
+    timeState: LocalTime,
+    feeState: Int?,
     bookingViewModel: BookingViewModel
 ) {
     // 현재 Composable 함수와 연관된 Context 가져오기
@@ -167,7 +169,10 @@ fun SetDateAndFeeBottomButton(
         bookingStartRequestResponse?.let { response ->
             if (response.isSuccessful) { // Assuming 'isSuccessful' is a flag in your response indicating success
                 val meetingId = App.prefs.getMeetingId()
-                navController.navigate("bookingDetail/$meetingId")
+                navController.navigate("bookingDetail/$meetingId") {
+                    popUpTo("booking/setting/location") { inclusive = true }
+                    launchSingleTop = true
+                }
             }
         }
     }
@@ -180,14 +185,17 @@ fun SetDateAndFeeBottomButton(
     ) {
         Button(
             onClick = {
-                val date = LocalDateTime.of(bookingViewModel.date.value, bookingViewModel.time.value).withSecond(0)
+                val date =
+                    LocalDateTime.of(bookingViewModel.date.value, bookingViewModel.time.value)
+                        .withSecond(0)
                 Log.d("date", date.toString())
                 Log.d("date", feeState.toString())
-                Log.d("date",dateState.toString())
-                Log.d("date",timeState.toString())
+                Log.d("date", dateState.toString())
+                Log.d("date", timeState.toString())
                 if (date == null || feeState == null) {
                     // 제목 또는 내용이 비어있을 경우 Toast 메시지 표시
-                    Toast.makeText(context, "독서모임의 모임 일정과 참가비를 모두 입력해주세요.", Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, "독서모임의 모임 일정과 참가비를 모두 입력해주세요.", Toast.LENGTH_LONG)
+                        .show()
                 } else {
                     Log.d("date123", date.toString())
                     val request = BookingStartRequest(

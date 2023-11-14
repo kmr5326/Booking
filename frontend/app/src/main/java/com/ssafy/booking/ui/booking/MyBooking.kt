@@ -1,5 +1,6 @@
 package com.ssafy.booking.ui.booking
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -136,6 +137,8 @@ fun BookingListByMemberPk(navController: NavController, appViewModel: AppViewMod
 @Composable
 fun BookingItemByMemberPk(bookingItem: BookingListByMemberPk, navController: NavController) {
     val meetingId = bookingItem.meetingId
+    Log.d("TEST", "asDas${bookingItem.meetingInfoList}")
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
