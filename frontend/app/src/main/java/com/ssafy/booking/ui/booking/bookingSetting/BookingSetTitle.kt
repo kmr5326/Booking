@@ -185,7 +185,7 @@ fun SetTitleBottomButton(
             shape = RoundedCornerShape(3.dp),
             colors = ButtonDefaults.buttonColors(Color(0xFf00C68E))
         ) {
-            Text("다음", style = MaterialTheme.typography.bodyMedium)
+            Text("수정 완료", style = MaterialTheme.typography.bodyMedium)
         }
         LaunchedEffect(patchBookingDetailResponse) {
             patchBookingDetailResponse?.let {
