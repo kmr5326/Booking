@@ -1,6 +1,7 @@
 package com.ssafy.data.remote.api
 import com.ssafy.domain.model.booking.BookingAcceptRequest
 import com.ssafy.domain.model.booking.BookingAll
+import com.ssafy.domain.model.booking.BookingAttendRequest
 import com.ssafy.domain.model.booking.BookingCreateRequest
 import com.ssafy.domain.model.booking.BookingDetail
 import com.ssafy.domain.model.booking.BookingJoinRequest
@@ -82,7 +83,7 @@ interface BookingApi {
     
     // 모임 나가기
     @Headers("Content-Type: application/json;charset=UTF-8")
-    @POST("/api/booking/meeting/{meetingId}/exit")
+    @DELETE("/api/booking/meeting/{meetingId}/exit")
     suspend fun postBookingExit(@Path("meetingId") meetingId: Long): Response<Unit>
     
     // 모임 삭제
@@ -92,13 +93,13 @@ interface BookingApi {
     
     // 모임 종료
     @Headers("Content-Type: application/json;charset=UTF-8")
-    @PATCH("/api/booking/meeting/info/{meetingId}")
+    @PATCH("/api/booking/meeting/finish/{meetingId}")
     suspend fun patchBookingEnd(@Path("meetingId") meetingId: Long): Response<Unit>
     
     // 모임 출석체크
     @Headers("Content-Type: application/json;charset=UTF-8")
-    @PATCH("/api/booking/meeting/attend/{meetingId}")
-    suspend fun patchBookingAttend(@Path("meetingId") meetingId: Long): Response<Unit>
+    @PATCH("/api/booking/meeting/attend")
+    suspend fun patchBookingAttend(@Body request: BookingAttendRequest): Response<Unit>
 
     // 모임 목록 조회 - 해시태그
     @Headers("Content-Type: application/json;charset=UTF-8")
@@ -114,5 +115,15 @@ interface BookingApi {
     @Headers("Content-Type: application/json;charset=UTF-8")
     @GET("/api/booking/meeting/title/{title}")
     suspend fun getBookingByTitle(@Path("title") title: String): Response<List<BookingAll>>
+
+    // 모임 한 번 더 하기
+    @Headers("Content-Type: application/json;charset=UTF-8")
+    @PATCH("/api/booking/meeting/restart/{meetingId}")
+    suspend fun patchBookingRestart(@Path("meetingId") meetingId: Long): Response<Unit>
+
+    // 결제하기
+    @Headers("Content-Type: application/json;charset=UTF-8")
+    @PATCH("/api/booking/meeting/pay/{meetingId}")
+    suspend fun patchPayment(@Path("meetingId") meetingId: Long): Response<Unit>
 
 }

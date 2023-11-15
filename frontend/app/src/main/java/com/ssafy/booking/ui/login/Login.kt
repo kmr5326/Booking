@@ -131,7 +131,7 @@ fun Greeting(
             Text(
                 text = "우리 동네 독서 모임,",
                 fontWeight = FontWeight.Bold,
-                modifier = modifier.padding(bottom = 2.dp),
+                modifier = modifier.padding(bottom = 0.dp),
                 color = Color(0xFF12BD7E),
                 style = TextStyle(fontSize = 20.sp),
                 fontFamily = FontFamily(Font(R.font.gowundodum))
@@ -144,8 +144,6 @@ fun Greeting(
                 style = TextStyle(fontSize = 55.sp),
                 fontFamily = FontFamily(Font(R.font.gowundodum))
             )
-
-
             KakaoLoginButton(context, navController, loginViewModel)
 //            TempLoginButton(navController)
             GoogleLoginButton(mainViewModel, googleSignInClient, navController, loginViewModel)
@@ -236,9 +234,10 @@ fun GoogleLoginButton(
             )
             Spacer(Modifier.width(8.dp)) // 아이콘과 텍스트 사이의 공간을 적당히 조정
             Text(
-                "구글로 로그인하기",
+//                "구글로 로그인하기",
+                "Sign in with Google",
                 fontWeight = FontWeight.Bold,
-                color = Color.Black,
+                color = Color(0xFF4285F4),
                 modifier = Modifier.padding(end = 28.dp), // 남은 공간을 텍스트가 채우도록 함
                 fontFamily = FontFamily(Font(R.font.gowundodum)),
 
