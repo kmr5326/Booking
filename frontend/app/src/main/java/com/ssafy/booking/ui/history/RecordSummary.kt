@@ -37,16 +37,16 @@ fun RecordSummary(
         modifier = Modifier
             .fillMaxSize()
             .padding(30.dp)
-            .background(Color(0xFF00C68E))
+            .background(Color.White)
     ) {
         SelectionContainer {
             Text(
                 modifier = Modifier
                     .padding(20.dp),
-                color = Color.White,
+                color = Color.Black,
                 text = summary,
                 fontSize = 20.sp,
-                fontWeight = FontWeight.ExtraBold,
+                fontWeight = FontWeight.Thin,
                 lineHeight = 30.sp
             )
         }
