@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -20,17 +21,20 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ssafy.booking.di.App
 import com.ssafy.booking.ui.LocalNavigation
+import com.ssafy.booking.ui.common.BackTopBar
 import com.ssafy.booking.ui.common.BottomNav
 import com.ssafy.booking.ui.common.TabBar
 import com.ssafy.booking.ui.common.TopBar
 import com.ssafy.booking.viewmodel.AppViewModel
 import com.ssafy.booking.viewmodel.UploaderViewModel
+import okhttp3.Request
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HistoryRecord(
     meetingId: String?,
-    meetinginfoId: String?
+    meetinginfoId: String?,
+    index: String?,
 ) {
     val navController = LocalNavigation.current
     val appViewModel: AppViewModel = hiltViewModel()
@@ -39,6 +43,7 @@ fun HistoryRecord(
     val myPk = App.prefs.getMemberPk()
     val meetingId = App.prefs.getMeetingId()
     val meetingLeaderId = App.prefs.getLeaderId()
+    val meetingTitle = App.prefs.getTitle()
     var isLeader by remember { mutableStateOf(false) }
     isLeader = myPk.toInt() == meetingLeaderId
 
@@ -47,12 +52,18 @@ fun HistoryRecord(
     responseState?.let { response ->
         if (response.isSuccessful) {
             isLoadRecord = true
-            Log.d("STT", "녹음파일을 불러왔습니다!")
+            Log.d("STT_TEST", "녹음파일을 불러왔습니다!")
+        } else {
+            Log.d("STT_TEST", "녹음파일을 불러오지 못했습니다.")
         }
     }
 
+    LaunchedEffect(Unit) {
+        uploaderViewModel.GetToNaverCloud(meetinginfoId)
+    }
+
     Scaffold(topBar = {
-        TopBar("${meetingId}의 ${meetinginfoId}번째 모임")
+        BackTopBar("${meetingTitle}의 ${index}번째 모임")
     }, bottomBar = {
         BottomNav(navController, appViewModel)
     }, modifier = Modifier.fillMaxSize()
@@ -83,7 +94,7 @@ fun HistoryRecord(
                         listOf("녹음 기록 분석", "녹음 모임 요약"),
                         contentForTab = { index ->
                             when (index) {
-                                0 -> RecordDetail()
+                                0 -> RecordDetail(meetinginfoId)
                                 1 -> RecordSummary()
                             }
                         }

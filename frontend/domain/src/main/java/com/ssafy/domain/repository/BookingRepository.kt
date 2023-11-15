@@ -2,6 +2,7 @@ package com.ssafy.domain.repository
 
 import com.ssafy.domain.model.booking.BookingAcceptRequest
 import com.ssafy.domain.model.booking.BookingAll
+import com.ssafy.domain.model.booking.BookingAttendRequest
 import retrofit2.Response
 import com.ssafy.domain.model.booking.BookingCreateRequest
 import com.ssafy.domain.model.booking.BookingDetail
@@ -31,8 +32,10 @@ interface BookingRepository {
     suspend fun postBookingExit(meetingId: Long) : Response<Unit>
     suspend fun deleteBooking(meetingId: Long) : Response<Unit>
     suspend fun patchBookingEnd(meetingId: Long) : Response<Unit>
-    suspend fun patchBookingAttend(meetingId: Long) : Response<Unit>
+    suspend fun patchBookingAttend(request : BookingAttendRequest) : Response<Unit>
     suspend fun getBookingByHashtag(hashtagId:Long) : Response<List<BookingAll>>
     suspend fun getBookingByMemberPk(memberPk:Long) : Response<List<BookingListByMemberPk>>
     suspend fun getBookingByTitle(title:String) : Response<List<BookingAll>>
+    suspend fun patchBookingRestart(meetingId: Long) : Response<Unit>
+    suspend fun patchPayment(meetingId: Long) : Response<Unit>
 }

@@ -127,6 +127,7 @@ fun Main(
         val address2 = addressResponse?.body()?.documents?.firstOrNull()?.address?.region3DepthName ?: "불러오는 중..."
         myLocation = "$address1 $address2"
         App.prefs.putUserAddress(address)
+        App.prefs.putShortUserAddress(myLocation?:"")
     }
     LaunchedEffect(userInfoState) {
         userInfoState?.body()?.let {
@@ -134,6 +135,8 @@ fun Main(
             tokenDataSource.putProfileImage(it.profileImage)
             tokenDataSource.putMemberPk(it.memberPk)
             tokenDataSource.putLat(it.lat.toFloat())
+            tokenDataSource.putLgt(it.lgt.toFloat())
+
         }
     }
     Scaffold(
@@ -207,7 +210,7 @@ fun BookItem(booking: BookingAll,navController: NavController) {
             contentDescription = "Book Image",
             modifier = Modifier
                 .size(80.dp, 100.dp)
-                .clip(RoundedCornerShape(10.dp)),
+                .clip(RoundedCornerShape(8.dp)),
             contentScale = ContentScale.Crop // 이미지의 비율 유지하면서 영역 채우기
         )
         Spacer(modifier = Modifier.width(16.dp))
@@ -228,7 +231,7 @@ fun BookItem(booking: BookingAll,navController: NavController) {
                 Icon(Icons.Outlined.LocationOn, contentDescription = "locate", modifier = Modifier.size(12.dp), tint = Color.Gray)
                 Text(
 //                    text = booking.lat.toString(),
-                    text = "오선동",
+                    text = booking.address,
                     color = Color.Gray,
                     fontSize = 12.sp
                 )
@@ -278,10 +281,10 @@ fun HashtagChip(tag: String,id:Long) {
         contentAlignment = Alignment.Center,
         modifier = Modifier
             .padding(end = 4.dp) // 오른쪽 마진
-            .background(Color.LightGray, RoundedCornerShape(10.dp)) // 둥근 사각형의 배경
+            .background(Color(0xFF00C68E), RoundedCornerShape(10.dp)) // 둥근 사각형의 배경
             .padding(horizontal = 8.dp, vertical = 4.dp) // 내부 패딩
             .clickable {
-                navController.navigate("booking/search/hashtag/$id")
+                navController.navigate("booking/search/hashtag/$id/$tag")
             }
     ) {
         Text(

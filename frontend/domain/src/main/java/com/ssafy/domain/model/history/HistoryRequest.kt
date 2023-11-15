@@ -8,3 +8,8 @@ data class RecordFileNameRequest (
     @SerializedName("meetingInfoId")
     val meetingInfoId : String,
 )
+
+data class CreateSummaryRequest(
+    var content: String,
+    val transcriptionId: String
+)

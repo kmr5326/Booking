@@ -8,6 +8,7 @@ data class BookingCreateRequest (
     val meetingTitle: String,
     val description : String,
     val maxParticipants : Number,
+    val address : String,
     val hashtagList : List<String>,
 )
 
@@ -45,10 +46,6 @@ data class BookingExitRequest (
     val meetingId : Long,
 )
 
-
-
-
-
 // 모임 수정하기
 data class BookingModifyRequest(
     val meetingId: Long,
@@ -56,4 +53,11 @@ data class BookingModifyRequest(
     val description: String,
     val maxParticipants: Int,
     val hashtagList: List<String>,
+)
+
+// 모임 출석체크
+data class BookingAttendRequest(
+    val meetingId: Long,
+    val lat : Double,
+    val lgt : Double,
 )

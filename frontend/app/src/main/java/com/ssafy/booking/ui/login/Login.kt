@@ -7,14 +7,22 @@ import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -24,9 +32,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -101,26 +113,42 @@ fun Greeting(
     val loginViewModel = LoginViewModel()
 
     Box(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier
+            .fillMaxSize()
+        ,
         contentAlignment = Alignment.Center
     ) {
+        Image(
+            painter = painterResource(id = R.drawable.bg4),
+            contentDescription = "배경 이미지",
+            contentScale = ContentScale.Crop, // 화면에 맞게 이미지를 조정
+            modifier = Modifier.matchParentSize() // 부모 컴포저블 크기에 맞게 이미지를 설정
+        )
         Column(
             modifier = Modifier.align(Alignment.Center),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "BOOKING",
-                fontWeight = FontWeight.SemiBold,
-                modifier = modifier.padding(bottom = 24.dp),
-                color = Color(0xFF00C68E),
-                style = TextStyle(fontSize = 40.sp)
-
+                text = "우리 동네 독서 모임,",
+                fontWeight = FontWeight.Bold,
+                modifier = modifier.padding(bottom = 0.dp),
+                color = Color(0xFF12BD7E),
+                style = TextStyle(fontSize = 20.sp),
+                fontFamily = FontFamily(Font(R.font.gowundodum))
             )
-
+            Text(
+                text = "BOOKING",
+                fontWeight = FontWeight.ExtraBold,
+                modifier = modifier.padding(bottom = 24.dp),
+                color = Color(0xFF12BD7E),
+                style = TextStyle(fontSize = 55.sp),
+                fontFamily = FontFamily(Font(R.font.gowundodum))
+            )
             KakaoLoginButton(context, navController, loginViewModel)
 //            TempLoginButton(navController)
             GoogleLoginButton(mainViewModel, googleSignInClient, navController, loginViewModel)
-//            SignInBtn()
+//          Text(text = "@CopyRight by BOOKING", color = Color.Gray, modifier = Modifier.padding(top = 20.dp)
+//        )
         }
     }
 }
@@ -182,20 +210,43 @@ fun GoogleLoginButton(
 
     Button(
         modifier = Modifier
-            .width(200.dp)
+            .width(240.dp)
             .clip(RoundedCornerShape(5.dp)),
         shape = RoundedCornerShape(5.dp),
         onClick = { startForResult.launch(googleSignInClient.signInIntent) },
         colors = ButtonDefaults.buttonColors(
-            containerColor = colorResource(id = R.color.font_color),
-            contentColor = colorResource(id = R.color.background_color)
+//            containerColor = colorResource(id = R.color.background_color),
+//            contentColor = Color(0xFFffffff),
+            containerColor = Color(0xFFffffff)
+//            contentColor = colorResource(id = R.color.font_color)
         )
     ) {
-        Text(
-            "구글로 로그인하기",
-            fontWeight = FontWeight.Bold,
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth(), // 버튼 너비를 최대로 채움
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween // 아이콘을 시작점에 정렬
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.google),
+                contentDescription = "구글 로그인",
+                modifier = Modifier.size(20.dp),
+                tint = Color.Unspecified
+            )
+            Spacer(Modifier.width(8.dp)) // 아이콘과 텍스트 사이의 공간을 적당히 조정
+            Text(
+//                "구글로 로그인하기",
+                "Sign in with Google",
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF4285F4),
+                modifier = Modifier.padding(end = 28.dp), // 남은 공간을 텍스트가 채우도록 함
+                fontFamily = FontFamily(Font(R.font.gowundodum)),
+
+            )
+        }
     }
+    Text(text = "Copyright (C) 2023 BOOKING all rights reserved.", color = Color.Gray, modifier = Modifier.padding(top = 10.dp),fontSize=10.sp,fontFamily = FontFamily(Font(R.font.gowundodum))
+    )
+
 }
 
 
@@ -207,7 +258,7 @@ fun KakaoLoginButton(
 ) {
     Button(
         modifier = Modifier
-            .width(200.dp)
+            .width(240.dp)
             .clip(RoundedCornerShape(5.dp)),
         shape = RoundedCornerShape(5.dp),
         onClick = {
@@ -264,13 +315,29 @@ fun KakaoLoginButton(
         },
         colors = ButtonDefaults.buttonColors(
             containerColor = Color(0xFFFEE500),
-            contentColor = Color(0xFFffffff)
+//            contentColor = Color(0xFFffffff)
         )
-    ) {
-        Text(
-            "카카오로 로그인하기",
-            fontWeight = FontWeight.Bold,
-            color = Color.Black
-        )
-    }
-}
+    )
+    {
+        Row(
+            modifier = Modifier.fillMaxWidth(), // 버튼 너비를 최대로 채움
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween // 아이콘을 시작점에 정렬
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.kakao),
+                contentDescription = "카카오로 로그인",
+                modifier = Modifier.size(24.dp),
+                tint = Color.Unspecified
+            )
+            Spacer(Modifier.width(8.dp)) // 아이콘과 텍스트 사이의 공간을 적당히 조정
+            Text(
+                "카카오로 로그인하기",
+                fontWeight = FontWeight.ExtraBold,
+                color = Color.Black,
+                modifier = Modifier.padding(end = 23.dp), // 남은 공간을 텍스트가 채우도록 함
+                fontFamily = FontFamily(Font(R.font.gowundodum)),
+
+                )
+        }
+    }}

@@ -5,9 +5,12 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import coil.Coil
@@ -83,9 +86,16 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        window.apply {
+            // 상태바 아래로 콘텐츠를 확장
+//            addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS)
+
+            // 상태바 색상을 투명하게 설정
+            statusBarColor = Color(0xFF12BD7E).toArgb()
+        }
+
         askNotificationPermission() // 알림 권한 요청
 //        WindowCompat.setDecorFitsSystemWindows(window, false)
-        askNotificationPermission()
 
         /** KakaoSDK init */
         KakaoSdk.init(this, BuildConfig.kakaoSdkApp_key)

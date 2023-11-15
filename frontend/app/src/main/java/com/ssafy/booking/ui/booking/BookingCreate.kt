@@ -44,12 +44,14 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import com.ssafy.booking.di.App
 import com.ssafy.booking.ui.AppNavItem
 import com.ssafy.booking.ui.LocalNavigation
 import com.ssafy.booking.ui.common.TopBar
 import com.ssafy.booking.viewmodel.AppViewModel
 import com.ssafy.booking.viewmodel.BookSearchViewModel
 import com.ssafy.booking.viewmodel.BookingViewModel
+import com.ssafy.booking.viewmodel.LocationViewModel
 import com.ssafy.domain.model.booking.BookingCreateRequest
 import com.ssafy.domain.model.booksearch.BookSearchResponse
 import retrofit2.Response
@@ -75,16 +77,23 @@ fun BookingCreate(navController: NavController, appViewModel: AppViewModel, isbn
     var hashTagText by remember { mutableStateOf(listOf<String>()) }
 
 //    var bookIsbn by remember { mutableStateOf(TextFieldValue(isbn)) }
-    var maxParticipants by remember { mutableStateOf(1) }
+    var maxParticipants by remember { mutableStateOf(2) }
+
+
 
     // 뷰모델
     val viewModel: BookingViewModel = hiltViewModel()
+    val locationViewModel : LocationViewModel = hiltViewModel()
     val postCreateBookingResponse by viewModel.postCreateBookingResponse.observeAsState()
     val createBookingSuccess by viewModel.createBookingSuccess.observeAsState()
     // isbn 으로 데이터 불러오기
     val bookSearchViewModel: BookSearchViewModel = hiltViewModel()
     val getBookSearchByIsbnResponse by bookSearchViewModel.getBookSearchByIsbnResponse.observeAsState()
-    LaunchedEffect(Unit) {
+    val address = App.prefs.getShortUserAddress()
+
+
+
+    LaunchedEffect(Unit){
         isbn?.let {
             bookSearchViewModel.getBookSearchByIsbn(isbn)
         }
@@ -154,7 +163,8 @@ fun BookingCreate(navController: NavController, appViewModel: AppViewModel, isbn
                     meetingTitle = meetingTitle.text, // TextFieldValue에서 String으로 변환
                     description = description.text,
                     maxParticipants = maxParticipants,
-                    hashtagList = hashTagText
+                    hashtagList = hashTagText,
+                    address = address?:"",
                 )
             }
         }
@@ -309,6 +319,7 @@ fun CreateBookingButton(
     description: String,
     maxParticipants: Int,
     hashtagList: List<String>,
+    address: String,
     viewModel: BookingViewModel = hiltViewModel()
 ) {
     Button(
@@ -318,7 +329,8 @@ fun CreateBookingButton(
                 meetingTitle = meetingTitle,
                 description = description,
                 maxParticipants = maxParticipants,
-                hashtagList = hashtagList
+                hashtagList = hashtagList,
+                address = address
             )
             viewModel.postCreateBooking(request)
         },
@@ -350,7 +362,8 @@ fun ParticipantCounter(
         Button(
             onClick = { if (maxParticipants > 1)onMaxParticipantsChanged(maxParticipants - 1) },
             shape = CircleShape,
-            enabled = maxParticipants > 1 // 1보다 작아질 수 없도록 비활성화,
+            enabled = maxParticipants > 2, // 1보다 작아질 수 없도록 비활성화,
+            colors = ButtonDefaults.buttonColors(Color(0xFf00C68E))
         ) {
             Text("-")
         }
@@ -364,7 +377,8 @@ fun ParticipantCounter(
         Button(
             onClick = { if (maxParticipants < 6) onMaxParticipantsChanged(maxParticipants + 1) },
             shape = CircleShape,
-            enabled = maxParticipants < 6
+            enabled = maxParticipants < 6,
+            colors = ButtonDefaults.buttonColors(Color(0xFf00C68E))
         ) {
             Text("+")
         }
@@ -394,10 +408,12 @@ fun HashTagEditor(
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
             keyboardActions = KeyboardActions(
                 onDone = {
-                    // '완료(Done)' 버튼이 눌렸을 때 할 작업
-                    onAddHashTag(text.text.trim())
-                    text = TextFieldValue("")
-                    keyboardController?.hide()
+                    if (text.text.isNotBlank() && text.text.length <= 4) {
+                        // '완료(Done)' 버튼이 눌렸을 때 할 작업
+                        onAddHashTag(text.text.trim())
+                        text = TextFieldValue("")
+                        keyboardController?.hide()
+                    }
                 }
             ),
             modifier = Modifier

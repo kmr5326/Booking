@@ -2,6 +2,7 @@ package com.ssafy.booking.ui.history
 
 import android.net.Uri
 import android.provider.OpenableColumns
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -18,6 +19,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -49,10 +51,6 @@ fun FileUploader(
     var downloadUri by remember { mutableStateOf<Uri?>(null) }
     var fileName by remember { mutableStateOf<String>("") }
     val loginId = App.prefs.getLoginId()
-
-    LaunchedEffect(Unit) {
-        uploaderViewModel.GetToNaverCloud(meetinginfoId)
-    }
 
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()

@@ -55,7 +55,7 @@ sealed class AppNavItem(
 ) {
     object Book : AppNavItem("book/{checkNum}")
     object BookDetail : AppNavItem("bookDetail/{isbn}")
-    object HistoryRecord : AppNavItem("history/detail/{meetingId}/{meetinginfoId}")
+    object HistoryRecord : AppNavItem("history/detail/{meetingId}/{meetinginfoId}/{index}")
     object Main : AppNavItem("main")
     object Chat : AppNavItem("chat")
     object ChatDetail : AppNavItem("chatDetail/{chatId}/{memberList}/{meetingTitle}")
@@ -81,7 +81,7 @@ sealed class AppNavItem(
     object BookingBoardCreate : AppNavItem("booking/board/create/{meetingId}")
     object BookingBoardDetail : AppNavItem("booking/board/detail/{postId}")
     object MyBooking : AppNavItem("booking/mybooking")
-    object BookingByHashtag : AppNavItem("booking/search/hashtag/{hashtagId}")
+    object BookingByHashtag : AppNavItem("booking/search/hashtag/{hashtagId}/{hashtagName}")
 
 }
 
@@ -137,10 +137,11 @@ fun Route(googleSignInClient: GoogleSignInClient) {
                     BookDetail(isbn = it)
                 }
             }
-            composable("history/detail/{meetingId}/{meetinginfoId}") {
+            composable("history/detail/{meetingId}/{meetinginfoId}/{index}") {
                 val meetingId = it.arguments?.getString("meetingId")
                 val meetinginfoId = it.arguments?.getString("meetinginfoId")
-                HistoryRecord(meetingId, meetinginfoId)
+                val index = it.arguments?.getString("index")
+                HistoryRecord(meetingId, meetinginfoId, index)
             }
             composable("main") {
                 Main(navController, appViewModel)
@@ -217,9 +218,10 @@ fun Route(googleSignInClient: GoogleSignInClient) {
             {
                 MyBooking(navController,appViewModel)
             }
-            composable("booking/search/hashtag/{hashtagId}") { navBackStackEntry ->
+            composable("booking/search/hashtag/{hashtagId}/{hashtagName}") { navBackStackEntry ->
                 val hashtagId = navBackStackEntry.arguments?.getString("hashtagId")?.toLong() ?: 1L
-                BookingByHashtag(navController, hashtagId)
+                val hashtagName = navBackStackEntry.arguments?.getString("hashtagName")?: ""
+                BookingByHashtag(navController, hashtagId, hashtagName)
             }
             composable("pay/ready/{amount}")
             {navBackStackEntry->
