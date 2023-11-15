@@ -13,7 +13,8 @@ public interface MessageRepository extends ReactiveMongoRepository<Message, Long
     @Query("{ chatroomId:  ?0}")
     Flux<Message> findByChatRoomId(Long roomId);
 
-    Flux<Message> findByChatroomIdAndMessageIdGreaterThanEqual(Long chatroomId, Long lastMessageId);
+    @Query("{ 'chatroomId': ?0, '_id': { $gt: ?1 } }")
+    Flux<Message> findByChatroomIdAndMessageIdGreaterThanEqual(Long chatroomId, String lastMessageId);
 
     @Query("{ 'chatroomId': ?0 }")
     Flux<Message> findLatestByChatroomId(Long chatroomId, Pageable pageable);
