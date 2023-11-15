@@ -242,8 +242,8 @@ fun ProfileView(
 
 
 //    fun provideObjectStorageInterceptor(): ObjectStorageInterceptor {
-//        val accessKey = "64tVP74TUGmd6PDzjQ04"
-//        val secretKey = "1E11TfvJcy7OVnSSm3rV0Vph24CLUO4Tiehd5PtZ"
+//        val accessKey = BuildConfig.naverAccess_key
+//        val secretKey = BuildConfig.naverSecret_key
 //        val region = "kr-standard"
 //        return ObjectStorageInterceptor(accessKey, secretKey, region)
 //    }

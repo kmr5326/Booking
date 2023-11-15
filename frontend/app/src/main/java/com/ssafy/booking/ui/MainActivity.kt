@@ -17,6 +17,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.location.LocationServices
 import com.kakao.sdk.common.KakaoSdk
 import com.kakao.sdk.common.util.Utility
+import com.ssafy.booking.BuildConfig
 import com.ssafy.booking.di.NetworkModule_OkHttpClientWithObjectStorageFactory.okHttpClientWithObjectStorage
 import com.ssafy.booking.di.NetworkModule_ProvideObjectStorageInterceptorFactory.provideObjectStorageInterceptor
 import dagger.hilt.android.AndroidEntryPoint
@@ -87,7 +88,7 @@ class MainActivity : ComponentActivity() {
         askNotificationPermission()
 
         /** KakaoSDK init */
-        KakaoSdk.init(this, "c983af9ff87c243a4acecc793d087699")
+        KakaoSdk.init(this, BuildConfig.kakaoSdkApp_key)
         var keyHash = Utility.getKeyHash(this)
         Log.v(TAG1, keyHash)
         setContent {

@@ -6,6 +6,7 @@ import coil.request.CachePolicy
 import coil.util.DebugLogger
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import com.ssafy.booking.BuildConfig
 import com.ssafy.booking.utils.ObjectStorageInterceptor
 import com.ssafy.booking.utils.Utils.BASE_URL
 import com.ssafy.booking.utils.Utils.NAVER_CLOUD_URL
@@ -38,6 +39,7 @@ import java.io.IOException
 import java.util.concurrent.TimeUnit
 import javax.inject.Named
 import javax.inject.Singleton
+
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -190,8 +192,8 @@ class NetworkModule {
     @Provides
     @Singleton
     fun provideObjectStorageInterceptor(): ObjectStorageInterceptor {
-        val accessKey = "64tVP74TUGmd6PDzjQ04"
-        val secretKey = "1E11TfvJcy7OVnSSm3rV0Vph24CLUO4Tiehd5PtZ"
+        val accessKey = BuildConfig.naverAccess_key
+        val secretKey = BuildConfig.naverSecret_key
         val region = "kr-standard"
         return ObjectStorageInterceptor(accessKey, secretKey, region)
     }

@@ -22,6 +22,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.ssafy.booking.ui.book.BookDetail
 import com.ssafy.booking.ui.book.BookHome
 import com.ssafy.booking.ui.booking.BookingBoardCreate
+import com.ssafy.booking.ui.booking.BookingBoardDetail
 import com.ssafy.booking.ui.booking.BookingByHashtag
 import com.ssafy.booking.ui.booking.BookingDetail
 import com.ssafy.booking.ui.booking.Main
@@ -78,6 +79,7 @@ sealed class AppNavItem(
     object BookingSetDateAndFee : AppNavItem("booking/setting/dateandfee")
     object KakaoPayReady : AppNavItem("pay/ready/{amount}")
     object BookingBoardCreate : AppNavItem("booking/board/create/{meetingId}")
+    object BookingBoardDetail : AppNavItem("booking/board/detail/{postId}")
     object MyBooking : AppNavItem("booking/mybooking")
     object BookingByHashtag : AppNavItem("booking/search/hashtag/{hashtagId}")
 
@@ -228,6 +230,11 @@ fun Route(googleSignInClient: GoogleSignInClient) {
             {navBackStackEntry ->
                 val meetingId = navBackStackEntry.arguments!!.getString("meetingId")!!.toLong()
                 BookingBoardCreate(meetingId)
+            }
+            composable("booking/board/detail/{postId}")
+            {navBackStackEntry ->
+                val postId = navBackStackEntry.arguments!!.getString("postId")!!.toLong()
+                BookingBoardDetail(postId)
             }
         }
     }
