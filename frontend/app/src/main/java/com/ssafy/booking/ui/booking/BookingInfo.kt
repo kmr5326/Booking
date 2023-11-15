@@ -37,6 +37,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberImagePainter
 import com.google.gson.Gson
@@ -64,8 +65,7 @@ fun BookingInfo(
     meetingId : Long,
     memberRole : String,
     meetingState : String
-)
-{
+) {
     // 뷰모델 연결
     val bookingViewModel: BookingViewModel = hiltViewModel()
     val getBookingDetailResponse by bookingViewModel.getBookingDetailResponse.observeAsState()
@@ -92,56 +92,59 @@ fun BookingInfo(
     }
     Column(
         modifier = Modifier
-            .padding(16.dp),
+            .padding(16.dp)
+            .fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Row(
-            verticalAlignment = Alignment.Top,
-            horizontalArrangement = Arrangement.Center,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            val imagePainter = if (bookingDetail?.coverImage != null) {
-                rememberImagePainter(
-                    data = bookingDetail?.coverImage,
-                    builder = {
-                        crossfade(true)
-                    }
-                )
-            } else {
-                painterResource(id = R.drawable.main1) // 기본 이미지
-            }
-
-            Image(
-                painter = imagePainter,
-                contentDescription = "Book Image",
-                modifier = Modifier
-                    .size(80.dp, 100.dp)
-                    .clip(RoundedCornerShape(10.dp)),
-                contentScale = ContentScale.Crop
+        // 이미지
+        val imagePainter = if (bookingDetail?.coverImage != null) {
+            rememberImagePainter(
+                data = bookingDetail?.coverImage,
+                builder = { crossfade(true) }
             )
-            Spacer(modifier = Modifier.width(8.dp)) // 이미지와 텍스트 사이 간격
-            Column {
-                Text(text = "${bookingDetail?.bookTitle.orEmpty()}")
-                Text(text = "${bookingDetail?.bookAuthor.orEmpty()}")
-                Text(
-                    text = "${bookingDetail?.bookContent.orEmpty()}",
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
+        } else {
+            painterResource(id = R.drawable.main1) // 기본 이미지
         }
+
+        Image(
+            painter = imagePainter,
+            contentDescription = "Book Image",
+            modifier = Modifier
+                .size(120.dp, 150.dp)
+                .clip(RoundedCornerShape(10.dp)),
+            contentScale = ContentScale.Crop
+        )
+
+        Spacer(modifier = Modifier.height(8.dp)) // 이미지와 텍스트 사이 간격
+
+        // 책 제목
+        Text(
+            text = "${bookingDetail?.bookTitle.orEmpty()}",
+            fontSize = 20.sp // 글씨 크기 조정
+        )
+
+        // 책 작가
+        Text(
+            text = "${bookingDetail?.bookAuthor.orEmpty()}",
+            fontSize = 14.sp
+        )
+
         Spacer(modifier = Modifier.height(16.dp)) // 요소 사이 간격
         Column {
-            Text(text = "모임 제목 : ${bookingDetail?.meetingTitle.orEmpty()}")
-            Text(text = "모임 소개글 : ${bookingDetail?.description.orEmpty()}")
-            Text(text = "모임 최대 인원 : ${bookingDetail?.maxParticipants ?: "정보 없음"}")
+            Text(text = bookingDetail?.meetingTitle.orEmpty(), fontSize = 20.sp) // 모임 제목
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(text = "참가 인원 : ${bookingDetail?.curParticipants?: "정보없음"}명",fontSize = 14.sp) // 참가 인원
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(text = bookingDetail?.description.orEmpty(), fontSize = 14.sp) // 모임 설명
+
+
 
             Row(
                 horizontalArrangement = Arrangement.Start,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 bookingDetail?.hashtagList?.forEach { hashtag ->
-                    HashtagChip(tag = hashtag.content,id = hashtag.hashtagId) // 해시태그 칩 표시
+                    HashtagChip(tag = hashtag.content, id = hashtag.hashtagId) // 해시태그 칩 표시
                 } ?: Text(text = "해시태그 없음")
             }
 
@@ -149,9 +152,10 @@ fun BookingInfo(
         MeetingInfoTimeline(bookingDetail = bookingDetail, meetingId) // 모임 정보 타임라인
 
     }
+}
 
 
-    }
+
 
 @Composable
 fun MeetingInfoCard(meetingInfo: MeetingInfoResponse, meetingId:Long, isFirstItem: Boolean, index: Int) {
