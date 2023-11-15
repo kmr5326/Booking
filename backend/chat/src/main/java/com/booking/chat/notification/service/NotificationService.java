@@ -159,7 +159,6 @@ public class NotificationService {
             }
         }, MoreExecutors.directExecutor()); // 현재 스레드에서 리스너를 실행
 
-        return Mono.fromFuture(completableFuture)
-                   .then();
+        return Mono.fromFuture(completableFuture).then();
     }
 }

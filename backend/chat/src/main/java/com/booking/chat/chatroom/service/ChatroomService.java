@@ -12,6 +12,7 @@ import com.booking.chat.chatroom.dto.response.ChatroomListResponse;
 import com.booking.chat.chatroom.exception.ChatroomException;
 import com.booking.chat.chatroom.repository.ChatroomRepository;
 import com.booking.chat.global.exception.ErrorCode;
+import com.booking.chat.kafka.service.KafkaService;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -33,6 +34,7 @@ public class ChatroomService {
     private final ChatroomRepository chatroomRepository;
     private final MessageRepository messageRepository;
     private final ReactiveRedisTemplate<String, Set<Long>> reactiveRedisTemplate;
+    private final KafkaService kafkaService;
 
     public Mono<Chatroom> initializeChatroom(InitChatroomRequest initChatroomRequest) {
         return chatroomRepository.findById(initChatroomRequest.meetingId())
@@ -40,7 +42,16 @@ public class ChatroomService {
                                  .switchIfEmpty(Mono.defer(() -> {
                                      Chatroom chatroom = Chatroom.createWithLeader(initChatroomRequest);
                                      return chatroomRepository.save(chatroom);
+//                                         .flatMap(savedChatroom -> createKafkaTopic(initChatroomRequest.meetingId())
+//                                             .thenReturn(savedChatroom));
                                  }));
+    }
+
+    private Mono<Void> createKafkaTopic(Long chatroomId) {
+        return Mono.fromRunnable(() -> {
+            log.info(" kafka topic Chatroom-{} initialize", chatroomId);
+            kafkaService.createTopic(chatroomId);
+        }).subscribeOn(Schedulers.boundedElastic()).then();
     }
 
     public Mono<Long> joinChatroom(JoinChatroomRequest joinChatroomRequest) {
