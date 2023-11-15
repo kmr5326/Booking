@@ -281,10 +281,10 @@ fun HashtagChip(tag: String,id:Long) {
         contentAlignment = Alignment.Center,
         modifier = Modifier
             .padding(end = 4.dp) // 오른쪽 마진
-            .background(Color.LightGray, RoundedCornerShape(10.dp)) // 둥근 사각형의 배경
+            .background(Color(0xFF00C68E), RoundedCornerShape(10.dp)) // 둥근 사각형의 배경
             .padding(horizontal = 8.dp, vertical = 4.dp) // 내부 패딩
             .clickable {
-                navController.navigate("booking/search/hashtag/$id")
+                navController.navigate("booking/search/hashtag/$id/$tag")
             }
     ) {
         Text(
