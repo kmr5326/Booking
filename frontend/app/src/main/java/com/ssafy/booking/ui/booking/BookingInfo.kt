@@ -154,14 +154,14 @@ fun BookingInfo(
     }
 
 @Composable
-fun MeetingInfoCard(meetingInfo: MeetingInfoResponse, meetingId:Long, isFirstItem: Boolean) {
+fun MeetingInfoCard(meetingInfo: MeetingInfoResponse, meetingId:Long, isFirstItem: Boolean, index: Int) {
     val navController = LocalNavigation.current
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
             .clickable(onClick = {
-                navController.navigate("history/detail/${meetingId}/${meetingInfo.meetinginfoId}")
+                navController.navigate("history/detail/${meetingId}/${meetingInfo.meetinginfoId}/${index}")
             }),
     ) {
         Column(
@@ -214,7 +214,7 @@ fun MeetingInfoTimeline(
 //                .verticalScroll(rememberScrollState())
         ) {
             meetingInfoList.forEachIndexed { index, meetingInfo ->
-                MeetingInfoCard(meetingInfo, meetingId, isFirstItem = index == 0)
+                MeetingInfoCard(meetingInfo, meetingId, isFirstItem = index == 0, meetingInfoList.size-index-1)
             }
         }
     } ?: Text(text = "아직 모임 정보가 없습니다.")

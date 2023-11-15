@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ssafy.booking.di.App
 import com.ssafy.booking.ui.LocalNavigation
+import com.ssafy.booking.ui.common.BackTopBar
 import com.ssafy.booking.ui.common.BottomNav
 import com.ssafy.booking.ui.common.TabBar
 import com.ssafy.booking.ui.common.TopBar
@@ -33,6 +34,7 @@ import okhttp3.Request
 fun HistoryRecord(
     meetingId: String?,
     meetinginfoId: String?,
+    index: String?,
 ) {
     val navController = LocalNavigation.current
     val appViewModel: AppViewModel = hiltViewModel()
@@ -41,6 +43,7 @@ fun HistoryRecord(
     val myPk = App.prefs.getMemberPk()
     val meetingId = App.prefs.getMeetingId()
     val meetingLeaderId = App.prefs.getLeaderId()
+    val meetingTitle = App.prefs.getTitle()
     var isLeader by remember { mutableStateOf(false) }
     isLeader = myPk.toInt() == meetingLeaderId
 
@@ -60,7 +63,7 @@ fun HistoryRecord(
     }
 
     Scaffold(topBar = {
-        TopBar("${meetingId}의 ${meetinginfoId}번째 모임")
+        BackTopBar("${meetingTitle}의 ${index}번째 모임")
     }, bottomBar = {
         BottomNav(navController, appViewModel)
     }, modifier = Modifier.fillMaxSize()
