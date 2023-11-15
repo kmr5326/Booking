@@ -23,6 +23,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -88,19 +89,14 @@ fun STTList(
     playerViewModel: PlayerViewModel,
     speakToTextInfo: TranscriptionResponse?
 ) {
-
     val context = LocalContext.current
 
     Box(
-        contentAlignment = Alignment.Center,
         modifier = Modifier
             .fillMaxSize()
             .fillMaxHeight()
             .padding(8.dp)
     ) {
-        if (App.prefs.getMemberPk().toInt() == App.prefs.getLeaderId()) {
-
-        }
         LazyColumn {
             speakToTextInfo?.segments?.let { segments ->
                 itemsIndexed(segments) { index, segment ->
@@ -155,7 +151,8 @@ fun SpeakToTextRow(
             Text(text = segment.speaker.name, fontWeight = FontWeight.Bold, fontSize = 12.sp)
             SelectionContainer(
                 modifier = Modifier
-                    .border(1.dp, Color.Gray, RoundedCornerShape(2.dp))
+                    .border(1.dp, Color.Gray, RoundedCornerShape(10.dp))
+                    .padding(10.dp)
             ) {
                 Text(text = segment.text)
             }
