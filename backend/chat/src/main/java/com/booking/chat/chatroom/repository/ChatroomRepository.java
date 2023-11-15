@@ -8,6 +8,6 @@ public interface ChatroomRepository extends ReactiveMongoRepository<Chatroom, Lo
 
    Flux<Chatroom> findByMemberListContains(Long memberId);
 
-   Flux<Chatroom> findByMemberListContainsOrderByLastMessageReceivedTimeDesc(Long memberId);
+   // Flux<Chatroom> findByMemberListContainsOrderByLastMessageReceivedTimeDesc(Long memberId);
 
 }

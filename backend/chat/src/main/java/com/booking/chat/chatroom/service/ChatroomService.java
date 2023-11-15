@@ -117,7 +117,7 @@ public class ChatroomService {
         Mono<Void> redisUpdateMono = redisManager(chatroomKey, memberId);
         // 2. 마지막 읽은 메세지부터, 마지막 메세지까지 불러오면서, readCount-- 및 읽은 사람 목록에 추가
 
-        Flux<Message> updatedMessagesFlux = messageRepository.findByChatroomIdAndMessageIdGreaterThanEqual(chatroomId, lastMessageRequest.lastMessageIndex())
+        Flux<Message> updatedMessagesFlux = messageRepository.findByChatroomIdAndTimestampGreaterThanEqual(chatroomId, lastMessageRequest.lastMessageIndex())
                                                              .flatMap(message -> {
                                                                  if(message.getReadMemberList().add(memberId)){
                                                                     message.decreaseReadCount();
@@ -126,7 +126,7 @@ public class ChatroomService {
                                                              });
 
         // 레디스 업데이트 후 메시지 스트림 반환
-        return redisUpdateMono.thenMany(updatedMessagesFlux).map(MessageResponse::new);
+        return redisUpdateMono.thenMany(updatedMessagesFlux).map(MessageResponse::new).sort(Comparator.comparing(MessageResponse::timestamp));
     }
 
     public Mono<Void> disconnectChatroom(Long chatroomId, Long memberId) {
@@ -150,8 +150,7 @@ public class ChatroomService {
 
     private Mono<Void> redisManager(String chatroomKey, Long memberId) {
         reactiveRedisTemplate.hasKey(chatroomKey)
-                             .publishOn(
-                                 Schedulers.boundedElastic()) // 블로킹 작업에 적합한 스레드 사용
+                             .publishOn(Schedulers.boundedElastic()) // 블로킹 작업에 적합한 스레드 사용
                              .flatMap(exists -> {
                                  if (Boolean.FALSE.equals(exists)) {
                                      return storeMemberStatusWithCreateKey(chatroomKey,
