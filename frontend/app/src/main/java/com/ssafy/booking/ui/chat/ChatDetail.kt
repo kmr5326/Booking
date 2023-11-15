@@ -414,7 +414,7 @@ fun MessageItem(
                 text = curDate,
                 modifier = Modifier
                     .background(
-                        color = Color(0xFF8DA9BF),
+                        color = Color(0xFF00AD97),
                         shape = RoundedCornerShape(10.dp)
                     )
                     .padding(8.dp)

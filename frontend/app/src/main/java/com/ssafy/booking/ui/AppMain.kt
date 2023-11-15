@@ -52,7 +52,7 @@ sealed class AppNavItem(
 ) {
     object Book : AppNavItem("book/{checkNum}")
     object BookDetail : AppNavItem("bookDetail/{isbn}")
-    object HistoryRecord : AppNavItem("history/detail/{meetingId}/{meetinginfoId}")
+    object HistoryRecord : AppNavItem("history/detail/{meetingId}/{meetinginfoId}/{index}")
     object Main : AppNavItem("main")
     object Chat : AppNavItem("chat")
     object ChatDetail : AppNavItem("chatDetail/{chatId}/{memberList}/{meetingTitle}")
@@ -131,10 +131,11 @@ fun Route(googleSignInClient: GoogleSignInClient) {
                     BookDetail(isbn = it)
                 }
             }
-            composable("history/detail/{meetingId}/{meetinginfoId}") {
+            composable("history/detail/{meetingId}/{meetinginfoId}/{index}") {
                 val meetingId = it.arguments?.getString("meetingId")
                 val meetinginfoId = it.arguments?.getString("meetinginfoId")
-                HistoryRecord(meetingId, meetinginfoId)
+                val index = it.arguments?.getString("index")
+                HistoryRecord(meetingId, meetinginfoId, index)
             }
             composable("main") {
                 Main(navController, appViewModel)

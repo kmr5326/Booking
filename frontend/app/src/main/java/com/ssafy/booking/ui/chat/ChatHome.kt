@@ -118,32 +118,6 @@ fun ChatHome(
         ) {
             Box {
                 Column {
-                    Row {
-                        TextField(
-                            value = chatId,
-                            onValueChange = { chatId = it },
-                            placeholder = { Text("채팅방 번호") }
-                        )
-                        Button(
-                            onClick = {
-                                val request =
-                                    ChatCreateRequest(chatId.toInt(), memId, "${chatId}번 채팅")
-                                chatViewModel.createChatRoom(request)
-                            }
-                        ) {
-                            Text("방 생성")
-                        }
-                    }
-                    Row {
-                        Button(
-                            onClick = {
-                                val request = ChatJoinRequest(chatId.toInt(), memId)
-                                chatViewModel.joinChatRoom(request)
-                            }
-                        ) {
-                            Text("채팅방 참가")
-                        }
-                    }
                     ChatList()
                 }
             }
