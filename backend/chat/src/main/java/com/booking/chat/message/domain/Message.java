@@ -20,11 +20,11 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class Message {
 
     @Id
-    private String _id;
+    private String messageId;
 
     private Long chatroomId;
 
-    private Long messageId;
+    // private Long messageId;
 
     private Long memberId;
 
