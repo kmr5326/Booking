@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -18,6 +19,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -27,7 +31,7 @@ import com.ssafy.booking.viewmodel.HistoryViewModel
 import com.ssafy.booking.viewmodel.PlayerViewModel
 import com.ssafy.domain.model.ChatRoom
 import com.ssafy.domain.model.history.Segment
-import com.ssafy.domain.model.history.SttResponseDto
+import com.ssafy.domain.model.history.TranscriptionResponse
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -58,14 +62,13 @@ fun RecordDetail(
 fun STTList(
     historyViewModel: HistoryViewModel,
     playerViewModel: PlayerViewModel,
-    speakToTextInfo: SttResponseDto?
+    speakToTextInfo: TranscriptionResponse?
 ) {
 
     LazyColumn {
         speakToTextInfo?.segments?.let { segments ->
             itemsIndexed(segments) { index, segment ->
-                val previousSpeaker = if (index > 0) segments[index - 1].speaker.name else null
-                SpeakToTextRow(historyViewModel, playerViewModel, segment, previousSpeaker)
+                SpeakToTextRow(historyViewModel, playerViewModel, segment)
             }
         }
     }
@@ -73,29 +76,22 @@ fun STTList(
 
 @Composable
 fun SpeakToTextRow(
-    historyViewModel:HistoryViewModel,
+    historyViewModel: HistoryViewModel,
     playerViewModel: PlayerViewModel,
     segment: Segment,
-    previousSpeaker: String?
 ) {
 
-    // 다른 상대가 나오면 정렬 반대
-    val arrangement = if (segment.speaker.name != previousSpeaker) {
-        Arrangement.Start
-    } else {
-        Arrangement.End
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Text(
+            modifier = Modifier
+                .border(BorderStroke(1.dp, Color.Black))
+                .clickable(onClick = { playerViewModel.updateSliderPosition(segment.start.toInt()) }),
+            text = playerViewModel.convertMillisToTimeFormat(segment.start.toInt())
+        )
+        Text(text = segment.speaker.name)
+        Text(text = segment.text)
     }
 
-    Row(horizontalArrangement = arrangement) {
-        if (segment.speaker.name != null) {
-            Text(
-                modifier = Modifier
-                    .border(BorderStroke(1.dp, Color.Black))
-                    .clickable(onClick = { playerViewModel.updateSliderPosition(segment.start.toInt()) }),
-                text = playerViewModel.convertMillisToTimeFormat(segment.start.toInt())
-            )
-            Text(text = segment.speaker.name)
-            Text(text = segment.text)
-        }
-    }
 }
