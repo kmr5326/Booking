@@ -25,5 +25,11 @@ public class MeetingInfo {
 
     private String location;
 
+    private String address;
+
+    private Double lat;
+
+    private Double lgt;
+
     private Integer fee;
 }

@@ -1,10 +1,7 @@
 package com.booking.member.payments.controller;
 
 import com.booking.member.payments.Service.PaymentService;
-import com.booking.member.payments.dto.ApprovalResponseDto;
-import com.booking.member.payments.dto.ReadyPaymentRequestDto;
-import com.booking.member.payments.dto.ReadyPaymentResponseDto;
-import com.booking.member.payments.dto.SendRequestDto;
+import com.booking.member.payments.dto.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -57,9 +54,22 @@ public class PaymentController {
     }
 
     @PostMapping("/send")
-    public Mono<ResponseEntity<Void>> sendPoint(@AuthenticationPrincipal UserDetails user,
+    public Mono<ResponseEntity<String>> sendPoint(@AuthenticationPrincipal UserDetails user,
                                              @RequestBody SendRequestDto req) {
+        log.info("Send {}, {}",user.getUsername(),req.toString());
         return paymentService.sendPoint(req,user.getUsername())
-                .then(Mono.just(ResponseEntity.noContent().build()));
+                .then(Mono.just(ResponseEntity.ok().body("sending")))
+                .onErrorResume(e->Mono.just(ResponseEntity.badRequest().body(e.getMessage())));
+    }
+
+    @PostMapping("/resend")
+    public Mono<ResponseEntity<String>> resendPoint(@RequestBody ReSendRequestDto requestDto) {
+        log.info("Resend {}",requestDto.toString());
+        return paymentService.resendPoint(requestDto)
+                .then(Mono.just(ResponseEntity.ok().body("")))
+                .onErrorResume(e->{
+                    log.error("Resend error {}",e.getMessage());
+                    return Mono.just(ResponseEntity.badRequest().body(e.getMessage()));
+                });
     }
 }
