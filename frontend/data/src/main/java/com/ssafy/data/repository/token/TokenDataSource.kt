@@ -38,6 +38,7 @@ class TokenDataSource @Inject constructor(
         private const val CURRENT_LAT = "current_lat"
         private const val CURRENT_LGT = "current_lgt"
         private const val USER_ADDRESS =  "user_address"
+        private const val SHORT_USER_ADDRESS = "short_user_address"
         private const val SELECTED_HASHTAGID = "selected_hashtagId"
         private const val SELECTED_HASHTAGTITLE = "selected_hashtagTitle"
         private const val MEETING_LEADERID = "meeting_leaderId"
@@ -397,6 +398,16 @@ class TokenDataSource @Inject constructor(
     }
     fun getNcpPayloadHash() : String? {
         return getString(NCP_PAYLOAD_HASH)
+    }
+
+    fun getShortUserAddress() : String? {
+        return getString(SHORT_USER_ADDRESS)
+    }
+    fun putShortUserAddress(address: String?) {
+        putString(SHORT_USER_ADDRESS, address)
+    }
+    fun removeShortUserAddress() {
+        putString(SHORT_USER_ADDRESS, null)
     }
 
 

@@ -36,6 +36,8 @@ data class BookingAll (
     val lgt : Double,
     @SerializedName("hashtagList")
     val hashtagList : List<HashtagResponse>,
+    @SerializedName("address")
+    val address : String,
 )
 
 
@@ -166,6 +168,9 @@ data class BookingListByHashtag (
     val hashtagList : List<HashtagResponse>,
     @SerializedName("meetingInfoList")
     val meetingInfoList : List<MeetingInfoResponse>,
+    @SerializedName("address")
+    val address : String,
+
 )
 
 data class BookingListByMemberPk (
@@ -193,6 +198,8 @@ data class BookingListByMemberPk (
     val hashtagList : List<HashtagResponse>,
     @SerializedName("meetingInfoList")
     val meetingInfoList : List<MeetingInfoResponse>,
+    @SerializedName("address")
+    val address : String,
 )
 
 data class BookingListByTitle(
@@ -220,6 +227,8 @@ data class BookingListByTitle(
     val hashtagList : List<HashtagResponse>,
     @SerializedName("meetingInfoList")
     val meetingInfoList : List<MeetingInfoResponse>,
+    @SerializedName("address")
+    val address : String,
 )
 
 // 네이버 검색 api
