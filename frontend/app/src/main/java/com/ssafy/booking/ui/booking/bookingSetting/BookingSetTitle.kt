@@ -1,11 +1,15 @@
 package com.ssafy.booking.ui.booking.bookingSetting
 
 import ParticipantCounter
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -13,6 +17,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -23,6 +28,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -32,6 +38,8 @@ import coil.compose.rememberImagePainter
 import com.ssafy.booking.di.App
 import com.ssafy.booking.ui.AppNavItem
 import com.ssafy.booking.ui.LocalNavigation
+import com.ssafy.booking.ui.common.BackTopBar
+import com.ssafy.booking.ui.common.TopBar
 import com.ssafy.booking.viewmodel.BookingViewModel
 import com.ssafy.domain.model.booking.BookingModifyRequest
 import com.ssafy.domain.model.booking.HashtagResponse
@@ -60,14 +68,19 @@ fun SetTitle() {
     }
 
     Scaffold(
+        topBar = {
+            BackTopBar(title = "수정하기")
+        },
         bottomBar = {
             SetTitleBottomButton(titleState,descriptionState,maxParticipantsState,viewModel) // 하단 버튼
         }
     ) { innerPadding ->
         Column(
             modifier = Modifier
+                .fillMaxSize()
                 .padding(innerPadding)
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             // 책 이미지
             bookImage?.let {
@@ -92,7 +105,9 @@ fun SetTitle() {
                     onValueChange = { newValue ->
                         viewModel.title.value = newValue
                     },
-                    label = { Text("제목") }
+                    label = { Text("제목", color = Color.Black) },
+                    modifier = Modifier
+                        .padding(8.dp)
                 )
             }
 
@@ -106,9 +121,14 @@ fun SetTitle() {
                     onValueChange = { newValue ->
                         viewModel.description.value = newValue
                     },
-                    label = { Text("모임 소개") }
+                    label = { Text("모임 소개", color = Color.Black) },
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .height(IntrinsicSize.Min)
                 )
             }
+
+            Spacer(modifier = Modifier.padding(8.dp))
             // 참가자 수 입력 필드
             maxParticipants?.let {
                     ParticipantCounter(
@@ -162,9 +182,10 @@ fun SetTitleBottomButton(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(48.dp),
-            shape = RoundedCornerShape(3.dp)
+            shape = RoundedCornerShape(3.dp),
+            colors = ButtonDefaults.buttonColors(Color(0xFf00C68E))
         ) {
-            Text("버튼 텍스트", style = MaterialTheme.typography.bodyMedium)
+            Text("수정 완료", style = MaterialTheme.typography.bodyMedium)
         }
         LaunchedEffect(patchBookingDetailResponse) {
             patchBookingDetailResponse?.let {

@@ -362,7 +362,8 @@ fun ParticipantCounter(
         Button(
             onClick = { if (maxParticipants > 1)onMaxParticipantsChanged(maxParticipants - 1) },
             shape = CircleShape,
-            enabled = maxParticipants > 2 // 1보다 작아질 수 없도록 비활성화,
+            enabled = maxParticipants > 2, // 1보다 작아질 수 없도록 비활성화,
+            colors = ButtonDefaults.buttonColors(Color(0xFf00C68E))
         ) {
             Text("-")
         }
@@ -376,7 +377,8 @@ fun ParticipantCounter(
         Button(
             onClick = { if (maxParticipants < 6) onMaxParticipantsChanged(maxParticipants + 1) },
             shape = CircleShape,
-            enabled = maxParticipants < 6
+            enabled = maxParticipants < 6,
+            colors = ButtonDefaults.buttonColors(Color(0xFf00C68E))
         ) {
             Text("+")
         }

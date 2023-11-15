@@ -10,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import com.ssafy.domain.model.CreateSummaryRequest
 import com.ssafy.domain.model.history.CreateSummaryResponse
 import com.ssafy.domain.model.history.LoadSummaryResponse
+import com.ssafy.domain.model.history.Speaker
 import com.ssafy.domain.model.history.TranscriptionResponse
 import com.ssafy.domain.usecase.HistoryUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -99,6 +100,11 @@ class HistoryViewModel @Inject constructor(
             }
         }
     }
+    
+    // 대화 내용 수정
+    // 스피커 VALUE 수정
+    
+    // 대사 조정
 
 
 }

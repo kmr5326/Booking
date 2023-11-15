@@ -68,6 +68,7 @@ import com.ssafy.booking.R
 import com.ssafy.booking.di.App
 import com.ssafy.booking.ui.AppNavItem
 import com.ssafy.booking.ui.common.BottomNav
+import com.ssafy.booking.ui.common.TopBar
 import com.ssafy.booking.viewmodel.AppViewModel
 import com.ssafy.booking.viewmodel.BookingViewModel
 import com.ssafy.domain.model.booking.BookingAll
@@ -89,7 +90,7 @@ fun MyBooking(
     ///////
     Scaffold(
         topBar = {
-            // 탑바 넣으세요 여기에~
+            TopBar("나의 북킹")
         },
         bottomBar = {
             BottomNav(navController, appViewModel)
@@ -179,9 +180,9 @@ fun BookingListByMemberPk(
                                     //                            "PREPARING" -> "준비 중인 모임"
                                     else -> "준비 중인 모임"
                                 },
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 16.sp,
-                                modifier = Modifier.padding(vertical = 8.dp)
+                                fontWeight = FontWeight.ExtraBold,
+                                fontSize = 24.sp,
+                                modifier = Modifier.padding(vertical = 4.dp)
                             )
                         }
                         items(bookings) { booking ->
