@@ -129,4 +129,8 @@ public class MessageService {
                                     })
                                     .defaultIfEmpty(chatroom.getMemberList().size() - 1);
     }
+
+    public Mono<Void> stressTest() {
+        return Mono.empty();
+    }
 }
