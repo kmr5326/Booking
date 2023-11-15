@@ -25,10 +25,10 @@ class LocationViewModel @Inject constructor(
     // 서버 응답 상태 관리
     var isLoading = mutableStateOf(false)
     var errorMessage = mutableStateOf<String?>(null)
-    fun getAddress(lng: String, lat: String) = viewModelScope.launch {
+    fun getAddress(lgt: String, lat: String) = viewModelScope.launch {
         isLoading.value = true
         try {
-            val response = locationUseCase.getAddress(lng, lat)
+            val response = locationUseCase.getAddress(lgt, lat)
             if (response.isSuccessful) {
                 // 성공적인 응답 처리
                 _getAddressResponse.value = response

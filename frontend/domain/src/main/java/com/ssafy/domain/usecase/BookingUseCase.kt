@@ -2,6 +2,7 @@ package com.ssafy.domain.usecase
 
 import com.ssafy.domain.model.booking.BookingAcceptRequest
 import com.ssafy.domain.model.booking.BookingAll
+import com.ssafy.domain.model.booking.BookingAttendRequest
 import com.ssafy.domain.model.booking.BookingCreateRequest
 import com.ssafy.domain.model.booking.BookingDetail
 import com.ssafy.domain.model.booking.BookingJoinRequest
@@ -67,8 +68,8 @@ class BookingUseCase @Inject constructor(private val repository: BookingReposito
     suspend fun patchBookingEnd(meetingId: Long): Response<Unit> {
         return repository.patchBookingEnd(meetingId)
     }
-    suspend fun patchBookingAttend(meetingId: Long): Response<Unit> {
-        return repository.patchBookingAttend(meetingId)
+    suspend fun patchBookingAttend(request : BookingAttendRequest): Response<Unit> {
+        return repository.patchBookingAttend(request)
     }
     suspend fun getBookingByHashtag(hashtagId:Long): Response<List<BookingAll>> {
         return repository.getBookingByHashtag(hashtagId)
@@ -78,6 +79,12 @@ class BookingUseCase @Inject constructor(private val repository: BookingReposito
     }
     suspend fun getBookingByTitle(title:String): Response<List<BookingAll>> {
         return repository.getBookingByTitle(title)
+    }
+    suspend fun patchBookingRestart(meetingId: Long): Response<Unit> {
+        return repository.patchBookingRestart(meetingId)
+    }
+    suspend fun patchPayment(meetingId: Long): Response<Unit> {
+        return repository.patchPayment(meetingId)
     }
 }
 
