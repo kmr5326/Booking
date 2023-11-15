@@ -242,7 +242,7 @@ fun BookItem(booking: BookingAll,navController: NavController) {
                 Icon(Icons.Outlined.LocationOn, contentDescription = "locate", modifier = Modifier.size(12.dp), tint = Color.Gray)
                 Text(
 //                    text = booking.lat.toString(),
-                    text = booking.address,
+                    text = booking.address?:"",
                     color = Color.Gray,
                     fontSize = 12.sp
                 )
@@ -295,13 +295,17 @@ fun HashtagChip(tag: String, id: Long) {
             .border(0.8.dp, Color(0xFF12BD7E), RoundedCornerShape(3.dp)) // #12BD7E 색상의 테두리 추가
             .background(Color.White, RoundedCornerShape(3.dp)) // 흰색 배경
             .padding(horizontal = 4.dp, vertical = 4.dp) // 내부 패딩
+//            .padding(end = 4.dp) // 오른쪽 마진
+//            .background(Color(0xFF00C68E), RoundedCornerShape(10.dp)) // 둥근 사각형의 배경
+//            .padding(horizontal = 8.dp, vertical = 4.dp) // 내부 패딩
             .clickable {
-                navController.navigate("booking/search/hashtag/$id")
+                navController.navigate("booking/search/hashtag/$id/$tag")
             }
     ) {
         Text(
             text = "#${tag}",
             color = Color(0xFF12BD7E), // 텍스트 색상을 #12BD7E로 변경
+//            color = Color.White,
             fontSize = 10.sp, // 작은 글씨 크기
             maxLines = 1,
             overflow = TextOverflow.Ellipsis // 글이 넘치면 말줄임표로 처리
@@ -318,8 +322,6 @@ fun MyFloatingActionButton(navController: NavController, appViewModel: AppViewMo
             .size(65.dp),
         containerColor = Color(0xFF12BD7E),
         shape = CircleShape
-        // 그냥 동그라미할지, + 모임생성할지 고민.
-
     ) {
         Icon(
             Icons.Filled.Add,
@@ -334,11 +336,6 @@ fun MyFloatingActionButton(navController: NavController, appViewModel: AppViewMo
 @Composable
 fun HomeTopBar(navController: NavController, appViewModel: AppViewModel,myLocation:String,bookingViewModel: BookingViewModel,searchQuery: String,
                onSearchQueryChanged: (String) -> Unit) {
-
-    // 검색 결과 상태를 저장하는 변수
-    val searchResultState by bookingViewModel.getBookingByTitleResponse.observeAsState()
-    // 사용자가 검색어를 입력할 때 마다 호출됩니다.
-
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -346,6 +343,7 @@ fun HomeTopBar(navController: NavController, appViewModel: AppViewModel,myLocati
                 color = Color(0xFF12BD7E),
                 shape = RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp)
             ) // 배경색과 모서리를 둥글게 설정
+//            .height(50.dp)
     ) {
         // 상단의 하남동과 설정 아이콘
         Box(
@@ -379,10 +377,7 @@ fun HomeTopBar(navController: NavController, appViewModel: AppViewModel,myLocati
                 tint = Color(0xFFffffff)
             )
         }
-        // 검색 창
-//        var title by rememberSaveable(stateSaver = TextFieldValue.Saver) {
-//            mutableStateOf(TextFieldValue(""))
-//        }
+        }
         OutlinedTextField(
             value = searchQuery, // 이 부분을 뷰모델의 상태로 연결하거나 필요에 따라 변경
             onValueChange = onSearchQueryChanged,
@@ -391,8 +386,8 @@ fun HomeTopBar(navController: NavController, appViewModel: AppViewModel,myLocati
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp)
                 .padding(top = 4.dp)
-                .padding(bottom = 16.dp)
-                .height(50.dp)
+//                .padding(bottom = 16.dp)
+//                .height(50.dp)
                 .background(Color.White, shape = RoundedCornerShape(3.dp)),
             singleLine = true,
             colors = TextFieldDefaults.outlinedTextFieldColors(
@@ -403,7 +398,7 @@ fun HomeTopBar(navController: NavController, appViewModel: AppViewModel,myLocati
             leadingIcon = { Icon(Icons.Outlined.Search, contentDescription = null, tint = Color(0xFF12BD7E)) }
         )
     }
-}
+
 @Composable
 fun SearchResultsList(
     searchResults: List<BookingAll>?,

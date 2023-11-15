@@ -5,9 +5,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -16,7 +18,9 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -38,6 +42,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.BaselineShift
@@ -48,6 +53,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ssafy.booking.di.App
 import com.ssafy.booking.ui.AppNavItem
 import com.ssafy.booking.ui.LocalNavigation
+import com.ssafy.booking.ui.common.BackTopBar
 import com.ssafy.booking.viewmodel.BookingViewModel
 import com.ssafy.booking.viewmodel.LocationViewModel
 import com.ssafy.domain.model.loacation.KakaoSearchResponse
@@ -65,6 +71,9 @@ fun SetLocation() {
     val placeNameState by bookingViewModel.placeName.observeAsState()
     val showSearchResults = remember { mutableStateOf(true) }
     Scaffold(
+        topBar = {
+            BackTopBar(title = "모임 장소 선택")
+        },
         bottomBar = {
             // 바텀 버튼을 Scaffold의 bottomBar로 설정합니다.
             SetLocationBottomButton(locationState, placeNameState)
@@ -72,17 +81,22 @@ fun SetLocation() {
     )
 
     { innerPadding ->
-        Column(modifier = Modifier.padding(innerPadding)) {
-            SetLocationSearch(locationViewModel,showSearchResults)
+        Column(
+            modifier = Modifier
+                .padding(innerPadding),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            SetLocationSearch(locationViewModel, showSearchResults)
+            SearchResult(bookingViewModel, locationViewModel, showSearchResults)
             SelectedLocation(bookingViewModel, locationState, placeNameState)
-            SearchResult(bookingViewModel, locationViewModel,showSearchResults)
         }
     }
 
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SetLocationSearch(viewModel:LocationViewModel,showSearchReults: MutableState<Boolean>) {
+fun SetLocationSearch(viewModel: LocationViewModel, showSearchReults: MutableState<Boolean>) {
     // 검색 창
     var location by rememberSaveable(stateSaver = TextFieldValue.Saver) {
         mutableStateOf(TextFieldValue(""))
@@ -92,83 +106,108 @@ fun SetLocationSearch(viewModel:LocationViewModel,showSearchReults: MutableState
     OutlinedTextField(
         value = location, // 이 부분을 뷰모델의 상태로 연결하거나 필요에 따라 변경
         onValueChange = { location = it },
-        placeholder = { Text("모임 위치를 검색해주세요.", fontSize = 11.sp, color = Color.Gray) },
+        placeholder = { Text("모임 위치를 검색해주세요.", fontSize = 16.sp, color = Color.Gray) },
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
-            .padding(top = 4.dp)
+            .padding(top = 16.dp)
             .padding(bottom = 16.dp)
-            .height(50.dp)
+            .height(60.dp)
             .background(Color.White, shape = RoundedCornerShape(3.dp)),
         singleLine = true,
         colors = TextFieldDefaults.outlinedTextFieldColors(
             focusedBorderColor = Color(0xFF12BD7E),
             unfocusedBorderColor = Color.White
         ),
-        textStyle = TextStyle(color = Color.Gray, fontSize = 11.sp, baselineShift = BaselineShift.None),
-        leadingIcon = { Icon(Icons.Outlined.Search, contentDescription = null, tint = Color(0xFF12BD7E)) },
+        textStyle = TextStyle(
+            color = Color.Gray,
+            fontSize = 16.sp,
+            baselineShift = BaselineShift.None
+        ),
+        leadingIcon = {
+            Icon(
+                Icons.Outlined.Search,
+                contentDescription = null,
+                tint = Color(0xFF12BD7E),
+                modifier = Modifier.size(24.dp)
+            )
+        },
         keyboardOptions = KeyboardOptions.Default.copy(
             imeAction = ImeAction.Done
         ),
         keyboardActions = KeyboardActions(
             onDone = {
                 // 사용자 설정 위치에서 반경 20km 안에서만 검색
-                viewModel.getSearchList(location.text, 10, 15,lat,lgt,20000)
+                viewModel.getSearchList(location.text, 10, 15, lat, lgt, 20000)
                 showSearchReults.value = true
             }
         )
     )
 }
+
 @Composable
-fun SelectedLocation(bookingViewModel: BookingViewModel,locationState:String?,placeNameState:String?) {
-    Text(text="선택된 모임 장소: ${placeNameState ?: "정보 없음"}")
-    Text(text="선택된 모임 위치: ${locationState ?: "정보 없음"}")
+fun SelectedLocation(
+    bookingViewModel: BookingViewModel,
+    locationState: String?,
+    placeNameState: String?
+) {
+    if (locationState != null || placeNameState != null ) {
+        Spacer(modifier = Modifier.padding(8.dp))
+        Text(text = "${locationState ?: "정보 없음"}", fontSize = 20.sp)
+        Spacer(modifier = Modifier.padding(8.dp))
+        Text(text = "${placeNameState ?: " "}", fontSize = 20.sp)
+    }
 }
+
 @Composable
-fun SearchResult(bookingViewModel: BookingViewModel,locationViewModel: LocationViewModel,showSearchResults: MutableState<Boolean>) {
+fun SearchResult(
+    bookingViewModel: BookingViewModel,
+    locationViewModel: LocationViewModel,
+    showSearchResults: MutableState<Boolean>
+) {
     val getKakaoSearchResponse by locationViewModel.getKakaoSearchResponse.observeAsState()
     // 클릭시 검색결과 사라지게
 
 
-        val response = getKakaoSearchResponse?.body()?.documents
-        if (showSearchResults.value && response != null && response.isNotEmpty()) {
-            LazyColumn {
-                items(response) { item ->
-                    Card(
+    val response = getKakaoSearchResponse?.body()?.documents
+    if (showSearchResults.value && response != null && response.isNotEmpty()) {
+        LazyColumn {
+            items(response) { item ->
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp)
+                        .shadow(4.dp, RoundedCornerShape(2.dp))
+                        .clickable {
+                            // Card 클릭 시 ViewModel의 상태 업데이트
+                            bookingViewModel.location.value = item.addressName
+                            bookingViewModel.lat.value = item.y
+                            bookingViewModel.lgt.value = item.x
+                            bookingViewModel.placeName.value = item.placeName
+                            showSearchResults.value = false
+                            App.prefs.putMeetingLat(item.y.toFloat())
+                            App.prefs.putMeetingLgt(item.x.toFloat())
+                            App.prefs.putMeetingAddress(item.addressName)
+                            App.prefs.putMeetingLocation(item.placeName)
+                        },
+                ) {
+                    Column(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(8.dp)
-                            .shadow(4.dp, RoundedCornerShape(2.dp))
-                            .clickable {
-                                // Card 클릭 시 ViewModel의 상태 업데이트
-                                bookingViewModel.location.value = item.addressName
-                                bookingViewModel.lat.value = item.y
-                                bookingViewModel.lgt.value = item.x
-                                bookingViewModel.placeName.value = item.placeName
-                                showSearchResults.value = false
-                                App.prefs.putMeetingLat(item.y.toFloat())
-                                App.prefs.putMeetingLgt(item.x.toFloat())
-                                App.prefs.putMeetingAddress(item.addressName)
-                                App.prefs.putMeetingLocation(item.placeName)
-                            },
                     ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp)
-                        ) {
-                            Text(text = "플레이스네임: ${item.placeName ?: "정보 없음"}")
-                            Text(text = "주소: ${item.addressName ?: "정보 없음"}")
-                            Text(text = "거리: ${item.distance ?: "정보 없음"}")
-                            Text(text = "거리: ${item.categoryGroupName ?: "정보 없음"}")
-                        }
+                        Text(text = "플레이스네임: ${item.placeName}")
+                        Text(text = "주소: ${item.addressName}")
+                        Text(text = "거리: ${item.distance}")
+                        Text(text = "거리: ${item.categoryGroupName}")
                     }
                 }
             }
-        } else {
-            Text(text = "검색 결과가 없습니다.")
         }
+    } else if (showSearchResults.value && (response == null || response.isEmpty())){
+        Text(text = "검색 결과가 없습니다.")
     }
+}
 
 @Composable
 fun SetLocationBottomButton(
@@ -198,7 +237,8 @@ fun SetLocationBottomButton(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(48.dp),
-            shape = RoundedCornerShape(3.dp)
+            shape = RoundedCornerShape(3.dp),
+            colors = ButtonDefaults.buttonColors(Color(0xFF00C68E))
         ) {
             androidx.wear.compose.material.Text("다음", style = MaterialTheme.typography.bodyMedium)
         }

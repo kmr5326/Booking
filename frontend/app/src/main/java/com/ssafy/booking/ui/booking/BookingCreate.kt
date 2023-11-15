@@ -10,6 +10,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.Alignment
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 // import androidx.compose.foundation.gestures.ModifierLocalScrollableContainerProvider.value
 import androidx.compose.foundation.layout.*
@@ -183,46 +184,6 @@ fun BookingCreate(navController: NavController, appViewModel: AppViewModel, isbn
 }
 
 @Composable
-fun TopBar(
-    navController: NavController
-) {
-    Column {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth(), // Row가 부모의 최대 너비를 채우도록 설정합니다.
-            // 자식 요소들을 수평 방향으로 중앙에 배치합니다.
-            verticalAlignment = Alignment.CenterVertically // 자식 요소들을 세로 방향으로 중앙에 배치합니다.
-        ) {
-            Icon(
-                imageVector = Icons.Filled.Close,
-                contentDescription = null,
-                modifier = Modifier
-                    .size(40.dp) // 아이콘의 크기를 설정합니다.
-                    .padding(end = 4.dp) // 아이콘과 텍스트 사이의 간격을 설정합니다
-                    .clickable {
-                        navController.navigate("main") {
-                            popUpTo("main") { inclusive = true }
-                        } // 뒤로가기 버튼
-                    }
-            )
-            Text(
-                text = "독서 모임 생성하기",
-                style = MaterialTheme.typography.bodyLarge
-                // 여기에는 weight나 wrapContentWidth를 사용하지 않습니다.
-
-            )
-        }
-        Divider(
-            color = Color.LightGray,
-            thickness = 0.8.dp,
-            modifier = Modifier
-                .fillMaxWidth()
-        )
-    }
-    Spacer(modifier = Modifier.height(40.dp))
-}
-
-@Composable
 fun BookSearch(
     getBookSearchByIsbnResponse: Response<BookSearchResponse>?
 ) {
@@ -238,12 +199,13 @@ fun BookSearch(
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
-                .background(Color.LightGray)
+                .background(Color.White)
                 .width(150.dp)
                 .height(210.dp)
                 .clickable {
                     navController.navigate("book/1")
                 }
+                .border(2.dp, Color.LightGray, RoundedCornerShape(6.dp))
         ) {
             // 왼쪽의 도서 등록 칸
             getBookSearchByIsbnResponse?.let {
@@ -254,10 +216,11 @@ fun BookSearch(
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .fillMaxSize()
+                        .width(152.dp)
+                        .height(212.dp)
 
                 )
             } ?: run {@OptIn(ExperimentalMaterial3Api::class)
-            @Preview
             @Composable
             fun SetDateAndFee() {
                 val bookingViewModel: BookingViewModel = hiltViewModel()
@@ -434,7 +397,8 @@ fun BookSearch(
 //                    imageVector = Icons.Default.AddCircle,
                     painter = painterResource(id = R.drawable.outline_auto_stories_24),
                     contentDescription = null,
-                    tint = Color.White,
+//                    tint = Color(0xFF12BD7E),
+                    tint = Color.LightGray,
                     modifier = Modifier.size(80.dp)
                 )
             }
@@ -578,7 +542,8 @@ fun ParticipantCounter(
             onClick = { if (maxParticipants > 1)onMaxParticipantsChanged(maxParticipants - 1) },
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00AD97)),
             shape = CircleShape,
-            enabled = maxParticipants > 2 // 1보다 작아질 수 없도록 비활성화,
+            enabled = maxParticipants > 2, // 1보다 작아질 수 없도록 비활성화,
+//            colors = ButtonDefaults.buttonColors(Color(0xFf00C68E))
         ) {
             Text("-",fontSize = 25.sp)
         }
@@ -594,6 +559,7 @@ fun ParticipantCounter(
             shape = CircleShape,
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00AD97)),
             enabled = maxParticipants < 6
+//            colors = ButtonDefaults.buttonColors(Color(0xFf00C68E))
         ) {
             Text("+",fontSize = 25.sp)
         }

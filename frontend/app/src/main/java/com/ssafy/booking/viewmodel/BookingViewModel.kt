@@ -155,14 +155,13 @@ private val _postBookingRejectResponse = MutableLiveData<Response<Unit>>()
     // POST - 모임 세팅
     val title = MutableLiveData("")
     val description = MutableLiveData("")
-    val maxParticipants = MutableLiveData(1)
+    val maxParticipants = MutableLiveData(2)
     val lgt = MutableLiveData("")
     val lat = MutableLiveData("")
     val location = MutableLiveData("")
     val placeName = MutableLiveData("")
     val date = MutableLiveData<LocalDate>()
     val time = MutableLiveData<LocalTime>()
-
     val fee = MutableLiveData(0)
 
     // PATCH - 모임 수정

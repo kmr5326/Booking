@@ -27,6 +27,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.ssafy.booking.R
@@ -70,18 +71,19 @@ fun BottomNav(
         items.forEach { item ->
             NavigationBarItem(
                 icon = {
-                    val icon = when (item) {
-                        AppNavItem.Book -> Icons.Outlined.FavoriteBorder
-                        AppNavItem.MyBooking -> Icons.Outlined.DateRange
-                        AppNavItem.Main -> Icons.Outlined.Home
-                        AppNavItem.Chat -> Icons.Outlined.Send
-                        AppNavItem.Profile -> Icons.Outlined.AccountCircle
+                    val painter = when (item) {
+                        AppNavItem.Book -> painterResource(R.drawable.baseline_menu_book_24)
+                        AppNavItem.MyBooking -> painterResource(R.drawable.baseline_groups_24)
+                        AppNavItem.Main -> painterResource(R.drawable.baseline_home_24)
+                        AppNavItem.Chat -> painterResource(R.drawable.baseline_message_24)
+                        AppNavItem.Profile -> painterResource(R.drawable.baseline_account_circle_24)
                         else -> {
-                            Icons.Filled.Info
+                            painterResource(R.drawable.main1)
                         }
                     }
-                    Icon(icon, contentDescription = null)
+                    Icon(painter, contentDescription = null)
                 },
+//                painter = painterResource(R.drawable.timeline_fill0_wght400_grad0_opsz24)
                 label = {
                     val label = when (item) {
                         AppNavItem.Book -> "도서"
