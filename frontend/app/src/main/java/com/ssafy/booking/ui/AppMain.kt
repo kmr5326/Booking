@@ -75,7 +75,7 @@ sealed class AppNavItem(
     object BookingSetLocation : AppNavItem("booking/setting/location")
     object BookingSetDateAndFee : AppNavItem("booking/setting/dateandfee")
     object MyBooking : AppNavItem("booking/mybooking")
-    object BookingByHashtag : AppNavItem("booking/search/hashtag/{hashtagId}")
+    object BookingByHashtag : AppNavItem("booking/search/hashtag/{hashtagId}/{hashtagName}")
 
 }
 
@@ -212,9 +212,10 @@ fun Route(googleSignInClient: GoogleSignInClient) {
             {
                 MyBooking(navController,appViewModel)
             }
-            composable("booking/search/hashtag/{hashtagId}") { navBackStackEntry ->
+            composable("booking/search/hashtag/{hashtagId}/{hashtagName}") { navBackStackEntry ->
                 val hashtagId = navBackStackEntry.arguments?.getString("hashtagId")?.toLong() ?: 1L
-                BookingByHashtag(navController, hashtagId)
+                val hashtagName = navBackStackEntry.arguments?.getString("hashtagName")?: ""
+                BookingByHashtag(navController, hashtagId, hashtagName)
             }
         }
     }

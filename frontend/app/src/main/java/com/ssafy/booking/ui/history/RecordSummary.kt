@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Icon
@@ -29,49 +30,25 @@ import com.ssafy.booking.viewmodel.HistoryViewModel
 fun RecordSummary(
 ) {
     val historyViewModel: HistoryViewModel = hiltViewModel()
-    val summary by historyViewModel.SummaryInfo.observeAsState("기본값")
-    val transactionId by historyViewModel.TransactionId.observeAsState("")
+    val summary by historyViewModel.SummaryInfo.observeAsState("")
 
     Box(
-        contentAlignment = Alignment.Center,
+        contentAlignment = Alignment.TopCenter,
         modifier = Modifier
             .fillMaxSize()
-            .fillMaxHeight()
-            .padding(32.dp)
-            .background(Color(0xFF00C68E))
+            .padding(30.dp)
+            .background(Color.White)
     ) {
-        IconButton(
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(4.dp),
-            onClick = {
-
-            }
-        ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center,
+        SelectionContainer {
+            Text(
                 modifier = Modifier
-                    .padding(0.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.Edit,
-                    contentDescription = "독서 모임 요약 수정",
-                    tint = Color.White
-                )
-                Text(
-                    text = "수정",
-                    color = Color.White,
-                    fontSize = 10.sp,
-                    fontWeight = FontWeight.Thin
-                )
-            }
+                    .padding(20.dp),
+                color = Color.Black,
+                text = summary,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Thin,
+                lineHeight = 30.sp
+            )
         }
-        Text(
-            modifier = Modifier
-                .padding(16.dp),
-            color = Color.White,
-            text = summary
-        )
     }
 }

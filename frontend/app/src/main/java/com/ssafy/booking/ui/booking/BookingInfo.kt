@@ -214,7 +214,7 @@ fun MeetingInfoTimeline(
 //                .verticalScroll(rememberScrollState())
         ) {
             meetingInfoList.forEachIndexed { index, meetingInfo ->
-                MeetingInfoCard(meetingInfo, meetingId, isFirstItem = index == 0, meetingInfoList.size-index-1)
+                MeetingInfoCard(meetingInfo, meetingId, isFirstItem = index == 0, meetingInfoList.size-index)
             }
         }
     } ?: Text(text = "아직 모임 정보가 없습니다.")
