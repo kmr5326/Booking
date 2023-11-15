@@ -127,6 +127,7 @@ fun Main(
         val address2 = addressResponse?.body()?.documents?.firstOrNull()?.address?.region3DepthName ?: "불러오는 중..."
         myLocation = "$address1 $address2"
         App.prefs.putUserAddress(address)
+        App.prefs.putShortUserAddress(myLocation?:"")
     }
     LaunchedEffect(userInfoState) {
         userInfoState?.body()?.let {
@@ -230,7 +231,7 @@ fun BookItem(booking: BookingAll,navController: NavController) {
                 Icon(Icons.Outlined.LocationOn, contentDescription = "locate", modifier = Modifier.size(12.dp), tint = Color.Gray)
                 Text(
 //                    text = booking.lat.toString(),
-                    text = "오선동",
+                    text = booking.address,
                     color = Color.Gray,
                     fontSize = 12.sp
                 )

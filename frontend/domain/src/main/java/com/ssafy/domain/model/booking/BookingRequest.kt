@@ -8,6 +8,7 @@ data class BookingCreateRequest (
     val meetingTitle: String,
     val description : String,
     val maxParticipants : Number,
+    val address : String,
     val hashtagList : List<String>,
 )
 
