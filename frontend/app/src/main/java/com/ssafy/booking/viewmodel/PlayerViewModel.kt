@@ -4,6 +4,7 @@ import android.content.Context
 import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Looper
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -17,7 +18,7 @@ import javax.inject.Inject
 
 // 플레이어 상태 관리
 enum class PlayerState {
-    STARTED, PAUSED, INIT
+    STARTED, PAUSED
 }
 
 @HiltViewModel
@@ -25,7 +26,7 @@ class PlayerViewModel @Inject constructor(
     private val naverCloudUseCase: NaverCloudUseCase
 ) : ViewModel() {
     private val mediaPlayer = MediaPlayer()
-    private val _playingState = MutableLiveData<PlayerState>(PlayerState.INIT)
+    private val _playingState = MutableLiveData<PlayerState>(PlayerState.PAUSED)
     val playingState: LiveData<PlayerState> = _playingState
 
     private val _sliderPosition = MutableLiveData(0)
@@ -40,35 +41,37 @@ class PlayerViewModel @Inject constructor(
             _naverCloudGetResponse.value = naverCloudUseCase.getObject("booking-bucket", "recording/${meetingInfoId}_recording.m4a")
         }
 
+    fun setAudioFile(context: Context, audioFile: Uri, headers: MutableMap<String, String>) {
+        mediaPlayer.apply {
+            reset() // 현재 재생 중인 오디오가 있으면 리셋
+            setDataSource(context, audioFile, headers) // 새 오디오 파일 설정
+            prepare() // 오디오 준비
+        }
+    }
+
     init {
         // MediaPlayer 설정
         mediaPlayer.setOnPreparedListener {
             setTotalDuration(mediaPlayer)
         }
         mediaPlayer.setOnCompletionListener {
-            // 재생 완료 시 처리
+            _playingState.value = PlayerState.PAUSED
+            _sliderPosition.value = 0
         }
     }
 
-    fun playAudio(context: Context, audioFile: Uri) {
-        if(_playingState.value == PlayerState.INIT) {
-            mediaPlayer.apply {
-                reset() // 현재 재생 중인 오디오가 있으면 리셋
-                setDataSource(context, audioFile) // 새 오디오 파일 설정
-                prepare() // 오디오 준비
-                start() // 재생 시작
+
+
+    fun playAudio() {
+        if(_playingState.value == PlayerState.PAUSED) {
+                mediaPlayer.start() // 재생 시작
                 startUpdatingPlaybackPosition()
                 _playingState.value = PlayerState.STARTED
-            }
         } else if(_playingState.value == PlayerState.STARTED) {
             if (mediaPlayer.isPlaying) {
                 mediaPlayer.pause() // 재생 중지
                 _playingState.value = PlayerState.PAUSED
             }
-        } else if (_playingState.value == PlayerState.PAUSED) {
-            mediaPlayer.start()
-            startUpdatingPlaybackPosition()
-            _playingState.value = PlayerState.STARTED
         }
     }
 

@@ -41,7 +41,9 @@ class TokenDataSource @Inject constructor(
         private const val SELECTED_HASHTAGID = "selected_hashtagId"
         private const val SELECTED_HASHTAGTITLE = "selected_hashtagTitle"
         private const val MEETING_LEADERID = "meeting_leaderId"
-
+        private const val NCP_AUTH_HEADER = "ncp_auth_header"
+        private const val NCP_TIME_STAMP = "ncp_time_stamp"
+        private const val NCP_PAYLOAD_HASH = "ncp_payload_hash"
     }
     private fun getTokenPreference(context: Context) : SharedPreferences {
         return context.getSharedPreferences(ACCESS_TOKEN, Context.MODE_PRIVATE)
@@ -378,6 +380,27 @@ class TokenDataSource @Inject constructor(
     fun removeSelectedHashtagTitle() {
         putString(SELECTED_HASHTAGTITLE, null)
     }
+    fun putNcpAuthHeader(authorizationHeader: String?) {
+        putString(NCP_AUTH_HEADER, authorizationHeader)
+    }
+    fun putNcpTimeStamp(timeStamp: String?) {
+        putString(NCP_TIME_STAMP, timeStamp)
+    }
+    fun putNcpPayloadHash(payloadHash: String?) {
+        putString(NCP_PAYLOAD_HASH, payloadHash)
+    }
+    fun getNcpAuthHeader() : String? {
+        return getString(NCP_AUTH_HEADER)
+    }
+    fun getNcpTimeStamp() : String? {
+        return getString(NCP_TIME_STAMP)
+    }
+    fun getNcpPayloadHash() : String? {
+        return getString(NCP_PAYLOAD_HASH)
+    }
+
+
+
 
 
     // 해시태그 리스트
