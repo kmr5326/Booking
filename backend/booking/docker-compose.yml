@@ -44,6 +44,7 @@ services:
     command:
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_unicode_ci
+      - --wait_timeout=3600 --max_connections=500 --interactive_timeout=3600
     ports:
       - '3370:3306'
 
