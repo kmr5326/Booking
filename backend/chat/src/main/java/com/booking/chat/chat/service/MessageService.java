@@ -36,16 +36,16 @@ public class MessageService {
     // reactive로 대체
     private final KafkaTemplate<String, KafkaMessage> kafkaTemplate;
 
-    public void processAndSend(KafkaMessage kafkaMessage, Long chatroomId) {
-        save(kafkaMessage, chatroomId)
+    public Mono<Void> processAndSend(KafkaMessage kafkaMessage, Long chatroomId) {
+        return save(kafkaMessage, chatroomId)
             .retry(3L)
-            .then(Mono.fromRunnable(() -> proceedMessageSendProcess(kafkaMessage, chatroomId)))
+            .then(Mono.defer(() -> proceedMessageSendProcess(kafkaMessage, chatroomId)))
             .doOnError(x -> log.info(" optimistic error by {} ", x.toString()))
-            .subscribe();
+            .then();
     }
 
-    private void proceedMessageSendProcess(KafkaMessage kafkaMessage, Long chatroomId) {
-        chatroomService.findByChatroomId(chatroomId)
+    private Mono<Void> proceedMessageSendProcess(KafkaMessage kafkaMessage, Long chatroomId) {
+       return chatroomService.findByChatroomId(chatroomId)
                        .flatMapMany(chatroom -> {
                            String meetingTitle = chatroom.getMeetingTitle();
                            String message = kafkaMessage.getMessage();
@@ -66,8 +66,8 @@ public class MessageService {
                                                        .flatMap(memberId -> notificationService.sendChattingNotification(new NotificationResponse(meetingTitle, message, memberName, memberId, kafkaMessage.extractData(chatroomId))), 5)
                                                        .thenMany(Flux.just(chatroom)); // 작업을 이어갈 Flux 반환
                        })
-                       .then(sendMessageToKafka(kafkaMessage, chatroomId)) // 모든 알림이 완료되면 Kafka로 메시지 전송을 계속함
-                       .subscribe();
+                       .then(sendMessageToKafka(kafkaMessage, chatroomId)); // 모든 알림이 완료되면 Kafka로 메시지 전송을 계속함
+                       //.subscribe();
     }
     private Mono<Void> sendMessageToKafka(KafkaMessage kafkaMessage, Long chatroomId) {
         // Kafka로 메세지와 함께 채팅방 ID를 헤더에 추가하여 전달
@@ -117,7 +117,7 @@ public class MessageService {
                                     .flatMap(memberList -> {
                                         if (memberList != null) {
                                             long count = memberList.stream()
-                                                                   .filter(memberId -> !memberId.toString().equals(senderId.toString()))
+                                                                   .filter(memberId -> memberId.toString().equals(senderId.toString()))
                                                                    .count();
                                             return Mono.just((int) count);
                                         } else {
