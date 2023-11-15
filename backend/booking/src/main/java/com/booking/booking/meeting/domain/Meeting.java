@@ -38,6 +38,8 @@ public class Meeting {
 
     private MeetingState meetingState;
 
+    private String address;
+
     @CreatedDate
     private LocalDateTime createdAt;
 

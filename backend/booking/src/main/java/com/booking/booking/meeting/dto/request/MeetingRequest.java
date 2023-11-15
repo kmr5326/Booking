@@ -14,7 +14,8 @@ public record MeetingRequest(
     String description,
     @Min(2) @Max(6)
     Integer maxParticipants,
-    List<String> hashtagList
+    List<String> hashtagList,
+    String address
 ) {
     public Meeting toEntity(MemberResponse member, MeetingState meetingState) {
         return Meeting.builder()
@@ -26,6 +27,7 @@ public record MeetingRequest(
                 .description(description)
                 .maxParticipants(maxParticipants)
                 .meetingState(meetingState)
+                 .address(address)
                 .build();
     }
 }
