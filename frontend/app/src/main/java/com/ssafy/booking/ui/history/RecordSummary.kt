@@ -13,16 +13,25 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.ssafy.booking.viewmodel.HistoryViewModel
 
 @Composable
 fun RecordSummary(
 ) {
+    val historyViewModel: HistoryViewModel = hiltViewModel()
+    val summary by historyViewModel.SummaryInfo.observeAsState("기본값")
+    val transactionId by historyViewModel.TransactionId.observeAsState("")
+
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier
@@ -62,13 +71,7 @@ fun RecordSummary(
             modifier = Modifier
                 .padding(16.dp),
             color = Color.White,
-            text = textData
+            text = summary
         )
     }
 }
-
-val textData = "\"데미안\"의 주인공 신클라이어의 자아 탐색과 내면의 갈등.\n" +
-        "\n" +
-        "데미안이 실체적 인물인지 아니면 투영인지에 대한 의견. \n" +
-        "\n" +
-        "'아브라삼의 새' 이야기를 통해 세상에는 단순한 선과 악 이외의 복잡성을 인식."

@@ -100,6 +100,7 @@ class ChatViewModel @Inject constructor(
                 val chatList = chatRepository.getChatList()
                 _chatListState.value = chatList
                 Log.d("CHAT", "CHATVM Get Chat room List $chatListState")
+                Log.d("CHAT", "CHATVM Get Chat room List ${chatListState.value}")
             } catch (e: HttpException) {
                 errorMessage.value = "CHATVM 네트워크 에러: ${e.code()} ${e.message}"
                 Log.d("CHAT", "$errorMessage.value")
