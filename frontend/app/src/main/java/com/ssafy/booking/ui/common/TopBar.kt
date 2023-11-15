@@ -11,6 +11,10 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import com.ssafy.booking.R
 import com.ssafy.booking.ui.AppNavItem
 import com.ssafy.booking.ui.LocalNavigation
 
@@ -24,7 +28,7 @@ fun TopBar(
         colors = TopAppBarDefaults.mediumTopAppBarColors(
             containerColor = Color(0xFF00C68E)
         ),
-        title = { Text(text = "$title", color = Color.White) },
+        title = { Text(text = "$title", color = Color.White, fontFamily = FontFamily(Font(R.font.gowundodum)), fontWeight = FontWeight.Bold)  },
         actions = {
             IconButton(onClick = {
                 navController.navigate(AppNavItem.Setting.route) {
