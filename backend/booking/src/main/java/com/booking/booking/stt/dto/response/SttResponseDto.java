@@ -1,4 +1,4 @@
-package com.booking.booking.stt.dto;
+package com.booking.booking.stt.dto.response;
 
 import com.booking.booking.stt.domain.Segment;
 import com.booking.booking.stt.domain.Speaker;

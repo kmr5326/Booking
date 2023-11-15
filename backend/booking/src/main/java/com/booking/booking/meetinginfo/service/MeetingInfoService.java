@@ -1,6 +1,6 @@
 package com.booking.booking.meetinginfo.service;
 
-import com.booking.booking.meetinginfo.dto.request.MeetingInfoRequest;
+import com.booking.booking.meetinginfo.domain.MeetingInfo;
 import com.booking.booking.meetinginfo.dto.response.MeetingInfoResponse;
 import com.booking.booking.meetinginfo.repository.MeetingInfoRepository;
 import lombok.RequiredArgsConstructor;
@@ -9,27 +9,45 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.LocalDateTime;
+
 @Slf4j
 @RequiredArgsConstructor
 @Service
 public class MeetingInfoService {
     private final MeetingInfoRepository meetingInfoRepository;
-//    private final MeetingService meetingService;
 
-    public Mono<Void> createMeetingInfo(String userEmail, MeetingInfoRequest meetingInfoRequest) {
-        log.info("Booking Server MeetingInfo - createMeetingDetail({}, {})", userEmail, meetingInfoRequest);
+    public Mono<MeetingInfo> createMeetingInfo(MeetingInfo meetingInfo) {
+        log.info("[Booking:MeetingInfo] createMeetingInfo({})", meetingInfo);
 
-        // TODO 여러 개 만들면 안 되는데
-
-        // TODO 방장 맞는지 확인, 미팅 있는지 확인
-//        return meetingService.findByMeetingId(meetingInfoRequest.meetingId())
-//                .flatMap(meetingResponse -> meetingInfoRepository.save(meetingInfoRequest.toEntity()))
-//                .then();
-        return meetingInfoRepository.save(meetingInfoRequest.toEntity()).then();
+        if (meetingInfo.getDate().isBefore(LocalDateTime.now().plusHours(1L))) {
+            return Mono.error(new RuntimeException("시간 다시"));
+        }
+        return meetingInfoRepository.save(meetingInfo)
+                .onErrorResume(error -> {
+                    log.error("[Booking:MeetingInfo ERROR] createMeetingInfo : {}", error.getMessage());
+                    return Mono.error(new RuntimeException("미팅정보 저장 실패"));
+                });
     }
 
     public Flux<MeetingInfoResponse> findAllByMeetingId(Long meetingId) {
+        log.info("[Booking:MeetingInfo] findAllByMeetingId({})", meetingId);
+
         return meetingInfoRepository.findAllByMeetingId(meetingId)
-                .flatMap(meetingInfo -> Mono.just(new MeetingInfoResponse(meetingInfo)));
+                .flatMap(meetingInfo -> Mono.just(new MeetingInfoResponse(meetingInfo)))
+                .onErrorResume(error -> {
+                    log.error("[Booking:MeetingInfo ERROR] findAllByMeetingId : {}", error.getMessage());
+                    return Mono.error(new RuntimeException("미팅정보 목록 조회 실패"));
+                });
+    }
+
+    public Mono<MeetingInfo> findByMeetingId(Long meetingId) {
+        log.info("[Booking:MeetingInfo] findByMeetingId({})", meetingId);
+
+        return meetingInfoRepository.findLatestByMeetingId(meetingId)
+                .onErrorResume(error -> {
+                    log.error("[Booking:MeetingInfo ERROR] findByMeetingId : {}", error.getMessage());
+                    return Mono.error(new RuntimeException("미팅정보 목록 조회 실패"));
+                });
     }
 }
