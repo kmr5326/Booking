@@ -19,8 +19,8 @@ public class MeetingInfoService {
 
     public Mono<MeetingInfo> createMeetingInfo(MeetingInfo meetingInfo) {
         log.info("[Booking:MeetingInfo] createMeetingInfo({})", meetingInfo);
-
-        if (meetingInfo.getDate().isBefore(LocalDateTime.now().plusHours(1L))) {
+        // 테스트용으로 바꿔둠
+        if (meetingInfo.getDate().isBefore(LocalDateTime.now().plusMinutes(1L))) {
             return Mono.error(new RuntimeException("시간 다시"));
         }
         return meetingInfoRepository.save(meetingInfo)
