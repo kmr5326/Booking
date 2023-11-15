@@ -15,6 +15,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
@@ -46,6 +47,7 @@ import coil.imageLoader
 import coil.request.CachePolicy
 import coil.request.ImageRequest
 import com.ssafy.booking.R
+import com.ssafy.booking.di.App
 import com.ssafy.booking.ui.LocalNavigation
 import com.ssafy.booking.viewmodel.BookingViewModel
 import com.ssafy.domain.model.booking.BookingAcceptRequest
@@ -136,6 +138,7 @@ fun ParticipantItem(participant: BookingParticipants) {
     val navController = LocalNavigation.current
     val context = LocalContext.current
     val imageLoader = context.imageLoader
+    val leaderId = App.prefs.getLeaderId()
 
     // 참가자 한 명에 대한 UI를 여기에 구성하세요.
     Row(
@@ -172,6 +175,13 @@ fun ParticipantItem(participant: BookingParticipants) {
                 text = participant.nickname,
                 fontWeight = FontWeight.Thin,
             )
+            if (leaderId == participant.memberPk) {
+                Icon(
+                    imageVector = Icons.Filled.Star,
+                    contentDescription = "Leader",
+                    tint = Color(0xFFFDFD96)
+                )
+            }
         }
 
         Row(

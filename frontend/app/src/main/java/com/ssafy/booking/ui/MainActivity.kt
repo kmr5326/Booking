@@ -87,7 +87,7 @@ class MainActivity : ComponentActivity() {
 
         window.apply {
             // 상태바 아래로 콘텐츠를 확장
-            addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS)
+//            addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS)
 
             // 상태바 색상을 투명하게 설정
             statusBarColor = Color(0xFF12BD7E).toArgb()
@@ -95,7 +95,6 @@ class MainActivity : ComponentActivity() {
 
         askNotificationPermission() // 알림 권한 요청
 //        WindowCompat.setDecorFitsSystemWindows(window, false)
-        askNotificationPermission()
 
         /** KakaoSDK init */
         KakaoSdk.init(this, "c983af9ff87c243a4acecc793d087699")

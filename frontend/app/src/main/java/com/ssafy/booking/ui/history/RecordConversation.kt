@@ -38,10 +38,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -123,21 +125,35 @@ fun SpeakToTextRow(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            AsyncImage(
-                model = ImageRequest.Builder(context)
-                    .data("https://kr.object.ncloudstorage.com/booking-bucket/images/${segment.speaker.name}_profile.png")
-                    .memoryCachePolicy(CachePolicy.DISABLED)
-                    .addHeader("Host", "kr.object.ncloudstorage.com")
-                    .crossfade(true)
-                    .build(),
-                contentScale = ContentScale.Crop,
-                contentDescription = null,
-                imageLoader = imageLoader,
+//            AsyncImage(
+//                model = ImageRequest.Builder(context)
+//                    .data("https://kr.object.ncloudstorage.com/booking-bucket/images/${segment.speaker.name}_profile.png")
+//                    .memoryCachePolicy(CachePolicy.DISABLED)
+//                    .addHeader("Host", "kr.object.ncloudstorage.com")
+//                    .crossfade(true)
+//                    .build(),
+//                contentScale = ContentScale.Crop,
+//                contentDescription = null,
+//                imageLoader = imageLoader,
+//                modifier = Modifier
+//                    .size(32.dp)
+//                    .clip(CircleShape),
+//                error = painterResource(id = R.drawable.basic_profile)
+//            )
+            Box(
+                contentAlignment = Alignment.Center,
                 modifier = Modifier
-                    .size(32.dp)
-                    .clip(CircleShape),
-                error = painterResource(id = R.drawable.basic_profile)
-            )
+                    .size(36.dp) // 원의 크기 설정
+                    .clip(CircleShape) // 원 모양으로 클립
+                    .background(getColorForName(segment.speaker.name))
+            ) {
+                Text(
+                    text = segment.speaker.name,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp,
+                    color = Color.White,
+                )
+            }
             Text(
                 modifier = Modifier
                     .clickable(onClick = { playerViewModel.updateSliderPosition(segment.start.toInt()) }),
@@ -148,7 +164,7 @@ fun SpeakToTextRow(
         }
         Spacer(modifier = Modifier.padding(4.dp))
         Column {
-            Text(text = segment.speaker.name, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+            Spacer(modifier = Modifier.padding(4.dp))
             SelectionContainer(
                 modifier = Modifier
                     .border(1.dp, Color.Gray, RoundedCornerShape(10.dp))
@@ -162,3 +178,16 @@ fun SpeakToTextRow(
 }
 
 
+@Composable
+fun getColorForName(name: String): Color {
+    return when (name.firstOrNull()?.uppercaseChar()) {
+        'A' -> Color( 0xFFFC9EBD)
+        'B' -> Color(0xFFB8F3B8)
+        'C' -> Color(0xFFFFDDA6)
+        'D' -> Color(0xFFA8C8F9)
+        'E' -> Color(0xFFCCD1FF)
+        'F' -> Color(0xFFFFCCCC)
+        'G' -> Color(0xFFD4F0F0)
+        else -> Color.DarkGray
+    }
+}
