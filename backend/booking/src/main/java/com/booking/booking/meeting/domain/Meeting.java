@@ -58,6 +58,7 @@ public class Meeting {
                 .maxParticipants(maxParticipants)
                 .meetingState(state)
                 .createdAt(createdAt)
+                .address(address)
                 .build();
     }
 
@@ -73,6 +74,7 @@ public class Meeting {
                 .maxParticipants(meetingUpdateRequest.maxParticipants())
                 .meetingState(meetingState)
                 .createdAt(createdAt)
+                .address(address)
                 .build();
     }
 }

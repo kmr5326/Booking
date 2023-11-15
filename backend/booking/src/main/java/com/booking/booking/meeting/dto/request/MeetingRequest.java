@@ -17,17 +17,18 @@ public record MeetingRequest(
     List<String> hashtagList,
     String address
 ) {
+
     public Meeting toEntity(MemberResponse member, MeetingState meetingState) {
         return Meeting.builder()
-                .leaderId(member.memberPk())
-                .lat(member.lat())
-                .lgt(member.lgt())
-                .bookIsbn(bookIsbn)
-                .meetingTitle(meetingTitle)
-                .description(description)
-                .maxParticipants(maxParticipants)
-                .meetingState(meetingState)
-                 .address(address)
-                .build();
+                      .leaderId(member.memberPk())
+                      .lat(member.lat())
+                      .lgt(member.lgt())
+                      .bookIsbn(bookIsbn)
+                      .meetingTitle(meetingTitle)
+                      .description(description)
+                      .maxParticipants(maxParticipants)
+                      .meetingState(meetingState)
+                      .address(address)
+                      .build();
     }
 }
