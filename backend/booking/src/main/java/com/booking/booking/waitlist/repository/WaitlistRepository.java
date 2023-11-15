@@ -7,6 +7,7 @@ import reactor.core.publisher.Mono;
 
 public interface WaitlistRepository extends R2dbcRepository<Waitlist, Long> {
     Mono<Boolean> existsByMeetingIdAndMemberId(Long meetingId, Integer memberId);
-    Mono<Long> deleteByMeetingIdAndMemberId(Long meetingId, Integer memberId);
+    Mono<Void> deleteByMeetingIdAndMemberId(Long meetingId, Integer memberId);
     Flux<Waitlist> findAllByMeetingId(Long meetingId);
+    Mono<Void> deleteAllByMeetingId(Long meetingId);
 }

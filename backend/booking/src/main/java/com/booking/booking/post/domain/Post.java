@@ -1,38 +1,49 @@
-//package com.booking.booking.post.domain;
-//
-//import com.booking.booking.meeting.domain.Meeting;
-//import lombok.AccessLevel;
-//import lombok.AllArgsConstructor;
-//import lombok.Builder;
-//import lombok.Getter;
-//import lombok.NoArgsConstructor;
-//
-//import javax.persistence.Entity;
-//import javax.persistence.GeneratedValue;
-//import javax.persistence.GenerationType;
-//import javax.persistence.Id;
-//import javax.persistence.JoinColumn;
-//import javax.persistence.ManyToOne;
-//import javax.persistence.Table;
-//
-//@Entity
-//@Getter
-//@Builder
-//@NoArgsConstructor(access = AccessLevel.PROTECTED)
-//@AllArgsConstructor
-//@Table(name = "posts")
-//public class Post {
-//    @Id
-//    @GeneratedValue(strategy = GenerationType.IDENTITY)
-//    private long postId;
-//
-//    @ManyToOne
-//    @JoinColumn(name = "meetingId")
-//    private Meeting meeting;
-//
-//    private Integer memberId;
-//
-//    private String title;
-//
-//    private String content;
-//}
+package com.booking.booking.post.domain;
+
+import com.booking.booking.post.dto.request.PostUpdateRequest;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.relational.core.mapping.Table;
+
+import java.time.LocalDateTime;
+
+@Getter
+@Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+@Table("posts")
+public class Post {
+    @Id
+    private long postId;
+
+    private Long meetingId;
+
+    private Integer memberId;
+
+    private String title;
+
+    private String content;
+
+    @CreatedDate
+    private LocalDateTime createdAt;
+
+    @LastModifiedDate
+    private LocalDateTime updatedAt;
+
+    public Post update(PostUpdateRequest postUpdateRequest) {
+        return Post.builder()
+                .postId(postId)
+                .meetingId(meetingId)
+                .memberId(memberId)
+                .title(postUpdateRequest.title())
+                .content(postUpdateRequest.content())
+                .createdAt(createdAt)
+                .build();
+    }
+}

@@ -11,7 +11,8 @@ public record BookResponse(
         String genre,
         LocalDate publishDate,
         String content,
-        String isbn
+        String isbn,
+        Integer meetingCnt
 ) {
 
     public BookResponse(Book book) {
@@ -22,7 +23,8 @@ public record BookResponse(
                 book.getGenre(),
                 book.getPublishDate(),
                 book.getContent(),
-                book.getIsbn()
+                book.getIsbn(),
+                book.getMeetingCnt()
         );
     }
 }
