@@ -1,6 +1,7 @@
 package com.booking.chat.message.repository;
 
 import com.booking.chat.message.domain.Message;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 import org.springframework.data.mongodb.repository.Tailable;
@@ -13,5 +14,9 @@ public interface MessageRepository extends ReactiveMongoRepository<Message, Long
     Flux<Message> findByChatRoomId(Long roomId);
 
     Flux<Message> findByChatroomIdAndMessageIdGreaterThanEqual(Long chatroomId, Long lastMessageId);
+
+    @Query("{ 'chatroomId': ?0 }")
+    Flux<Message> findLatestByChatroomId(Long chatroomId, Pageable pageable);
+
 
 }
