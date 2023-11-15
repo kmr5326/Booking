@@ -79,8 +79,12 @@ class PlayerViewModel @Inject constructor(
         val handler = android.os.Handler(Looper.getMainLooper())
         val updateTask = object : Runnable {
             override fun run() {
-                _sliderPosition.value = mediaPlayer.currentPosition
-                handler.postDelayed(this, 1000)
+                try {
+                    _sliderPosition.value = mediaPlayer.currentPosition
+                    handler.postDelayed(this, 1000)
+                } catch(e : Exception) {
+                    Log.d("Player", "$e")
+                }
             }
         }
         handler.postDelayed(updateTask, 1000)
