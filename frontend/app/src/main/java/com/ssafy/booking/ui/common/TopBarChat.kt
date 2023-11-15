@@ -22,7 +22,7 @@ fun TopBarChat(
     TopAppBar(
         scrollBehavior = scrollBehavior,
         colors = TopAppBarDefaults.largeTopAppBarColors(
-            containerColor = Color(0xFF9bbbd4)
+            containerColor = Color(0xFF00C68E)
         ),
         title = {
             Text(title)
