@@ -25,7 +25,7 @@ public class MemberBook {
     private String _id;
 
     @Field
-    private String memberNickname;
+    private Integer memberPk;
 
     @Field
     private String bookIsbn;
@@ -41,7 +41,7 @@ public class MemberBook {
 
        return MemberBook.builder()
            .bookIsbn(memberBookRegistRequest.bookIsbn())
-           .memberNickname(memberBookRegistRequest.nickname())
+           .memberPk(memberBookRegistRequest.memberPk())
            .notes(new ArrayList<>())
            .build();
     }
