@@ -12,8 +12,8 @@ class HistoryRepositoryImpl  @Inject constructor(private val historyAPi: History
         return historyAPi.postRecordFileName(request)
     }
 
-    override suspend fun getSpeakToText(fileName : String) : SttResponseDto {
-        return historyAPi.getSpeakToText(fileName)
+    override suspend fun getSpeakToText(meetinginfoId : Long) : SttResponseDto {
+        return historyAPi.getSpeakToText(meetinginfoId)
     }
 }
 

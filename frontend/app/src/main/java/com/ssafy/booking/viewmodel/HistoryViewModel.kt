@@ -23,13 +23,16 @@ import javax.inject.Inject
     private val _SpeakToTextInfo = MutableLiveData<SttResponseDto>()
     val SpeakToTextInfo: LiveData<SttResponseDto> = _SpeakToTextInfo
 
-    fun loadTransaction(meetingInfoId : String?) {
-        val recordFileName = "${meetingInfoId}_recording.m4a"
+    fun loadTransaction(meetingInfoId : Long) {
+//        val recordFileName = "${meetingInfoId}_recording.m4a"
+
             viewModelScope.launch {
             try {
-                val Transaction = historyUseCase.getSpeakToText(recordFileName)
-                _SpeakToTextInfo.value = Transaction
-                Log.d("STT_TEST", "HVM STTINFO $SpeakToTextInfo")
+                val transaction = historyUseCase.getSpeakToText(meetingInfoId)
+                _SpeakToTextInfo.value = transaction
+                Log.d("STT_TEST", "1HVM STTINFO $SpeakToTextInfo")
+                Log.d("STT_TEST", "2HVM STTINFO ${SpeakToTextInfo.value}")
+                Log.d("STT_TEST", "3HVM STTINFO ${_SpeakToTextInfo.value}")
             } catch (e: HttpException) {
                 errorMessage.value = "HVM STTINFO 네트워크 에러: ${e.code()} ${e.message}"
                 Log.d("STT_TEST", "$errorMessage.value")

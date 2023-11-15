@@ -11,7 +11,7 @@ class HistoryUseCase@Inject constructor(private val repository: HistoryRepositor
         return repository.postRecordFileName(request)
     }
 
-    suspend fun getSpeakToText(fileName : String) : SttResponseDto {
-        return repository.getSpeakToText(fileName)
+    suspend fun getSpeakToText(meetinginfoId : Long) : SttResponseDto {
+        return repository.getSpeakToText(meetinginfoId)
     }
 }

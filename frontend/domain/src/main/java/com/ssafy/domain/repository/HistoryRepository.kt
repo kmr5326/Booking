@@ -12,5 +12,5 @@ import retrofit2.Response
 interface HistoryRepository {
     suspend fun postRecordFileName(request: RecordFileNameRequest) : Response<Unit>
 
-    suspend fun getSpeakToText(fileName: String) : SttResponseDto
+    suspend fun getSpeakToText(meetinginfoId: Long) : SttResponseDto
 }
