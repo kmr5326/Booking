@@ -179,7 +179,7 @@ fun BookingItemByMemberPk(bookingItem: BookingListByMemberPk, navController: Nav
                 Icon(Icons.Outlined.LocationOn, contentDescription = "locate", modifier = Modifier.size(12.dp), tint = Color.Gray)
                 Text(
 //                    text = booking.lat.toString(),
-                    text = "오선동",
+                    text = bookingItem.address,
                     color = Color.Gray,
                     fontSize = 12.sp
                 )
