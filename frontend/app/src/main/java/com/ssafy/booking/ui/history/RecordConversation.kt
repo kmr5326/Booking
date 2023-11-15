@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -91,7 +92,9 @@ fun SpeakToTextRow(
             text = playerViewModel.convertMillisToTimeFormat(segment.start.toInt())
         )
         Text(text = segment.speaker.name)
-        Text(text = segment.text)
+        SelectionContainer {
+            Text(text = segment.text)
+        }
     }
 
 }
