@@ -7,4 +7,11 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="main">#FF00C68E</color>
+    <color name="content_color">#FF121212</color>
+    <color name="booking_1">#FF12bd7e</color>
+    <color name="booking_2">#FF0dc9ba</color>
+    <color name="background_color">#FFFAFAFA</color>
+    <color name="font_color">#FF000000</color>
+    <color name="second_background_color">#FFFAFAFA</color>
 </resources>
