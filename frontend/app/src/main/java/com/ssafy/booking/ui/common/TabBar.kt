@@ -10,8 +10,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.ssafy.booking.R
 
 @Composable
 fun TabBar(
@@ -25,12 +27,11 @@ fun TabBar(
             modifier = Modifier.fillMaxWidth(),
             contentAlignment = Alignment.Center
         ) {
-
             TabRow(
                 modifier = Modifier.fillMaxWidth(0.85f), // 80% of parent width
                 selectedTabIndex = selectedTabIndex,
-                containerColor = Color.White,
-                contentColor = Color.Black,
+                containerColor = colorResource(id = R.color.background_color),
+                contentColor = colorResource(id = R.color.font_color),
 
                 // indicator가 탭바 밑의 색깔
                 indicator = { tabPositions ->
@@ -55,9 +56,8 @@ fun TabBar(
                         selected = selectedTabIndex == index,
                         // 클릭하면 selectedTabIndex 상태를 현재 탭의 index로 업데이트
                         onClick = { selectedTabIndex = index },
-                        text = { Text(title) },
+                        text = { Text(title) }
                     )
-
                 }
             }
         }
@@ -65,6 +65,7 @@ fun TabBar(
         contentForTab(selectedTabIndex)
     }
 }
+
 // 테스트용 Preview
 @Preview(showBackground = true)
 @Composable
@@ -80,6 +81,5 @@ fun PreviewMyTabBar() {
                 // 필요에 따라 추가/수정 가능
             }
         }
-
     )
 }
