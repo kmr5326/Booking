@@ -1,4 +1,4 @@
-package com.booking.chat.chat.domain;
+package com.booking.chat.message.domain;
 
 import java.time.LocalDateTime;
 import java.util.List;
