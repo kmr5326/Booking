@@ -1,10 +1,15 @@
 
 package com.ssafy.booking.ui.booking
 
+import android.annotation.SuppressLint
 import android.content.Context
+import android.health.connect.datatypes.ExerciseRoute
+import android.location.Location
 import android.util.Log
 import android.view.Gravity
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -44,12 +49,15 @@ import androidx.compose.ui.unit.dp
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.tasks.Task
 import com.ssafy.booking.di.App
 import com.ssafy.booking.ui.AppNavItem
 import com.ssafy.booking.ui.LocalNavigation
 import com.ssafy.booking.ui.common.BackTopBar
 import com.ssafy.booking.ui.common.TabBar
 import com.ssafy.booking.viewmodel.BookingViewModel
+import com.ssafy.domain.model.booking.BookingAttendRequest
 import com.ssafy.domain.model.booking.BookingJoinRequest
 
 val tabTitles = listOf("모임 정보", "참가자", "게시판")
@@ -58,7 +66,6 @@ val tabTitles = listOf("모임 정보", "참가자", "게시판")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BookingDetail(meetingId: Long) {
-
     val bookingViewModel: BookingViewModel = hiltViewModel()
     val getBookingDetailResponse by bookingViewModel.getBookingDetailResponse.observeAsState()
     val getParticipantsResponse by bookingViewModel.getParticipantsResponse.observeAsState()
@@ -255,7 +262,7 @@ fun StartButton(
     context: Context,
     modifier: Modifier = Modifier
 ){
-    Box(contentAlignment = Alignment.Center, modifier = Modifier) {
+    Box(contentAlignment = Alignment.Center, modifier = modifier) {
         Button(
             onClick = { navController.navigate(AppNavItem.BookingSetLocation.route) },
             modifier = Modifier
@@ -264,7 +271,7 @@ fun StartButton(
                 .height(50.dp),
             colors = ButtonDefaults . buttonColors (containerColor =
             Color(0xFF00C68E)),
-            shape = RoundedCornerShape(6.dp) // 각진 모서리
+            shape = RoundedCornerShape(4.dp) // 각진 모서리
         ) {
             Text(
                 text = "확정하기",
@@ -283,7 +290,7 @@ fun ModifyButton(
     context: Context,
     modifier: Modifier = Modifier
 ){
-    Box(contentAlignment = Alignment.Center, modifier = Modifier) {
+    Box(contentAlignment = Alignment.Center, modifier = modifier) {
         Button(
             onClick = { navController.navigate(AppNavItem.BookingSetTitle.route) },
             modifier = Modifier
@@ -292,7 +299,7 @@ fun ModifyButton(
                 .height(50.dp),
             colors = ButtonDefaults . buttonColors (containerColor =
             Color(0xFF00C68E)),
-            shape = RoundedCornerShape(6.dp) // 각진 모서리
+            shape = RoundedCornerShape(4.dp) // 각진 모서리
         ) {
             Text(
                 text = "수정하기",
@@ -335,6 +342,8 @@ fun ExitButton(
     }
 }
 // 모임 출첵 버튼
+@OptIn(ExperimentalMaterial3Api::class)
+@SuppressLint("MissingPermission")
 @Composable
 fun AttendCheckButton(
     navController : NavController,
@@ -343,15 +352,35 @@ fun AttendCheckButton(
     context : Context,
     modifier: Modifier = Modifier
 ){
+    val context = LocalContext.current
+    val fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context)
+    var location by remember { mutableStateOf<Location?>(null) }
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+        if (isGranted) {
+            val locationResult: Task<Location> = fusedLocationProviderClient.lastLocation
+            locationResult.addOnSuccessListener { loc: Location? ->
+                location = loc
+            }
+        }
+    }
+    LaunchedEffect(Unit) {
+        launcher.launch(android.Manifest.permission.ACCESS_FINE_LOCATION)
+    }
+
     // 출석체크 버튼
     Box(contentAlignment = Alignment.Center, modifier = modifier) {
         Button(
             onClick = {
-                bookingViewModel.patchBookingAttend(meetingId)
-
-                val toastTop = Toast.makeText(context, "출석체크가 완료되었습니다.", Toast.LENGTH_LONG)
-                toastTop.setGravity(Gravity.TOP, 0, 0)
-                toastTop.show()
+                location?.let {
+                    val request = BookingAttendRequest(meetingId = meetingId,lat = 0.0,lgt = 0.0)
+                    bookingViewModel.patchBookingAttend(request)
+                    val toastTop = Toast.makeText(context, "출석체크가 완료되었습니다.", Toast.LENGTH_LONG)
+                    toastTop.setGravity(Gravity.TOP, 0, 0)
+                    toastTop.show()
+                }
+                    .run{
+                        Log.d("왜안돼","왜안돼${location.toString()}")
+                    }
             },
             modifier = Modifier
                 .fillMaxWidth(0.95f) // 화면의 95% 크기
@@ -421,7 +450,7 @@ fun RestartButton(
     Box(contentAlignment = Alignment.Center, modifier = modifier) {
         Button(
             onClick = {
-//                    bookingViewModel.patchBookingEnd(meetingId)
+                bookingViewModel.patchBookingRestart(meetingId)
                 val toastTop = Toast.makeText(context, "한 번 더하기(구현 중).", Toast.LENGTH_LONG)
                 toastTop.setGravity(Gravity.TOP, 0, 0)
                 toastTop.show()
@@ -456,7 +485,7 @@ fun PayRequestButton(
 ){Box(contentAlignment = Alignment.Center, modifier = modifier) {
     Button(
         onClick = {
-//                    bookingViewModel.patchBookingEnd(meetingId)
+            bookingViewModel.patchPayment(meetingId)
             val toastTop = Toast.makeText(context, "참가비 결제가 완료되었습니다.", Toast.LENGTH_LONG)
             toastTop.setGravity(Gravity.TOP, 0, 0)
             toastTop.show()
@@ -548,7 +577,6 @@ fun AlreadyOngoingButton() {
         }
     }
 }
-
 // 이미 종료된 모임에 대해 보여지는 버튼
 @Composable
 fun AlreadyEndButton(){

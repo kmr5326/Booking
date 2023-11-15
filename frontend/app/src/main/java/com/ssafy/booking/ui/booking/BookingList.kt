@@ -134,6 +134,8 @@ fun Main(
             tokenDataSource.putProfileImage(it.profileImage)
             tokenDataSource.putMemberPk(it.memberPk)
             tokenDataSource.putLat(it.lat.toFloat())
+            tokenDataSource.putLgt(it.lgt.toFloat())
+
         }
     }
     Scaffold(

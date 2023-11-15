@@ -2,6 +2,7 @@ package com.ssafy.data.repository
 import com.ssafy.data.remote.api.BookingApi
 import com.ssafy.domain.model.booking.BookingAcceptRequest
 import com.ssafy.domain.model.booking.BookingAll
+import com.ssafy.domain.model.booking.BookingAttendRequest
 import javax.inject.Inject
 import com.ssafy.domain.model.booking.BookingCreateRequest
 import com.ssafy.domain.model.booking.BookingDetail
@@ -67,8 +68,8 @@ class BookingRepositoryImpl @Inject constructor(
     override suspend fun patchBookingEnd(meetingId: Long): Response<Unit> {
         return bookingApi.patchBookingEnd(meetingId)
     }
-    override suspend fun patchBookingAttend(meetingId: Long): Response<Unit> {
-        return bookingApi.patchBookingAttend(meetingId)
+    override suspend fun patchBookingAttend(request : BookingAttendRequest): Response<Unit> {
+        return bookingApi.patchBookingAttend(request)
     }
     override suspend fun getBookingByHashtag(hashtagId: Long): Response<List<BookingAll>> {
         return bookingApi.getBookingByHashtag(hashtagId)
@@ -79,6 +80,13 @@ class BookingRepositoryImpl @Inject constructor(
     override suspend fun getBookingByTitle(title: String): Response<List<BookingAll>> {
         return bookingApi.getBookingByTitle(title)
     }
+    override suspend fun patchBookingRestart(meetingId: Long): Response<Unit> {
+        return bookingApi.patchBookingRestart(meetingId)
+    }
+    override suspend fun patchPayment(meetingId: Long): Response<Unit> {
+        return bookingApi.patchPayment(meetingId)
+    }
+
 
 }
 
