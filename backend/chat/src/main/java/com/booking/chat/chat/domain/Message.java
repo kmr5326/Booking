@@ -45,6 +45,8 @@ public class Message {
 
     public void decreaseReadCount() {
         this.readCount--;
+
+        if(this.readCount < 0) this.readCount = 0;
     }
 
 }

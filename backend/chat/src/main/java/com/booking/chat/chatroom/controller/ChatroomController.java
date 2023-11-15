@@ -8,6 +8,7 @@ import com.booking.chat.chatroom.dto.request.LastMessageRequest;
 import com.booking.chat.chatroom.dto.response.ChatroomListResponse;
 import com.booking.chat.chatroom.service.ChatroomService;
 import com.booking.chat.global.jwt.JwtUtil;
+import com.booking.chat.kafka.service.KafkaService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -31,6 +32,7 @@ import reactor.core.publisher.Mono;
 public class ChatroomController {
 
     private final ChatroomService chatroomService;
+    private final KafkaService kafkaService;
     private static final String AUTHORIZATION = "Authorization";
 
     @PostMapping("/")

@@ -23,7 +23,7 @@ public class ListenerConfiguration {
     private String KAFKA_PORT;
 
     @Bean
-    ConcurrentKafkaListenerContainerFactory<String, KafkaMessage> kafkaListenerContainerFactory() {
+    public ConcurrentKafkaListenerContainerFactory<String, KafkaMessage> kafkaListenerContainerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, KafkaMessage> containerFactory = new ConcurrentKafkaListenerContainerFactory<>();
         containerFactory.setConsumerFactory(consumerFactory());
         return containerFactory;
@@ -39,10 +39,11 @@ public class ListenerConfiguration {
                                                                 .put(ConsumerConfig.GROUP_ID_CONFIG, "chat")
                                                                 .put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class)
                                                                 .put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, deserializer)
-                                                                .put(ConsumerConfig.ALLOW_AUTO_CREATE_TOPICS_CONFIG, true) // 토픽 자동 생성
+                                                                .put(ConsumerConfig.ALLOW_AUTO_CREATE_TOPICS_CONFIG, false) // 토픽 자동 생성
                                                                 .put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest")
                                                                 .build();
 
         return new DefaultKafkaConsumerFactory<>(consumerConfiguration, new StringDeserializer(), deserializer);
     }
+
 }
