@@ -53,7 +53,7 @@ public class ParticipantService {
         log.info("[Booking:Participant] findAllByMeetingId({})", meetingId);
 
         return this.findAllByMeetingId(meetingId)
-                .flatMap(participant -> memberUtil.getMemberInfoByPk(participant.getMemberId())
+                        .flatMap(participant -> memberUtil.getMemberInfoByPk(participant.getMemberId())
                         .flatMap(member -> Mono.just(new ParticipantResponse(member))))
                 .onErrorResume(error -> {
                     log.error("[Booking:Participant ERROR] findAllByMeetingId : {}", error.getMessage());
