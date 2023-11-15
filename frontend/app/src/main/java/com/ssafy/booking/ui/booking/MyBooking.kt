@@ -131,10 +131,12 @@ fun BookingListByMemberPk(
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()
             )
+            Text("현재 참여중인 북킹이 없습니다.",fontWeight = FontWeight.Medium, modifier = Modifier.offset(y=(-70).dp))
             Button(
                 onClick = { navController.navigate(AppNavItem.CreateBooking.route) },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00C68E)),
-                modifier = Modifier.padding(10.dp).offset(y=(-70).dp)) {
+                shape = RoundedCornerShape(3.dp),
+                modifier = Modifier.padding(10.dp).offset(y=(-120).dp)) {
                 Text("북킹 시작하기", color= Color.White, fontWeight = FontWeight.ExtraBold, fontSize = 26.sp)
             }
         }
