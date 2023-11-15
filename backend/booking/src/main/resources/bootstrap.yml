@@ -5,9 +5,3 @@ spring:
     config:
       uri: ${config.url} # 여러분의 Config 서버 주소
       profile: ${spring.profiles.active:default} # 현재 활성화된 프로필 (기본값은 'default')
-  r2dbc:
-    pool:
-      initial-size: 100
-      max-size: 500
-      max-idle-time: 30m
-      validation-query: SELECT 1
