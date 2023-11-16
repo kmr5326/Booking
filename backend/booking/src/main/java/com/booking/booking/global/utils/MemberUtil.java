@@ -1,7 +1,7 @@
 package com.booking.booking.global.utils;
 
 import com.booking.booking.global.dto.request.PaymentRequest;
-import com.booking.booking.global.dto.request.ReSendRequestDto;
+import com.booking.booking.global.dto.request.ReSendRequest;
 import com.booking.booking.global.dto.response.MemberResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -81,7 +81,7 @@ public class MemberUtil {
         return webClient.post()
                 .uri("/api/payments/resend")
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(Mono.just(new ReSendRequestDto(memberId, amount)), ReSendRequestDto.class)
+                .body(Mono.just(new ReSendRequest(memberId, amount)), ReSendRequest.class)
                 .retrieve()
                 .onStatus(HttpStatus::is4xxClientError,
                         response -> response.toEntity(String.class)

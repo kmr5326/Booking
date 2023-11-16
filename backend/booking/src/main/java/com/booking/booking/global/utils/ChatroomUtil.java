@@ -1,7 +1,9 @@
 package com.booking.booking.global.utils;
 
+import com.booking.booking.global.dto.request.ExitChatroomRequest;
 import com.booking.booking.global.dto.request.InitChatroomRequest;
 import com.booking.booking.global.dto.request.JoinChatroomRequest;
+import com.booking.booking.global.dto.request.ModifyChatroomRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -55,6 +57,42 @@ public class ChatroomUtil {
                         response -> Mono.error(new RuntimeException("채팅방 참가 에러")))
                 .onStatus(HttpStatus::is5xxServerError,
                         response -> Mono.error(new RuntimeException("채팅방 참가 에러")))
+                .bodyToMono(Void.class);
+    }
+
+    public static Mono<Void> exitChatroom(ExitChatroomRequest exitChatroomRequest){
+        log.info("[Booking:Meeting] exitChatroom({})", exitChatroomRequest);
+
+        WebClient webClient = WebClient.builder().build();
+        URI uri = URI.create(GATEWAY_URL + "/api/chat/room/exit");
+
+        return webClient.post()
+                .uri(uri)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(Mono.just(exitChatroomRequest), ExitChatroomRequest.class)
+                .retrieve()
+                .onStatus(HttpStatus::is4xxClientError,
+                        response -> Mono.error(new RuntimeException("채팅방 나가기 에러")))
+                .onStatus(HttpStatus::is5xxServerError,
+                        response -> Mono.error(new RuntimeException("채팅방 나가기 에러")))
+                .bodyToMono(Void.class);
+    }
+
+    public static Mono<Void> modifyChatroom(ModifyChatroomRequest modifyChatroomRequest){
+        log.info("[Booking:Meeting] ModifyChatroomRequest({})", modifyChatroomRequest);
+
+        WebClient webClient = WebClient.builder().build();
+        URI uri = URI.create(GATEWAY_URL + "/api/chat/room/modify");
+
+        return webClient.post()
+                .uri(uri)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(Mono.just(modifyChatroomRequest), ModifyChatroomRequest.class)
+                .retrieve()
+                .onStatus(HttpStatus::is4xxClientError,
+                        response -> Mono.error(new RuntimeException("채팅방 이름 변경 에러")))
+                .onStatus(HttpStatus::is5xxServerError,
+                        response -> Mono.error(new RuntimeException("채팅방 이름 변경 에러")))
                 .bodyToMono(Void.class);
     }
 }
