@@ -68,6 +68,7 @@ import com.ssafy.booking.R
 import com.ssafy.booking.di.App
 import com.ssafy.booking.ui.AppNavItem
 import com.ssafy.booking.ui.common.BottomNav
+import com.ssafy.booking.ui.common.TabBar
 import com.ssafy.booking.ui.common.TopBar
 import com.ssafy.booking.viewmodel.AppViewModel
 import com.ssafy.booking.viewmodel.BookingViewModel
@@ -121,6 +122,10 @@ fun BookingListByMemberPk(
 
     // meetingState에 따라 그룹화
     val groupedBookings = bookingList?.groupBy { it.meetingState }
+    val onGoingBookings = groupedBookings?.get("ONGOING")
+    val finishBookings = groupedBookings?.get("FINISH")
+    val preparingBookings = groupedBookings?.get("PREPARING")
+
     if (groupedBookings == null) {
         Box(
             modifier = Modifier.fillMaxSize(),
@@ -137,64 +142,92 @@ fun BookingListByMemberPk(
                 onClick = { navController.navigate("create/booking/isbn") },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00C68E)),
                 shape = RoundedCornerShape(3.dp),
-                modifier = Modifier.padding(10.dp).offset(y=(-120).dp)) {
+                modifier = Modifier
+                    .padding(10.dp)
+                    .offset(y = (-120).dp)) {
                 Text("북킹 시작하기", color= Color.White, fontWeight = FontWeight.ExtraBold, fontSize = 26.sp)
             }
         }
     } else {
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .fillMaxHeight()
-                .padding(horizontal = 8.dp, vertical = 15.dp)
-        ) {
-            if (groupedBookings == null) {
-                item {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.bg_main),
-                            contentDescription = "배경 이미지",
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier.fillMaxSize()
-                        )
-                        Button(onClick = {
-                            navController.navigate(AppNavItem.CreateBooking.route)
-                        }) {
-                            Text("북킹 생성하기")
-                        }
-                    }
-                }
-            } else {
+        TabBar(tabTitles = listOf("진행중 모임", "완료된 모임", "준비중 모임"), contentForTab={ idx ->
+            when (idx) {
+                0 -> newBookingItemByMemberPk(onGoingBookings, navController)
+                1 -> newBookingItemByMemberPk(finishBookings, navController)
+                2 -> newBookingItemByMemberPk(preparingBookings, navController)
+            }
+        })
+    }
+}
 
-                // 상태별로 섹션 렌더링
-                groupedBookings.let { groups ->
-                    groups.forEach { (state, bookings) ->
-                        item {
-                            Text(
-                                text = when (state) {
-                                    "ONGOING" -> "진행 중인 모임"
-                                    "FINISH" -> "완료된 모임"
-                                    //                            "PREPARING" -> "준비 중인 모임"
-                                    else -> "준비 중인 모임"
-                                },
-                                fontWeight = FontWeight.ExtraBold,
-                                fontSize = 24.sp,
-                                modifier = Modifier.padding(vertical = 4.dp)
-                            )
-                        }
-                        items(bookings) { booking ->
-                            BookingItemByMemberPk(booking, navController)
-                        }
-                    }
-                }
+@Composable
+fun newBookingItemByMemberPk(
+    myBookingList : List<BookingListByMemberPk>?,
+    navController : NavController
+) {
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .fillMaxHeight()
+            .padding(horizontal = 8.dp, vertical = 15.dp)
+    ) {
+        myBookingList?.let {
+            items(it.size) {idx ->
+                BookingItemByMemberPk(it[idx], navController)
+            }
+        } ?: run {
+            item() {
+                Text(text = "모임이 없습니다.")
             }
         }
-    }
 
+
+//        if (groupedBookings == null) {
+//            item {
+//                Box(
+//                    modifier = Modifier.fillMaxSize(),
+//                    contentAlignment = Alignment.Center
+//                ) {
+//                    Image(
+//                        painter = painterResource(id = R.drawable.bg_main),
+//                        contentDescription = "배경 이미지",
+//                        contentScale = ContentScale.Crop,
+//                        modifier = Modifier.fillMaxSize()
+//                    )
+//                    Button(onClick = {
+//                        navController.navigate(AppNavItem.CreateBooking.route)
+//                    }) {
+//                        Text("북킹 생성하기")
+//                    }
+//                }
+//            }
+//        } else {
+
+
+//                // 상태별로 섹션 렌더링
+//                groupedBookings.let { groups ->
+//                    groups.forEach { (state, bookings) ->
+//                        item {
+//                            Text(
+//                                text = when (state) {
+//                                    "ONGOING" -> "진행 중인 모임"
+//                                    "FINISH" -> "완료된 모임"
+//                                    //                            "PREPARING" -> "준비 중인 모임"
+//                                    else -> "준비 중인 모임"
+//                                },
+//                                fontWeight = FontWeight.ExtraBold,
+//                                fontSize = 24.sp,
+//                                modifier = Modifier.padding(vertical = 4.dp)
+//                            )
+//                        }
+//                        items(bookings) { booking ->
+//                            BookingItemByMemberPk(booking, navController)
+//                        }
+//                    }
+//                }
+//        }
+    }
 }
+
 
 @Composable
 fun BookingItemByMemberPk(bookingItem: BookingListByMemberPk, navController: NavController) {

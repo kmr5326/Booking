@@ -99,7 +99,7 @@ fun BookHome(
                 TopBar(title = "도서 검색")
             } else {
                 CenterAlignedTopAppBar(
-                    title = { Text(text = "설정") },
+                    title = { Text(text = "도서 검색") },
                     navigationIcon = {
                         IconButton(onClick = { navController.popBackStack() }) {
                             Icon(

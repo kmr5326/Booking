@@ -330,7 +330,7 @@ fun ProfileView(
             // 인자로 첫번째는 title 리스트, 두번째는 각 탭에 해당하는 @composable
             // 현재는 테스트용으로 하드코딩 해뒀음.
             TabBar(
-                tabTitles = listOf("내 서재", "내 북킹"),
+                tabTitles = listOf("서재", "북킹"),
                 contentForTab = { index ->
                     // 인덱스 마다 @composable 함수 넣으면 됨.
                     when (index) {
@@ -339,6 +339,10 @@ fun ProfileView(
                     }
                 }
             )
+//            Spacer(modifier = Modifier.size(10.dp))
+//            HorizontalDivider(thickness = 1.dp, color = Color.Gray)
+//            Spacer(modifier = Modifier.size(10.dp))
+//            MyBook(myBookState = myBookState, data=data)
         }
     }
 }
