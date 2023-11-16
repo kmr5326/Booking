@@ -33,7 +33,7 @@ public class MeetingInfoService {
     public Flux<MeetingInfoResponse> findAllByMeetingId(Long meetingId) {
         log.info("[Booking:MeetingInfo] findAllByMeetingId({})", meetingId);
 
-        return meetingInfoRepository.findAllByMeetingId(meetingId)
+        return meetingInfoRepository.findAllByMeetingIdOrderByMeetinginfoIdDesc(meetingId)
                 .flatMap(meetingInfo -> Mono.just(new MeetingInfoResponse(meetingInfo)))
                 .onErrorResume(error -> {
                     log.error("[Booking:MeetingInfo ERROR] findAllByMeetingId : {}", error.getMessage());

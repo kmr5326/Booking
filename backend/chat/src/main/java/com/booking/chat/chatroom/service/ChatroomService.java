@@ -1,8 +1,8 @@
 package com.booking.chat.chatroom.service;
 
-import com.booking.chat.chat.domain.Message;
-import com.booking.chat.chat.dto.response.MessageResponse;
-import com.booking.chat.chat.repository.MessageRepository;
+import com.booking.chat.message.domain.Message;
+import com.booking.chat.message.dto.response.MessageResponse;
+import com.booking.chat.message.repository.MessageRepository;
 import com.booking.chat.chatroom.domain.Chatroom;
 import com.booking.chat.chatroom.dto.request.ExitChatroomRequest;
 import com.booking.chat.chatroom.dto.request.InitChatroomRequest;
