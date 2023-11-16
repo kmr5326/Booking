@@ -12,7 +12,7 @@ import com.ssafy.booking.R
 val Typography = Typography(
     bodyLarge = TextStyle(
         fontFamily = FontFamily(Font(R.font.gowundodum)),
-//        fontFamily = FontFamily(Font(R.font.nanumsquareroundr)),
+//        fontFamily = FontFamily(Font(R.font.nanumsquareacr)),
         fontWeight = FontWeight.Normal,
         fontSize = 16.sp,
         lineHeight = 24.sp,

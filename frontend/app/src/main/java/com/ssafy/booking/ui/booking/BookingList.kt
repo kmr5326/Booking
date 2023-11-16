@@ -28,6 +28,7 @@ import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.rounded.Settings
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
@@ -353,7 +354,7 @@ fun HomeTopBar(navController: NavController, appViewModel: AppViewModel,myLocati
                 shape = RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp)
             ) // 배경색과 모서리를 둥글게 설정
             .height(128.dp)
-            .padding(top=16.dp),
+            .padding(top=5  .dp),
     ) {
         // 상단의 하남동과 설정 아이콘
         Box(

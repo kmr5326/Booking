@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -85,7 +84,6 @@ fun BookingListByHashtag(navController: NavController,hashtagId: Long) {
         } ?: item {
             // 검색 결과가 아직 없는 경우 (데이터 로딩 중)
             Text("검색 결과를 불러오는 중...")
-//            CircularProgressIndicator()
         }
     }
 }
