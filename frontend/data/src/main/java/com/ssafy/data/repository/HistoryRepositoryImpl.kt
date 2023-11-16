@@ -4,6 +4,7 @@ import android.content.om.OverlayManagerTransaction
 import com.ssafy.data.remote.api.HistoryAPi
 import com.ssafy.domain.model.CreateSummaryRequest
 import com.ssafy.domain.model.RecordFileNameRequest
+import com.ssafy.domain.model.TranscriptionModificationRequest
 import com.ssafy.domain.model.history.CreateSummaryResponse
 import com.ssafy.domain.model.history.LoadSummaryResponse
 import com.ssafy.domain.model.history.TranscriptionResponse
@@ -26,6 +27,10 @@ class HistoryRepositoryImpl  @Inject constructor(private val historyAPi: History
 
     override suspend fun getSummary(transactionId: String): LoadSummaryResponse {
         return historyAPi.getSummary(transactionId)
+    }
+
+    override suspend fun postTranscription(request: TranscriptionModificationRequest): Response<Unit> {
+        return historyAPi.postTranscription(request)
     }
 }
 

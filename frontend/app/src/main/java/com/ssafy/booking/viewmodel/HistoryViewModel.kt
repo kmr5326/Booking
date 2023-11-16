@@ -8,6 +8,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ssafy.domain.model.CreateSummaryRequest
+import com.ssafy.domain.model.TranscriptionModificationRequest
 import com.ssafy.domain.model.history.CreateSummaryResponse
 import com.ssafy.domain.model.history.LoadSummaryResponse
 import com.ssafy.domain.model.history.Speaker
@@ -40,11 +41,10 @@ class HistoryViewModel @Inject constructor(
             try {
                 val transaction = historyUseCase.getSpeakToText(meetingInfoId)
                 _SpeakToTextInfo.value = transaction
-                Log.d("STT_TEST", "HVM STTINFO) ID ${SpeakToTextInfo.value}")
+                Log.d("STT_TEST", "히스토리뷰모델의 STT정보, 즉 세그먼트 : ${SpeakToTextInfo.value}")
                 _TransactionId.value = transaction.id
                 _SummaryInfo.value = transaction.text
                 if(transaction != null) {
-                    Log.d("STT_TEST", "loadsummarybefore $transaction")
                     loadSummary(transaction.text, transaction.id, meetingInfoId)
                 }
             } catch (e: Exception) {
@@ -59,13 +59,10 @@ class HistoryViewModel @Inject constructor(
             val transaction = historyUseCase.getSpeakToText(meetingInfoId)
             try {
                 val response = historyUseCase.getSummary(transactionId)
-                Log.d("STT_TEST", "loadSummary response $response")
                 // 요약 있음
             } catch (e: Exception) {
                 errorMessage.value = "HVM Load Summary 네트워크 에러: ${e}"
                 Log.d("STT_TEST", "$errorMessage.value")
-                // 요약 없음
-                Log.d("STT_TEST", "예외처리 현재 상태 transactionId:$transactionId transaction:$transaction content:$content")
                 val summaryRequest = CreateSummaryRequest(
                     content = transaction.text,
                     transcriptionId = transaction.id
@@ -80,7 +77,6 @@ class HistoryViewModel @Inject constructor(
                           "지금 이 글을 보고 계신다면 해당  조건을 만족하지 못했기때문입니다.\n" +
                           "감사합니다."
                 }
-                Log.d("STT_TEST", "요약 생성 전 예외처리 이후 $summaryRequest")
                 createSummary(summaryRequest)
             }
         }
@@ -88,12 +84,10 @@ class HistoryViewModel @Inject constructor(
 
     fun createSummary(request: CreateSummaryRequest) {
         viewModelScope.launch {
-            Log.d("STT_TEST", "CreateSummaryRequest $request")
             try {
                 val response = historyUseCase.createSummary(request)
                 _CreateSummaryInfo.value = response
                 _SummaryInfo.value = response.summary
-                Log.d("STT_TEST", "createSummary response ${response}")
             }  catch (e:Exception) {
                 errorMessage.value = "HVM SUMMARY 네트워크 에러: ${e}"
                 Log.d("STT_TEST", "$errorMessage.value")
@@ -102,9 +96,17 @@ class HistoryViewModel @Inject constructor(
     }
     
     // 대화 내용 수정
-    // 스피커 VALUE 수정
-    
-    // 대사 조정
+    fun postTranscription(request: TranscriptionModificationRequest) {
+        viewModelScope.launch {
+            try {
+                val response = historyUseCase.postTranscription(request)
+                Log.d("STT_TEST", "OK")
+            }  catch (e:Exception) {
+                errorMessage.value = "HVM SUMMARY 네트워크 에러: ${e}"
+                Log.d("STT_TEST", "$errorMessage.value")
+            }
+        }
+    }
 
 
 }

@@ -28,6 +28,7 @@ import com.ssafy.booking.ui.LocalNavigation
 import com.ssafy.booking.ui.common.BackTopBar
 import com.ssafy.booking.ui.common.BottomNav
 import com.ssafy.booking.ui.common.TabBar
+import com.ssafy.booking.ui.common.TabBarTwo
 import com.ssafy.booking.ui.common.TopBar
 import com.ssafy.booking.viewmodel.AppViewModel
 import com.ssafy.booking.viewmodel.UploaderViewModel
@@ -50,8 +51,6 @@ fun HistoryRecord(
     val meetingTitle = App.prefs.getTitle()
     var isLeader by remember { mutableStateOf(false) }
     isLeader = myPk.toInt() == meetingLeaderId
-
-    Log.d("STT_TEST", "MEETINGID ${meetinginfoId}")
 
     var isLoadRecord by remember { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(false) }
@@ -109,12 +108,13 @@ fun HistoryRecord(
                         )
                     } else if (isLoadRecord == true) {
                         PlayerController(meetinginfoId)
-                        TabBar(
-                            listOf("녹음 기록 분석", "녹음 요약"),
+                        TabBarTwo(
+                            listOf("녹음 기록 분석", "녹음 기록 수정", "녹음 요약"),
                             contentForTab = { index ->
                                 when (index) {
                                     0 -> RecordDetail(meetinginfoId)
-                                    1 -> RecordSummary()
+                                    1 -> NewRecordDetail(meetinginfoId)
+                                    2 -> RecordSummary()
                                 }
                             }
                         )
