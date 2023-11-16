@@ -131,15 +131,24 @@ fun ChatList() {
     val chatViewModel: ChatViewModel = hiltViewModel()
     val chatListState by chatViewModel.chatListState.observeAsState(initial = emptyList())
 
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-    ) {
-        items(chatListState) { chat ->
-            ChatItem(chat) {
+    if (chatListState.isEmpty()) {
+        Box (
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(text = "참여중인 채팅방이 없습니다.")
+        }
+    } else {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+        ) {
+            items(chatListState) { chat ->
+                ChatItem(chat) {
+                }
+                Divider()
             }
-            Divider()
         }
     }
 }

@@ -5,19 +5,30 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.text.style.TextDirection.Companion.Content
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.view.WindowCompat
 import coil.Coil
 import coil.ImageLoader
 import coil.imageLoader
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.location.LocationServices
+import com.google.firebase.inappmessaging.MessagesProto.Content
 import com.kakao.sdk.common.KakaoSdk
 import com.kakao.sdk.common.util.Utility
 import com.ssafy.booking.BuildConfig
@@ -89,20 +100,29 @@ class MainActivity : ComponentActivity() {
         window.apply {
             // 상태바 아래로 콘텐츠를 확장
 //            addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS)
-
             // 상태바 색상을 투명하게 설정
             statusBarColor = Color(0xFF12BD7E).toArgb()
         }
+//        WindowCompat.setDecorFitsSystemWindows(window, false)
 
         askNotificationPermission() // 알림 권한 요청
-//        WindowCompat.setDecorFitsSystemWindows(window, false)
 
         /** KakaoSDK init */
         KakaoSdk.init(this, BuildConfig.kakaoSdkApp_key)
         var keyHash = Utility.getKeyHash(this)
         Log.v(TAG1, keyHash)
+
         setContent {
             BookingApp(googleSignInClient)
+//            Content(
+//                modifier = Modifier
+//                    .fillMaxSize()
+//                    .windowInsetsPadding(
+//                        WindowInsets.systemBars.only(
+//                            WindowInsetsSides.Vertical
+//                        )
+//                    )
+//            )
         }
 
         val fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
