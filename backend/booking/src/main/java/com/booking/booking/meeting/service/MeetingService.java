@@ -403,7 +403,12 @@ public class MeetingService {
                                     .flatMap(participant -> participantStateService.startMeeting(meetingInfo.getMeetinginfoId(), participant))
                                     .then())
                             .then(meetingRepository.save(meeting.updateState(MeetingState.ONGOING)))
-                            .then();
+                            .then(participantService.findAllByMeetingId(meeting.getMeetingId())
+                                    .flatMap(participant -> Mono.just(participant.getMemberId()))
+                                    .collectList()
+                                    .flatMap(participantList ->
+                                            NotificationUtil.sendNotification(new NotificationRequest(participantList, meeting.getMeetingTitle(), NotificationType.CONFIRM)))
+                            );
                 })
                 .onErrorResume(error -> {
                     log.error("[Booking:Meeting ERROR] createMeetingInfo : {}", error.getMessage());
