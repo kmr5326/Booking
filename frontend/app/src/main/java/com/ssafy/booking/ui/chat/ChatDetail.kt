@@ -194,7 +194,7 @@ fun ChatDetail(
 
 
 // 맨 밑 스크롤 유지
-    LaunchedEffect(Unit) {
+    LaunchedEffect(messages) {
         delay(100)
         if (listState.isScrolledToTheBottom()) {
             if (messages.isNotEmpty()) {
