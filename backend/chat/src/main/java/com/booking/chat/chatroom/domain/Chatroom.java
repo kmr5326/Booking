@@ -33,12 +33,12 @@ public class Chatroom {
 
     private String coverImage;
 
-    // private String lastMessage;
+    private String lastMessage;
 
     @CreatedDate
     private LocalDateTime createdAt;
 
-    // private LocalDateTime lastMessageReceivedTime;
+    private LocalDateTime lastMessageReceivedTime;
 
     @Version // optimistic lock
     private Long version;
@@ -50,7 +50,7 @@ public class Chatroom {
                        .memberList(List.of(initChatroomRequest.leaderId()))
                        .meetingTitle(initChatroomRequest.meetingTitle())
                        .coverImage(initChatroomRequest.coverImage())
-                       //.lastMessageReceivedTime(LocalDateTime.now())
+                       .lastMessageReceivedTime(LocalDateTime.now())
                        .build();
     }
 
@@ -62,7 +62,7 @@ public class Chatroom {
 //        this.lastMessageReceivedTime = LocalDateTime.now();
 //    }
 
-//    public void updateLastMessage(String msg) {
-//        this.lastMessage = msg;
-//    }
+    public void updateLastMessage(String msg) {
+        this.lastMessage = msg;
+    }
 }

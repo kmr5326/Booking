@@ -82,31 +82,28 @@ public class MessageService {
     public Mono<Void> save(KafkaMessage message, Long chatroomId) {
         return chatroomService.findByChatroomId(chatroomId)
                               .flatMap(chatroom -> {
-//                                  Long idx = chatroom.getMessageIndex();
-//                                  chatroom.updateIndex();
+                                  Long idx = chatroom.getMessageIndex();
+                                  chatroom.updateIndex();
                                   return getReadCount(chatroom, message.getSenderId())
                                       .flatMap(readCount ->
-                                          // chatroomService.save(chatroom)
-                                          (Mono.just(Message.builder()
-                                                            .chatroomId(chatroomId)
-                                                            //.messageId(idx)
-                                                            .memberId(message.getSenderId())
-                                                            .memberList(chatroom.getMemberList())
-                                                            .readMemberList(
-                                                                Set.of(message.getSenderId()))
-                                                            .content(message.getMessage())
-                                                            .readCount(readCount)
-                                                            .build()))
-                                              .flatMap(messageRepository::save)
-                                      )
-//                                      .flatMap(savedMessage -> {
-//                                          chatroom.updateListMessageReceived();
-//                                          chatroom.updateLastMessage(savedMessage.getContent());
-//                                          return chatroomService.save(chatroom);
-//                                      });
-//                              })
-                                      .then();
-                              });
+                                          chatroomService.save(chatroom)
+                                                         .then(Mono.just(Message.builder()
+                                                                                .chatroomId(chatroomId)
+                                                                                .messageId(idx)
+                                                                                .memberId(message.getSenderId())
+                                                                                .memberList(chatroom.getMemberList())
+                                                                                .readMemberList(Set.of(message.getSenderId()))
+                                                                                .content(message.getMessage())
+                                                                                .readCount(readCount)
+                                                                                .build()))
+                                                         .flatMap(messageRepository::save)
+                                      ).flatMap(savedMessage -> {
+                                          chatroom.updateListMessageReceived();
+                                          chatroom.updateLastMessage(savedMessage.getContent());
+                                          return chatroomService.save(chatroom);
+                                      });
+                              })
+                              .then();
     }
 
     public Flux<Message> findAllByRoomId(Long roomId) {

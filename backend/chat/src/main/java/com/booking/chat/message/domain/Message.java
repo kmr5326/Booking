@@ -24,7 +24,7 @@ public class Message {
 
     private Long chatroomId;
 
-    // private Long messageId;
+    private Long messageId;
 
     private Long memberId;
 
