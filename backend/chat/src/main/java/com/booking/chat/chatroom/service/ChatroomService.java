@@ -1,5 +1,6 @@
 package com.booking.chat.chatroom.service;
 
+import com.booking.chat.chatroom.dto.request.ModifyChatroomRequest;
 import com.booking.chat.message.domain.Message;
 import com.booking.chat.message.dto.response.MessageResponse;
 import com.booking.chat.message.repository.MessageRepository;
@@ -173,5 +174,14 @@ public class ChatroomService {
                                     .doOnNext(memberList -> memberList.add(memberId))
                                     .flatMap(memberList -> reactiveRedisTemplate.opsForValue()
                                                                                 .set(chatroomKey, memberList));
+    }
+
+    public Mono<Void> modifyChatroomInformation(ModifyChatroomRequest modifyChatroomRequest) {
+        return chatroomRepository.findById(modifyChatroomRequest.meetingId())
+                .switchIfEmpty(Mono.error(new ChatroomException(ErrorCode.CHATROOM_NOT_FOUND)))
+                .flatMap(chatroom -> {
+                    chatroom.updateMeetingTitle(modifyChatroomRequest.meetingTitle());
+                    return chatroomRepository.save(chatroom);
+                }).then();
     }
 }
