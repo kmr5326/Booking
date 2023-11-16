@@ -170,22 +170,22 @@ fun ChatDetail(
         }
     }
 // 무한 스크롤
-    LaunchedEffect(listState.firstVisibleItemScrollOffset) {
-        if(!isLoading) {delay(2000)}
-        Log.d("TEST", "무한 스크롤 조건 ${listState.firstVisibleItemIndex} , ${listState.firstVisibleItemScrollOffset}")
-        if (listState.firstVisibleItemScrollOffset <= 0 && listState.firstVisibleItemIndex <= 0) {
-            socketViewModel.loadMoreMessages(chatId.toInt())
-            delay(300)
-            socketViewModel.loadMoreMessages(chatId.toInt())
-            delay(300)
-            listState.scrollToItem(listState.firstVisibleItemIndex + 1)
-            socketViewModel.loadMoreMessages(chatId.toInt())
-            delay(300)
-            socketViewModel.loadMoreMessages(chatId.toInt())
-            delay(300)
-            listState.scrollToItem(listState.firstVisibleItemIndex + 1)
-        }
-    }
+//    LaunchedEffect(listState.firstVisibleItemScrollOffset) {
+//        if(!isLoading) {delay(2000)}
+//        Log.d("TEST", "무한 스크롤 조건 ${listState.firstVisibleItemIndex} , ${listState.firstVisibleItemScrollOffset}")
+//        if (listState.firstVisibleItemScrollOffset <= 0 && listState.firstVisibleItemIndex <= 0) {
+//            socketViewModel.loadMoreMessages(chatId.toInt())
+//            delay(300)
+//            socketViewModel.loadMoreMessages(chatId.toInt())
+//            delay(300)
+//            listState.scrollToItem(listState.firstVisibleItemIndex + 1)
+//            socketViewModel.loadMoreMessages(chatId.toInt())
+//            delay(300)
+//            socketViewModel.loadMoreMessages(chatId.toInt())
+//            delay(300)
+//            listState.scrollToItem(listState.firstVisibleItemIndex + 1)
+//        }
+//    }
 
 
 // 맨 밑 스크롤 유지

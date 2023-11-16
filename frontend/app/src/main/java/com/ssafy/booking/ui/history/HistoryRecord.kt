@@ -48,6 +48,7 @@ fun HistoryRecord(
     isLeader = myPk.toInt() == meetingLeaderId
 
     var isLoadRecord by remember { mutableStateOf(false) }
+    var isLoading by remember { mutableStateOf(false) }
     val responseState by uploaderViewModel.naverCloudGetResponse.observeAsState()
     responseState?.let { response ->
         if (response.isSuccessful) {
@@ -59,6 +60,7 @@ fun HistoryRecord(
     }
 
     LaunchedEffect(Unit) {
+        isLoading = true
         uploaderViewModel.GetToNaverCloud(meetinginfoId)
     }
 

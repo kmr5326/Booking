@@ -87,7 +87,7 @@ class SocketViewModel @Inject constructor(
     fun loadAllMessage(chatId: Int) {
         viewModelScope.launch {
             Log.d("TEST", "파이널메시지 개수 ${_finalMessages.value?.size}")
-            messageDao.getAllMessage(chatId, (_totalMessageCount.value ?: 15) ).asFlow()
+            messageDao.getAllMessage(chatId).asFlow()
                 .collect { allMessages ->
                     _finalMessages.postValue(allMessages)
                 }
@@ -145,7 +145,7 @@ class SocketViewModel @Inject constructor(
                         messageDao.insertMessage(messageEntity)
                         Log.d("TEST", "새 메시지 저장 ${_totalMessageCount.value}")
                         _totalMessageCount.postValue((_totalMessageCount.value ?: 0) + 1)
-                        messageDao.getAllMessage(chatroomId, (_totalMessageCount.value ?: 15) ).asFlow()
+                        messageDao.getAllMessage(chatroomId ).asFlow()
                         // 이미 있는 메시지 읽은 수 업데이트
                     } else if (existingEntity.readCount!! < messageEntity.readCount!!) {
                         existingEntity.messageId?.let {
