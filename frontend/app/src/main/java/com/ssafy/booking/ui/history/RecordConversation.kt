@@ -1,5 +1,6 @@
 package com.ssafy.booking.ui.history
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -54,6 +55,7 @@ import coil.request.CachePolicy
 import coil.request.ImageRequest
 import com.ssafy.booking.R
 import com.ssafy.booking.di.App
+import com.ssafy.booking.ui.LocalNavigation
 import com.ssafy.booking.viewmodel.HistoryViewModel
 import com.ssafy.booking.viewmodel.PlayerViewModel
 import com.ssafy.domain.model.ChatRoom
@@ -68,12 +70,15 @@ fun RecordDetail(
 ) {
     val playerViewModel: PlayerViewModel = hiltViewModel()
     val historyViewModel: HistoryViewModel = hiltViewModel()
+    val navController = LocalNavigation.current
 
     if (meetinginfoId != null) {
         historyViewModel.loadTransaction(meetinginfoId.toLong())
     }
 
     val speakToTextInfo = historyViewModel.SpeakToTextInfo.observeAsState().value
+
+    Log.d("STT_TEST", "녹음분석기록에서의 ${speakToTextInfo}")
 
     Box(
         modifier = Modifier
@@ -92,13 +97,14 @@ fun STTList(
     speakToTextInfo: TranscriptionResponse?
 ) {
     val context = LocalContext.current
-
+    val navController = LocalNavigation.current
     Box(
         modifier = Modifier
             .fillMaxSize()
             .fillMaxHeight()
             .padding(8.dp)
     ) {
+
         LazyColumn {
             speakToTextInfo?.segments?.let { segments ->
                 itemsIndexed(segments) { index, segment ->
@@ -181,7 +187,7 @@ fun SpeakToTextRow(
 @Composable
 fun getColorForName(name: String): Color {
     return when (name.firstOrNull()?.uppercaseChar()) {
-        'A' -> Color( 0xFFFC9EBD)
+        'A' -> Color(0xFFFC9EBD)
         'B' -> Color(0xFFB8F3B8)
         'C' -> Color(0xFFFFDDA6)
         'D' -> Color(0xFFA8C8F9)
