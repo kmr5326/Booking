@@ -1,6 +1,7 @@
 package com.ssafy.data.repository
 
 import com.ssafy.data.remote.api.BookSearchApi
+import com.ssafy.domain.model.booksearch.BookSearchPopularResponse
 import com.ssafy.domain.model.booksearch.BookSearchResponse
 import com.ssafy.domain.repository.BookSearchRepository
 import retrofit2.Response
@@ -20,5 +21,9 @@ class BookSearchRepositoryImpl @Inject constructor(
 
     override suspend fun getBookSearchByIsbn(isbn: String): Response<BookSearchResponse> {
         return bookSearchApi.getBookSearchByIsbn(isbn)
+    }
+
+    override suspend fun getBookPopular(): Response<List<BookSearchPopularResponse>> {
+        return bookSearchApi.getBookPopular()
     }
 }

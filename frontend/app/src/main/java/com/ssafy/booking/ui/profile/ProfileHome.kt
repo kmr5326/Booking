@@ -6,8 +6,10 @@ import android.graphics.BitmapFactory
 import android.graphics.drawable.Icon
 import android.util.Log
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -17,15 +19,20 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -60,8 +67,12 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 import coil.ImageLoader
 import coil.compose.AsyncImagePainter
 import coil.compose.LocalImageLoader
@@ -75,6 +86,7 @@ import com.ssafy.booking.di.NetworkModule_ProvideObjectStorageInterceptorFactory
 import com.ssafy.booking.ui.LocalNavigation
 import com.ssafy.booking.ui.booking.tabTitles
 import com.ssafy.booking.ui.common.BackTopBar
+import com.ssafy.booking.ui.common.HorizontalDivider
 import com.ssafy.booking.utils.ObjectStorageInterceptor
 import com.ssafy.booking.viewmodel.MyBookViewModel
 import com.ssafy.domain.model.mybook.MyBookListResponse
@@ -112,24 +124,50 @@ fun MyProfile(profileData: ProfileData) {
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.padding(8.dp)
         ) {
-            AsyncImage(
-                model = ImageRequest.Builder(context)
-                    .data("https://kr.object.ncloudstorage.com/booking-bucket/images/${profileData.myProfile?.memberPk}_profile.png")
-                    .memoryCachePolicy(CachePolicy.DISABLED)
-                    .addHeader("Host", "kr.object.ncloudstorage.com")
-                    .crossfade(true)
-                    .build(),
-                contentScale = ContentScale.Crop,
-                contentDescription = null,
-                imageLoader=imageLoader,
-                modifier = Modifier
-                    .size(100.dp)
-                    .clip(CircleShape),
-                error = painterResource(id = R.drawable.basic_profile)
-            )
+            if(profileData.isI == true) {
+                AsyncImage(
+                    model = ImageRequest.Builder(context)
+                        .data("https://kr.object.ncloudstorage.com/booking-bucket/images/${profileData.myProfile?.memberPk}_profile.png")
+                        .memoryCachePolicy(CachePolicy.DISABLED)
+                        .addHeader("Host", "kr.object.ncloudstorage.com")
+                        .crossfade(true)
+                        .build(),
+                    contentScale = ContentScale.Crop,
+                    contentDescription = null,
+                    imageLoader=imageLoader,
+                    modifier = Modifier
+                        .size(100.dp)
+                        .clip(CircleShape)
+                        .clickable{
+                            navController.navigate("profile/modifier")
+                        }
+                    ,
+                    error = painterResource(id = R.drawable.basic_profile)
+                )
+            } else {
+                AsyncImage(
+                    model = ImageRequest.Builder(context)
+                        .data("https://kr.object.ncloudstorage.com/booking-bucket/images/${profileData.myProfile?.memberPk}_profile.png")
+                        .memoryCachePolicy(CachePolicy.DISABLED)
+                        .addHeader("Host", "kr.object.ncloudstorage.com")
+                        .crossfade(true)
+                        .build(),
+                    contentScale = ContentScale.Crop,
+                    contentDescription = null,
+                    imageLoader=imageLoader,
+                    modifier = Modifier
+                        .size(100.dp)
+                        .clip(CircleShape),
+                    error = painterResource(id = R.drawable.basic_profile)
+                )
+            }
             Spacer(modifier = Modifier.size(40.dp))
             Column {
-                Text(text = "@${profileData.myProfile?.nickname}", color = colorResource(id = R.color.font_color))
+                if(profileData.isI == true) {
+                    Text(text = "@${profileData.myProfile?.nickname}  🛠 ", color = colorResource(id = R.color.font_color), modifier = Modifier.clickable{navController.navigate("profile/modifier")},fontWeight = FontWeight.Bold,fontSize=18.sp)
+                } else {
+                    Text(text = "@${profileData.myProfile?.nickname}", color = colorResource(id = R.color.font_color),fontWeight = FontWeight.Bold,fontSize=18.sp)
+                }
                 Spacer(modifier = Modifier.size(4.dp))
                 Text(text = "읽은 책 : ${profileData.readBook!!.size}권", color = colorResource(id = R.color.font_color))
                 Spacer(modifier = Modifier.size(4.dp))
@@ -142,8 +180,40 @@ fun MyProfile(profileData: ProfileData) {
                     Text(text = "팔로잉 ${profileData.followings?.followingsCnt}", color = colorResource(id = R.color.font_color))
                 }
                 Spacer(modifier = Modifier.size(4.dp))
+
                 if(profileData.isI == true) {
-                    Text(text = "마일리지 : ${profileData.myProfile?.point}")
+                    HorizontalDivider(thickness = 1.dp, color = Color.Gray,modifier = Modifier.padding(horizontal = 4.dp))
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 8.dp)
+                    ) {
+                        Column {
+                            Text(text = "북킹 머니", color = colorResource(id = R.color.font_color))
+                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween,
+modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text(text = "${profileData.myProfile?.point}원",
+                                    modifier = Modifier.clickable {
+                                        navController.navigate("pay/ready/0")
+                                    })
+                                Button(onClick = { navController.navigate("pay/ready/0") }
+                                ,colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF12BD7E)),
+                                    modifier = Modifier
+//                                        .size(width = 60.dp, height = 30.dp)
+                                        .clip(RoundedCornerShape(5.dp)),
+                                    shape = RoundedCornerShape(5.dp)
+                                ) {
+                                    Text(
+                                        "충전",
+                                        color = colorResource(id = R.color.font_color),fontSize = 12.sp
+                                    )
+                                }
+                            }
+                        }
+
+                    }
+
                 } else {
                     isFollowNow?.let {
                         if (it.value == true) {
@@ -168,19 +238,19 @@ fun MyProfile(profileData: ProfileData) {
                     }
                 }
             }
-            Spacer(modifier = Modifier.size(40.dp))
-            if(profileData.isI == true) {
-                IconButton(
-                    onClick = { navController.navigate("profile/modifier") },
-                    modifier = Modifier.align(Alignment.Top)
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Edit,
-                        contentDescription = null,
-                        tint = colorResource(id = R.color.font_color)
-                    )
-                }
-            }
+//            Spacer(modifier = Modifier.size(20.dp))
+//            if(profileData.isI == true) {
+//                IconButton(
+//                    onClick = { navController.navigate("profile/modifier") },
+//                    modifier = Modifier.align(Alignment.Top)
+//                ) {
+//                    Icon(
+//                        imageVector = Icons.Filled.Edit,
+//                        contentDescription = null,
+//                        tint = colorResource(id = R.color.font_color)
+//                    )
+//                }
+//            }
         }
     }
 }
@@ -237,8 +307,8 @@ fun ProfileView(
 
 
 //    fun provideObjectStorageInterceptor(): ObjectStorageInterceptor {
-//        val accessKey = "64tVP74TUGmd6PDzjQ04"
-//        val secretKey = "1E11TfvJcy7OVnSSm3rV0Vph24CLUO4Tiehd5PtZ"
+//        val accessKey = BuildConfig.naverAccess_key
+//        val secretKey = BuildConfig.naverSecret_key
 //        val region = "kr-standard"
 //        return ObjectStorageInterceptor(accessKey, secretKey, region)
 //    }
@@ -286,7 +356,7 @@ fun ProfileView(
             // 인자로 첫번째는 title 리스트, 두번째는 각 탭에 해당하는 @composable
             // 현재는 테스트용으로 하드코딩 해뒀음.
             TabBar(
-                tabTitles = listOf("내 서재", "내 북킹"),
+                tabTitles = listOf("서재", "북킹"),
                 contentForTab = { index ->
                     // 인덱스 마다 @composable 함수 넣으면 됨.
                     when (index) {
@@ -295,17 +365,22 @@ fun ProfileView(
                     }
                 }
             )
+//            Spacer(modifier = Modifier.size(10.dp))
+//            HorizontalDivider(thickness = 1.dp, color = Color.Gray)
+//            Spacer(modifier = Modifier.size(10.dp))
+//            MyBook(myBookState = myBookState, data=data)
         }
     }
 }
 
 @Composable
 fun LoadingView() {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
+    Box (
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    )  {
         Text("로딩중...")
+
     }
 }
 

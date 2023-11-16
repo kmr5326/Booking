@@ -32,6 +32,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -63,7 +64,7 @@ fun MyBook(
             // myBookState 값에 따라 UI를 조건부로 렌더링
             when (myBookState) {
                 is MyBookState.Loading -> Text("정보를 불러오는 중...")
-                is MyBookState.Success -> MyBookListView(books = (myBookState as MyBookState.Success).data)
+                is MyBookState.Success -> MyBookListView(books = (myBookState as MyBookState.Success).data, yourPk = data.myProfile!!.memberPk)
                 is MyBookState.Error -> MyBookErrorView(message = (myBookState as MyBookState.Error).message)
                 else -> Text("정보를 불러오는 중...")
             }
@@ -82,17 +83,21 @@ fun MyBookFloatingActionButton() {
         modifier = Modifier
             .padding(end = 16.dp, bottom = 10.dp)
             .size(65.dp),
-        containerColor = colorResource(id = R.color.booking_2),
+        containerColor = colorResource(id = R.color.booking_1),
         shape = CircleShape
         // 그냥 동그라미할지, + 모임생성할지 고민.
-
     ) {
+//        Icon(
+//            Icons.Filled.Add,
+//            contentDescription = "Localized description",
+//            modifier = Modifier.size(40.dp),
+//            tint = Color.White
+//        )
         Icon(
-            Icons.Filled.Add,
+            painter = painterResource(id = R.drawable.outline_book_24),
             contentDescription = "Localized description",
             modifier = Modifier.size(40.dp),
             tint = Color.White
-
         )
     }
 }
@@ -100,7 +105,8 @@ fun MyBookFloatingActionButton() {
 
 @Composable
 fun MyBookListView(
-    books : List<MyBookListResponse>
+    books : List<MyBookListResponse>,
+    yourPk : Long
 ) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(2), // 두 컬럼으로 설정
@@ -109,14 +115,15 @@ fun MyBookListView(
             .padding(10.dp)
     ) {
         items(books.size) { index ->
-            MyBookItem(book = books[index])
+            MyBookItem(book = books[index], yourPk = yourPk)
         }
     }
 }
 
 @Composable
 fun MyBookItem(
-    book : MyBookListResponse
+    book : MyBookListResponse,
+    yourPk : Long
 ) {
     val navController = LocalNavigation.current
 
@@ -125,7 +132,7 @@ fun MyBookItem(
             .padding(4.dp)
             .fillMaxWidth()
             .clickable {
-                navController.navigate("profile/book/detail/${book.bookInfo.isbn}")
+                navController.navigate("profile/book/detail/${book.bookInfo.isbn}/$yourPk")
             },
         colors = CardDefaults.cardColors(
             containerColor = colorResource(id = R.color.background_color)

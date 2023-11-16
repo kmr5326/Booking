@@ -1,27 +1,20 @@
 package com.ssafy.booking.utils
 
 
+import com.ssafy.booking.di.App
 import okhttp3.Headers
-import okhttp3.HttpUrl
 import okhttp3.Interceptor
 import okhttp3.Request
-import okhttp3.RequestBody
-import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.Response
 import java.io.IOException
-import java.io.UnsupportedEncodingException
 import java.net.URLEncoder
-import java.security.InvalidKeyException
 import java.security.MessageDigest
-import java.security.NoSuchAlgorithmException
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
-import java.util.TreeMap
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
-import kotlin.math.sign
 
 
 class ObjectStorageInterceptor(private val accessKey: String, private val secretKey: String, private val region: String) :
@@ -52,6 +45,10 @@ class ObjectStorageInterceptor(private val accessKey: String, private val secret
             .addHeader("x-amz-date", timestamp)
             .addHeader("x-amz-content-sha256", payloadHash)
             .build()
+
+        App.prefs.putNcpAuthHeader(authorizationHeader)
+        App.prefs.putNcpTimeStamp(timestamp)
+        App.prefs.putNcpPayloadHash(payloadHash)
 
         return chain.proceed(newRequest)
     }

@@ -67,8 +67,6 @@ fun Map(CurLng: Double, CurLat: Double, MarkerLng: Double, MarkerLat: Double) {
                 radius = 10000.0, // 10km
                 color = Color(0, 0, 255, 100), // 반투명한 파란색, ]
             zIndex = 2// ,
-
-
             )
             }
         }

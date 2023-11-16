@@ -10,6 +10,7 @@ import com.ssafy.data.repository.FirebaseRepositoryImpl
 import com.ssafy.domain.model.DeviceToken
 import com.ssafy.domain.model.booking.BookingAcceptRequest
 import com.ssafy.domain.model.booking.BookingAll
+import com.ssafy.domain.model.booking.BookingAttendRequest
 import com.ssafy.domain.model.booking.BookingCreateRequest
 import com.ssafy.domain.model.booking.BookingDetail
 import com.ssafy.domain.model.booking.BookingJoinRequest
@@ -154,14 +155,13 @@ private val _postBookingRejectResponse = MutableLiveData<Response<Unit>>()
     // POST - 모임 세팅
     val title = MutableLiveData("")
     val description = MutableLiveData("")
-    val maxParticipants = MutableLiveData(1)
-    val lgt = MutableLiveData("")
-    val lat = MutableLiveData("")
+    val maxParticipants = MutableLiveData(2)
+    val lgt = MutableLiveData(0.0)
+    val lat = MutableLiveData(0.0)
     val location = MutableLiveData("")
     val placeName = MutableLiveData("")
     val date = MutableLiveData<LocalDate>()
     val time = MutableLiveData<LocalTime>()
-
     val fee = MutableLiveData(0)
 
     // PATCH - 모임 수정
@@ -199,9 +199,9 @@ private val _postBookingRejectResponse = MutableLiveData<Response<Unit>>()
     // PATCH - 모임 출석
     private val _patchBookingAttendResponse = MutableLiveData<Response<Unit>>()
     val patchBookingAttendResponse: LiveData<Response<Unit>> get() = _patchBookingAttendResponse
-    fun patchBookingAttend(meetingId: Long) =
+    fun patchBookingAttend(request: BookingAttendRequest) =
         viewModelScope.launch {
-            _patchBookingAttendResponse.value = bookingUseCase.patchBookingAttend(meetingId)
+            _patchBookingAttendResponse.value = bookingUseCase.patchBookingAttend(request)
         }
 
     // GET - 해시태그로 모임 목록 조회
@@ -226,5 +226,21 @@ private val _postBookingRejectResponse = MutableLiveData<Response<Unit>>()
     fun getBookingByTitle(title: String) =
         viewModelScope.launch {
             _getBookingByTitleResponse.value = bookingUseCase.getBookingByTitle(title)
+        }
+
+    // PATCH - 모임 한 번 더 하기
+    private val _patchBookingRestartResponse = MutableLiveData<Response<Unit>>()
+    val patchBookingRestartResponse: LiveData<Response<Unit>> get() = _patchBookingRestartResponse
+    fun patchBookingRestart(meetingId: Long) =
+        viewModelScope.launch {
+            _patchBookingRestartResponse.value = bookingUseCase.patchBookingRestart(meetingId)
+        }
+
+    // PATCH - 결제하기
+    private val _patchPaymentResponse = MutableLiveData<Response<Unit>>()
+    val patchPaymentResponse: LiveData<Response<Unit>> get() = _patchPaymentResponse
+    fun patchPayment(meetingId: Long) =
+        viewModelScope.launch {
+            _patchPaymentResponse.value = bookingUseCase.patchPayment(meetingId)
         }
 }

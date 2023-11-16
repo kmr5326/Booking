@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.exclude
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,14 +20,19 @@ import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
@@ -70,12 +76,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import coil.imageLoader
+import coil.request.CachePolicy
+import coil.request.ImageRequest
 import com.ssafy.booking.R
 import com.ssafy.booking.di.App
 import com.ssafy.booking.ui.LocalNavigation
@@ -104,6 +115,8 @@ fun ChatDetail(
     memberListString: String?,
     meetingTitle: String?
 ) {
+    val imageLoader = LocalContext.current.imageLoader
+    val context = LocalContext.current
     val chatViewModel: ChatViewModel = hiltViewModel()
     val myPageViewModel: MyPageViewModel = hiltViewModel()
     val socketViewModel: SocketViewModel = hiltViewModel()
@@ -162,26 +175,26 @@ fun ChatDetail(
         }
     }
 // 무한 스크롤
-    LaunchedEffect(listState.firstVisibleItemScrollOffset) {
-        if(!isLoading) {delay(2000)}
-        Log.d("TEST", "무한 스크롤 조건 ${listState.firstVisibleItemIndex} , ${listState.firstVisibleItemScrollOffset}")
-        if (listState.firstVisibleItemScrollOffset <= 0 && listState.firstVisibleItemIndex <= 0) {
-            socketViewModel.loadMoreMessages(chatId.toInt())
-            delay(300)
-            socketViewModel.loadMoreMessages(chatId.toInt())
-            delay(300)
-            listState.scrollToItem(listState.firstVisibleItemIndex + 1)
-            socketViewModel.loadMoreMessages(chatId.toInt())
-            delay(300)
-            socketViewModel.loadMoreMessages(chatId.toInt())
-            delay(300)
-            listState.scrollToItem(listState.firstVisibleItemIndex + 1)
-        }
-    }
+//    LaunchedEffect(listState.firstVisibleItemScrollOffset) {
+//        if(!isLoading) {delay(2000)}
+//        Log.d("TEST", "무한 스크롤 조건 ${listState.firstVisibleItemIndex} , ${listState.firstVisibleItemScrollOffset}")
+//        if (listState.firstVisibleItemScrollOffset <= 0 && listState.firstVisibleItemIndex <= 0) {
+//            socketViewModel.loadMoreMessages(chatId.toInt())
+//            delay(300)
+//            socketViewModel.loadMoreMessages(chatId.toInt())
+//            delay(300)
+//            listState.scrollToItem(listState.firstVisibleItemIndex + 1)
+//            socketViewModel.loadMoreMessages(chatId.toInt())
+//            delay(300)
+//            socketViewModel.loadMoreMessages(chatId.toInt())
+//            delay(300)
+//            listState.scrollToItem(listState.firstVisibleItemIndex + 1)
+//        }
+//    }
 
 
 // 맨 밑 스크롤 유지
-    LaunchedEffect(Unit) {
+    LaunchedEffect(messages) {
         delay(100)
         if (listState.isScrolledToTheBottom()) {
             if (messages.isNotEmpty()) {
@@ -232,12 +245,24 @@ fun ChatDetail(
                         NavigationDrawerItem(
                             icon = {
                                 AsyncImage(
+                                    model = ImageRequest.Builder(context)
+                                        .data("https://kr.object.ncloudstorage.com/booking-bucket/images/${user.value.memberPk}_profile.png")
+                                        .memoryCachePolicy(CachePolicy.DISABLED)
+                                        .addHeader("Host", "kr.object.ncloudstorage.com")
+                                        .crossfade(true)
+                                        .build(),
+                                    contentScale = ContentScale.Crop,
+                                    contentDescription = null,
+                                    imageLoader=imageLoader,
                                     modifier = Modifier
                                         .size(48.dp)
-                                        .clip(RoundedCornerShape(20.dp))
-                                        .border(1.dp, Color.Gray, RoundedCornerShape(20.dp)),
-                                    model = if (user.value.profileImage.isNullOrEmpty()) R.drawable.basic_profile else user.value.profileImage,
-                                    contentDescription = "유저",
+                                        .clip(CircleShape)
+                                        .clickable {
+                                            if (user.value?.memberPk != null) {
+                                                navController.navigate("profile/${user.value.memberPk}")
+                                            }
+                                        },
+                                    error = painterResource(id = R.drawable.basic_profile)
                                 )
                             },
                             label = { Text(user.value.nickname) },
@@ -295,7 +320,7 @@ fun ChatDetail(
                 MessageList(
                     modifier = Modifier
                         .weight(1f)
-                        .background(Color(0xFF9bbbd4)),
+                        .background(Color(0xFF00C68E)),
                     listState,
                     reversedMessages,
                     memberId,
@@ -342,12 +367,13 @@ fun MessageList(
 
     Box(
         modifier = modifier
-            .background(Color(0xFF9bbbd4))
+            .background(Color(0xFF00C68E))
             .fillMaxSize()
     ) {
         LazyColumn(
             state = listState,
-            modifier = modifier.padding(16.dp)
+            modifier = modifier
+                .padding(16.dp)
         ) {
             itemsIndexed(messages) { index, message ->
                 val previousMessage = if (index > 0) messages[index - 1] else null
@@ -368,6 +394,8 @@ fun MessageItem(
     userInfoMap: Map<Long, UserInfoResponseByPk>,
     chatId: String?
 ) {
+    val imageLoader = LocalContext.current.imageLoader
+    val context = LocalContext.current
     val navController = LocalNavigation.current
     val isOwnMessage = message.senderId?.toLong() == memberId
     val userInfo = userInfoMap[message.senderId?.toLong()]
@@ -391,7 +419,7 @@ fun MessageItem(
                 text = curDate,
                 modifier = Modifier
                     .background(
-                        color = Color(0xFF8DA9BF),
+                        color = Color(0xFF00AD97),
                         shape = RoundedCornerShape(10.dp)
                     )
                     .padding(8.dp)
@@ -418,19 +446,25 @@ fun MessageItem(
             } else if (previousMessage?.senderId != message.senderId) {
                 // 타인의 메시지
                 AsyncImage(
-                    model = if (userInfo?.profileImage.isNullOrEmpty()) R.drawable.basic_profile else userInfo?.profileImage,
+                    model = ImageRequest.Builder(context)
+                        .data("https://kr.object.ncloudstorage.com/booking-bucket/images/${message.senderId}_profile.png")
+                        .memoryCachePolicy(CachePolicy.DISABLED)
+                        .addHeader("Host", "kr.object.ncloudstorage.com")
+                        .crossfade(true)
+                        .build(),
                     contentScale = ContentScale.Crop,
                     contentDescription = null,
-                    placeholder = ColorPainter(Color.LightGray),
+                    imageLoader=imageLoader,
                     modifier = Modifier
                         .size(48.dp)
-                        .clip(RoundedCornerShape(20.dp))
-                        .border(1.dp, Color.Gray, RoundedCornerShape(20.dp))
+                        .clip(CircleShape)
+//                        .border(1.dp, Color.Gray, RoundedCornerShape(20.dp))
                         .clickable {
                             if (userInfo?.memberPk != null) {
                                 navController.navigate("profile/${userInfo.memberPk}")
                             }
-                        }
+                        },
+                        error = painterResource(id = R.drawable.basic_profile)
                 )
             } else {
                 Spacer(modifier = Modifier.width(48.dp))
@@ -520,7 +554,7 @@ fun MessageItem(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InputText(
-    modifier: Modifier,
+    modifier: Modifier= Modifier,
     socketViewModel: SocketViewModel,
     listState: LazyListState,
     messages: List<MessageEntity>,

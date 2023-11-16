@@ -1,9 +1,11 @@
 package com.ssafy.booking.di
 
 import com.ssafy.domain.repository.BookSearchRepository
+import com.ssafy.domain.repository.BookingBoardRepository
 import com.ssafy.domain.repository.BookingRepository
 import com.ssafy.domain.repository.ChatRepository
 import com.ssafy.domain.repository.GoogleRepository
+import com.ssafy.domain.repository.KakaoPayRepository
 import com.ssafy.domain.repository.HistoryRepository
 import com.ssafy.domain.repository.LocationRepository
 import com.ssafy.domain.repository.MemberRepository
@@ -11,9 +13,11 @@ import com.ssafy.domain.repository.MyBookRepository
 import com.ssafy.domain.repository.MyPageRepository
 import com.ssafy.domain.repository.NaverCloudRepository
 import com.ssafy.domain.usecase.BookSearchUseCase
+import com.ssafy.domain.usecase.BookingBoardUseCase
 import com.ssafy.domain.usecase.BookingUseCase
 import com.ssafy.domain.usecase.ChatUseCase
 import com.ssafy.domain.usecase.GetTokenRepoUseCase
+import com.ssafy.domain.usecase.KakaoPayUseCase
 import com.ssafy.domain.usecase.HistoryUseCase
 import com.ssafy.domain.usecase.LocationUseCase
 import com.ssafy.domain.usecase.MyBookUseCase
@@ -65,6 +69,14 @@ class UseCaseModule {
     @Provides
     @Singleton
     fun provideNaverCloudUseCase(repository: NaverCloudRepository) = NaverCloudUseCase(repository)
+
+    @Provides
+    @Singleton
+    fun provideKakaoPayUseCase(repository: KakaoPayRepository) = KakaoPayUseCase(repository)
+
+    @Provides
+    @Singleton
+    fun provideBookingBoardUseCase(repository: BookingBoardRepository) = BookingBoardUseCase(repository)
 
     @Provides
     @Singleton
