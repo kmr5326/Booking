@@ -82,10 +82,9 @@ fun MyBookFloatingActionButton() {
         modifier = Modifier
             .padding(end = 16.dp, bottom = 10.dp)
             .size(65.dp),
-        containerColor = colorResource(id = R.color.booking_2),
+        containerColor = colorResource(id = R.color.booking_1),
         shape = CircleShape
         // 그냥 동그라미할지, + 모임생성할지 고민.
-
     ) {
         Icon(
             Icons.Filled.Add,

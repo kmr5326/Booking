@@ -149,7 +149,9 @@ fun BookingBoard(meetingId : Long,
                             Text(
                                 "${board.nickname}",
                                 modifier = Modifier.clickable{
-                                    navController.navigate("profile/${board.memberId}")
+                                    navController.navigate("profile/${board.memberId}") {
+                                        popUpTo("booking/mybooking") { inclusive = true }
+                                    }
                                 }
                             )
                             Spacer(modifier = Modifier.size(5.dp))
