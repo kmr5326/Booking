@@ -1,8 +1,8 @@
-package com.booking.chat.chat.service;
+package com.booking.chat.message.service;
 
 
-import com.booking.chat.chat.domain.Message;
-import com.booking.chat.chat.repository.MessageRepository;
+import com.booking.chat.message.domain.Message;
+import com.booking.chat.message.repository.MessageRepository;
 import com.booking.chat.chatroom.domain.Chatroom;
 import com.booking.chat.chatroom.service.ChatroomService;
 import com.booking.chat.kafka.domain.KafkaMessage;

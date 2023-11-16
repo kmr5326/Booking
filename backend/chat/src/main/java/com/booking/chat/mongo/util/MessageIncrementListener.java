@@ -1,22 +1,19 @@
 package com.booking.chat.mongo.util;
 
-import com.booking.chat.chat.domain.Message;
-import com.booking.chat.chatroom.service.ChatroomService;
-import com.booking.chat.mongo.service.SequenceGeneratorService;
+import com.booking.chat.message.domain.Message;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.mongodb.core.mapping.event.AbstractMongoEventListener;
-import org.springframework.data.mongodb.core.mapping.event.BeforeConvertEvent;
 import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
 @Component
 public class MessageIncrementListener extends AbstractMongoEventListener<Message> {
 
-    private final SequenceGeneratorService sequenceGeneratorService;
-    private final ChatroomService chatroomService;
-
-    @Override
-    public void onBeforeConvert(BeforeConvertEvent<Message> event) {
+//    private final SequenceGeneratorService sequenceGeneratorService;
+//    private final ChatroomService chatroomService;
+//
+//    @Override
+//    public void onBeforeConvert(BeforeConvertEvent<Message> event) {
 //        long chatroomId = event.getSource().getChatroomId();
 //        chatroomService.findByChatroomId(chatroomId)
 //            .publishOn(Schedulers.boundedElastic())
@@ -37,4 +34,4 @@ public class MessageIncrementListener extends AbstractMongoEventListener<Message
 //            chatroomService.save(chatroom).subscribe();
 //        }).subscribe();
 //    }
-}
+//}
