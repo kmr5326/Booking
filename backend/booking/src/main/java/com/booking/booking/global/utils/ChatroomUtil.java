@@ -25,7 +25,7 @@ public class ChatroomUtil {
     }
 
     public static Mono<Void> initializeChatroom(InitChatroomRequest initChatroomRequest){
-        log.info("[Booking:Meeting] initializeChatroom({})", initChatroomRequest);
+        log.info("[Booking:ChatroomUtil] initializeChatroom({})", initChatroomRequest);
 
         WebClient webClient = WebClient.builder().build();
         URI uri = URI.create(GATEWAY_URL + "/api/chat/room/");
@@ -43,7 +43,7 @@ public class ChatroomUtil {
     }
 
     public static Mono<Void> joinChatroom(JoinChatroomRequest joinChatroomRequest){
-        log.info("[Booking:Meeting] joinChatroom({})", joinChatroomRequest);
+        log.info("[Booking:ChatroomUtil] joinChatroom({})", joinChatroomRequest);
 
         WebClient webClient = WebClient.builder().build();
         URI uri = URI.create(GATEWAY_URL + "/api/chat/room/join");
@@ -61,7 +61,7 @@ public class ChatroomUtil {
     }
 
     public static Mono<Void> exitChatroom(ExitChatroomRequest exitChatroomRequest){
-        log.info("[Booking:Meeting] exitChatroom({})", exitChatroomRequest);
+        log.info("[Booking:ChatroomUtil] exitChatroom({})", exitChatroomRequest);
 
         WebClient webClient = WebClient.builder().build();
         URI uri = URI.create(GATEWAY_URL + "/api/chat/room/exit");
@@ -79,7 +79,7 @@ public class ChatroomUtil {
     }
 
     public static Mono<Void> modifyChatroom(ModifyChatroomRequest modifyChatroomRequest){
-        log.info("[Booking:Meeting] ModifyChatroomRequest({})", modifyChatroomRequest);
+        log.info("[Booking:ChatroomUtil] ModifyChatroomRequest({})", modifyChatroomRequest);
 
         WebClient webClient = WebClient.builder().build();
         URI uri = URI.create(GATEWAY_URL + "/api/chat/room/modify");
