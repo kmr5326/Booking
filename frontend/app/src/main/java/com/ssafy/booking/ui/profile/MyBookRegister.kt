@@ -53,6 +53,7 @@ import com.ssafy.booking.viewmodel.MyBookViewModel
 import com.ssafy.data.repository.token.TokenDataSource
 import com.ssafy.domain.model.mybook.MyBookMemoRegisterRequest
 import com.ssafy.domain.model.mybook.MyBookRegisterRequest
+import kotlinx.coroutines.delay
 import java.time.LocalDate.now
 
 
@@ -194,6 +195,11 @@ fun CreateMyBook(
             memberPk?.let {
                 Button(
                     onClick={
+                        val bookRegisterInfo = MyBookRegisterRequest(
+                            memberPk = memberPk,
+                            bookIsbn = book.isbn,
+                        )
+                        viewModel.postBookRegister(bookRegisterInfo)
                         if (memo != "") {
                             val memoType = MyBookMemoRegisterRequest(
                                 memberPk = memberPk,
@@ -202,11 +208,6 @@ fun CreateMyBook(
                             )
                             viewModel.postBookMemo(memoType, now().toString())
                         }
-                        val bookRegisterInfo = MyBookRegisterRequest(
-                            memberPk = memberPk,
-                            bookIsbn = book.isbn,
-                        )
-                        viewModel.postBookRegister(bookRegisterInfo)
                     },
                     modifier = Modifier.padding(10.dp)
                 ) {

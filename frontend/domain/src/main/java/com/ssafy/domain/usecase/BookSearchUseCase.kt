@@ -1,5 +1,6 @@
 package com.ssafy.domain.usecase
 
+import com.ssafy.domain.model.booksearch.BookSearchPopularResponse
 import com.ssafy.domain.model.booksearch.BookSearchResponse
 import com.ssafy.domain.repository.BookSearchRepository
 import retrofit2.Response
@@ -18,5 +19,9 @@ class BookSearchUseCase @Inject constructor(
 
     suspend fun getBookSearchByIsbn(isbn : String) : Response<BookSearchResponse> {
         return repository.getBookSearchByIsbn(isbn)
+    }
+
+    suspend fun getBookPopular() : Response<List<BookSearchPopularResponse>> {
+        return repository.getBookPopular()
     }
 }

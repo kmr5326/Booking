@@ -237,13 +237,17 @@ fun BookItem(booking: BookingAll,navController: NavController) {
 
             Spacer(modifier = Modifier.height(8.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Outlined.LocationOn, contentDescription = "locate", modifier = Modifier.size(12.dp), tint = Color.Gray)
-                Text(
-//                    text = booking.lat.toString(),
-                    text = booking.address?:"",
-                    color = Color.Gray,
-                    fontSize = 12.sp
-                )
+                booking?.let {
+                    booking.address?.let {
+                        Icon(Icons.Outlined.LocationOn, contentDescription = "locate", modifier = Modifier.size(12.dp), tint = Color.Gray)
+                        Text(
+        //                    text = booking.lat.toString(),
+                            text = booking.address?:"",
+                            color = Color.Gray,
+                            fontSize = 12.sp
+                        )
+                    }
+                }
             }
             Spacer(modifier = Modifier.height(8.dp))
             Row(

@@ -1,14 +1,18 @@
 package com.ssafy.booking.ui.profile
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -16,6 +20,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -50,6 +55,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.ssafy.booking.R
 import com.ssafy.booking.ui.LocalNavigation
+import com.ssafy.booking.ui.common.BackTopBar
+import com.ssafy.booking.ui.common.HorizontalDivider
 import com.ssafy.booking.viewmodel.MyBookViewModel
 import com.ssafy.data.repository.token.TokenDataSource
 import com.ssafy.domain.model.mybook.MyBookListResponse
@@ -61,7 +68,8 @@ import java.time.LocalDate.now
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyBookDetail(
-    isbn: String?
+    isbn: String?,
+    yourPk: Long
 ) {
     val navController = LocalNavigation.current
     val viewModel: MyBookViewModel = hiltViewModel()
@@ -96,17 +104,40 @@ fun MyBookDetail(
 
     Scaffold(
         topBar = {
-            CenterAlignedTopAppBar(
-                title = { Text(text = "도서") },
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(
-                            imageVector = Icons.Filled.ArrowBack,
-                            contentDescription = "뒤로가기"
-                        )
+            if(yourPk == memberPk) {
+                CenterAlignedTopAppBar(
+                    title = { Text(text = "도서") },
+                    navigationIcon = {
+                        IconButton(onClick = { navController.popBackStack() }) {
+                            Icon(
+                                imageVector = Icons.Filled.ArrowBack,
+                                contentDescription = "뒤로가기"
+                            )
+                        }
+                    },
+                    actions = {
+                        IconButton(onClick = {
+                            myBookDetailResponse?.let {
+                                Log.d("멤버북아이디", "${it.body()}")
+                                if (it.isSuccessful) {
+                                    it.body()?.let {
+                                    Log.d("멤버북아이디", "${it.memberBookId}")
+                                        viewModel.deleteBookRegister(it.memberBookId)
+                                        navController.popBackStack()
+                                    }
+                                }
+                            }
+                        }) {
+                            Icon(
+                                imageVector = Icons.Filled.Close,
+                                contentDescription = "삭제"
+                            )
+                        }
                     }
-                }
-            )
+                )
+            } else {
+                BackTopBar(title = "도서")
+            }
         },
         modifier = Modifier.fillMaxSize()
     ) { paddingValues ->
@@ -139,27 +170,59 @@ fun DetailBookSuccessView(
 ) {
     var memo by remember { mutableStateOf("") }
 
-    AsyncImage(
-        model = myBookDetailResponse!!.bookInfo.coverImage,
-        contentDescription = "북 커버",
-        contentScale = ContentScale.Crop,
+    Column(
         modifier = Modifier
-            .height(450.dp)
-            .fillMaxWidth()
-    )
-    Spacer(modifier = Modifier.height(14.dp))
-    Text(
-        text = myBookDetailResponse!!.bookInfo.title,
-    )
-    Spacer(modifier = Modifier.height(14.dp))
-    Text(
-        text = myBookDetailResponse!!.bookInfo.author,
-    )
-    Spacer(modifier = Modifier.height(14.dp))
-    Text(
-        text = myBookDetailResponse!!.bookInfo.genre,
-    )
-    Spacer(modifier = Modifier.height(14.dp))
+            .width(180.dp)
+            .padding(10.dp)
+    ) {
+        // 북커버 이미지
+        AsyncImage(
+            model = myBookDetailResponse!!.bookInfo.coverImage,
+            contentDescription = "북 커버",
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .height(250.dp)
+                .fillMaxWidth()
+        )
+    }
+    Spacer(modifier = Modifier.size(15.dp))
+    // 제목
+    Text(text = myBookDetailResponse!!.bookInfo.title, fontSize = 20.sp)
+    Spacer(modifier = Modifier.padding(10.dp))
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.Start
+    ) {
+        // 저자
+        Text(text = "저자", color = Color.Gray)
+        Spacer(modifier = Modifier.size(5.dp))
+        Text(text = myBookDetailResponse!!.bookInfo.author)
+    }
+    Spacer(modifier = Modifier.padding(5.dp))
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        // 장르
+        Row(
+            modifier = Modifier.weight(1f)
+        ) {
+            Text(text = "장르", color = Color.Gray)
+            Spacer(modifier = Modifier.size(5.dp))
+            Text(text = myBookDetailResponse!!.bookInfo.genre)
+        }
+        // 출간 연도
+        Row (
+            modifier = Modifier.weight(1f)
+        ) {
+            Text(text = "발행", color = Color.Gray)
+            Spacer(modifier = Modifier.size(5.dp))
+            Text(text = myBookDetailResponse!!.bookInfo.publishDate)
+        }
+    }
+    Spacer(modifier = Modifier.padding(15.dp))
+    HorizontalDivider(thickness = 1.dp, color = Color.Gray)
+    Spacer(modifier = Modifier.padding(15.dp))
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -231,9 +294,27 @@ fun OneLineMemos(
         notesList.forEach {note->
             Row(modifier = Modifier
                 .fillMaxWidth()
-                .padding(10.dp)) {
-                Text("${note.createdAt.take(10)} : ")
-                Text(text = "${note.memo}")
+                .padding(10.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Row(
+//                    modifier = Modifier.fillMaxHeight(),
+                ) {
+                    Text("${note.createdAt.take(10)} : ")
+                    Text(text = "${note.memo}")
+                }
+                IconButton(
+                    onClick = {
+
+                    },
+                    modifier = Modifier.size(15.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Close,
+                        contentDescription = null
+                    )
+                }
             }
             Spacer(modifier = Modifier.padding(4.dp))
         }
