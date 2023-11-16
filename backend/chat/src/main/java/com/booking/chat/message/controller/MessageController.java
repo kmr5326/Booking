@@ -46,9 +46,4 @@ public class MessageController {
         return messageService.processAndSend(kafkaMessage, chatroomId);
     }
 
-    @GetMapping("/stress/")
-    public Mono<Void> getStress() {
-        return messageService.stressTest();
-    }
-
 }
