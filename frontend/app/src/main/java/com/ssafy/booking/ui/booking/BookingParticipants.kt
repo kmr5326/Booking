@@ -78,7 +78,8 @@ fun BookingParticipants(
     LaunchedEffect(getParticipantsResponse, participantsList) {
         getParticipantsResponse?.body()?.let { response ->
             Log.d("참가대기자", "$response")
-            participantsList = response // 상태 업데이트
+            var sortByParticipantsList = response.sortedBy { it.memberPk }
+            participantsList = sortByParticipantsList // 상태 업데이트
         }
     }
 
@@ -86,7 +87,8 @@ fun BookingParticipants(
     LaunchedEffect(getWaitingListResponse, waitingList) {
         getWaitingListResponse?.body()?.let { response ->
             Log.d("참가대기자", "$response")
-            waitingList = response // 상태 업데이트
+            var sortByWaitingList = response.sortedBy { it.memberPk }
+            waitingList = sortByWaitingList // 상태 업데이트
         }
     }
 

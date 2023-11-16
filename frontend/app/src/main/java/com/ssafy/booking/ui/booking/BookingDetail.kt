@@ -116,7 +116,6 @@ fun BookingDetail(meetingId: Long) {
             bookingViewModel,
             context,
             navController,
-
         )
     })
 
