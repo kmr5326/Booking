@@ -20,11 +20,9 @@ import java.time.Duration;
 @Slf4j
 @Component
 public class MemberUtil {
-
     private final WebClient webClient;
     private final String AUTHORIZATION = "Authorization";
     private final String RECIEVER = "kakao_3144707067";
-//    private final String RECIEVER = "google_113902342240727897270";
 
     public MemberUtil(@Value("${gateway.url}") String gatewayUrl) {
         ConnectionProvider provider = ConnectionProvider.builder("ApiConnections")
@@ -64,6 +62,8 @@ public class MemberUtil {
     }
 
     public Mono<String> payRequest(String token, Integer fee) {
+        log.info("[Booking:MemberUtil] payRequest({}, {})", token, fee);
+
         return webClient.post()
                 .uri("/api/payments/send")
                 .header(AUTHORIZATION, token)
@@ -79,6 +79,8 @@ public class MemberUtil {
     }
 
     public Mono<String> paybackRequest(Integer memberId, Integer amount) {
+        log.info("[Booking:MemberUtil] paybackRequest({}, {})", memberId, amount);
+
         return webClient.post()
                 .uri("/api/payments/resend")
                 .contentType(MediaType.APPLICATION_JSON)
