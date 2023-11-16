@@ -1,6 +1,7 @@
 package com.booking.chat.chatroom.service;
 
 import com.booking.chat.chatroom.dto.request.ModifyChatroomRequest;
+import com.booking.chat.kafka.domain.KafkaMessage;
 import com.booking.chat.message.domain.Message;
 import com.booking.chat.message.dto.response.MessageResponse;
 import com.booking.chat.message.repository.MessageRepository;
@@ -21,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.http.HttpStatus;
+import org.springframework.kafka.core.reactive.ReactiveKafkaProducerTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
@@ -35,6 +37,7 @@ public class ChatroomService {
     private final ChatroomRepository chatroomRepository;
     private final MessageRepository messageRepository;
     private final ReactiveRedisTemplate<String, Set<Long>> reactiveRedisTemplate;
+    private final ReactiveKafkaProducerTemplate<String, KafkaMessage> reactiveKafkaProducerTemplate;
     private final KafkaService kafkaService;
 
     public Mono<Chatroom> initializeChatroom(InitChatroomRequest initChatroomRequest) {
