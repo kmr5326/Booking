@@ -179,7 +179,7 @@ fun BookingBoard(meetingId : Long,
         FloatingActionButton(
             onClick = { navController.navigate("booking/board/create/$meetingId") },
             modifier = Modifier
-                .offset(x = 300.dp, y = 300.dp)
+                .offset(x = 250.dp, y = 300.dp)
                 .size(65.dp)
             ,
             containerColor = Color(0xFF12BD7E),

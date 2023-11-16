@@ -124,24 +124,50 @@ fun MyProfile(profileData: ProfileData) {
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.padding(8.dp)
         ) {
-            AsyncImage(
-                model = ImageRequest.Builder(context)
-                    .data("https://kr.object.ncloudstorage.com/booking-bucket/images/${profileData.myProfile?.memberPk}_profile.png")
-                    .memoryCachePolicy(CachePolicy.DISABLED)
-                    .addHeader("Host", "kr.object.ncloudstorage.com")
-                    .crossfade(true)
-                    .build(),
-                contentScale = ContentScale.Crop,
-                contentDescription = null,
-                imageLoader=imageLoader,
-                modifier = Modifier
-                    .size(100.dp)
-                    .clip(CircleShape),
-                error = painterResource(id = R.drawable.basic_profile)
-            )
+            if(profileData.isI == true) {
+                AsyncImage(
+                    model = ImageRequest.Builder(context)
+                        .data("https://kr.object.ncloudstorage.com/booking-bucket/images/${profileData.myProfile?.memberPk}_profile.png")
+                        .memoryCachePolicy(CachePolicy.DISABLED)
+                        .addHeader("Host", "kr.object.ncloudstorage.com")
+                        .crossfade(true)
+                        .build(),
+                    contentScale = ContentScale.Crop,
+                    contentDescription = null,
+                    imageLoader=imageLoader,
+                    modifier = Modifier
+                        .size(100.dp)
+                        .clip(CircleShape)
+                        .clickable{
+                            navController.navigate("profile/modifier")
+                        }
+                    ,
+                    error = painterResource(id = R.drawable.basic_profile)
+                )
+            } else {
+                AsyncImage(
+                    model = ImageRequest.Builder(context)
+                        .data("https://kr.object.ncloudstorage.com/booking-bucket/images/${profileData.myProfile?.memberPk}_profile.png")
+                        .memoryCachePolicy(CachePolicy.DISABLED)
+                        .addHeader("Host", "kr.object.ncloudstorage.com")
+                        .crossfade(true)
+                        .build(),
+                    contentScale = ContentScale.Crop,
+                    contentDescription = null,
+                    imageLoader=imageLoader,
+                    modifier = Modifier
+                        .size(100.dp)
+                        .clip(CircleShape),
+                    error = painterResource(id = R.drawable.basic_profile)
+                )
+            }
             Spacer(modifier = Modifier.size(40.dp))
             Column {
-                Text(text = "@${profileData.myProfile?.nickname}", color = colorResource(id = R.color.font_color),fontWeight = FontWeight.Bold,fontSize=18.sp)
+                if(profileData.isI == true) {
+                    Text(text = "@${profileData.myProfile?.nickname}  🛠 ", color = colorResource(id = R.color.font_color), modifier = Modifier.clickable{navController.navigate("profile/modifier")},fontWeight = FontWeight.Bold,fontSize=18.sp)
+                } else {
+                    Text(text = "@${profileData.myProfile?.nickname}", color = colorResource(id = R.color.font_color),fontWeight = FontWeight.Bold,fontSize=18.sp)
+                }
                 Spacer(modifier = Modifier.size(4.dp))
                 Text(text = "읽은 책 : ${profileData.readBook!!.size}권", color = colorResource(id = R.color.font_color))
                 Spacer(modifier = Modifier.size(4.dp))
@@ -212,19 +238,19 @@ modifier = Modifier.fillMaxWidth()
                     }
                 }
             }
-            Spacer(modifier = Modifier.size(20.dp))
-            if(profileData.isI == true) {
-                IconButton(
-                    onClick = { navController.navigate("profile/modifier") },
-                    modifier = Modifier.align(Alignment.Top)
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Edit,
-                        contentDescription = null,
-                        tint = colorResource(id = R.color.font_color)
-                    )
-                }
-            }
+//            Spacer(modifier = Modifier.size(20.dp))
+//            if(profileData.isI == true) {
+//                IconButton(
+//                    onClick = { navController.navigate("profile/modifier") },
+//                    modifier = Modifier.align(Alignment.Top)
+//                ) {
+//                    Icon(
+//                        imageVector = Icons.Filled.Edit,
+//                        contentDescription = null,
+//                        tint = colorResource(id = R.color.font_color)
+//                    )
+//                }
+//            }
         }
     }
 }
