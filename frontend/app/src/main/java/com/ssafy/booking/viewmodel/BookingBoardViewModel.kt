@@ -23,8 +23,8 @@ class BookingBoardViewModel @Inject constructor(
 ) :ViewModel() {
 
     // C
-    private val _postBookingBoardCreateResponse = MutableLiveData<Response<BookingBoardCreateResponse>>()
-    val postBookingBoardCreateResponse: LiveData<Response<BookingBoardCreateResponse>> get() = _postBookingBoardCreateResponse
+    private val _postBookingBoardCreateResponse = MutableLiveData<Response<Unit>>()
+    val postBookingBoardCreateResponse: LiveData<Response<Unit>> get() = _postBookingBoardCreateResponse
 
     fun postBookingBoardCreate(request: BookingBoardCreateRequest) =
         viewModelScope.launch {

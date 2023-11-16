@@ -14,7 +14,7 @@ import javax.inject.Inject
 class BookingBoardRepositoryImpl @Inject constructor(
     private val bookingBoardApi : BookingBoardApi
 ) : BookingBoardRepository {
-    override suspend fun postBookingBoardCreate(request: BookingBoardCreateRequest): Response<BookingBoardCreateResponse> {
+    override suspend fun postBookingBoardCreate(request: BookingBoardCreateRequest): Response<Unit> {
         return bookingBoardApi.postBookingBoardCreate(request)
     }
 

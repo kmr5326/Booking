@@ -14,7 +14,7 @@ class BookingBoardUseCase @Inject constructor(
     private val repository: BookingBoardRepository
 ) {
 
-    suspend fun postBookingBoardCreate(request: BookingBoardCreateRequest) : Response<BookingBoardCreateResponse> {
+    suspend fun postBookingBoardCreate(request: BookingBoardCreateRequest) : Response<Unit> {
         return repository.postBookingBoardCreate(request)
     }
     suspend fun getBookingBoardReadList(meetingId : Long) : Response<List<BookingBoardReadListResponse>> {

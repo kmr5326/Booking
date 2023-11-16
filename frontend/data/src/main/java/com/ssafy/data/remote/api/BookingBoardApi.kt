@@ -20,7 +20,7 @@ interface BookingBoardApi {
 
     @Headers("Content-Type: application/json;charset=UTF-8")
     @POST("/api/booking/meeting/post/")
-    suspend fun postBookingBoardCreate(@Body request: BookingBoardCreateRequest): Response<BookingBoardCreateResponse>
+    suspend fun postBookingBoardCreate(@Body request: BookingBoardCreateRequest): Response<Unit>
 
     @Headers("Content-Type: application/json;charset=UTF-8")
     @GET("/api/booking/meeting/{meetingId}/post")

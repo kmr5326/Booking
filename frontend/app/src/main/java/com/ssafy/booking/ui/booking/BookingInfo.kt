@@ -22,6 +22,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
+import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -33,10 +34,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberImagePainter
 import com.google.gson.Gson
@@ -58,14 +62,15 @@ import com.ssafy.domain.model.booking.BookingDetail
 import com.ssafy.domain.model.booking.HashtagResponse
 import com.ssafy.domain.model.booking.MeetingInfoResponse
 import io.grpc.Context
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun BookingInfo(
     meetingId : Long,
     memberRole : String,
     meetingState : String
-)
-{
+) {
     // 뷰모델 연결
     val bookingViewModel: BookingViewModel = hiltViewModel()
     val getBookingDetailResponse by bookingViewModel.getBookingDetailResponse.observeAsState()
@@ -92,93 +97,170 @@ fun BookingInfo(
     }
     Column(
         modifier = Modifier
-            .padding(16.dp),
+            .padding(16.dp)
+            .fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Row(
-            verticalAlignment = Alignment.Top,
-            horizontalArrangement = Arrangement.Center,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            val imagePainter = if (bookingDetail?.coverImage != null) {
-                rememberImagePainter(
-                    data = bookingDetail?.coverImage,
-                    builder = {
-                        crossfade(true)
-                    }
-                )
-            } else {
-                painterResource(id = R.drawable.main1) // 기본 이미지
-            }
-
-            Image(
-                painter = imagePainter,
-                contentDescription = "Book Image",
-                modifier = Modifier
-                    .size(80.dp, 100.dp)
-                    .clip(RoundedCornerShape(10.dp)),
-                contentScale = ContentScale.Crop
+        // 이미지
+        val imagePainter = if (bookingDetail?.coverImage != null) {
+            rememberImagePainter(
+                data = bookingDetail?.coverImage,
+                builder = { crossfade(true) }
             )
-            Spacer(modifier = Modifier.width(8.dp)) // 이미지와 텍스트 사이 간격
-            Column {
-                Text(text = "${bookingDetail?.bookTitle.orEmpty()}")
-                Text(text = "${bookingDetail?.bookAuthor.orEmpty()}")
-                Text(
-                    text = "${bookingDetail?.bookContent.orEmpty()}",
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
+        } else {
+            painterResource(id = R.drawable.main1) // 기본 이미지
         }
-        Spacer(modifier = Modifier.height(16.dp)) // 요소 사이 간격
-        Column {
-            Text(text = "모임 제목 : ${bookingDetail?.meetingTitle.orEmpty()}")
-            Text(text = "모임 소개글 : ${bookingDetail?.description.orEmpty()}")
-            Text(text = "모임 최대 인원 : ${bookingDetail?.maxParticipants ?: "정보 없음"}")
 
+        Image(
+            painter = imagePainter,
+            contentDescription = "Book Image",
+            modifier = Modifier
+                .size(120.dp, 150.dp)
+                .clip(RoundedCornerShape(10.dp)),
+            contentScale = ContentScale.Crop
+        )
+
+        Spacer(modifier = Modifier.height(8.dp)) // 이미지와 텍스트 사이 간격
+
+        // 책 제목
+        Text(
+            text = "${bookingDetail?.bookTitle.orEmpty()}",
+            fontSize = 17.sp,
+            fontWeight = FontWeight.Bold,
+            // 글씨 크기 조정
+        )
+
+        // 책 작가
+        Text(
+            text = "${bookingDetail?.bookAuthor.orEmpty()}",
+            fontSize = 12.sp
+        )
+
+        Divider(
+            color = Color.LightGray,
+            thickness = 0.8.dp,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 13.dp)
+        )
+        Column {
+            Text(text = bookingDetail?.meetingTitle.orEmpty(), fontSize = 20.sp, fontWeight = FontWeight.Bold) // 모임 제목
+            Spacer(modifier = Modifier.height(8.dp))
             Row(
                 horizontalArrangement = Arrangement.Start,
                 modifier = Modifier.fillMaxWidth()
-            ) {
+                    .padding(8.dp),
+
+                ) {
                 bookingDetail?.hashtagList?.forEach { hashtag ->
-                    HashtagChip(tag = hashtag.content,id = hashtag.hashtagId) // 해시태그 칩 표시
+                    HashtagChip(tag = hashtag.content, id = hashtag.hashtagId) // 해시태그 칩 표시
                 } ?: Text(text = "해시태그 없음")
             }
+//            Text(text = "참가 인원 : ${bookingDetail?.curParticipants?: "정보없음"}명",fontSize = 14.sp) // 참가 인원
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(text = bookingDetail?.description.orEmpty(), fontSize = 14.sp) // 모임 설명
+            Spacer(modifier = Modifier.height(4.dp))
 
         }
         MeetingInfoTimeline(bookingDetail = bookingDetail, meetingId) // 모임 정보 타임라인
-
     }
+}
 
 
-    }
+
 
 @Composable
 fun MeetingInfoCard(meetingInfo: MeetingInfoResponse, meetingId:Long, isFirstItem: Boolean, index: Int) {
     val navController = LocalNavigation.current
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp)
-            .clickable(onClick = {
-                navController.navigate("history/detail/${meetingId}/${meetingInfo.meetinginfoId}/${index}")
-            }),
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
+    val meetingDate = meetingInfo.date
+    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
+    val dateTime = LocalDateTime.parse(meetingDate, formatter)
+
+    val outputFormatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 HH시 mm분")
+    val date = dateTime.format(outputFormatter)
+    // MeetingInfoList의 처음과 나머지 구분.
+    if (isFirstItem) {
+        // 첫 번째 항목에만 표시할 추가 텍스트
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
+
+            horizontalArrangement = Arrangement.SpaceBetween
+
+        ){
+            Text(text = "모임 일시",fontSize = 15.sp, fontWeight = FontWeight.Bold)
+            Text(text = date ?: "아직 정해지지 않았습니다.", fontSize = 15.sp)
+        }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
+
+            horizontalArrangement = Arrangement.SpaceBetween
+
+        ){
+            Text(text = "참가비",fontSize = 15.sp, fontWeight = FontWeight.Bold)
+            Text(text = "${meetingInfo.fee ?: "아직 정해지지 않았습니다."}원",fontSize=15.sp)
+
+        }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
+
+        ){
+            Text(text = "모임 장소",fontSize = 15.sp, fontWeight = FontWeight.Bold)
+            Text(text = meetingInfo.location ?: "아직 정해지지 않았습니다.", fontSize = 15.sp)
+        }
+        Map(meetingInfo = meetingInfo)
+    }
+    else {
+        if (index == 1) {
+            Divider(
+                color = Color.LightGray,
+                thickness = 0.8.dp,
+                modifier = Modifier
+                    .fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(text = "이전 모임", fontSize = 24.sp)
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable(onClick = {
+                    navController.navigate("history/detail/${meetingId}/${meetingInfo.meetinginfoId}/${index}")
+                }),
         ) {
-            if (isFirstItem) {
-                // 첫 번째 항목에만 표시할 추가 텍스트
-                Text(text = "첫 번째 모임 정보입니다")
-                Map(meetingInfo = meetingInfo)
+            Column(
+                modifier = Modifier.padding(16.dp)
+            ) {
+
+                Row( modifier = Modifier
+                    .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween) {
+                    Text(text = "모임 일정", fontSize = 15.sp)
+                    Text(text = date ?: "모임 일정이 아직 정해지지 않았습니다.")
+                }
+                Row( modifier = Modifier
+                    .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween){
+                    Text(text = "참가비")
+                    Text(text = "${meetingInfo.fee ?: "아직 정해지지 않았습니다."}원", fontSize = 15.sp)
+                }
+                Row( modifier = Modifier
+                    .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween){
+                    Text(text = "모임 장소", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                    Text(text = meetingInfo.location ?: "아직 정해지지 않았습니다.")
+                }
+
+
 
             }
-            Text(text = "모임 일정")
-            Text(text = meetingInfo.date ?: "모임 일정이 아직 정해지지 않았습니다.")
-            Text(text = "참가비")
-            Text(text = "${meetingInfo.fee?: "아직 정해지지 않았습니다."}")
-            Text(text = "모임 장소")
-            Text(text = meetingInfo.location ?: "아직 정해지지 않았습니다.")
         }
     }
 }
@@ -228,12 +310,12 @@ fun MeetingInfoTimeline(
 fun Map(meetingInfo: MeetingInfoResponse) {
     var mapProperties by remember {
         mutableStateOf(
-            MapProperties(maxZoom = 20.0, minZoom = 5.0)
+            MapProperties(maxZoom = 20.0, minZoom = 2.0)
         )
     }
     var mapUiSettings by remember {
         mutableStateOf(
-            MapUiSettings(isLocationButtonEnabled = true)
+            MapUiSettings(isLocationButtonEnabled = false)
         )
     }
 
@@ -241,10 +323,16 @@ fun Map(meetingInfo: MeetingInfoResponse) {
     val currentLocation = LatLng(meetingInfo.lat, meetingInfo.lgt)
     val cameraPositionState: CameraPositionState = rememberCameraPositionState {
         // 카메라 초기 위치를 meetingInfo의 위치로 설정합니다.
-        position = CameraPosition(currentLocation, 20.0)
+        position = CameraPosition(currentLocation, 16.0)
     }
 
-    Box() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(200.dp)
+            .padding(8.dp)
+
+    ) {
         NaverMap(properties = mapProperties, uiSettings = mapUiSettings, cameraPositionState = cameraPositionState) {
             // meetingInfo 위치에 마커 찍기
             Marker(

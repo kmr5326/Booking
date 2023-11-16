@@ -2,6 +2,7 @@ package com.ssafy.booking.ui.booking
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -43,6 +44,7 @@ import coil.request.CachePolicy
 import coil.request.ImageRequest
 import com.ssafy.booking.R
 import com.ssafy.booking.ui.LocalNavigation
+import com.ssafy.booking.ui.common.HorizontalDivider
 import com.ssafy.booking.ui.profile.MyBookFloatingActionButton
 import com.ssafy.booking.viewmodel.AppViewModel
 import com.ssafy.booking.viewmodel.BookingBoardViewModel
@@ -64,83 +66,134 @@ fun BookingBoard(meetingId : Long,
     }
 
     if (memberRole == "LEADER" || memberRole == "PARTICIPANT") {
-        Scaffold(
-            floatingActionButton = {
-                BoardCreateButton(meetingId)
-            }
-        ) {paddingValues ->
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(3),
-                verticalArrangement = Arrangement.spacedBy(20.dp),
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-                modifier = Modifier
-                    .padding(paddingValues)
-                    .padding(30.dp),
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(20.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxSize()
             ) {
-                boardList.value?.let {
-                    it.body()?.let {
-                        items(3) {idx ->
-                            if(idx%3 == 0) {
-                                Text(text = "글 제목")
-                            } else if (idx%3 == 1) {
-                                Text(text = "작성자")
-                            } else if (idx%3 == 2) {
-                                Text(text = "작성 날짜")
-                            }
-                        }
-                        items(it.size * 3) {idx->
-                            if(idx%3 == 0) {
-                                Text(
-                                    text = "${it[idx/3].title}",
-                                    modifier = Modifier.clickable{
-                                        navController.navigate("booking/board/detail/${it[idx/3].postId}")
-                                    }
-                                )
-                            } else if(idx%3 == 1) {
-                                Row(
-                                    modifier = Modifier.clickable{
-                                        navController.navigate("profile/${it[idx/3].memberId}")
-                                    },
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    AsyncImage(
-                                        model = ImageRequest.Builder(context)
-                                            .data("https://kr.object.ncloudstorage.com/booking-bucket/images/${it[idx/3].memberId}_profile.png")
-                                            .memoryCachePolicy(CachePolicy.DISABLED)
-                                            .addHeader("Host", "kr.object.ncloudstorage.com")
-                                            .crossfade(true)
-                                            .build(),
-                                        contentScale = ContentScale.Crop,
-                                        contentDescription = null,
-                                        imageLoader=imageLoader,
-                                        modifier = Modifier
-                                            .size(24.dp)
-                                            .clip(CircleShape),
-                                        error = painterResource(id = R.drawable.basic_profile)
-                                    )
-                                    Spacer(modifier = Modifier.size(8.dp))
-                                    Text(
-                                        text = "${it[idx/3].nickname}"
-                                    )
-                                }
-                            } else if(idx%3 == 2) {
-                                Text(
-                                    text = "${it[idx/3].createdAt?.substring(2, 10)}",
-                                    modifier = Modifier.clickable{
-                                        navController.navigate("booking/board/detail/${it[idx/3].postId}")
-                                    }
-                                )
-                            }
-                        }
-                    }
+
+                Column(
+                    modifier = Modifier.fillMaxWidth()
+                        .weight(1f)
+                ) {
+
                 }
+                Column(
+                    modifier = Modifier.fillMaxWidth()
+                        .weight(3f)
+                ) {
+
+                }
+                Column(
+                    modifier = Modifier.fillMaxWidth()
+                        .weight(2f)
+                ) {
+
+                }
+                Column(
+                    modifier = Modifier.fillMaxWidth()
+                        .weight(2f)
+                ) {
+
+                }
+//                Spacer(modifier = Modifier.size(5.dp))
+//                HorizontalDivider(thickness = 1.dp, color = Color.Gray)
+//                Spacer(modifier = Modifier.size(5.dp))
+            }
+            FloatingActionButton(
+                onClick = { navController.navigate("booking/board/create/$meetingId") },
+                modifier = Modifier
+                    .padding(end = 16.dp, bottom = 10.dp)
+                    .size(65.dp)
+                    .align(Alignment.BottomEnd)
+                ,
+                containerColor = Color(0xFF12BD7E),
+                shape = CircleShape
+            ) {
+                Icon(
+                    Icons.Outlined.Create,
+                    contentDescription = "Localized description",
+                    modifier = Modifier.size(40.dp),
+                    tint = Color.White
+
+                )
             }
         }
+//            LazyVerticalGrid(
+//                columns = GridCells.Fixed(3),
+//                verticalArrangement = Arrangement.spacedBy(20.dp),
+//                horizontalArrangement = Arrangement.spacedBy(10.dp),
+//                modifier = Modifier
+//                    .padding(paddingValues)
+//                    .padding(30.dp),
+//            ) {
+//                boardList.value?.let {
+//                    it.body()?.let {
+//                        items(3) {idx ->
+//                            if(idx%3 == 0) {
+//                                Text(text = "글 제목")
+//                            } else if (idx%3 == 1) {
+//                                Text(text = "작성자")
+//                            } else if (idx%3 == 2) {
+//                                Text(text = "작성 날짜")
+//                            }
+//                        }
+//                        items(it.size * 3) {idx->
+//                            if(idx%3 == 0) {
+//                                Text(
+//                                    text = "${it[idx/3].title}",
+//                                    modifier = Modifier.clickable{
+//                                        navController.navigate("booking/board/detail/${it[idx/3].postId}")
+//                                    }
+//                                )
+//                            } else if(idx%3 == 1) {
+//                                Row(
+//                                    modifier = Modifier.clickable{
+//                                        navController.navigate("profile/${it[idx/3].memberId}")
+//                                    },
+//                                    verticalAlignment = Alignment.CenterVertically
+//                                ) {
+//                                    AsyncImage(
+//                                        model = ImageRequest.Builder(context)
+//                                            .data("https://kr.object.ncloudstorage.com/booking-bucket/images/${it[idx/3].memberId}_profile.png")
+//                                            .memoryCachePolicy(CachePolicy.DISABLED)
+//                                            .addHeader("Host", "kr.object.ncloudstorage.com")
+//                                            .crossfade(true)
+//                                            .build(),
+//                                        contentScale = ContentScale.Crop,
+//                                        contentDescription = null,
+//                                        imageLoader=imageLoader,
+//                                        modifier = Modifier
+//                                            .size(24.dp)
+//                                            .clip(CircleShape),
+//                                        error = painterResource(id = R.drawable.basic_profile)
+//                                    )
+//                                    Spacer(modifier = Modifier.size(8.dp))
+//                                    Text(
+//                                        text = "${it[idx/3].nickname}"
+//                                    )
+//                                }
+//                            } else if(idx%3 == 2) {
+//                                Text(
+//                                    text = "${it[idx/3].createdAt?.substring(2, 10)}",
+//                                    modifier = Modifier.clickable{
+//                                        navController.navigate("booking/board/detail/${it[idx/3].postId}")
+//                                    }
+//                                )
+//                            }
+//                        }
+//                    }
+//                }
+//            }
     } else {
         Column(
             modifier = Modifier
                 .padding(30.dp)
-                .fillMaxSize(),
+                .fillMaxSize()
+            ,
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -170,20 +223,5 @@ fun BoardCreateButton(
 ) {
     val navController = LocalNavigation.current
 
-    FloatingActionButton(
-        onClick = { navController.navigate("booking/board/create/$meetingId") },
-        modifier = Modifier
-            .padding(end = 16.dp, bottom = 10.dp)
-            .size(65.dp),
-        containerColor = Color(0xFF12BD7E),
-        shape = CircleShape
-    ) {
-        Icon(
-            Icons.Outlined.Create,
-            contentDescription = "Localized description",
-            modifier = Modifier.size(40.dp),
-            tint = Color.White
 
-        )
-    }
 }
