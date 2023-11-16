@@ -242,9 +242,13 @@ fun SetDateAndFeeBottomButton(
                     popUpTo("booking/setting/location") { inclusive = true }
                     launchSingleTop = true
                 }
+            } else {
+                Toast.makeText(context, "다시 시도해주세요.", Toast.LENGTH_SHORT).show()
             }
         }
     }
+
+
     Box(
         contentAlignment = Alignment.BottomCenter,
         modifier = Modifier

@@ -108,7 +108,8 @@ fun BookingDetail(meetingId: Long) {
         }
     }
 
-    Scaffold( bottomBar = {
+    Scaffold(
+        bottomBar = {
         BottomBar(
             memberRole,
             meetingState,
@@ -116,11 +117,11 @@ fun BookingDetail(meetingId: Long) {
             bookingViewModel,
             context,
             navController,
-        )
-    })
+        ) }
+    )
 
     { paddingValues ->
-        LazyColumn(modifier = Modifier.padding(paddingValues)) {
+        LazyColumn(modifier = Modifier.padding(paddingValues).fillMaxSize()) {
             item {
                 BackTopBar(title = "모임 상세")
             }

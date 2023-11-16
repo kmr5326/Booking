@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.exclude
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,10 +20,14 @@ import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -170,26 +175,26 @@ fun ChatDetail(
         }
     }
 // 무한 스크롤
-    LaunchedEffect(listState.firstVisibleItemScrollOffset) {
-        if(!isLoading) {delay(2000)}
-        Log.d("TEST", "무한 스크롤 조건 ${listState.firstVisibleItemIndex} , ${listState.firstVisibleItemScrollOffset}")
-        if (listState.firstVisibleItemScrollOffset <= 0 && listState.firstVisibleItemIndex <= 0) {
-            socketViewModel.loadMoreMessages(chatId.toInt())
-            delay(300)
-            socketViewModel.loadMoreMessages(chatId.toInt())
-            delay(300)
-            listState.scrollToItem(listState.firstVisibleItemIndex + 1)
-            socketViewModel.loadMoreMessages(chatId.toInt())
-            delay(300)
-            socketViewModel.loadMoreMessages(chatId.toInt())
-            delay(300)
-            listState.scrollToItem(listState.firstVisibleItemIndex + 1)
-        }
-    }
+//    LaunchedEffect(listState.firstVisibleItemScrollOffset) {
+//        if(!isLoading) {delay(2000)}
+//        Log.d("TEST", "무한 스크롤 조건 ${listState.firstVisibleItemIndex} , ${listState.firstVisibleItemScrollOffset}")
+//        if (listState.firstVisibleItemScrollOffset <= 0 && listState.firstVisibleItemIndex <= 0) {
+//            socketViewModel.loadMoreMessages(chatId.toInt())
+//            delay(300)
+//            socketViewModel.loadMoreMessages(chatId.toInt())
+//            delay(300)
+//            listState.scrollToItem(listState.firstVisibleItemIndex + 1)
+//            socketViewModel.loadMoreMessages(chatId.toInt())
+//            delay(300)
+//            socketViewModel.loadMoreMessages(chatId.toInt())
+//            delay(300)
+//            listState.scrollToItem(listState.firstVisibleItemIndex + 1)
+//        }
+//    }
 
 
 // 맨 밑 스크롤 유지
-    LaunchedEffect(Unit) {
+    LaunchedEffect(messages) {
         delay(100)
         if (listState.isScrolledToTheBottom()) {
             if (messages.isNotEmpty()) {
@@ -252,7 +257,6 @@ fun ChatDetail(
                                     modifier = Modifier
                                         .size(48.dp)
                                         .clip(CircleShape)
-//                                        .border(1.dp, Color.Gray, RoundedCornerShape(20.dp))
                                         .clickable {
                                             if (user.value?.memberPk != null) {
                                                 navController.navigate("profile/${user.value.memberPk}")
@@ -368,7 +372,8 @@ fun MessageList(
     ) {
         LazyColumn(
             state = listState,
-            modifier = modifier.padding(16.dp)
+            modifier = modifier
+                .padding(16.dp)
         ) {
             itemsIndexed(messages) { index, message ->
                 val previousMessage = if (index > 0) messages[index - 1] else null
@@ -549,7 +554,7 @@ fun MessageItem(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InputText(
-    modifier: Modifier,
+    modifier: Modifier= Modifier,
     socketViewModel: SocketViewModel,
     listState: LazyListState,
     messages: List<MessageEntity>,

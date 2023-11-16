@@ -30,4 +30,8 @@ class MyBookUseCase @Inject constructor(
     suspend fun deleteBookRegister(memberBookId: String) : Response<Unit> {
         return repository.deleteBookRegister(memberBookId)
     }
+
+    suspend fun deleteBookNote(memberBookId: String, noteIndex: Int) : Response<Unit> {
+        return repository.deleteBookNote(memberBookId, noteIndex)
+    }
 }

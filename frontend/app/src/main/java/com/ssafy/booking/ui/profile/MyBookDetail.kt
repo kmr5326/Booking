@@ -23,6 +23,8 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -44,6 +46,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
@@ -168,6 +171,7 @@ fun DetailBookSuccessView(
     viewModel: MyBookViewModel,
     memberPk: Long
 ) {
+    val keyboardController = LocalSoftwareKeyboardController.current
     var memo by remember { mutableStateOf("") }
 
     Column(
@@ -233,40 +237,68 @@ fun DetailBookSuccessView(
         Text(text = "한줄평")
         Spacer(modifier = Modifier.padding(10.dp))
         OneLineMemos(myBookDetailResponse, memberPk, myBookDetailResponse.bookInfo.isbn)
-        OutlinedTextField(
-            value = memo, // 이 부분을 뷰모델의 상태로 연결하거나 필요에 따라 변경
-            onValueChange = { newValue ->
-                memo = newValue
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 12.dp)
-                .padding(top = 4.dp)
-                .padding(bottom = 16.dp)
-                .height(50.dp),
-            singleLine = true,
-            colors = TextFieldDefaults.outlinedTextFieldColors(
-                focusedBorderColor = Color(0xFF12BD7E)
-            ),
-            textStyle = TextStyle(
-//                color = colorResource(id = R.color.font_color),
-                fontSize = 14.sp,
-                baselineShift = BaselineShift.None
-            ),
-            keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
-            keyboardActions = KeyboardActions(
-                onDone = {
-                    val result = MyBookMemoRegisterRequest(
-                        memberPk = memberPk,
-                        isbn = myBookDetailResponse.bookInfo.isbn,
-                        content = memo
-                    )
-                    viewModel.postBookMemo(result, now().toString())
-                    memo = ""
-                }
-            ),
-            shape = RoundedCornerShape(12.dp)
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(10.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            OutlinedTextField(
+                value = memo, // 이 부분을 뷰모델의 상태로 연결하거나 필요에 따라 변경
+                onValueChange = { newValue ->
+                    memo = newValue
+                },
+                modifier = Modifier
+                    .width(200.dp)
+                    .padding(horizontal = 12.dp)
+//                    .padding(top = 4.dp)
+//                    .padding(bottom = 16.dp)
+                    .height(50.dp),
+                singleLine = true,
+                colors = TextFieldDefaults.outlinedTextFieldColors(
+                    focusedBorderColor = Color(0xFF12BD7E)
+                ),
+                textStyle = TextStyle(
+    //                color = colorResource(id = R.color.font_color),
+                    fontSize = 14.sp,
+                    baselineShift = BaselineShift.None
+                ),
+                keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
+                keyboardActions = KeyboardActions(
+                    onDone = {
+                        if (memo != "") {
+                            val result = MyBookMemoRegisterRequest(
+                                memberPk = memberPk,
+                                isbn = myBookDetailResponse.bookInfo.isbn,
+                                content = memo
+                            )
+                            viewModel.postBookMemo(result, now().toString())
+                            memo = ""
+                            keyboardController?.hide()
+                        }
+                    }
+                ),
+                shape = RoundedCornerShape(12.dp)
+            )
+            Button(
+                onClick = {
+                    if (memo != "") {
+                        val result = MyBookMemoRegisterRequest(
+                            memberPk = memberPk,
+                            isbn = myBookDetailResponse.bookInfo.isbn,
+                            content = memo
+                        )
+                        viewModel.postBookMemo(result, now().toString())
+                        memo = ""
+                        keyboardController?.hide()
+                    }
+                },
+                modifier = Modifier
+                    .width(80.dp)
+                    .height(50.dp),
+                colors = ButtonDefaults.buttonColors(colorResource(id = R.color.booking_1))
+            ) {
+                Text(text = "등록")
+            }
+        }
     }
 }
 
@@ -284,14 +316,14 @@ fun OneLineMemos(
     val viewModel: MyBookViewModel = hiltViewModel()
     val notesList by viewModel.notesList.observeAsState(emptyList())
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(Unit, notesList, myBookDetailResponse) {
         isbn?.let {
             viewModel.getMyBookDetailResponse(memberPk,isbn)
         }
     }
 
     if(notesList != null) {
-        notesList.forEach {note->
+        notesList.forEachIndexed  {index, note->
             Row(modifier = Modifier
                 .fillMaxWidth()
                 .padding(10.dp),
@@ -306,7 +338,8 @@ fun OneLineMemos(
                 }
                 IconButton(
                     onClick = {
-
+                        viewModel.deleteBookNote(myBookDetailResponse.memberBookId, index)
+                        viewModel.removeNoteAtIndex(index)
                     },
                     modifier = Modifier.size(15.dp)
                 ) {

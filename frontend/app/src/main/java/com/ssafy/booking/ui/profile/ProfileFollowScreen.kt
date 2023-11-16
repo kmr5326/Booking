@@ -1,6 +1,7 @@
 package com.ssafy.booking.ui.profile
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -92,7 +93,12 @@ fun IsSuccessView(
 
 @Composable
 fun IsLoadingView() {
-    Text(text = "로딩중 ...")
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Text("로딩중...")
+    }
 }
 
 @Composable
