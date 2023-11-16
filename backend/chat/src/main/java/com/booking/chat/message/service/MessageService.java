@@ -38,7 +38,7 @@ public class MessageService {
 
     public Mono<Void> processAndSend(KafkaMessage kafkaMessage, Long chatroomId) {
         return save(kafkaMessage, chatroomId)
-            //.retry(3L)
+            .retry(3L)
             .then(Mono.defer(() -> proceedMessageSendProcess(kafkaMessage, chatroomId)))
             .doOnError(x -> log.info(" optimistic error by {} ", x.toString()))
             .then();
