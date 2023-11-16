@@ -395,7 +395,9 @@ public class MeetingService {
                         return Mono.error(new RuntimeException("종료된 모임"));
                     }
                     return meetingInfoService.createMeetingInfo(meetingInfoRequest.toEntity())
-                            .flatMap(participantStateService::startMeeting)
+                            .flatMap(meetingInfo -> participantService.findAllByMeetingId(meeting.getMeetingId())
+                                    .flatMap(participant -> participantStateService.startMeeting(meetingInfo.getMeetinginfoId(), participant))
+                                    .then())
                             .then(meetingRepository.save(meeting.updateState(MeetingState.ONGOING)))
                             .then();
                 })
@@ -564,10 +566,10 @@ public class MeetingService {
                                                     return participantStateService.findByMeetingIdAndMemberId(meetingInfo.getMeetinginfoId(), member.memberPk())
                                                             .switchIfEmpty(Mono.error(new RuntimeException("참여 중 아님")))
                                                             .flatMap(participantState -> {
-                                                                if (meetingInfo.getFee() == 0) {
-                                                                    return Mono.empty();
-                                                                } else if (participantState.getPaymentStatus()) {
+                                                                if (participantState.getPaymentStatus()) {
                                                                     return Mono.error(new RuntimeException("참가비 지불 완료"));
+                                                                } else if (meetingInfo.getFee() == 0) {
+                                                                    return participantStateService.payMeeting(participantState);
                                                                 }
                                                                 return memberUtil.payRequest(token, meetingInfo.getFee())
                                                                         .then(participantStateService.payMeeting(participantState));
