@@ -47,6 +47,20 @@ class MyBookViewModel @Inject constructor(
     private val _notesList = MutableLiveData<List<Notes>>()
     val notesList: LiveData<List<Notes>> get() = _notesList
 
+    fun removeNoteAtIndex(index: Int) {
+        val currentList = _notesList.value ?: return
+
+        // 'toMutableList()'를 사용하여 새로운 MutableList 인스턴스를 생성합니다.
+        val updatedList = currentList.toMutableList().apply {
+            // 인덱스를 확인하고 범위 내에 있는지 확인한 후 요소를 제거합니다.
+            if (index in 0 until size) {
+                removeAt(index)
+            }
+        }
+        // MutableLiveData를 업데이트합니다.
+        _notesList.value = updatedList
+    }
+
     private val _myBookDetailResponse = MutableLiveData<Response<MyBookListResponse>>()
     val myBookDetailResponse : LiveData<Response<MyBookListResponse>> get() = _myBookDetailResponse
     fun getMyBookDetailResponse(memberPk: Long, isbn: String) =
@@ -87,5 +101,13 @@ class MyBookViewModel @Inject constructor(
     fun deleteBookRegister(memberBookId: String) =
         viewModelScope.launch {
             _deleteBookRegisterResult.value = myBookUseCase.deleteBookRegister(memberBookId)
+        }
+
+    private val _delteBookNoteResult = MutableLiveData<Response<Unit>>()
+    val delteBookNoteResult : LiveData<Response<Unit>> get() = _delteBookNoteResult
+
+    fun deleteBookNote(memberBookId: String, noteIndex: Int) =
+        viewModelScope.launch {
+            _delteBookNoteResult.value = myBookUseCase.deleteBookNote(memberBookId, noteIndex)
         }
  }

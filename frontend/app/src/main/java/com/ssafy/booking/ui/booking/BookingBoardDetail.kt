@@ -94,7 +94,9 @@ fun BookingBoardDetail(
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Row(
                                         modifier = Modifier.clickable{
-                                            navController.navigate("profile/${boardInfo.memberId}")
+                                            navController.navigate("profile/${boardInfo.memberId}") {
+                                                popUpTo("booking/mybooking") { inclusive = true }
+                                            }
                                         }
                                     ) {
                                         AsyncImage(
