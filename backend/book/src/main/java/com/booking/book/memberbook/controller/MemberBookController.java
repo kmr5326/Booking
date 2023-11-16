@@ -71,4 +71,18 @@ public class MemberBookController {
                     return Mono.just(ResponseEntity.badRequest().body(e.getMessage()));
                 });
     }
+
+
+    @DeleteMapping("/{memberBookId}/{noteIndex}")
+    public Mono<ResponseEntity<String>> deleteMemberBook(@RequestHeader(AUTHORIZATION) String token,
+                                                         @PathVariable String memberBookId,
+                                                         @PathVariable Integer noteIndex) {
+        log.info("내 서재 memberBookId: {}, 한줄평 삭제 요청 : {}",memberBookId,noteIndex);
+        return memberBookService.deleteNote(memberBookId,noteIndex)
+                .flatMap(resp -> Mono.just(ResponseEntity.ok().body(resp)))
+                .onErrorResume(e->{
+                    log.error("한줄평 삭제 요청 에러 : {}",e.getMessage());
+                    return Mono.just(ResponseEntity.badRequest().body(e.getMessage()));
+                });
+    }
 }

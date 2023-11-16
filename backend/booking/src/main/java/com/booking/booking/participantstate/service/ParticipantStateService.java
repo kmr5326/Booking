@@ -38,20 +38,16 @@ public class ParticipantStateService {
                 .then();
     }
 
-    public Mono<Void> attendMeeting(MeetingInfo meetingInfo) {
-        return participantStateRepository.findById(meetingInfo.getMeetinginfoId())
-                .flatMap(participantState -> {
-                    if (!participantState.getPaymentStatus()) {
-                        return Mono.error(new RuntimeException("참가비 x"));
-                    }
-                    return participantStateRepository.save(participantState.updateAttendance(true));
-                })
+    public Mono<Void> attendMeeting(ParticipantState participantState) {
+        if (!participantState.getPaymentStatus()) {
+            return Mono.error(new RuntimeException("참가비 x"));
+        }
+        return participantStateRepository.save(participantState.updateAttendance(true))
                 .then();
     }
 
-    public Mono<Void> payMeeting(MeetingInfo meetingInfo) {
-        return participantStateRepository.findById(meetingInfo.getMeetinginfoId())
-                .flatMap(participantState -> participantStateRepository.save(participantState.updatePayment(true)))
+    public Mono<Void> payMeeting(ParticipantState participantState) {
+        return participantStateRepository.save(participantState.updatePayment(true))
                 .then();
     }
 }
