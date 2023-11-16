@@ -112,7 +112,7 @@ fun SetDateAndFee() {
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(8.dp)
             )
-            SetEntryFee()
+            SetEntryFee(bookingViewModel)
         }
     }
 }
@@ -160,22 +160,16 @@ fun TimePickerComposable(onTimeSelected: (LocalTime) -> Unit) {
 }
 
 @Composable
-fun SetEntryFee(modifier: Modifier = Modifier) {
-    var enteredFee by remember { mutableStateOf(0) }
-
+fun SetEntryFee(bookingViewModel: BookingViewModel,modifier: Modifier = Modifier) {
     Column(modifier = modifier) {
-        FeeInputField(onFeeChanged = { fee ->
-            enteredFee = fee
-        })
-        Text("설정된 참가비: $enteredFee 원")
+        FeeInputField(bookingViewModel)
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FeeInputField(onFeeChanged: (Int) -> Unit) {
+fun FeeInputField(bookingViewModel: BookingViewModel) {
     var fee by remember { mutableStateOf(0) }
-    val bookingViewModel: BookingViewModel = hiltViewModel()
 
     Column(
         modifier = Modifier
@@ -186,8 +180,9 @@ fun FeeInputField(onFeeChanged: (Int) -> Unit) {
             value = fee.toString(),
             onValueChange = { newValue ->
                 fee = newValue.toIntOrNull() ?: 0
-                onFeeChanged(fee)
                 bookingViewModel.fee.value = fee
+
+                Log.d("참가비",bookingViewModel.fee.value.toString())
             },
             label = { Text("참가비 입력") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -200,19 +195,26 @@ fun FeeInputField(onFeeChanged: (Int) -> Unit) {
             modifier = Modifier.fillMaxWidth()
         ) {
             Button(
-                onClick = { fee += 100; onFeeChanged(fee) },
+                onClick = { fee += 100
+                    bookingViewModel.fee.value = fee},
                 colors = ButtonDefaults.buttonColors(Color(0xFf00C68E))
             ) { Text("+1백", fontSize = 16.sp) }
             Button(
-                onClick = { fee += 1000; onFeeChanged(fee) },
+                onClick = { fee += 1000
+                    bookingViewModel.fee.value = fee
+                          },
                 colors = ButtonDefaults.buttonColors(Color(0xFf00C68E))
             ) { Text("+1천", fontSize = 16.sp) }
             Button(
-                onClick = { fee += 5000; onFeeChanged(fee) },
+                onClick = { fee += 5000
+                    bookingViewModel.fee.value = fee
+                    Log.d("참가비22",bookingViewModel.fee.value.toString()) },
                 colors = ButtonDefaults.buttonColors(Color(0xFf00C68E))
             ) { Text("+5천", fontSize = 16.sp) }
             Button(
-                onClick = { fee += 10000; onFeeChanged(fee) },
+                onClick = { fee += 10000
+                    bookingViewModel.fee.value = fee
+                          },
                 colors = ButtonDefaults.buttonColors(Color(0xFf00C68E))
             ) { Text("+1만", fontSize = 16.sp) }
         }
@@ -243,7 +245,6 @@ fun SetDateAndFeeBottomButton(
             }
         }
     }
-
     Box(
         contentAlignment = Alignment.BottomCenter,
         modifier = Modifier
@@ -256,7 +257,7 @@ fun SetDateAndFeeBottomButton(
                     LocalDateTime.of(bookingViewModel.date.value, bookingViewModel.time.value)
                         .withSecond(0)
                 Log.d("date", date.toString())
-                Log.d("date", feeState.toString())
+                Log.d("date1", feeState.toString())
                 Log.d("date", dateState.toString())
                 Log.d("date", timeState.toString())
                 if (date == null || feeState == null) {
@@ -268,7 +269,7 @@ fun SetDateAndFeeBottomButton(
                     val request = BookingStartRequest(
                         meetingId = App.prefs.getMeetingId()!!,
                         date = date.toString(),
-                        fee = bookingViewModel.fee.value!!,
+                        fee = bookingViewModel.fee.value?:0,
                         lat = App.prefs.getMeetingLat()!!.toDouble(),
                         lgt = App.prefs.getMeetingLgt()!!.toDouble(),
                         address = App.prefs.getMeetingAddress()!!,
@@ -282,7 +283,7 @@ fun SetDateAndFeeBottomButton(
                 .height(48.dp),
             shape = RoundedCornerShape(3.dp)
         ) {
-            androidx.wear.compose.material.Text("다음", style = MaterialTheme.typography.bodyMedium)
+            Text(text = "모임 확정",fontWeight=FontWeight.Bold)
         }
     }
 }
