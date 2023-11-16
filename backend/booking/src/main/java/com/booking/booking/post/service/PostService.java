@@ -16,53 +16,48 @@ import reactor.core.publisher.Mono;
 public class PostService {
     private final PostRepository postRepository;
     private final MemberUtil memberUtil;
+
     public Mono<Post> createPost(Post post) {
+        log.info("[Booking:Post] createPost({})", post);
+
         return postRepository.save(post)
-                .onErrorResume(error -> {
-                    log.error("[Booking:Post ERROR] createPost : {}", error.getMessage());
-                    return Mono.error(new RuntimeException("게시글 저장 실패"));
-                });
+                .onErrorResume(error -> Mono.error(new RuntimeException("게시글 저장 실패")));
     }
 
     public Flux<PostListResponse> findAllByMeetingId(Long meetingId) {
-        return postRepository.findAllByMeetingId(meetingId)
-                .flatMap(post -> memberUtil.getMemberInfoByPk(post.getMemberId())
+        log.info("[Booking:Post] findAllByMeetingId({})", meetingId);
+
+        return postRepository.findAllByMeetingIdOrderByCreatedAtDesc(meetingId)
+                .flatMapSequential(post -> memberUtil.getMemberInfoByPk(post.getMemberId())
                         .flatMap(member -> Mono.just(new PostListResponse(post, member))))
-                .onErrorResume(error -> {
-                    log.error("[Booking:Post ERROR] findAllByMeetingId : {}", error.getMessage());
-                    return Mono.error(new RuntimeException("게시글 목록 조회 실패"));
-                });
+                .onErrorResume(error -> Mono.error(new RuntimeException("게시글 목록 조회 실패")));
     }
 
     public Mono<Post> findByPostId(Long postId) {
+        log.info("[Booking:Post] findByPostId({})", postId);
+
         return postRepository.findByPostId(postId)
-                .onErrorResume(error -> {
-                    log.error("[Booking:Post ERROR] findByPostId : {}", error.getMessage());
-                    return Mono.error(new RuntimeException("게시글 상세 조회 실패"));
-                });
+                .onErrorResume(error -> Mono.error(new RuntimeException("게시글 상세 조회 실패")));
     }
     
     public Mono<Post> updatePost(Post post) {
+        log.info("[Booking:Post] updatePost({})", post);
+
         return postRepository.save(post)
-                .onErrorResume(error -> {
-                    log.error("[Booking:Post ERROR] updateByPostId : {}", error.getMessage());
-                    return Mono.error(new RuntimeException("게시글 수정 실패"));
-                });
+                .onErrorResume(error -> Mono.error(new RuntimeException("게시글 수정 실패")));
     }
     
     public Mono<Void> deleteByPostId(Long postId) {
+        log.info("[Booking:Post] deleteByPostId({})", postId);
+
         return postRepository.deleteByPostId(postId)
-                .onErrorResume(error -> {
-                    log.error("[Booking:Post ERROR] deleteByPostId : {}", error.getMessage());
-                    return Mono.error(new RuntimeException("게시글 삭제 실패"));
-                });
+                .onErrorResume(error -> Mono.error(new RuntimeException("게시글 삭제 실패")));
     }
 
     public Mono<Void> deleteAllByMeetingId(Long meetingId) {
+        log.info("[Booking:Post] deleteAllByMeetingId({})", meetingId);
+
         return postRepository.deleteAllByMeetingId(meetingId)
-                .onErrorResume(error -> {
-                    log.error("[Booking:Post ERROR] deleteAllByMeetingId : {}", error.getMessage());
-                    return Mono.error(new RuntimeException("게시글 삭제 실패"));
-                });
+                .onErrorResume(error -> Mono.error(new RuntimeException("게시글 삭제 실패")));
     }
 }

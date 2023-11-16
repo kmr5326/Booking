@@ -25,20 +25,14 @@ public class HashtagService {
         log.info("[Booking:Hashtag] saveHashtag({})", content);
 
         return hashtagRepository.save(Hashtag.builder().content(content).build())
-                .onErrorResume(error -> {
-                    log.error("[Booking:Hashtag ERROR] save : {}", error.getMessage());
-                    return Mono.error(new RuntimeException("해시태그 저장 실패"));
-                });
+                .onErrorResume(error -> Mono.error(new RuntimeException("해시태그 저장 실패")));
     }
 
     public Flux<HashtagResponse> findHashtagsByMeetingId(Long meetingId) {
         log.info("[Booking:Hashtag] findHashtagsByMeetingId({})", meetingId);
 
         return hashtagRepository.findHashtagsByMeetingId(meetingId)
-                .flatMap(hashtag -> Mono.just(new HashtagResponse(hashtag)))
-                .onErrorResume(error -> {
-                    log.error("[Booking:Hashtag ERROR] findHashtagsByMeetingId : {}", error.getMessage());
-                    return Mono.error(new RuntimeException("해시태그 목록 조회 실패"));
-                });
+                .flatMapSequential(hashtag -> Mono.just(new HashtagResponse(hashtag)))
+                .onErrorResume(error -> Mono.error(new RuntimeException("해시태그 목록 조회 실패")));
     }
 }

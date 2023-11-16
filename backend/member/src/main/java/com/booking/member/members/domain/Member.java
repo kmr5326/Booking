@@ -61,10 +61,10 @@ public class Member {
     @Setter
     private String profileImage;
 
-    @OneToMany(mappedBy = "following")
+    @OneToMany(mappedBy = "following",cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Follow> followingMembers=new ArrayList<>(); // Members this user is following
 
-    @OneToMany(mappedBy = "follower")
+    @OneToMany(mappedBy = "follower",cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Follow> followerMembers=new ArrayList<>();
 
     private String provider;
@@ -75,9 +75,9 @@ public class Member {
     @Setter
     private Integer point;
 
-    @OneToMany(mappedBy = "payer")
+    @OneToMany(mappedBy = "payer",cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Payment> payments=new ArrayList<>();
 
-    @OneToMany(mappedBy = "receiver")
+    @OneToMany(mappedBy = "receiver",cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Payment> receivers=new ArrayList<>();
 }

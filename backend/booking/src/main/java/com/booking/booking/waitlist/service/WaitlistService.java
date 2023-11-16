@@ -27,10 +27,7 @@ public class WaitlistService {
         log.info("[Booking:Waitlist] enrollMeeting({}, {})", meetingId, memberId);
 
         return waitlistRepository.save(Waitlist.builder().meetingId(meetingId).memberId(memberId).build())
-                .onErrorResume(error -> {
-                    log.info("[Booking:Waitlist ERROR] enrollMeeting : {}", error.getMessage());
-                    return Mono.error(new RuntimeException("대기 목록 추가 실패"));
-                })
+                .onErrorResume(error -> Mono.error(new RuntimeException("대기 목록 추가 실패")))
                 .then();
     }
 
@@ -38,31 +35,22 @@ public class WaitlistService {
         log.info("[Booking:Waitlist] deleteByMeetingIdAndMemberId({}, {})", meetingId, memberId);
 
         return waitlistRepository.deleteByMeetingIdAndMemberId(meetingId, memberId)
-                .onErrorResume(error -> {
-                    log.info("[Booking:Waitlist ERROR] deleteByMeetingIdAndMemberId : {}", error.getMessage());
-                    return Mono.error(new RuntimeException("대기 목록 삭제 실패"));
-                });
+                .onErrorResume(error -> Mono.error(new RuntimeException("대기 목록 삭제 실패")));
     }
 
     public Flux<WaitlistResponse> findAllByMeetingId(Long meetingId) {
         log.info("[Booking:Waitlist] findAllByMeetingId({})", meetingId);
 
         return waitlistRepository.findAllByMeetingId(meetingId)
-                .flatMap(waitlist -> memberUtil.getMemberInfoByPk(waitlist.getMemberId())
-                        .flatMap(member -> Mono.just(new WaitlistResponse(member))))
-                .onErrorResume(error -> {
-                    log.info("[Booking:Waitlist ERROR] findAllByMeetingId : {}", error.getMessage());
-                    return Flux.error(new RuntimeException("대기자 목록 조회 실패"));
-                });
+                .flatMapSequential(waitlist -> memberUtil.getMemberInfoByPk(waitlist.getMemberId()))
+                .flatMapSequential(member -> Mono.just(new WaitlistResponse(member)))
+                .onErrorResume(error -> Flux.error(new RuntimeException("대기자 목록 조회 실패")));
     }
 
     public Mono<Void> deleteAllByMeetingId(Long meetingId) {
         log.info("[Booking:Waitlist] deleteAllByMeetingId({})", meetingId);
 
         return waitlistRepository.deleteAllByMeetingId(meetingId)
-                .onErrorResume(error -> {
-                    log.info("[Booking:Waitlist ERROR] deleteAllByMeetingId : {}", error.getMessage());
-                    return Mono.error(new RuntimeException("대기자 목록 삭제 실패"));
-                });
+                .onErrorResume(error -> Mono.error(new RuntimeException("대기자 목록 삭제 실패")));
     }
 }
