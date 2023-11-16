@@ -1,8 +1,8 @@
 package com.booking.chat.util;
 
-import com.booking.chat.chat.controller.ChatController;
-import com.booking.chat.chat.repository.MessageRepository;
-import com.booking.chat.chat.service.MessageService;
+import com.booking.chat.message.controller.MessageController;
+import com.booking.chat.message.repository.MessageRepository;
+import com.booking.chat.message.service.MessageService;
 import com.booking.chat.chatroom.controller.ChatroomController;
 import com.booking.chat.chatroom.repository.ChatroomRepository;
 import com.booking.chat.chatroom.service.ChatroomService;
@@ -29,7 +29,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 @ExtendWith(RestDocumentationExtension.class)
 @WebFluxTest({
     ChatroomController.class,
-    ChatController.class
+    MessageController.class
 })
 public class ControllerTest {
 

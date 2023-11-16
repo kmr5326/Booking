@@ -1,9 +1,0 @@
-#server:
-#  port: ${CHAT_SERVER_PORT}
-#
-#eureka:
-#  client:
-#    register-with-eureka: true
-#    fetch-registry: true
-#    serviceUrl:
-#      defaultZone: http://${EUREKA_HOST_NAME}:${EUREKA_SERVER_PORT}/eureka/

@@ -1,6 +1,6 @@
-package com.booking.chat.chat.repository;
+package com.booking.chat.message.repository;
 
-import com.booking.chat.chat.domain.Message;
+import com.booking.chat.message.domain.Message;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 import org.springframework.data.mongodb.repository.Tailable;

@@ -2,8 +2,9 @@ package com.booking.chat.notification.controller;
 
 import com.booking.chat.global.jwt.JwtUtil;
 import com.booking.chat.notification.dto.request.DeviceTokenInitRequest;
-import com.booking.chat.notification.dto.request.EnrollNotificationRequest;
+import com.booking.chat.notification.dto.request.NotificationRequest;
 import com.booking.chat.notification.service.NotificationService;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -33,11 +34,12 @@ public class NotificationController {
                                   .then(Mono.defer(() -> Mono.just(ResponseEntity.noContent().build())));
     }
 
-    @PostMapping("/enroll")
-    public Mono<ResponseEntity<Void>> notificationForEnrollment(@RequestBody EnrollNotificationRequest enrollNotificationRequest) {
-        log.info(" notification send to {} member for enroll meeting", enrollNotificationRequest.memberId());
+    @PostMapping("/")
+    public Mono<ResponseEntity<Void>> notificationForEnrollment(@RequestBody NotificationRequest notificationRequest) {
+        String ids = notificationRequest.memberList().stream().map(String::valueOf).collect(Collectors.joining(" "));
+        log.info(" notification send to {} member for enroll meeting", ids);
 
-        return notificationService.sendEnrollNotification(enrollNotificationRequest)
+        return notificationService.sendNotification(notificationRequest)
                                   .then(Mono.just(new ResponseEntity<>(HttpStatus.NO_CONTENT)));
     }
 }

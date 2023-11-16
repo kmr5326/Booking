@@ -13,7 +13,7 @@ import static org.springframework.restdocs.request.RequestDocumentation.pathPara
 import static org.springframework.restdocs.webtestclient.WebTestClientRestDocumentation.document;
 import static org.springframework.restdocs.webtestclient.WebTestClientRestDocumentation.documentationConfiguration;
 
-import com.booking.chat.chat.dto.response.MessageResponse;
+import com.booking.chat.message.dto.response.MessageResponse;
 import com.booking.chat.chatroom.domain.Chatroom;
 import com.booking.chat.chatroom.dto.request.ExitChatroomRequest;
 import com.booking.chat.chatroom.dto.request.InitChatroomRequest;
@@ -130,10 +130,10 @@ class ChatroomControllerTest extends ControllerTest {
     @Test
     void getChatroomListTest() throws Exception {
 
-        ChatroomListResponse chatroomListResponse = new ChatroomListResponse(1L, 1L, "meetingTitle","lastMessage",
+        ChatroomListResponse chatroomListResponse = new ChatroomListResponse(1L, 1L, "meetingTitle","lastMessage", "image",
             List.of(1L, 2L, 3L));
 
-        ChatroomListResponse chatroomListResponse2 = new ChatroomListResponse(2L, 1L, "meetingTitle2","lastMessage2",
+        ChatroomListResponse chatroomListResponse2 = new ChatroomListResponse(2L, 1L, "meetingTitle2","lastMessage2", "image",
             List.of(1L, 2L, 3L));
 
         when(chatroomService.getChatroomListByMemberIdOrderByDesc(any())).thenReturn(
