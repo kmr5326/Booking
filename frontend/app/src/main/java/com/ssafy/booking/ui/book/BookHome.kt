@@ -3,20 +3,24 @@ package com.ssafy.booking.ui.book
 import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.outlined.Clear
@@ -47,6 +51,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.TextOverflow
@@ -62,6 +67,7 @@ import com.ssafy.booking.ui.common.BottomNav
 import com.ssafy.booking.ui.common.TopBar
 import com.ssafy.booking.viewmodel.AppViewModel
 import com.ssafy.booking.viewmodel.BookSearchViewModel
+import com.ssafy.domain.model.booksearch.BookSearchPopularResponse
 import com.ssafy.domain.model.booksearch.BookSearchResponse
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -83,6 +89,7 @@ fun BookHome(
 
     LaunchedEffect(Unit) {
         viewModel.getBookLatest(1, 16)
+        viewModel.getBookPopular()
         Log.d("booktest", "$checkNum")
     }
 
@@ -92,7 +99,7 @@ fun BookHome(
                 TopBar(title = "도서 검색")
             } else {
                 CenterAlignedTopAppBar(
-                    title = { Text(text = "설정") },
+                    title = { Text(text = "도서 검색") },
                     navigationIcon = {
                         IconButton(onClick = { navController.popBackStack() }) {
                             Icon(
@@ -132,8 +139,8 @@ fun BookHome(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
-                    .padding(top = 4.dp)
-                    .padding(bottom = 16.dp)
+                    .padding(top = 20.dp)
+                    .padding(bottom = 5.dp)
                     .height(50.dp),
                 singleLine = true,
                 colors = TextFieldDefaults.outlinedTextFieldColors(
@@ -199,11 +206,11 @@ fun BookHome(
 
 @Composable
 fun BookLoadingView() {
-    Column(
+    Box(
         modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        contentAlignment = Alignment.Center
     ) {
+        Text("로딩중...")
     }
 }
 
@@ -286,23 +293,54 @@ fun BookInitView(checkNum: String) {
     val viewModel: BookSearchViewModel = hiltViewModel()
 
     val getBookLatestResponse by viewModel.getBookLatestResponse.observeAsState()
+    val getBookPopularResponse by viewModel.getBookPopularResponse.observeAsState()
 
-    Text(text = "신간 도서")
-    getBookLatestResponse?.let {
-        LazyRow(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 8.dp, vertical = 15.dp)
-        ) {
-            items(it.body()!!) { book ->
-                BookInitItem(book, checkNum)
+    Column(
+        modifier = Modifier.fillMaxSize()
+            .verticalScroll(rememberScrollState())
+    ) {
+        Text(
+            text = "북킹 모임 인기 도서",
+            color = Color(0xFF394B41),
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold
+        )
+        getBookPopularResponse?.let {
+            LazyRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp, vertical = 7.dp)
+            ) {
+                items(it.body()!!) { book ->
+                    BookInitPopularItem(book, checkNum)
+                }
+            }
+        }
+        Spacer(modifier = Modifier.size(20.dp))
+        Text(text = "이달의 신간도서",
+            color = Color(0xFF394B41),
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold
+            )
+        getBookLatestResponse?.let {
+            LazyRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp, vertical = 7.dp)
+            ) {
+                items(it.body()!!) { book ->
+                    BookInitItem(book, checkNum)
+                }
             }
         }
     }
 }
 
 @Composable
-fun BookInitItem(book: BookSearchResponse, checkNum: String) {
+fun BookInitItem(
+    book: BookSearchResponse,
+    checkNum: String
+) {
     val navController = LocalNavigation.current
 
     Column(
@@ -324,7 +362,7 @@ fun BookInitItem(book: BookSearchResponse, checkNum: String) {
             contentDescription = "책 커버 이미지",
             contentScale = ContentScale.Crop,
             modifier = Modifier
-                .height(200.dp)
+                .height(170.dp)
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(4.dp))
         )
@@ -336,3 +374,43 @@ fun BookInitItem(book: BookSearchResponse, checkNum: String) {
         )
     }
 }
+
+@Composable
+fun BookInitPopularItem(
+    book: BookSearchPopularResponse,
+    checkNum: String
+) {
+    val navController = LocalNavigation.current
+
+    Column(
+        modifier = Modifier
+            .width(150.dp)
+            .padding(12.dp)
+            .clickable {
+                if (checkNum == "0") {
+                    navController.navigate("bookDetail/${book.isbn}")
+                } else if (checkNum == "1") {
+                    navController.navigate("create/booking/${book.isbn}")
+                } else {
+                    navController.navigate("profile/book/${book.isbn}")
+                }
+            }
+    ) {
+        AsyncImage(
+            model = book.coverImage,
+            contentDescription = "책 커버 이미지",
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .height(170.dp)
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(4.dp))
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = "${book.title} (${book.meetingCnt})",
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+    }
+}
+

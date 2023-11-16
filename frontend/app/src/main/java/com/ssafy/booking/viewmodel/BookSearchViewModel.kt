@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ssafy.booking.model.BookSearchState
+import com.ssafy.domain.model.booksearch.BookSearchPopularResponse
 import com.ssafy.domain.model.booksearch.BookSearchResponse
 import com.ssafy.domain.usecase.BookSearchUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -60,6 +61,15 @@ class BookSearchViewModel @Inject constructor(
     fun getBookLatest(page: Int, size: Int) =
         viewModelScope.launch {
             _getBookLatestResponse.value = bookSearchUseCase.getBookLatest(page, size)
+        }
+
+    // GET - 인기 도서 조회
+    private val _getBookPopularResponse = MutableLiveData<Response<List<BookSearchPopularResponse>>>()
+    val getBookPopularResponse: LiveData<Response<List<BookSearchPopularResponse>>> get() = _getBookPopularResponse
+
+    fun getBookPopular() =
+        viewModelScope.launch {
+            _getBookPopularResponse.value = bookSearchUseCase.getBookPopular()
         }
 
     // GET - isbn 으로 도서 조회

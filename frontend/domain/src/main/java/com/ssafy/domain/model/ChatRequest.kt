@@ -27,7 +27,7 @@ data class ChatExitRequest(
 
 data class LastReadMessageRequest(
     @SerializedName("lastMessageIndex")
-    val lastMessageIndex: Int
+    val lastMessageIndex: Int = 0
 )
 
 data class DisconnectSocket(

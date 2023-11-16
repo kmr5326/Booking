@@ -3,7 +3,11 @@ package com.ssafy.booking.ui
 import BookingCreate
 import android.util.Log
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -21,6 +25,8 @@ import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.ssafy.booking.ui.book.BookDetail
 import com.ssafy.booking.ui.book.BookHome
+import com.ssafy.booking.ui.booking.BookingBoardCreate
+import com.ssafy.booking.ui.booking.BookingBoardDetail
 import com.ssafy.booking.ui.booking.BookingByHashtag
 import com.ssafy.booking.ui.booking.BookingDetail
 import com.ssafy.booking.ui.booking.Main
@@ -30,6 +36,7 @@ import com.ssafy.booking.ui.booking.bookingSetting.SetLocation
 import com.ssafy.booking.ui.booking.bookingSetting.SetTitle
 import com.ssafy.booking.ui.chat.ChatDetail
 import com.ssafy.booking.ui.chat.ChatHome
+import com.ssafy.booking.ui.common.KakaoPayReadyScreen
 import com.ssafy.booking.ui.common.SettingPage
 import com.ssafy.booking.ui.location.SettingAddress
 import com.ssafy.booking.ui.history.HistoryRecord
@@ -52,7 +59,7 @@ sealed class AppNavItem(
 ) {
     object Book : AppNavItem("book/{checkNum}")
     object BookDetail : AppNavItem("bookDetail/{isbn}")
-    object HistoryRecord : AppNavItem("history/detail/{meetingId}/{meetinginfoId}")
+    object HistoryRecord : AppNavItem("history/detail/{meetingId}/{meetinginfoId}/{index}")
     object Main : AppNavItem("main")
     object Chat : AppNavItem("chat")
     object ChatDetail : AppNavItem("chatDetail/{chatId}/{memberList}/{meetingTitle}")
@@ -69,13 +76,16 @@ sealed class AppNavItem(
     object ProfileModifier : AppNavItem("profile/modifier")
     object BookingDetail : AppNavItem("bookingDetail/{meetingId}")
     object MyBookRegister : AppNavItem("profile/book/{isbn}")
-    object MyBookDetail : AppNavItem("profile/book/detail/{isbn}")
+    object MyBookDetail : AppNavItem("profile/book/detail/{isbn}/{yourPk}")
     object SettingAddress : AppNavItem("setting/address")
     object BookingSetTitle : AppNavItem("booking/setting/title")
     object BookingSetLocation : AppNavItem("booking/setting/location")
     object BookingSetDateAndFee : AppNavItem("booking/setting/dateandfee")
+    object KakaoPayReady : AppNavItem("pay/ready/{amount}")
+    object BookingBoardCreate : AppNavItem("booking/board/create/{meetingId}")
+    object BookingBoardDetail : AppNavItem("booking/board/detail/{postId}")
     object MyBooking : AppNavItem("booking/mybooking")
-    object BookingByHashtag : AppNavItem("booking/search/hashtag/{hashtagId}")
+    object BookingByHashtag : AppNavItem("booking/search/hashtag/{hashtagId}/{hashtagName}")
 
 }
 
@@ -131,10 +141,11 @@ fun Route(googleSignInClient: GoogleSignInClient) {
                     BookDetail(isbn = it)
                 }
             }
-            composable("history/detail/{meetingId}/{meetinginfoId}") {
+            composable("history/detail/{meetingId}/{meetinginfoId}/{index}") {
                 val meetingId = it.arguments?.getString("meetingId")
                 val meetinginfoId = it.arguments?.getString("meetinginfoId")
-                HistoryRecord(meetingId, meetinginfoId)
+                val index = it.arguments?.getString("index")
+                HistoryRecord(meetingId, meetinginfoId, index)
             }
             composable("main") {
                 Main(navController, appViewModel)
@@ -188,9 +199,10 @@ fun Route(googleSignInClient: GoogleSignInClient) {
                 Log.d("test","$isbn")
                 MyBookRegister(isbn)
             }
-            composable("profile/book/detail/{isbn}") {navBackStackEntry->
+            composable("profile/book/detail/{isbn}/{yourPk}") {navBackStackEntry->
                 val isbn = navBackStackEntry.arguments!!.getString("isbn")
-                MyBookDetail(isbn)
+                val yourPk = navBackStackEntry.arguments!!.getString("yourPk")?.toLong() ?: 0
+                MyBookDetail(isbn, yourPk)
             }
             composable("setting/address") {
                 SettingAddress(navController, appViewModel)
@@ -211,9 +223,25 @@ fun Route(googleSignInClient: GoogleSignInClient) {
             {
                 MyBooking(navController,appViewModel)
             }
-            composable("booking/search/hashtag/{hashtagId}") { navBackStackEntry ->
+            composable("booking/search/hashtag/{hashtagId}/{hashtagName}") { navBackStackEntry ->
                 val hashtagId = navBackStackEntry.arguments?.getString("hashtagId")?.toLong() ?: 1L
-                BookingByHashtag(navController, hashtagId)
+                val hashtagName = navBackStackEntry.arguments?.getString("hashtagName")?: ""
+                BookingByHashtag(navController, hashtagId, hashtagName)
+            }
+            composable("pay/ready/{amount}")
+            {navBackStackEntry->
+                val firstAmount = navBackStackEntry.arguments?.getString("amount") ?: "0"
+                KakaoPayReadyScreen(firstAmount = firstAmount)
+            }
+            composable("booking/board/create/{meetingId}")
+            {navBackStackEntry ->
+                val meetingId = navBackStackEntry.arguments!!.getString("meetingId")!!.toLong()
+                BookingBoardCreate(meetingId)
+            }
+            composable("booking/board/detail/{postId}")
+            {navBackStackEntry ->
+                val postId = navBackStackEntry.arguments!!.getString("postId")!!.toLong()
+                BookingBoardDetail(postId)
             }
         }
     }

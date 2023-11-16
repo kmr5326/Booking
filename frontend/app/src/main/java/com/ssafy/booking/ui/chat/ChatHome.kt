@@ -20,6 +20,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -118,32 +119,6 @@ fun ChatHome(
         ) {
             Box {
                 Column {
-                    Row {
-                        TextField(
-                            value = chatId,
-                            onValueChange = { chatId = it },
-                            placeholder = { Text("채팅방 번호") }
-                        )
-                        Button(
-                            onClick = {
-                                val request =
-                                    ChatCreateRequest(chatId.toInt(), memId, "${chatId}번 채팅")
-                                chatViewModel.createChatRoom(request)
-                            }
-                        ) {
-                            Text("방 생성")
-                        }
-                    }
-                    Row {
-                        Button(
-                            onClick = {
-                                val request = ChatJoinRequest(chatId.toInt(), memId)
-                                chatViewModel.joinChatRoom(request)
-                            }
-                        ) {
-                            Text("채팅방 참가")
-                        }
-                    }
                     ChatList()
                 }
             }
@@ -156,13 +131,23 @@ fun ChatList() {
     val chatViewModel: ChatViewModel = hiltViewModel()
     val chatListState by chatViewModel.chatListState.observeAsState(initial = emptyList())
 
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-    ) {
-        items(chatListState) { chat ->
-            ChatItem(chat) {
+    if (chatListState.isEmpty()) {
+        Box (
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(text = "참여중인 채팅방이 없습니다.")
+        }
+    } else {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+        ) {
+            items(chatListState) { chat ->
+                ChatItem(chat) {
+                }
+                Divider()
             }
         }
     }
@@ -236,7 +221,7 @@ fun ChatItem(
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                     fontWeight = FontWeight.Medium,
-                    fontSize = 12.sp
+                    fontSize = 16.sp
                 )
                 Spacer(modifier = Modifier.height(4.dp))
             }

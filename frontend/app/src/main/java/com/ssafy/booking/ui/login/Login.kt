@@ -131,7 +131,7 @@ fun Greeting(
             Text(
                 text = "우리 동네 독서 모임,",
                 fontWeight = FontWeight.Bold,
-                modifier = modifier.padding(bottom = 2.dp),
+                modifier = modifier.padding(bottom = 0.dp),
                 color = Color(0xFF12BD7E),
                 style = TextStyle(fontSize = 20.sp),
                 fontFamily = FontFamily(Font(R.font.gowundodum))
@@ -144,8 +144,6 @@ fun Greeting(
                 style = TextStyle(fontSize = 55.sp),
                 fontFamily = FontFamily(Font(R.font.gowundodum))
             )
-
-
             KakaoLoginButton(context, navController, loginViewModel)
 //            TempLoginButton(navController)
             GoogleLoginButton(mainViewModel, googleSignInClient, navController, loginViewModel)
@@ -224,22 +222,23 @@ fun GoogleLoginButton(
         )
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth(), // 버튼 너비를 최대로 채움
+            modifier = Modifier.fillMaxWidth().padding(start = 4.dp), // 버튼 너비를 최대로 채움
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween // 아이콘을 시작점에 정렬
+//            horizontalArrangement = Arrangement.SpaceBetween // 아이콘을 시작점에 정렬
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.google),
                 contentDescription = "구글 로그인",
-                modifier = Modifier.size(20.dp),
+                modifier = Modifier.size(24.dp),
                 tint = Color.Unspecified
             )
-            Spacer(Modifier.width(8.dp)) // 아이콘과 텍스트 사이의 공간을 적당히 조정
+            Spacer(Modifier.width(24.dp)) // 아이콘과 텍스트 사이의 공간을 적당히 조정
             Text(
-                "구글로 로그인하기",
+//                "구글로 로그인하기",
+                "구글 로그인",
                 fontWeight = FontWeight.Bold,
-                color = Color.Black,
-                modifier = Modifier.padding(end = 28.dp), // 남은 공간을 텍스트가 채우도록 함
+                color = Color(0xFF4285F4),
+                modifier = Modifier.padding(start = 12.dp), // 남은 공간을 텍스트가 채우도록 함
                 fontFamily = FontFamily(Font(R.font.gowundodum)),
 
             )
@@ -321,9 +320,9 @@ fun KakaoLoginButton(
     )
     {
         Row(
-            modifier = Modifier.fillMaxWidth(), // 버튼 너비를 최대로 채움
+            modifier = Modifier.fillMaxWidth().padding(start = 4.dp), // 버튼 너비를 최대로 채움
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween // 아이콘을 시작점에 정렬
+//            horizontalArrangement = Arrangement.SpaceBetween // 아이콘을 시작점에 정렬
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.kakao),
@@ -331,14 +330,13 @@ fun KakaoLoginButton(
                 modifier = Modifier.size(24.dp),
                 tint = Color.Unspecified
             )
-            Spacer(Modifier.width(8.dp)) // 아이콘과 텍스트 사이의 공간을 적당히 조정
+            Spacer(Modifier.width(24.dp)) // 아이콘과 텍스트 사이의 공간을 적당히 조정
             Text(
-                "카카오로 로그인하기",
+                "카카오계정 로그인",
                 fontWeight = FontWeight.ExtraBold,
                 color = Color.Black,
-                modifier = Modifier.padding(end = 23.dp), // 남은 공간을 텍스트가 채우도록 함
+                modifier = Modifier.padding(end = 15.dp), // 남은 공간을 텍스트가 채우도록 함
                 fontFamily = FontFamily(Font(R.font.gowundodum)),
-
                 )
         }
     }}
