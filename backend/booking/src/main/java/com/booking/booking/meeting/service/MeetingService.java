@@ -1,8 +1,9 @@
 package com.booking.booking.meeting.service;
 
-import com.booking.booking.global.dto.request.EnrollNotificationRequest;
 import com.booking.booking.global.dto.request.InitChatroomRequest;
 import com.booking.booking.global.dto.request.JoinChatroomRequest;
+import com.booking.booking.global.dto.request.NotificationRequest;
+import com.booking.booking.global.dto.request.NotificationType;
 import com.booking.booking.global.dto.response.BookResponse;
 import com.booking.booking.global.dto.response.MemberResponse;
 import com.booking.booking.global.utils.BookUtil;
@@ -38,6 +39,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
@@ -190,8 +193,8 @@ public class MeetingService {
                         return Mono.error(new RuntimeException("이미 대기 중인 회원"));
                     }
                     return waitlistService.enrollMeeting(meeting.getMeetingId(), member.memberPk())
-                            .then(NotificationUtil.enrollNotification(
-                                    new EnrollNotificationRequest(meeting.getLeaderId(), meeting.getMeetingTitle())));
+                            .then(NotificationUtil.sendNotification(new NotificationRequest
+                                    (new ArrayList<>(List.of(meeting.getLeaderId())), meeting.getMeetingTitle(), NotificationType.ENROLL)));
                 });
     }
 

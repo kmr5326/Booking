@@ -1,6 +1,6 @@
 package com.booking.booking.global.utils;
 
-import com.booking.booking.global.dto.request.EnrollNotificationRequest;
+import com.booking.booking.global.dto.request.NotificationRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -21,16 +21,16 @@ public class NotificationUtil {
         NotificationUtil.GATEWAY_URL = gatewayUrl;
     }
 
-    public static Mono<Void> enrollNotification(EnrollNotificationRequest enrollNotificationRequest) {
-        log.info("[Booking:NotificationUtil] enrollNotification({})", enrollNotificationRequest);
+    public static Mono<Void> sendNotification(NotificationRequest notificationRequest) {
+        log.info("[Booking:NotificationUtil] enrollNotification({})", notificationRequest);
 
         WebClient webClient = WebClient.builder().build();
-        URI uri = URI.create(GATEWAY_URL + "/api/notification/enroll");
+        URI uri = URI.create(GATEWAY_URL + "/api/notification/");
 
         return webClient.post()
                 .uri(uri)
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(Mono.just(enrollNotificationRequest), EnrollNotificationRequest.class)
+                .body(Mono.just(notificationRequest), NotificationRequest.class)
                 .retrieve()
                 .onStatus(HttpStatus::is4xxClientError,
                         response -> Mono.error(new RuntimeException("알람 응답 에러")))
