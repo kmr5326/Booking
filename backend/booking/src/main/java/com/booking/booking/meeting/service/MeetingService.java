@@ -1,7 +1,9 @@
 package com.booking.booking.meeting.service;
 
+import com.booking.booking.global.dto.request.ExitChatroomRequest;
 import com.booking.booking.global.dto.request.InitChatroomRequest;
 import com.booking.booking.global.dto.request.JoinChatroomRequest;
+import com.booking.booking.global.dto.request.ModifyChatroomRequest;
 import com.booking.booking.global.dto.request.NotificationRequest;
 import com.booking.booking.global.dto.request.NotificationType;
 import com.booking.booking.global.dto.response.BookResponse;
@@ -299,7 +301,8 @@ public class MeetingService {
                     if (tuple.getT1()) {
                         return waitlistService.deleteByMeetingIdAndMemberId(meeting.getMeetingId(), memberId);
                     } else if(tuple.getT2()){
-                        return participantService.deleteByMeetingIdAndMemberId(meeting.getMeetingId(), memberId);
+                        return participantService.deleteByMeetingIdAndMemberId(meeting.getMeetingId(), memberId)
+                                .then(ChatroomUtil.exitChatroom(new ExitChatroomRequest(meeting.getMeetingId(), memberId)));
                     }
                     return Mono.error(new RuntimeException("참가 목록에 없는 회원"));
                 });
@@ -339,7 +342,8 @@ public class MeetingService {
         log.info("[Booking:Meeting] handleUpdateMeeting({}, {})", meeting, meetingUpdateRequest);
 
         return meetingRepository.save(meeting.updateMeeting(meetingUpdateRequest))
-                .then(hashtagMeetingService.updateHashtags(meeting.getMeetingId(), meetingUpdateRequest.hashtagList()));
+                .then(hashtagMeetingService.updateHashtags(meeting.getMeetingId(), meetingUpdateRequest.hashtagList()))
+                .then(ChatroomUtil.modifyChatroom(new ModifyChatroomRequest(meetingUpdateRequest.meetingId(), meetingUpdateRequest.meetingTitle())));
     }
 
     @Transactional
@@ -529,7 +533,7 @@ public class MeetingService {
                                     return Mono.error(new RuntimeException("출석 가능한 시간이 아닙니다"));
                                 } else {
                                     return participantStateService
-                                            .findByMeetingIdAndMemberId(meetingAttendRequest.meetingId(),memberId )
+                                            .findByMeetingIdAndMemberId(meetingInfo.getMeetinginfoId(), memberId)
                                             .flatMap(participantStateService::attendMeeting)
                                             .then();
                                 }
