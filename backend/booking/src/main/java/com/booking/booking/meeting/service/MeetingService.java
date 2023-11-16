@@ -395,7 +395,9 @@ public class MeetingService {
                         return Mono.error(new RuntimeException("종료된 모임"));
                     }
                     return meetingInfoService.createMeetingInfo(meetingInfoRequest.toEntity())
-                            .flatMap(participantStateService::startMeeting)
+                            .flatMap(meetingInfo -> participantService.findAllByMeetingId(meeting.getMeetingId())
+                                    .flatMap(participant -> participantStateService.startMeeting(meetingInfo.getMeetinginfoId(), participant))
+                                    .then())
                             .then(meetingRepository.save(meeting.updateState(MeetingState.ONGOING)))
                             .then();
                 })
@@ -456,7 +458,9 @@ public class MeetingService {
                                 return Flux.fromIterable(participantStates)
                                         .flatMap(participantState ->
                                         {
-                                            if (participantState.getAttendanceStatus()){
+                                            if (totalFee == 0) {
+                                                return Mono.empty();
+                                            } else if (participantState.getAttendanceStatus()){
                                                 return  memberUtil.paybackRequest(participantState.getMemberId(),
                                                         totalFee / attendanceCount.get());
                                             }
@@ -524,7 +528,10 @@ public class MeetingService {
                                         || now.isAfter(meetingTime.plusMinutes(10))) {
                                     return Mono.error(new RuntimeException("출석 시간 아님"));
                                 } else {
-                                    return participantStateService.attendMeeting(meetingInfo);
+                                    return participantStateService
+                                            .findByMeetingIdAndMemberId(meetingAttendRequest.meetingId(),memberId )
+                                            .flatMap(participantStateService::attendMeeting)
+                                            .then();
                                 }
                             })
                             .then();
@@ -561,9 +568,11 @@ public class MeetingService {
                                                             .flatMap(participantState -> {
                                                                 if (participantState.getPaymentStatus()) {
                                                                     return Mono.error(new RuntimeException("참가비 지불 완료"));
+                                                                } else if (meetingInfo.getFee() == 0) {
+                                                                    return participantStateService.payMeeting(participantState);
                                                                 }
                                                                 return memberUtil.payRequest(token, meetingInfo.getFee())
-                                                                        .then(participantStateService.payMeeting(meetingInfo));
+                                                                        .then(participantStateService.payMeeting(participantState));
                                                             });
                                                 }
                                         );
