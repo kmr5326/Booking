@@ -32,6 +32,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -86,8 +87,14 @@ fun MyBookFloatingActionButton() {
         shape = CircleShape
         // 그냥 동그라미할지, + 모임생성할지 고민.
     ) {
+//        Icon(
+//            Icons.Filled.Add,
+//            contentDescription = "Localized description",
+//            modifier = Modifier.size(40.dp),
+//            tint = Color.White
+//        )
         Icon(
-            Icons.Filled.Add,
+            painter = painterResource(id = R.drawable.outline_book_24),
             contentDescription = "Localized description",
             modifier = Modifier.size(40.dp),
             tint = Color.White

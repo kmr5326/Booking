@@ -274,9 +274,14 @@ fun JoinRequestButton(navController: NavController,meetingId:Long,bookingViewMod
         navController.navigate("bookingDetail/$meetingId")
     },
         modifier = Modifier
-            .height(50.dp)
+            .fillMaxWidth(0.90f) // 화면의 95% 크기
+            .padding(bottom = 5.dp)
+            .height(50.dp),
+        colors = ButtonDefaults . buttonColors (containerColor =
+        Color(0xFF00C68E)),
+        shape = RoundedCornerShape(6.dp) // 각진 모서리
     ) {
-        Text("이 모임에 참가 신청하기",
+        Text("모임 참가 신청하기",
             textAlign = TextAlign.Center, // 텍스트 가운데 정렬,
             fontWeight = FontWeight.SemiBold)
     }

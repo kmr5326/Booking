@@ -95,7 +95,7 @@ fun BookDetail(isbn: String) {
                 }
                 Spacer(modifier = Modifier.size(15.dp))
                 // 제목
-                Text(text = "${bookDetail!!.title}", fontSize = 20.sp)
+                Text(text = "${bookDetail!!.title}", fontSize = 20.sp,color = Color(0xFF12BD7E))
                 Spacer(modifier = Modifier.padding(10.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -131,7 +131,7 @@ fun BookDetail(isbn: String) {
                 Spacer(modifier = Modifier.padding(15.dp))
                 HorizontalDivider(thickness = 1.dp, color = Color.Gray)
                 Spacer(modifier = Modifier.padding(15.dp))
-                Text(text = "도서 상세 정보", fontSize = 20.sp)
+                Text(text = "도서 상세 정보", fontSize = 20.sp,color=Color(0xFF12BD7E))
                 Spacer(modifier = Modifier.padding(20.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
