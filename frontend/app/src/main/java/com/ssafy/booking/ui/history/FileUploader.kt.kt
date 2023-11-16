@@ -13,11 +13,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -34,6 +36,9 @@ import com.ssafy.booking.R
 import com.ssafy.booking.di.App
 import com.ssafy.booking.ui.LocalNavigation
 import com.ssafy.booking.viewmodel.UploaderViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -42,7 +47,8 @@ import okhttp3.RequestBody.Companion.toRequestBody
 fun FileUploader(
     meetinginfoId: String?,
     isLeader: Boolean,
-    meetingId: Long?
+    meetingId: Long?,
+    meetingNumber: String?
 ) {
     val navController = LocalNavigation.current
     val context = LocalContext.current
@@ -51,6 +57,8 @@ fun FileUploader(
     var downloadUri by remember { mutableStateOf<Uri?>(null) }
     var fileName by remember { mutableStateOf<String>("") }
     val loginId = App.prefs.getLoginId()
+
+    val uploadStatus by uploaderViewModel.uploadStatus.collectAsState()
 
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
@@ -75,60 +83,71 @@ fun FileUploader(
         }
     }
 
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(12.dp)
-    ) {
-        if(isLeader) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                IconButton(
-                    onClick = {
-                        launcher.launch("audio/*")
-                    },
-                    modifier = Modifier
-                        .size(100.dp),
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.baseline_upload_file_24),
-                        contentDescription = "녹음 파일 업로드",
-                        tint = Color(0xFF00C68E)
-                    )
-                }
-                downloadUri?.let { uri ->
-                    Text(
-                        text = "${fileName}",
-                        modifier = Modifier
-                            .padding(16.dp)
-                    )
-                    Button(onClick = {
-                        if (loginId != null) {
-                            uploaderViewModel.enrollRecordFile(meetinginfoId.toString(), recordUri)
+    LaunchedEffect(uploadStatus) {
+        // 전송 완료 로딩
+        if (!uploadStatus && downloadUri != null) {
+            navController.popBackStack()
+            navController.navigate("history/detail/$meetingId/$meetinginfoId/$meetingNumber")
+        }
+    }
 
-//                          전송 완료 로딩
-//                            navController.popBackStack()
-//                            navController.navigate("history/detail/$meetingId/$meetinginfoId")
-                        }
-                    }) {
-                        Text(text = "POST NAVER CLOUD")
-                    }
-                } ?: run {
-                    Text(
-                        text = "오디오 파일을 선택해주세요",
+    if (uploadStatus == true) {
+        LoadingView()
+    } else {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(12.dp)
+        ) {
+            if (isLeader) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    IconButton(
+                        onClick = {
+                            launcher.launch("audio/*")
+                        },
                         modifier = Modifier
-                            .padding(16.dp)
-                    )
+                            .size(100.dp),
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.baseline_upload_file_24),
+                            contentDescription = "녹음 파일 업로드",
+                            tint = Color(0xFF00C68E)
+                        )
+                    }
+                    downloadUri?.let { uri ->
+                        Text(
+                            text = "${fileName}",
+                            modifier = Modifier
+                                .padding(16.dp)
+                        )
+                        Button(onClick = {
+                            if (loginId != null) {
+                                uploaderViewModel.enrollRecordFile(
+                                    meetinginfoId.toString(),
+                                    recordUri
+                                )
+                            }
+                        }, colors = ButtonDefaults.buttonColors(Color(0xFF00C68E))) {
+                            Text(text = "녹음 파일 등록")
+                        }
+                    } ?: run {
+                        Text(
+                            text = "오디오 파일을 선택해주세요",
+                            modifier = Modifier
+                                .padding(16.dp)
+                        )
+                    }
                 }
-            }
-        } else if(isLeader == false) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                Text(text = "아직 등록된 녹음 파일이 없습니다.")
+            } else if (isLeader == false) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text(text = "아직 등록된 녹음 파일이 없습니다.")
+                }
             }
         }
     }
