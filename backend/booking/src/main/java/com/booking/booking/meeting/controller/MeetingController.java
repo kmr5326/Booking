@@ -187,7 +187,7 @@ public class MeetingController {
                                                     @PathVariable Long meetingId) {
         String userEmail = JwtUtil.getLoginEmailByToken(token);
 
-        return meetingService.finishMeeting(userEmail, meetingId, true)
+        return meetingService.finishMeeting(token, userEmail, meetingId, true)
                 .thenReturn(ResponseEntity.ok().<Void>build())
                 .onErrorResume(error ->
                         Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, error.getMessage())));
@@ -198,7 +198,7 @@ public class MeetingController {
                                                     @PathVariable Long meetingId) {
         String userEmail = JwtUtil.getLoginEmailByToken(token);
 
-        return meetingService.finishMeeting(userEmail, meetingId, false)
+        return meetingService.finishMeeting(token, userEmail, meetingId, false)
                 .thenReturn(ResponseEntity.ok().<Void>build())
                 .onErrorResume(error ->
                         Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, error.getMessage())));

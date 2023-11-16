@@ -3,6 +3,7 @@ package com.booking.booking.meeting.service;
 import com.booking.booking.global.dto.request.ExitChatroomRequest;
 import com.booking.booking.global.dto.request.InitChatroomRequest;
 import com.booking.booking.global.dto.request.JoinChatroomRequest;
+import com.booking.booking.global.dto.request.MemberBookRegistRequest;
 import com.booking.booking.global.dto.request.ModifyChatroomRequest;
 import com.booking.booking.global.dto.request.NotificationRequest;
 import com.booking.booking.global.dto.request.NotificationType;
@@ -417,7 +418,7 @@ public class MeetingService {
     }
 
     @Transactional
-    public Mono<Void> finishMeeting(String userEmail, Long meetingId, Boolean isFinish) {
+    public Mono<Void> finishMeeting(String token, String userEmail, Long meetingId, Boolean isFinish) {
         log.info("[Booking:Meeting] finishMeeting({}, {})", userEmail, meetingId);
 
         return Mono.zip(meetingRepository.findByMeetingId(meetingId)
@@ -432,7 +433,7 @@ public class MeetingService {
                     } else if (!meeting.getMeetingState().equals(MeetingState.ONGOING)) {
                         return Mono.error(new RuntimeException("진행 중인 모임 아님"));
                     }
-                    return handleFinishMeeting(meeting, isFinish);
+                    return handleFinishMeeting(token, meeting, isFinish);
                 })
                 .onErrorResume(error -> {
                     log.error("[Booking:Meeting ERROR] finishMeeting : {}", error.getMessage());
@@ -441,7 +442,7 @@ public class MeetingService {
                 .then();
     }
 
-    private Mono<Void> handleFinishMeeting(Meeting meeting, Boolean isFinish) {
+    private Mono<Void> handleFinishMeeting(String token, Meeting meeting, Boolean isFinish) {
         return meetingInfoService.findByMeetingId(meeting.getMeetingId())
                 .flatMap(meetingInfo -> {
                     if (meetingInfo.getDate().isAfter(LocalDateTime.now())) {
@@ -478,7 +479,17 @@ public class MeetingService {
                                         .then();
                             })
                             .then(meetingRepository.save(meeting
-                                    .updateState(isFinish ? MeetingState.FINISH : MeetingState.PREPARING)));
+                                    .updateState(isFinish ? MeetingState.FINISH : MeetingState.PREPARING)))
+                            .then(participantStateService.findParticipantStatesByMeetingId(meeting.getMeetingId())
+                                    .flatMap(participantState -> {
+                                        if (participantState.getAttendanceStatus()) {
+                                            return BookUtil.registerMemberBook(token,
+                                                    new MemberBookRegistRequest(participantState.getMemberId(),
+                                                            meeting.getBookIsbn()));
+                                        }
+                                        return Mono.empty().then();
+                                    }).then())
+                            .then();
                 })
                 .then(BookUtil.increaseMeetingCount(meeting.getBookIsbn()));
     }
