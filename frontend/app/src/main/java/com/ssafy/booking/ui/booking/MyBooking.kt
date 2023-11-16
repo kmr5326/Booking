@@ -121,6 +121,7 @@ fun BookingListByMemberPk(
 
     // meetingState에 따라 그룹화
     val groupedBookings = bookingList?.groupBy { it.meetingState }
+
     if (groupedBookings == null) {
         Box(
             modifier = Modifier.fillMaxSize(),

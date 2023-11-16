@@ -70,6 +70,7 @@ import com.naver.maps.map.compose.Marker
 import com.naver.maps.map.compose.MarkerState
 import com.naver.maps.map.compose.NaverMap
 import com.naver.maps.map.compose.rememberCameraPositionState
+import com.ssafy.booking.R
 import com.ssafy.booking.di.App
 import com.ssafy.booking.ui.AppNavItem
 import com.ssafy.booking.ui.LocalNavigation
