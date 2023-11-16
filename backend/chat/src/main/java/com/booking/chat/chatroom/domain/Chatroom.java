@@ -20,7 +20,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection = "chatroom")
 public class Chatroom {
 
-    // private Long messageIndex = 1L;
+    private Long messageIndex = 1L;
 
     @Id
     private Long _id;
@@ -54,13 +54,13 @@ public class Chatroom {
                        .build();
     }
 
-//    public void updateIndex() {
-//        this.messageIndex++;
-//    }
-//
-//    public void updateListMessageReceived() {
-//        this.lastMessageReceivedTime = LocalDateTime.now();
-//    }
+    public void updateIndex() {
+        this.messageIndex++;
+    }
+
+    public void updateListMessageReceived() {
+        this.lastMessageReceivedTime = LocalDateTime.now();
+    }
 
     public void updateLastMessage(String msg) {
         this.lastMessage = msg;
