@@ -84,11 +84,8 @@ public class MemberUtil {
                 .body(Mono.just(new ReSendRequest(memberId, amount)), ReSendRequest.class)
                 .retrieve()
                 .onStatus(HttpStatus::is4xxClientError,
-                        response -> response.toEntity(String.class)
-                                .flatMap(str -> {
-                                    log.error("참가비 {}", str);
-                                    return Mono.error(new RuntimeException("참가비 응답 에러"));
-                                }))
+                        response -> response.bodyToMono(String.class)
+                                        .flatMap(errorBody -> Mono.error(new RuntimeException("참가비 응답 에러: " + errorBody))))
                 .onStatus(HttpStatus::is5xxServerError,
                         response -> Mono.error(new RuntimeException("참가비 응답 에러")))
                 .bodyToMono(String.class);
