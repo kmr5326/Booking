@@ -32,6 +32,9 @@ class UploaderViewModel @Inject constructor(
     private val _naverCloudGetResponse = MutableLiveData<Response<ResponseBody>>()
     val naverCloudGetResponse : LiveData<Response<ResponseBody>> get() = _naverCloudGetResponse
 
+    private val _uploadStatus = MutableStateFlow(false)
+    val uploadStatus: StateFlow<Boolean> = _uploadStatus.asStateFlow()
+
     // 파일 요청
     fun GetToNaverCloud(meetingInfoId: String?) =
         viewModelScope.launch {
@@ -43,16 +46,26 @@ class UploaderViewModel @Inject constructor(
     fun enrollRecordFile(meetingInfoId: String, requestBody: RequestBody?) {
         val requestInfo = RecordFileNameRequest(fileName = "${meetingInfoId}_recording.m4a", meetingInfoId = meetingInfoId)
         viewModelScope.launch {
-            if(requestBody != null) {
-                // POST CLOUD
-                naverCloudUseCase.putObject("booking-bucket", "recording/${meetingInfoId}_recording.m4a", requestBody)
-            }
-            // POST SERVER
-            val response = historyUseCase.postRecordFileName(requestInfo)
-            if (response.isSuccessful) {
-                Log.d("HISTORY_TEST", "PostRecordFileName ${response}")
-            } else {
-                Log.d("HISTORY_TEST", "PostRecordFileName ${response}")
+            _uploadStatus.value = true
+            try {
+                if (requestBody != null) {
+                    // POST CLOUD
+                    naverCloudUseCase.putObject(
+                        "booking-bucket",
+                        "recording/${meetingInfoId}_recording.m4a",
+                        requestBody
+                    )
+                    // POST SERVER
+                    val response = historyUseCase.postRecordFileName(requestInfo)
+                    if (response.isSuccessful) {
+                        Log.d("HISTORY_TEST", "PostRecordFileName ${response}")
+                    } else {
+                        Log.d("HISTORY_TEST", "PostRecordFileName ${response}")
+                    }
+                    _uploadStatus.value = false
+                }
+            } catch (e:Exception) {
+                _uploadStatus.value = false
             }
         }
     }

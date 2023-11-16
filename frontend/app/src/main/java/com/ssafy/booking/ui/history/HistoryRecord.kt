@@ -35,7 +35,7 @@ import okhttp3.Request
 fun HistoryRecord(
     meetingId: String?,
     meetinginfoId: String?,
-    index: String?,
+    meetingNumber: String?,
 ) {
     val navController = LocalNavigation.current
     val appViewModel: AppViewModel = hiltViewModel()
@@ -72,7 +72,7 @@ fun HistoryRecord(
         LoadingView()
     } else {
         Scaffold(topBar = {
-            BackTopBar("${meetingTitle}의 ${index}번째 모임")
+            BackTopBar("${meetingTitle}의 ${meetingNumber}번째 모임")
         }, bottomBar = {
             BottomNav(navController, appViewModel)
         }, modifier = Modifier.fillMaxSize()
@@ -95,7 +95,8 @@ fun HistoryRecord(
                                     0 -> FileUploader(
                                         meetinginfoId,
                                         isLeader,
-                                        meetingId
+                                        meetingId,
+                                        meetingNumber
                                     ) // 방장이면 업로드 가능, 사용자는 '아직 등록된 녹음이 없습니다.'
                                     1 -> RecordController()
                                 }
