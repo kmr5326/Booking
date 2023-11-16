@@ -35,7 +35,6 @@ public class ProducerConfiguration {
                            .put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class)
                            .build();
     }
-
     @Bean
     public KafkaTemplate<String, KafkaMessage> kafkaTemplate() {
         return new KafkaTemplate<>(producerFactory());

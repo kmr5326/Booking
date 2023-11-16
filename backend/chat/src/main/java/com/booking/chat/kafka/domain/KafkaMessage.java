@@ -41,4 +41,13 @@ public class KafkaMessage implements Serializable {
         return data;
 
     }
+
+    public static KafkaMessage init() {
+        return KafkaMessage.builder()
+            .message("새로운 회원이 입장하셨습니다.")
+            .senderId(null)
+            .sendTime(LocalDateTime.now())
+            .senderName("관리자")
+            .build();
+    }
 }

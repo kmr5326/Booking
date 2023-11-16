@@ -1,8 +1,9 @@
 package com.booking.chat.notification.service;
 
 import com.booking.chat.notification.domain.NotificationInformation;
+import com.booking.chat.notification.domain.NotificationType;
 import com.booking.chat.notification.dto.request.DeviceTokenInitRequest;
-import com.booking.chat.notification.dto.request.EnrollNotificationRequest;
+import com.booking.chat.notification.dto.request.NotificationRequest;
 import com.booking.chat.notification.dto.response.NotificationResponse;
 import com.booking.chat.notification.repository.NotificationInformationRepository;
 import com.google.api.core.ApiFuture;
@@ -15,6 +16,7 @@ import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Slf4j
@@ -104,44 +106,44 @@ public class NotificationService {
                                                 .then();
     }
 
-    public Mono<Void> sendEnrollNotification(EnrollNotificationRequest enrollNotificationRequest) {
-        return notificationInformationRepository.findByMemberId(enrollNotificationRequest.memberId())
-                                                .doOnNext(info -> {
-                                                    // 데이터가 방출될 때 info 객체를 로깅
-                                                    if (info.getDeviceToken() == null || info.getDeviceToken().isEmpty()) {
-                                                        log.error("Device token is null or empty for member {}", enrollNotificationRequest.memberId());
-                                                    } else {
-                                                        log.info("Device token for member {} is present: {}", enrollNotificationRequest.memberId(), info.getDeviceToken());
-                                                    }
-                                                })
-                                                .flatMap(info -> {
-                                                    if (info.getDeviceToken() == null || info.getDeviceToken().trim().isEmpty()) {
-                                                        log.error("Device token is null or empty for member {}", enrollNotificationRequest.memberId());
-                                                        return Mono.error(new IllegalArgumentException("Device token is null or empty"));
-                                                    }
-                                                    log.info("Notification send to {} member", enrollNotificationRequest.memberId());
+    public Mono<Void> sendNotification(NotificationRequest notificationRequest) {
+        return Flux.fromIterable(notificationRequest.memberList())
+            .flatMap(memberId ->  notificationInformationRepository.findByMemberId(memberId)
+                                                                    .doOnNext(info -> {
+                                                                        // 데이터가 방출될 때 info 객체를 로깅
+                                                                        if (info.getDeviceToken() == null || info.getDeviceToken().isEmpty()) {
+                                                                            log.error("Device token is null or empty for member {}", memberId);
+                                                                        } else {
+                                                                            log.info("Device token for member {} is present: {}", memberId, info.getDeviceToken());
+                                                                        }
+                                                                    })
+                                                                    .flatMap(info -> {
+                                                                        if (info.getDeviceToken() == null || info.getDeviceToken().trim().isEmpty()) {
+                                                                            log.error("Device token is null or empty for member {}", memberId);
+                                                                            return Mono.error(new IllegalArgumentException("Device token is null or empty"));
+                                                                        }
+                                                                        log.info("Notification send to {} member", memberId);
 
-                                                    String body = "%s 모임에 가입 신청이 들어왔습니다.".formatted(enrollNotificationRequest.meetingTitle());
+                                                                        String body = NotificationType.makeNotificationBody(notificationRequest.notificationType(), notificationRequest.meetingTitle());
 
-                                                    Notification notification = Notification.builder()
-                                                                                            .setBody(body)
-                                                                                            .setTitle("BOOKING ")
-                                                                                            .build();
+                                                                        Notification notification = Notification.builder()
+                                                                                                                .setBody(body)
+                                                                                                                .setTitle("BOOKING ")
+                                                                                                                .build();
 
-                                                    Message message = Message.builder()
-                                                                             .setNotification(notification)
-                                                                             .setToken(info.getDeviceToken())
-                                                                             .build();
+                                                                        Message message = Message.builder()
+                                                                                                 .setNotification(notification)
+                                                                                                 .setToken(info.getDeviceToken())
+                                                                                                 .build();
 
-
-
-                                                    return send(message).then();
-                                                })
-                                                .onErrorResume(e -> {
-                                                    log.error("Error sending chatting notification: {}", e.getMessage());
-                                                    return Mono.empty();
-                                                })
-                                                .then();
+                                                                        return send(message).then();
+                                                                    })
+                                                                    .onErrorResume(e -> {
+                                                                        log.error("Error sending chatting notification: {}", e.getMessage());
+                                                                        return Mono.empty();
+                                                                    })
+                                                                    .then())
+                                                                .then();
     }
 
     public Mono<Void> send(Message message) {
@@ -159,7 +161,6 @@ public class NotificationService {
             }
         }, MoreExecutors.directExecutor()); // 현재 스레드에서 리스너를 실행
 
-        return Mono.fromFuture(completableFuture)
-                   .then();
+        return Mono.fromFuture(completableFuture).then();
     }
 }

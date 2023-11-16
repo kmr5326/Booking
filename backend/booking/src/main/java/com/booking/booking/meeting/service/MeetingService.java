@@ -1,8 +1,9 @@
 package com.booking.booking.meeting.service;
 
-import com.booking.booking.global.dto.request.EnrollNotificationRequest;
 import com.booking.booking.global.dto.request.InitChatroomRequest;
 import com.booking.booking.global.dto.request.JoinChatroomRequest;
+import com.booking.booking.global.dto.request.NotificationRequest;
+import com.booking.booking.global.dto.request.NotificationType;
 import com.booking.booking.global.dto.response.BookResponse;
 import com.booking.booking.global.dto.response.MemberResponse;
 import com.booking.booking.global.utils.BookUtil;
@@ -38,6 +39,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -189,8 +192,8 @@ public class MeetingService {
                         return Mono.error(new RuntimeException("이미 대기 중인 회원"));
                     }
                     return waitlistService.enrollMeeting(meeting.getMeetingId(), member.memberPk())
-                            .then(NotificationUtil.enrollNotification(
-                                    new EnrollNotificationRequest(meeting.getLeaderId(), meeting.getMeetingTitle())));
+                            .then(NotificationUtil.sendNotification(new NotificationRequest
+                                    (List.of(meeting.getLeaderId()), meeting.getMeetingTitle(), NotificationType.ENROLL)));
                 });
     }
 
@@ -317,8 +320,7 @@ public class MeetingService {
 
                     if (!memberId.equals(meeting.getLeaderId())) {
                         return Mono.error(new RuntimeException("미팅 수정 권한 없음"));
-                    } else if (meeting.getMeetingState().equals(MeetingState.ONGOING)
-                            || meeting.getMeetingState().equals(MeetingState.RESTART)) {
+                    } else if (meeting.getMeetingState().equals(MeetingState.ONGOING)) {
                         return Mono.error(new RuntimeException("진행 중에는 미팅 수정 불가"));
                     } else if (meeting.getMeetingState().equals(MeetingState.FINISH)) {
                         return Mono.error(new RuntimeException("종료 후에는 미팅 수정 불가"));
@@ -389,6 +391,8 @@ public class MeetingService {
                         return Mono.error(new RuntimeException("모임 정보 생성 권한 없음"));
                     } else if (meeting.getMeetingState().equals(MeetingState.ONGOING)) {
                         return Mono.error(new RuntimeException("진행 중인 모임 있음"));
+                    } else if (meeting.getMeetingState().equals(MeetingState.FINISH)) {
+                        return Mono.error(new RuntimeException("종료된 모임"));
                     }
                     return meetingInfoService.createMeetingInfo(meetingInfoRequest.toEntity())
                             .flatMap(participantStateService::startMeeting)
@@ -402,12 +406,12 @@ public class MeetingService {
     }
 
     @Transactional
-    public Mono<Void> finishMeeting(String userEmail, Long meetingId) {
-        log.info("[Booking:Meeting] finishMeetingInfo({}, {})", userEmail, meetingId);
+    public Mono<Void> finishMeeting(String userEmail, Long meetingId, Boolean isFinish) {
+        log.info("[Booking:Meeting] finishMeeting({}, {})", userEmail, meetingId);
 
         return Mono.zip(meetingRepository.findByMeetingId(meetingId)
-                        .switchIfEmpty(Mono.error(new RuntimeException("존재하지 않는 모임"))),
-                memberUtil.getMemberInfoByEmail(userEmail))
+                                .switchIfEmpty(Mono.error(new RuntimeException("존재하지 않는 모임"))),
+                        memberUtil.getMemberInfoByEmail(userEmail))
                 .flatMap(tuple -> {
                     Meeting meeting = tuple.getT1();
                     MemberResponse member = tuple.getT2();
@@ -417,14 +421,53 @@ public class MeetingService {
                     } else if (!meeting.getMeetingState().equals(MeetingState.ONGOING)) {
                         return Mono.error(new RuntimeException("진행 중인 모임 아님"));
                     }
-                    // TODO 참가비 반환, 다시 시작
-                    return meetingRepository.save(meeting.updateState(MeetingState.FINISH));
+                    return handleFinishMeeting(meeting, isFinish);
                 })
                 .onErrorResume(error -> {
                     log.error("[Booking:Meeting ERROR] finishMeeting : {}", error.getMessage());
                     return Mono.error(error);
                 })
                 .then();
+    }
+
+    private Mono<Void> handleFinishMeeting(Meeting meeting, Boolean isFinish) {
+        return meetingInfoService.findByMeetingId(meeting.getMeetingId())
+                .flatMap(meetingInfo -> {
+                    if (meetingInfo.getDate().isAfter(LocalDateTime.now())) {
+                        return Mono.error(new RuntimeException("모임 전에는 종료할 수 없음"));
+                    }
+                    return participantStateService.findParticipantStatesByMeetingId(meeting.getMeetingId())
+                            .collectList()
+                            .flatMap(participantStates -> {
+                                AtomicInteger paymentCount = new AtomicInteger();
+                                AtomicInteger attendanceCount = new AtomicInteger();
+                                participantStates.forEach(participantState -> {
+                                    if (participantState.getPaymentStatus()) {
+                                        paymentCount.getAndIncrement();
+                                    }
+                                    if (participantState.getAttendanceStatus()) {
+                                        attendanceCount.getAndIncrement();
+                                    }
+                                });
+                                int totalFee = meetingInfo.getFee() * paymentCount.get();
+                                if (attendanceCount.get() == 0) {
+                                    return Mono.empty();
+                                }
+                                return Flux.fromIterable(participantStates)
+                                        .flatMap(participantState ->
+                                        {
+                                            if (participantState.getAttendanceStatus()){
+                                                return  memberUtil.paybackRequest(participantState.getMemberId(),
+                                                        totalFee / attendanceCount.get());
+                                            }
+                                            return Mono.empty();
+                                        })
+                                        .then();
+                            })
+                            .then(meetingRepository.save(meeting
+                                    .updateState(isFinish ? MeetingState.FINISH : MeetingState.PREPARING)));
+                })
+                .then(BookUtil.increaseMeetingCount(meeting.getBookIsbn()));
     }
 
     private double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
@@ -509,15 +552,26 @@ public class MeetingService {
 
                                 return meetingInfoService.findByMeetingId(meetingId)
                                         .flatMap(meetingInfo ->
-                                                participantStateService.findByMeetingIdAndMemberId(meetingInfo.getMeetinginfoId(), member.memberPk())
-                                                .switchIfEmpty(Mono.error(new RuntimeException("참여 중 아님")))
-                                                .then(memberUtil.payRequest(token, meetingInfo.getFee()))
-                                                .then(participantStateService.payMeeting(meetingInfo)));
+                                                {
+                                                    if (meetingInfo.getDate().isBefore(LocalDateTime.now())) {
+                                                        return Mono.error(new RuntimeException("이미 시작한 모임"));
+                                                    }
+                                                    return participantStateService.findByMeetingIdAndMemberId(meetingInfo.getMeetinginfoId(), member.memberPk())
+                                                            .switchIfEmpty(Mono.error(new RuntimeException("참여 중 아님")))
+                                                            .flatMap(participantState -> {
+                                                                if (participantState.getPaymentStatus()) {
+                                                                    return Mono.error(new RuntimeException("참가비 지불 완료"));
+                                                                }
+                                                                return memberUtil.payRequest(token, meetingInfo.getFee())
+                                                                        .then(participantStateService.payMeeting(meetingInfo));
+                                                            });
+                                                }
+                                        );
+                            })
+                            .onErrorResume(error -> {
+                                log.error("[Booking:Meeting ERROR] payMeeting : {}", error.getMessage());
+                                return Mono.error(error);
                             });
-                })
-                .onErrorResume(error -> {
-                    log.error("[Booking:Meeting ERROR] payMeeting : {}", error.getMessage());
-                    return Mono.error(error);
                 });
     }
 
