@@ -3,6 +3,7 @@ package com.booking.booking.meeting.service;
 import com.booking.booking.global.dto.request.ExitChatroomRequest;
 import com.booking.booking.global.dto.request.InitChatroomRequest;
 import com.booking.booking.global.dto.request.JoinChatroomRequest;
+import com.booking.booking.global.dto.request.ModifyChatroomRequest;
 import com.booking.booking.global.dto.request.NotificationRequest;
 import com.booking.booking.global.dto.request.NotificationType;
 import com.booking.booking.global.dto.response.BookResponse;
@@ -341,7 +342,8 @@ public class MeetingService {
         log.info("[Booking:Meeting] handleUpdateMeeting({}, {})", meeting, meetingUpdateRequest);
 
         return meetingRepository.save(meeting.updateMeeting(meetingUpdateRequest))
-                .then(hashtagMeetingService.updateHashtags(meeting.getMeetingId(), meetingUpdateRequest.hashtagList()));
+                .then(hashtagMeetingService.updateHashtags(meeting.getMeetingId(), meetingUpdateRequest.hashtagList()))
+                .then(ChatroomUtil.modifyChatroom(new ModifyChatroomRequest(meetingUpdateRequest.meetingId(), meetingUpdateRequest.meetingTitle())));
     }
 
     @Transactional
