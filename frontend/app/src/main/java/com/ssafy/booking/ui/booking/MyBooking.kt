@@ -251,7 +251,7 @@ fun BookingItemByMemberPk(bookingItem: BookingListByMemberPk, navController: Nav
                 )
                 Text(
 //                    text = booking.lat.toString(),
-                    text = bookingItem.address,
+                    text = bookingItem.address ?: "",
                     color = Color.Gray,
                     fontSize = 12.sp
                 )
