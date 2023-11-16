@@ -63,7 +63,7 @@ public class MemberUtil {
                         .bodyToMono(MemberResponse.class);
     }
 
-    public Mono<Void> payRequest(String token, Integer fee) {
+    public Mono<String> payRequest(String token, Integer fee) {
         return webClient.post()
                 .uri("/api/payments/send")
                 .header(AUTHORIZATION, token)
@@ -71,10 +71,11 @@ public class MemberUtil {
                 .body(Mono.just(new PaymentRequest(RECIEVER, fee)), PaymentRequest.class)
                 .retrieve()
                 .onStatus(HttpStatus::is4xxClientError,
-                        response -> Mono.error(new RuntimeException("참가비 응답 에러")))
+                        response -> response.bodyToMono(String.class)
+                                .flatMap(errorBody -> Mono.error(new RuntimeException("참가비 응답 에러: " + errorBody))))
                 .onStatus(HttpStatus::is5xxServerError,
                         response -> Mono.error(new RuntimeException("참가비 응답 에러")))
-                .bodyToMono(Void.class);
+                .bodyToMono(String.class);
     }
 
     public Mono<String> paybackRequest(Integer memberId, Integer amount) {
