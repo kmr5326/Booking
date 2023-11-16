@@ -23,6 +23,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material.icons.outlined.Send
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -239,7 +240,9 @@ fun DetailBookSuccessView(
         Spacer(modifier = Modifier.padding(10.dp))
         OneLineMemos(myBookDetailResponse, yourPk, myBookDetailResponse.bookInfo.isbn, memberPk)
         Row(
-            modifier = Modifier.fillMaxWidth().padding(10.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(10.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             if(memberPk == yourPk) {
@@ -249,7 +252,7 @@ fun DetailBookSuccessView(
                         memo = newValue
                     },
                     modifier = Modifier
-                        .width(200.dp)
+                        .fillMaxWidth()
                         .padding(horizontal = 12.dp)
                         .height(50.dp),
                     singleLine = true,
@@ -275,28 +278,26 @@ fun DetailBookSuccessView(
                             }
                         }
                     ),
-                    shape = RoundedCornerShape(12.dp)
-                )
-                Button(
-                    onClick = {
-                        if (memo != "") {
-                            val result = MyBookMemoRegisterRequest(
-                                memberPk = yourPk,
-                                isbn = myBookDetailResponse.bookInfo.isbn,
-                                content = memo
-                            )
-                            viewModel.postBookMemo(result, now().toString())
-                            memo = ""
-                            keyboardController?.hide()
+                    trailingIcon = {
+                        IconButton(onClick = {
+                            if (memo != "") {
+                                val result = MyBookMemoRegisterRequest(
+                                    memberPk = yourPk,
+                                    isbn = myBookDetailResponse.bookInfo.isbn,
+                                    content = memo
+                                )
+                                viewModel.postBookMemo(result, now().toString())
+                                memo = ""
+                                keyboardController?.hide()
+                            }
+                        }) {
+                            Icon(Icons.Outlined.Send, contentDescription = null, tint = colorResource(
+                                id = R.color.booking_1
+                            ))
                         }
                     },
-                    modifier = Modifier
-                        .width(100.dp)
-                        .height(50.dp),
-                    colors = ButtonDefaults.buttonColors(colorResource(id = R.color.booking_1))
-                ) {
-                    Text(text = "등록")
-                }
+                    shape = RoundedCornerShape(12.dp)
+                )
             }
         }
     }
