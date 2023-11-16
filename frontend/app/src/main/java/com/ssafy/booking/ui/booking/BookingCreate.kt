@@ -584,7 +584,7 @@ fun HashTagEditor(
 
             colors = TextFieldDefaults.outlinedTextFieldColors(focusedBorderColor = Color(0xFF12BD7E)),
             singleLine = true,
-            label = { Text("해시태그") },
+            label = { Text("해시태그",color=Color(0xFF12BD7E)) },
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
             keyboardActions = KeyboardActions(
                 onDone = {
