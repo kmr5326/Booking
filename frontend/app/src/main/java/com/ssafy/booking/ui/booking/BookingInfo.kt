@@ -2,6 +2,7 @@ package com.ssafy.booking.ui.booking
 
 import android.util.Log
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -38,11 +39,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberImagePainter
+import com.google.android.gms.common.internal.safeparcel.SafeParcelable.Indicator
 import com.google.gson.Gson
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.CameraPosition
@@ -75,6 +78,11 @@ fun BookingInfo(
     val bookingViewModel: BookingViewModel = hiltViewModel()
     val getBookingDetailResponse by bookingViewModel.getBookingDetailResponse.observeAsState()
     var bookingDetail by remember { mutableStateOf<BookingDetail?>(null) }
+    var firstMeetinginfoId by remember { mutableStateOf(0) }
+    val onFirstMeetingIdChange = { newValue: Int ->
+        firstMeetinginfoId = newValue
+    }
+
     LaunchedEffect(Unit) {
         bookingViewModel.getBookingDetail(meetingId)
 
@@ -101,6 +109,7 @@ fun BookingInfo(
             .fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        val navController = LocalNavigation.current
         // 이미지
         val imagePainter = if (bookingDetail?.coverImage != null) {
             rememberImagePainter(
@@ -144,7 +153,25 @@ fun BookingInfo(
                 .padding(vertical = 13.dp)
         )
         Column {
-            Text(text = bookingDetail?.meetingTitle.orEmpty(), fontSize = 20.sp, fontWeight = FontWeight.Bold) // 모임 제목
+            Row( modifier = Modifier
+                .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween) {
+                Text(
+                    text = bookingDetail?.meetingTitle.orEmpty(),
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold
+                ) // 모임 제목
+                Text(
+                    text="녹음 보기",
+                    modifier = Modifier
+                        .clickable(onClick = {
+                            navController.navigate("history/detail/${meetingId}/${firstMeetinginfoId}/${1}")
+                        }),
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Gray,
+                    textDecoration = TextDecoration.Underline
+                )
+            }
             Spacer(modifier = Modifier.height(8.dp))
             Row(
                 horizontalArrangement = Arrangement.Start,
@@ -162,7 +189,7 @@ fun BookingInfo(
             Spacer(modifier = Modifier.height(4.dp))
 
         }
-        MeetingInfoTimeline(bookingDetail = bookingDetail, meetingId) // 모임 정보 타임라인
+        MeetingInfoTimeline(bookingDetail = bookingDetail, meetingId, firstMeetinginfoId, onFirstMeetingIdChange) // 모임 정보 타임라인
     }
 }
 
@@ -170,7 +197,7 @@ fun BookingInfo(
 
 
 @Composable
-fun MeetingInfoCard(meetingInfo: MeetingInfoResponse, meetingId:Long, isFirstItem: Boolean, index: Int) {
+fun MeetingInfoCard(meetingInfo: MeetingInfoResponse, meetingId:Long, isFirstItem: Boolean, index: Int, firstMeetinginfoId: Int, onFirstMeetingIdChange: (Int) -> Unit) {
     val navController = LocalNavigation.current
     val meetingDate = meetingInfo.date
     val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
@@ -180,6 +207,7 @@ fun MeetingInfoCard(meetingInfo: MeetingInfoResponse, meetingId:Long, isFirstIte
     val date = dateTime.format(outputFormatter)
     // MeetingInfoList의 처음과 나머지 구분.
     if (isFirstItem) {
+        onFirstMeetingIdChange(meetingInfo.meetinginfoId.toInt())
         // 첫 번째 항목에만 표시할 추가 텍스트
         Row(
             modifier = Modifier
@@ -287,7 +315,9 @@ fun MeetingInfoCard(meetingInfo: MeetingInfoResponse, meetingId:Long, isFirstIte
 @Composable
 fun MeetingInfoTimeline(
     bookingDetail: BookingDetail?,
-    meetingId: Long
+    meetingId: Long,
+    firstMeetinginfoId: Int,
+    onFirstMeetingIdChange: (Int) -> Unit
 ) {
     bookingDetail?.meetingInfoList?.let { meetingInfoList ->
         Column(
@@ -296,7 +326,7 @@ fun MeetingInfoTimeline(
 //                .verticalScroll(rememberScrollState())
         ) {
             meetingInfoList.forEachIndexed { index, meetingInfo ->
-                MeetingInfoCard(meetingInfo, meetingId, isFirstItem = index == 0, meetingInfoList.size-index)
+                MeetingInfoCard(meetingInfo, meetingId, isFirstItem = index == 0, meetingInfoList.size-index, firstMeetinginfoId, onFirstMeetingIdChange)
             }
         }
     } ?: Text(text = "아직 모임 정보가 없습니다.")

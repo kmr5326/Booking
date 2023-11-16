@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -50,7 +51,14 @@ fun HistoryRecord(
     var isLoadRecord by remember { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(false) }
     val responseState by uploaderViewModel.naverCloudGetResponse.observeAsState()
+
+    LaunchedEffect(Unit) {
+        isLoading = true
+        uploaderViewModel.GetToNaverCloud(meetinginfoId)
+    }
+
     responseState?.let { response ->
+        isLoading = false
         if (response.isSuccessful) {
             isLoadRecord = true
             Log.d("STT_TEST", "녹음파일을 불러왔습니다!")
@@ -59,50 +67,65 @@ fun HistoryRecord(
         }
     }
 
-    LaunchedEffect(Unit) {
-        isLoading = true
-        uploaderViewModel.GetToNaverCloud(meetinginfoId)
-    }
 
-    Scaffold(topBar = {
-        BackTopBar("${meetingTitle}의 ${index}번째 모임")
-    }, bottomBar = {
-        BottomNav(navController, appViewModel)
-    }, modifier = Modifier.fillMaxSize()
-    ) { paddingValues ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
-            Column(
-                modifier = Modifier.padding(8.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center,
+    if (isLoading == true) {
+        LoadingView()
+    } else {
+        Scaffold(topBar = {
+            BackTopBar("${meetingTitle}의 ${index}번째 모임")
+        }, bottomBar = {
+            BottomNav(navController, appViewModel)
+        }, modifier = Modifier.fillMaxSize()
+        ) { paddingValues ->
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
             ) {
-                if (isLoadRecord == false) {
-                    TabBar(
-                        listOf("녹음 파일 업로드", "녹음기"),
-                        contentForTab = { index ->
-                            when (index) {
-                                0 -> FileUploader(meetinginfoId, isLeader, meetingId) // 방장이면 업로드 가능, 사용자는 '아직 등록된 녹음이 없습니다.'
-                                1 -> RecordController()
+                Column(
+                    modifier = Modifier.padding(8.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center,
+                ) {
+                    if (isLoadRecord == false) {
+                        TabBar(
+                            listOf("녹음 파일 업로드", "녹음기"),
+                            contentForTab = { index ->
+                                when (index) {
+                                    0 -> FileUploader(
+                                        meetinginfoId,
+                                        isLeader,
+                                        meetingId
+                                    ) // 방장이면 업로드 가능, 사용자는 '아직 등록된 녹음이 없습니다.'
+                                    1 -> RecordController()
+                                }
                             }
-                        }
-                    )
-                } else if(isLoadRecord == true) {
-                    PlayerController(meetinginfoId)
-                    TabBar(
-                        listOf("녹음 기록 분석", "녹음 모임 요약"),
-                        contentForTab = { index ->
-                            when (index) {
-                                0 -> RecordDetail(meetinginfoId)
-                                1 -> RecordSummary()
+                        )
+                    } else if (isLoadRecord == true) {
+                        PlayerController(meetinginfoId)
+                        TabBar(
+                            listOf("녹음 기록 분석", "녹음 모임 요약"),
+                            contentForTab = { index ->
+                                when (index) {
+                                    0 -> RecordDetail(meetinginfoId)
+                                    1 -> RecordSummary()
+                                }
                             }
-                        }
-                    )
+                        )
+                    }
                 }
             }
         }
+    }
+
+}
+
+@Composable
+fun LoadingView() {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text("로딩중...")
     }
 }
