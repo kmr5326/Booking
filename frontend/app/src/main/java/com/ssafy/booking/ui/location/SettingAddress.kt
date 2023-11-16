@@ -97,7 +97,7 @@ fun SettingAddress(
 
     Scaffold(
         topBar = {
-            BackTopBar(title = "내 위치")
+            BackTopBar(title = "내 동네 설정")
         }, bottomBar = {
             Box(
                 contentAlignment = Alignment.Center,
@@ -120,7 +120,7 @@ fun SettingAddress(
                     }
             ) {
                 Text(
-                    text = "위치 수정하기",
+                    text = "내 동네 설정하기",
                     modifier = Modifier.padding(16.dp),
                     Color.White,
                     fontSize = 20.sp,
@@ -141,12 +141,14 @@ fun SettingAddress(
                     .fillMaxSize(), // 최대 크기를 채움
 //                verticalArrangement = Arrangement.SpaceAround,
             ) {
+                SettingLocationMap()
                 OriginalMyLocation()
                 addressName.let {
                     Column(
-                        modifier = Modifier.padding(8.dp)
+                        modifier = Modifier.padding(8.dp).fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Text(text = "새 위치", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                        Text(text = "새 위치 불러오기", fontWeight = FontWeight.Bold, fontSize = 16.sp)
                         Row {
                             IconButton(
                                 onClick = {
@@ -177,14 +179,13 @@ fun SettingAddress(
                                     painter = painterResource(id = R.drawable.baseline_my_location_24),
                                     contentDescription = null,
                                     tint = Color(0xFF007B58),
-                                    modifier = Modifier.size(24.dp)
+                                    modifier = Modifier.size(56.dp)
                                 )
                             }
                             Text(text = addressName)
                         }
                     }
                 }
-                SettingLocationMap()
             }
         }
     }
@@ -197,7 +198,8 @@ fun OriginalMyLocation() {
     val context = LocalContext.current
     val address = App.prefs.getUserAddress()
     Column(
-        modifier = Modifier.padding(8.dp)
+        modifier = Modifier.padding(8.dp).fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(text = "기존 위치", fontWeight = FontWeight.Bold, fontSize = 16.sp)
         Text(text = address ?: "유저 주소가 없습니다.")
@@ -243,7 +245,7 @@ fun SettingLocationMap() {
     Log.d("위치2", initLgt.toString())
     val cameraPositionState: CameraPositionState = rememberCameraPositionState {
         // 카메라 초기 위치를 meetingInfo의 위치로 설정합니다.
-        position = CameraPosition(currentLocation, 5.0)
+        position = CameraPosition(currentLocation, 15.0)
     }
     Box(
         modifier = Modifier
@@ -259,7 +261,7 @@ fun SettingLocationMap() {
             val context = LocalContext.current
             Marker(
                 state = MarkerState(position = currentLocation),
-                captionText = "내 동네 위치"
+                captionText = "기존 내 동네"
             )
             CircleOverlay(
                 center = currentLocation, radius = 10000.0, // 10km

@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory
 import android.graphics.drawable.Icon
 import android.util.Log
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -24,8 +25,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -64,8 +67,12 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 import coil.ImageLoader
 import coil.compose.AsyncImagePainter
 import coil.compose.LocalImageLoader
@@ -134,7 +141,7 @@ fun MyProfile(profileData: ProfileData) {
             )
             Spacer(modifier = Modifier.size(40.dp))
             Column {
-                Text(text = "@${profileData.myProfile?.nickname}", color = colorResource(id = R.color.font_color))
+                Text(text = "@${profileData.myProfile?.nickname}", color = colorResource(id = R.color.font_color),fontWeight = FontWeight.Bold,fontSize=18.sp)
                 Spacer(modifier = Modifier.size(4.dp))
                 Text(text = "읽은 책 : ${profileData.readBook!!.size}권", color = colorResource(id = R.color.font_color))
                 Spacer(modifier = Modifier.size(4.dp))
@@ -147,11 +154,40 @@ fun MyProfile(profileData: ProfileData) {
                     Text(text = "팔로잉 ${profileData.followings?.followingsCnt}", color = colorResource(id = R.color.font_color))
                 }
                 Spacer(modifier = Modifier.size(4.dp))
+
                 if(profileData.isI == true) {
-                    Text(
-                        text = "마일리지 : ${profileData.myProfile?.point} Ⓜ",
-                        modifier = Modifier.clickable{navController.navigate("pay/ready/0")}
-                    )
+                    HorizontalDivider(thickness = 1.dp, color = Color.Gray,modifier = Modifier.padding(horizontal = 4.dp))
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 8.dp)
+                    ) {
+                        Column {
+                            Text(text = "북킹 머니", color = colorResource(id = R.color.font_color))
+                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween,
+modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text(text = "${profileData.myProfile?.point}원",
+                                    modifier = Modifier.clickable {
+                                        navController.navigate("pay/ready/0")
+                                    })
+                                Button(onClick = { navController.navigate("pay/ready/0") }
+                                ,colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF12BD7E)),
+                                    modifier = Modifier
+//                                        .size(width = 60.dp, height = 30.dp)
+                                        .clip(RoundedCornerShape(5.dp)),
+                                    shape = RoundedCornerShape(5.dp)
+                                ) {
+                                    Text(
+                                        "충전",
+                                        color = colorResource(id = R.color.font_color),fontSize = 12.sp
+                                    )
+                                }
+                            }
+                        }
+
+                    }
+
                 } else {
                     isFollowNow?.let {
                         if (it.value == true) {
