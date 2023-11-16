@@ -50,6 +50,8 @@ fun KakaoPayReadyScreen(
     val context = LocalContext.current
     val navController = LocalNavigation.current
 
+    val isButtonEnabled = amount.text.isNotEmpty() && amount.text != "0"
+
     LaunchedEffect(KakaoPayLandingPageUrl.value) {
         Log.d("카카오페이", "$KakaoPayLandingPageUrl")
         KakaoPayLandingPageUrl.value?.let {
@@ -107,7 +109,8 @@ fun KakaoPayReadyScreen(
                         amount = amount.text
                     )
                     viewModel.getKakaoPayPage(kakaoPayRequest)
-                }
+                },
+                enabled = isButtonEnabled
             ) {
                 Text(text = "충전 요청")
             }
