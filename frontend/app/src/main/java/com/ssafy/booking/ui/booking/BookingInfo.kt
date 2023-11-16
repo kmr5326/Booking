@@ -285,6 +285,13 @@ fun MeetingInfoCard(
             Column(
                 modifier = Modifier.padding(16.dp)
             ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Start
+                ) {
+                    Text(text = meetingInfo.location, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                }
 
                 Row(
                     modifier = Modifier
@@ -302,14 +309,7 @@ fun MeetingInfoCard(
                     Text(text = "참가비")
                     Text(text = "${meetingInfo.fee}원", fontSize = 15.sp)
                 }
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(text = "모임 장소", fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                    Text(text = meetingInfo.location)
-                }
+
 
 
             }
