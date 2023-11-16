@@ -217,8 +217,8 @@ class NetworkModule {
         return Retrofit.Builder()
             .baseUrl(NAVER_CLOUD_URL)
             .client(okHttpClientWithObjectStorage(provideObjectStorageInterceptor()))
-            .addConverterFactory(ScalarsConverterFactory.create())
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(ScalarsConverterFactory.create()) // 문자열 처리
+            .addConverterFactory(GsonConverterFactory.create()) // 객체 Json
             .build()
     }
 

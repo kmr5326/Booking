@@ -1,10 +1,12 @@
 package com.ssafy.booking.ui.profile
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -53,6 +55,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.ssafy.booking.R
 import com.ssafy.booking.ui.LocalNavigation
+import com.ssafy.booking.ui.common.BackTopBar
 import com.ssafy.booking.ui.common.HorizontalDivider
 import com.ssafy.booking.viewmodel.MyBookViewModel
 import com.ssafy.data.repository.token.TokenDataSource
@@ -65,7 +68,8 @@ import java.time.LocalDate.now
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyBookDetail(
-    isbn: String?
+    isbn: String?,
+    yourPk: Long
 ) {
     val navController = LocalNavigation.current
     val viewModel: MyBookViewModel = hiltViewModel()
@@ -100,25 +104,40 @@ fun MyBookDetail(
 
     Scaffold(
         topBar = {
-            CenterAlignedTopAppBar(
-                title = { Text(text = "도서") },
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(
-                            imageVector = Icons.Filled.ArrowBack,
-                            contentDescription = "뒤로가기"
-                        )
+            if(yourPk == memberPk) {
+                CenterAlignedTopAppBar(
+                    title = { Text(text = "도서") },
+                    navigationIcon = {
+                        IconButton(onClick = { navController.popBackStack() }) {
+                            Icon(
+                                imageVector = Icons.Filled.ArrowBack,
+                                contentDescription = "뒤로가기"
+                            )
+                        }
+                    },
+                    actions = {
+                        IconButton(onClick = {
+                            myBookDetailResponse?.let {
+                                Log.d("멤버북아이디", "${it.body()}")
+                                if (it.isSuccessful) {
+                                    it.body()?.let {
+                                    Log.d("멤버북아이디", "${it.memberBookId}")
+                                        viewModel.deleteBookRegister(it.memberBookId)
+                                        navController.popBackStack()
+                                    }
+                                }
+                            }
+                        }) {
+                            Icon(
+                                imageVector = Icons.Filled.Close,
+                                contentDescription = "삭제"
+                            )
+                        }
                     }
-                },
-                actions = {
-                    IconButton(onClick = { /*TODO*/ }) {
-                        Icon(
-                            imageVector = Icons.Filled.Close,
-                            contentDescription = "삭제"
-                        )
-                    }
-                }
-            )
+                )
+            } else {
+                BackTopBar(title = "도서")
+            }
         },
         modifier = Modifier.fillMaxSize()
     ) { paddingValues ->
@@ -275,9 +294,27 @@ fun OneLineMemos(
         notesList.forEach {note->
             Row(modifier = Modifier
                 .fillMaxWidth()
-                .padding(10.dp)) {
-                Text("${note.createdAt.take(10)} : ")
-                Text(text = "${note.memo}")
+                .padding(10.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Row(
+//                    modifier = Modifier.fillMaxHeight(),
+                ) {
+                    Text("${note.createdAt.take(10)} : ")
+                    Text(text = "${note.memo}")
+                }
+                IconButton(
+                    onClick = {
+
+                    },
+                    modifier = Modifier.size(15.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Close,
+                        contentDescription = null
+                    )
+                }
             }
             Spacer(modifier = Modifier.padding(4.dp))
         }

@@ -72,7 +72,7 @@ sealed class AppNavItem(
     object ProfileModifier : AppNavItem("profile/modifier")
     object BookingDetail : AppNavItem("bookingDetail/{meetingId}")
     object MyBookRegister : AppNavItem("profile/book/{isbn}")
-    object MyBookDetail : AppNavItem("profile/book/detail/{isbn}")
+    object MyBookDetail : AppNavItem("profile/book/detail/{isbn}/{yourPk}")
     object SettingAddress : AppNavItem("setting/address")
     object BookingSetTitle : AppNavItem("booking/setting/title")
     object BookingSetLocation : AppNavItem("booking/setting/location")
@@ -195,9 +195,10 @@ fun Route(googleSignInClient: GoogleSignInClient) {
                 Log.d("test","$isbn")
                 MyBookRegister(isbn)
             }
-            composable("profile/book/detail/{isbn}") {navBackStackEntry->
+            composable("profile/book/detail/{isbn}/{yourPk}") {navBackStackEntry->
                 val isbn = navBackStackEntry.arguments!!.getString("isbn")
-                MyBookDetail(isbn)
+                val yourPk = navBackStackEntry.arguments!!.getString("yourPk")?.toLong() ?: 0
+                MyBookDetail(isbn, yourPk)
             }
             composable("setting/address") {
                 SettingAddress(navController, appViewModel)
