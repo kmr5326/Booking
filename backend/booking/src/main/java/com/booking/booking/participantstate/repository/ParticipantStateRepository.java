@@ -14,5 +14,5 @@ public interface ParticipantStateRepository extends R2dbcRepository<ParticipantS
             "        (SELECT MAX(meetinginfo_id) FROM meetinginfos WHERE meeting_id = :meetingId)")
     Flux<ParticipantState> findParticipantStatesByMeetingId(@Param("meetingId") Long meetingId);
 
-    Mono<ParticipantState> findByMeetinginfoIdAndAndMemberId(Long meetinginfoId, Integer memberId);
+    Mono<ParticipantState> findByMeetinginfoIdAndMemberId(Long meetinginfoId, Integer memberId);
 }

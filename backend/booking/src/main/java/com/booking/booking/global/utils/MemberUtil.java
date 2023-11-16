@@ -1,12 +1,8 @@
 package com.booking.booking.global.utils;
 
 import com.booking.booking.global.dto.request.PaymentRequest;
+import com.booking.booking.global.dto.request.ReSendRequestDto;
 import com.booking.booking.global.dto.response.MemberResponse;
-import io.netty.channel.ChannelOption;
-import io.netty.handler.ssl.SslContext;
-import io.netty.handler.ssl.SslContextBuilder;
-import io.netty.handler.timeout.ReadTimeoutHandler;
-import io.netty.handler.timeout.WriteTimeoutHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -19,9 +15,7 @@ import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
 import reactor.netty.resources.ConnectionProvider;
 
-import javax.net.ssl.SSLException;
 import java.time.Duration;
-import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Component
@@ -32,33 +26,20 @@ public class MemberUtil {
     private final String RECIEVER = "kakao_3144707067";
 //    private final String RECIEVER = "google_113902342240727897270";
 
-    public MemberUtil(@Value("${gateway.url}") String gatewayUrl) throws SSLException {
+    public MemberUtil(@Value("${gateway.url}") String gatewayUrl) {
         ConnectionProvider provider = ConnectionProvider.builder("ApiConnections")
-                                                        .maxConnections(16)
-                                                        .maxIdleTime(Duration.ofSeconds(30))
-                                                        .pendingAcquireTimeout(Duration.ofSeconds(45))
-                                                        .evictInBackground(Duration.ofSeconds(30))
-                                                        .lifo()
-                                                        .metrics(true)
-                                                        .build();
-        SslContext sslContext = SslContextBuilder
-            .forClient()
-            .build();
-
-        HttpClient httpClient = HttpClient.create(provider)
-                                          .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 1000 * 30)
-                                          .doOnConnected(conn ->
-                                              conn.addHandlerLast(new ReadTimeoutHandler(45, TimeUnit.SECONDS))
-                                                  .addHandlerLast(new WriteTimeoutHandler(10, TimeUnit.SECONDS)))
-                                          .responseTimeout(Duration.ofSeconds(60))
-                                          .secure(spec -> spec.sslContext(sslContext)
-                                                              .handshakeTimeout(Duration.ofSeconds(20)));
+                .maxConnections(16)
+                .maxIdleTime(Duration.ofSeconds(30))
+                .maxLifeTime(Duration.ofSeconds(60))
+                .pendingAcquireTimeout(Duration.ofSeconds(60))
+                .evictInBackground(Duration.ofSeconds(120))
+                .build();
 
         this.webClient = WebClient.builder()
-                                  .baseUrl(gatewayUrl)
-                                  .clientConnector(new ReactorClientHttpConnector(httpClient))
-                                  .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                                  .build();
+                .baseUrl(gatewayUrl)
+                .clientConnector(new ReactorClientHttpConnector(HttpClient.create(provider)))
+                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .build();
     }
 
     public Mono<MemberResponse> getMemberInfoByEmail(String userEmail) {
@@ -94,5 +75,18 @@ public class MemberUtil {
                 .onStatus(HttpStatus::is5xxServerError,
                         response -> Mono.error(new RuntimeException("참가비 응답 에러")))
                 .bodyToMono(Void.class);
+    }
+
+    public Mono<String> paybackRequest(Integer memberId, Integer amount) {
+        return webClient.post()
+                .uri("/api/payments/resend")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(Mono.just(new ReSendRequestDto(memberId, amount)), ReSendRequestDto.class)
+                .retrieve()
+                .onStatus(HttpStatus::is4xxClientError,
+                        response -> Mono.error(new RuntimeException("참가비 응답 에러")))
+                .onStatus(HttpStatus::is5xxServerError,
+                        response -> Mono.error(new RuntimeException("참가비 응답 에러")))
+                .bodyToMono(String.class);
     }
 }

@@ -1,8 +1,8 @@
-package com.booking.chat.chat.service;
+package com.booking.chat.message.service;
 
 
-import com.booking.chat.chat.domain.Message;
-import com.booking.chat.chat.repository.MessageRepository;
+import com.booking.chat.message.domain.Message;
+import com.booking.chat.message.repository.MessageRepository;
 import com.booking.chat.chatroom.domain.Chatroom;
 import com.booking.chat.chatroom.service.ChatroomService;
 import com.booking.chat.kafka.domain.KafkaMessage;
@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.core.reactive.ReactiveKafkaProducerTemplate;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -29,20 +30,22 @@ public class MessageService {
 
     private final MessageRepository messageRepository;
     private final ChatroomService chatroomService;
-    private final KafkaTemplate<String, KafkaMessage> kafkaTemplate;
+    private final ReactiveKafkaProducerTemplate<String, KafkaMessage> reactiveKafkaProducerTemplate;
     private final NotificationService notificationService;
     private final ReactiveRedisTemplate<String, Set<Long>> reactiveRedisTemplate;
+    // reactive로 대체
+    private final KafkaTemplate<String, KafkaMessage> kafkaTemplate;
 
-
-    public void processAndSend(KafkaMessage kafkaMessage, Long chatroomId) {
-        save(kafkaMessage, chatroomId)
+    public Mono<Void> processAndSend(KafkaMessage kafkaMessage, Long chatroomId) {
+        return save(kafkaMessage, chatroomId)
             .retry(3L)
-            .then(Mono.fromRunnable(() -> proceedMessageSendProcess(kafkaMessage, chatroomId)))
-            .subscribe();
+            .then(Mono.defer(() -> proceedMessageSendProcess(kafkaMessage, chatroomId)))
+            .doOnError(x -> log.info(" optimistic error by {} ", x.toString()))
+            .then();
     }
 
-    private void proceedMessageSendProcess(KafkaMessage kafkaMessage, Long chatroomId) {
-        chatroomService.findByChatroomId(chatroomId)
+    private Mono<Void> proceedMessageSendProcess(KafkaMessage kafkaMessage, Long chatroomId) {
+       return chatroomService.findByChatroomId(chatroomId)
                        .flatMapMany(chatroom -> {
                            String meetingTitle = chatroom.getMeetingTitle();
                            String message = kafkaMessage.getMessage();
@@ -63,18 +66,17 @@ public class MessageService {
                                                        .flatMap(memberId -> notificationService.sendChattingNotification(new NotificationResponse(meetingTitle, message, memberName, memberId, kafkaMessage.extractData(chatroomId))), 5)
                                                        .thenMany(Flux.just(chatroom)); // 작업을 이어갈 Flux 반환
                        })
-                       .then() // 모든 알림이 완료되면 Kafka로 메시지 전송을 계속함
-                       .doOnSuccess(aVoid -> sendMessageToKafka(kafkaMessage, chatroomId))
-                       .subscribe();
+                       .then(sendMessageToKafka(kafkaMessage, chatroomId)); // 모든 알림이 완료되면 Kafka로 메시지 전송을 계속함
+                       //.subscribe();
     }
-    private void sendMessageToKafka(KafkaMessage kafkaMessage, Long chatroomId) {
+    private Mono<Void> sendMessageToKafka(KafkaMessage kafkaMessage, Long chatroomId) {
         // Kafka로 메세지와 함께 채팅방 ID를 헤더에 추가하여 전달
-        ProducerRecord<String, KafkaMessage> record = new ProducerRecord<>("Chatroom-" + chatroomId, null, null, kafkaMessage);
+        ProducerRecord<String, KafkaMessage> record = new ProducerRecord<>("Chat", null, null, kafkaMessage);
         record.headers().add("chatroomId", chatroomId.toString().getBytes(StandardCharsets.UTF_8));
-        kafkaTemplate.send(record);
-
-        // test
-        // notificationService.sendChattingNotification(kafkaMessage.getSenderId()).subscribe();
+        return reactiveKafkaProducerTemplate.send(record)
+                                            .doOnSuccess(s -> log.info("Kafka message publish success to {}", chatroomId))
+                                            .doOnError(e -> log.error("Error publishing message to Kafka", e))
+                                            .then();
     }
 
     public Mono<Void> save(KafkaMessage message, Long chatroomId) {
@@ -95,7 +97,11 @@ public class MessageService {
                                                                                 .readCount(readCount)
                                                                                 .build()))
                                                          .flatMap(messageRepository::save)
-                                      );
+                                      ).flatMap(savedMessage -> {
+                                          chatroom.updateListMessageReceived();
+                                          chatroom.updateLastMessage(savedMessage.getContent());
+                                          return chatroomService.save(chatroom);
+                                      });
                               })
                               .then();
     }
@@ -105,14 +111,13 @@ public class MessageService {
         return messageRepository.findByChatRoomId(roomId);
     }
 
-    // TODO : redis
     private Mono<Integer> getReadCount(Chatroom chatroom, Long senderId) {
         String chatroomKey = "chatroom-%d".formatted(chatroom.get_id());
         return reactiveRedisTemplate.opsForValue().get(chatroomKey)
                                     .flatMap(memberList -> {
                                         if (memberList != null) {
                                             long count = memberList.stream()
-                                                                   .filter(memberId -> !memberId.equals(senderId))
+                                                                   .filter(memberId -> memberId.toString().equals(senderId.toString()))
                                                                    .count();
                                             return Mono.just((int) count);
                                         } else {

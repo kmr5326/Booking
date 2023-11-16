@@ -1,6 +1,6 @@
-package com.booking.chat.chat.repository;
+package com.booking.chat.message.repository;
 
-import com.booking.chat.chat.domain.Message;
+import com.booking.chat.message.domain.Message;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
