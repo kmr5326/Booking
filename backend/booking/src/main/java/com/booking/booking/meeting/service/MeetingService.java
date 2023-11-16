@@ -1,5 +1,6 @@
 package com.booking.booking.meeting.service;
 
+import com.booking.booking.global.dto.request.ExitChatroomRequest;
 import com.booking.booking.global.dto.request.InitChatroomRequest;
 import com.booking.booking.global.dto.request.JoinChatroomRequest;
 import com.booking.booking.global.dto.request.NotificationRequest;
@@ -299,7 +300,8 @@ public class MeetingService {
                     if (tuple.getT1()) {
                         return waitlistService.deleteByMeetingIdAndMemberId(meeting.getMeetingId(), memberId);
                     } else if(tuple.getT2()){
-                        return participantService.deleteByMeetingIdAndMemberId(meeting.getMeetingId(), memberId);
+                        return participantService.deleteByMeetingIdAndMemberId(meeting.getMeetingId(), memberId)
+                                .then(ChatroomUtil.exitChatroom(new ExitChatroomRequest(meeting.getMeetingId(), memberId)));
                     }
                     return Mono.error(new RuntimeException("참가 목록에 없는 회원"));
                 });
