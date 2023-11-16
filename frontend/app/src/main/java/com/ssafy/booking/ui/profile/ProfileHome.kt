@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
@@ -148,11 +149,9 @@ fun MyProfile(profileData: ProfileData) {
                 Spacer(modifier = Modifier.size(4.dp))
                 if(profileData.isI == true) {
                     Text(
-                        text = "마일리지 : ${profileData.myProfile?.point}",
-                        modifier = Modifier.clickable{
-                            navController.navigate("pay/ready/0")
-                        }
-                        )
+                        text = "마일리지 : ${profileData.myProfile?.point} Ⓜ",
+                        modifier = Modifier.clickable{navController.navigate("pay/ready/0")}
+                    )
                 } else {
                     isFollowNow?.let {
                         if (it.value == true) {
