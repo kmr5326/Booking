@@ -1,7 +1,7 @@
-package com.booking.chat.chat.controller;
+package com.booking.chat.message.controller;
 
-import com.booking.chat.chat.domain.Message;
-import com.booking.chat.chat.service.MessageService;
+import com.booking.chat.message.domain.Message;
+import com.booking.chat.message.service.MessageService;
 import com.booking.chat.kafka.domain.KafkaMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +22,7 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 @RequestMapping("/api/chat")
 @RestController
-public class ChatController {
+public class MessageController {
 
     private final MessageService messageService;
 
