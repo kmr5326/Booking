@@ -22,7 +22,7 @@ public class NotificationUtil {
     }
 
     public static Mono<Void> sendNotification(NotificationRequest notificationRequest) {
-        log.info("[Booking:NotificationUtil] enrollNotification({})", notificationRequest);
+        log.info("[Booking:NotificationUtil] sendNotification({})", notificationRequest);
 
         WebClient webClient = WebClient.builder().build();
         URI uri = URI.create(GATEWAY_URL + "/api/notification/");
