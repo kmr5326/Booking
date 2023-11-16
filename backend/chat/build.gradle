@@ -90,6 +90,8 @@ dependencies {
 	//redis
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis-reactive:3.1.5'
 
+	//reactive kafka
+	implementation 'io.projectreactor.kafka:reactor-kafka:1.3.21'
 
 }
 

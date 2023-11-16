@@ -1,4 +1,4 @@
-package com.booking.chat.chat.domain;
+package com.booking.chat.message.domain;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -45,6 +45,8 @@ public class Message {
 
     public void decreaseReadCount() {
         this.readCount--;
+
+        if(this.readCount < 0) this.readCount = 0;
     }
 
 }

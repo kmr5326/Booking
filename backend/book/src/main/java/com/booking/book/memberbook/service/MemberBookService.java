@@ -89,4 +89,14 @@ public class MemberBookService {
                 .thenReturn("deleted");
 
     }
+
+    public Mono<String> deleteNote(String memberBookId,Integer noteIndex) {
+        return memberBookRepository.findBy_id(memberBookId)
+                .flatMap(memberBook -> {
+                    memberBook.getNotes().remove((int)noteIndex);
+                    return memberBookRepository.save(memberBook);
+                })
+                .switchIfEmpty(Mono.error(new NotFoundException("Not found note")))
+                .thenReturn("deleted");
+    }
 }
