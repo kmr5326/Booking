@@ -69,9 +69,7 @@ fun MyBookRegister(
             title = { Text(text = "서재 등록") },
             navigationIcon = {
                 IconButton(onClick = {
-                    navController.navigate("profile") {
-                        popUpTo("profile") { inclusive = true }
-                    } // 뒤로가기 버튼
+                    navController.popBackStack()
                 }) {
                     Icon(
                         imageVector = Icons.Filled.Close,

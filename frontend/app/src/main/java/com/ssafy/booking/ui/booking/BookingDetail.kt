@@ -51,7 +51,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.tasks.Task
+import com.google.gson.Gson
+import com.google.gson.JsonSyntaxException
 import com.ssafy.booking.di.App
+import com.ssafy.booking.model.ErrorResponse
 import com.ssafy.booking.ui.AppNavItem
 import com.ssafy.booking.ui.LocalNavigation
 import com.ssafy.booking.ui.common.BackTopBar
@@ -59,6 +62,7 @@ import com.ssafy.booking.ui.common.TabBar
 import com.ssafy.booking.viewmodel.BookingViewModel
 import com.ssafy.domain.model.booking.BookingAttendRequest
 import com.ssafy.domain.model.booking.BookingJoinRequest
+import org.json.JSONObject
 
 val tabTitles = listOf("모임 정보", "참가자", "게시판")
 
@@ -121,7 +125,9 @@ fun BookingDetail(meetingId: Long) {
     )
 
     { paddingValues ->
-        LazyColumn(modifier = Modifier.padding(paddingValues).fillMaxSize()) {
+        LazyColumn(modifier = Modifier
+            .padding(paddingValues)
+            .fillMaxSize()) {
             item {
                 BackTopBar(title = "모임 상세")
             }
@@ -174,8 +180,14 @@ fun preparingBottomBar(memberRole:String,meetingId:Long,bookingViewModel: Bookin
     when (memberRole) {
         "LEADER" -> {
             Row(modifier = Modifier.fillMaxWidth()) {
-                ModifyButton(navController, meetingId, bookingViewModel, context, Modifier.weight(1f).fillMaxWidth())
-                StartButton(navController, meetingId, bookingViewModel, context, Modifier.weight(1f).fillMaxWidth())
+                ModifyButton(navController, meetingId, bookingViewModel, context,
+                    Modifier
+                        .weight(1f)
+                        .fillMaxWidth())
+                StartButton(navController, meetingId, bookingViewModel, context,
+                    Modifier
+                        .weight(1f)
+                        .fillMaxWidth())
             }
         }
         "PARTICIPANT" ->
@@ -196,19 +208,37 @@ fun ongoingBottomBar(memberRole:String,meetingId:Long,bookingViewModel: BookingV
         "LEADER" -> {
             Column(modifier = Modifier.fillMaxWidth()) {
                 Row(modifier = Modifier.fillMaxWidth()) {
-                    AttendCheckButton(navController, meetingId, bookingViewModel, context, Modifier.weight(1f).fillMaxWidth())
-                    PayRequestButton(navController, meetingId, bookingViewModel, context, Modifier.weight(1f).fillMaxWidth())
+                    AttendCheckButton(navController, meetingId, bookingViewModel, context,
+                        Modifier
+                            .weight(1f)
+                            .fillMaxWidth())
+                    PayRequestButton(navController, meetingId, bookingViewModel, context,
+                        Modifier
+                            .weight(1f)
+                            .fillMaxWidth())
                 }
                 Row(modifier = Modifier.fillMaxWidth()) {
-                    RestartButton(navController, meetingId, bookingViewModel, context, Modifier.weight(1f).fillMaxWidth())
-                    EndButton(navController, meetingId, bookingViewModel, context, Modifier.weight(1f).fillMaxWidth())
+                    RestartButton(navController, meetingId, bookingViewModel, context,
+                        Modifier
+                            .weight(1f)
+                            .fillMaxWidth())
+                    EndButton(navController, meetingId, bookingViewModel, context,
+                        Modifier
+                            .weight(1f)
+                            .fillMaxWidth())
                 }
             }
         }
         "PARTICIPANT" -> {
             Row(modifier = Modifier.fillMaxWidth()) {
-                AttendCheckButton(navController, meetingId, bookingViewModel, context, Modifier.weight(1f).fillMaxWidth())
-                PayRequestButton(navController, meetingId, bookingViewModel, context, Modifier.weight(1f).fillMaxWidth())
+                AttendCheckButton(navController, meetingId, bookingViewModel, context,
+                    Modifier
+                        .weight(1f)
+                        .fillMaxWidth())
+                PayRequestButton(navController, meetingId, bookingViewModel, context,
+                    Modifier
+                        .weight(1f)
+                        .fillMaxWidth())
             }
         }
         else -> {
@@ -318,13 +348,38 @@ fun ExitButton(
     bookingViewModel: BookingViewModel,
     context: Context
 ){
+    val postBookingExitResponse = bookingViewModel.postBookingExitResponse.observeAsState()
+
+    LaunchedEffect(postBookingExitResponse.value) {
+        postBookingExitResponse.value?.let {
+            if (it.isSuccessful) {
+                val toastTop = Toast.makeText(context, "모임에서 퇴장하였습니다.", Toast.LENGTH_LONG)
+                toastTop.setGravity(Gravity.TOP, 0, 0)
+                toastTop.show()
+                navController.navigate(AppNavItem.Main.route)
+            } else {
+                val errorMessage = it.errorBody()?.charStream()
+                try {
+                    val gson = Gson()
+                    val errorResponse = gson.fromJson(errorMessage, ErrorResponse::class.java)
+
+                    val toastTop = Toast.makeText(context, errorResponse.message, Toast.LENGTH_LONG)
+
+                    toastTop.show()
+                } catch (e: JsonSyntaxException) {
+                    val toastTop = Toast.makeText(context, "알 수 없는 에러", Toast.LENGTH_LONG)
+
+                    toastTop.show()
+                }
+            }
+        }
+    }
+
     Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxWidth()) {
         Button(
-            onClick = {  bookingViewModel.postBookingExit(meetingId)
-                val toastTop = Toast.makeText(context, "모임나가기.", Toast.LENGTH_LONG)
-                toastTop.setGravity(Gravity.TOP,0,0)
-                toastTop.show()
-                navController.navigate(AppNavItem.Main.route) },
+            onClick = {
+                bookingViewModel.postBookingExit(meetingId)
+                      },
             modifier = Modifier
                 .fillMaxWidth(0.95f) // 화면의 95% 크기
                 .padding(bottom = 5.dp)
@@ -352,6 +407,7 @@ fun AttendCheckButton(
     context : Context,
     modifier: Modifier = Modifier
 ){
+    val patchBookingAttendResponse = bookingViewModel.patchBookingAttendResponse.observeAsState()
     val fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context)
     var location by remember { mutableStateOf<Location?>(null) }
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
@@ -363,8 +419,33 @@ fun AttendCheckButton(
             Toast.makeText(context, "위치 권한이 필요합니다.", Toast.LENGTH_LONG).show()
         }
     }
+
     LaunchedEffect(Unit) {
         launcher.launch(android.Manifest.permission.ACCESS_FINE_LOCATION)
+    }
+
+    LaunchedEffect(patchBookingAttendResponse.value) {
+        patchBookingAttendResponse.value?.let {
+            if(it.isSuccessful) {
+                val toastTop = Toast.makeText(context, "출석체크가 완료되었습니다.", Toast.LENGTH_LONG)
+                toastTop.setGravity(Gravity.TOP, 0, 0)
+                toastTop.show()
+            } else {
+                val errorMessage = it.errorBody()?.charStream()
+                try {
+                    val gson = Gson()
+                    val errorResponse = gson.fromJson(errorMessage, ErrorResponse::class.java)
+
+                    val toastTop = Toast.makeText(context, errorResponse.message, Toast.LENGTH_LONG)
+
+                    toastTop.show()
+                } catch (e: JsonSyntaxException) {
+                    val toastTop = Toast.makeText(context, "알 수 없는 에러", Toast.LENGTH_LONG)
+
+                    toastTop.show()
+                }
+            }
+        }
     }
 
     // 출석체크 버튼
@@ -378,9 +459,7 @@ fun AttendCheckButton(
                         lgt = loc.longitude // 현재 위치의 경도 사용
                     )
                     bookingViewModel.patchBookingAttend(request)
-                    val toastTop = Toast.makeText(context, "출석체크가 완료되었습니다.", Toast.LENGTH_LONG)
-                    toastTop.setGravity(Gravity.TOP, 0, 0)
-                    toastTop.show()
+
                 } ?: run {
                     Log.d("LocationError", "Location is null")
                     // 위치 정보가 없는 경우 처리
@@ -414,15 +493,38 @@ fun EndButton(
     context : Context,
     modifier: Modifier = Modifier
 ){
+    val patchBookingEndResponse = bookingViewModel.patchBookingEndResponse.observeAsState()
+
+    LaunchedEffect(patchBookingEndResponse.value) {
+        patchBookingEndResponse.value?.let {
+            if (it.isSuccessful) {
+                val toastTop = Toast.makeText(context, "모임이 종료되었습니다.", Toast.LENGTH_LONG)
+                toastTop.show()
+                navController.navigate(AppNavItem.Main.route)
+            } else {
+                val errorMessage = it.errorBody()?.charStream()
+                try {
+                    // Gson을 사용하여 파싱
+                    val gson = Gson()
+                    val errorResponse = gson.fromJson(errorMessage, ErrorResponse::class.java)
+
+                    val toastTop = Toast.makeText(context, "${errorResponse.message}", Toast.LENGTH_LONG)
+
+                    toastTop.show()
+                } catch (e: JsonSyntaxException) {
+                    val toastTop = Toast.makeText(context, "알 수 없는 에러", Toast.LENGTH_LONG)
+
+                    toastTop.show()
+                }
+            }
+        }
+    }
+
     // 모임종료 버튼
     Box(contentAlignment = Alignment.Center, modifier = modifier) {
         Button(
             onClick = {
                 bookingViewModel.patchBookingEnd(meetingId)
-                val toastTop = Toast.makeText(context, "모임이 종료되었습니다.", Toast.LENGTH_LONG)
-                toastTop.setGravity(Gravity.TOP, 0, 0)
-                toastTop.show()
-                navController.navigate(AppNavItem.Main.route)
             },
             modifier = Modifier
                 .fillMaxWidth(0.95f) // 화면의 95% 크기
@@ -451,14 +553,40 @@ fun RestartButton(
     context : Context,
     modifier: Modifier = Modifier
 ) {
+    val patchBookingRestartResponse = bookingViewModel.patchBookingRestartResponse.observeAsState()
+
+    LaunchedEffect(patchBookingRestartResponse.value) {
+        patchBookingRestartResponse.value?.let {
+            if (it.isSuccessful) {
+                val toastTop = Toast.makeText(context, "한 번 더하기.", Toast.LENGTH_LONG)
+                toastTop.setGravity(Gravity.TOP, 0, 0)
+                toastTop.show()
+                navController.navigate("")
+            } else {
+                val errorMessage = it.errorBody()?.charStream()
+                try {
+                    // Gson을 사용하여 파싱
+                    val gson = Gson()
+                    val errorResponse = gson.fromJson(errorMessage, ErrorResponse::class.java)
+
+                    val toastTop = Toast.makeText(context, "${errorResponse.message}", Toast.LENGTH_LONG)
+
+                    toastTop.show()
+                } catch (e: JsonSyntaxException) {
+                    // 에러 처리
+                    Log.e("테스트중", "Gson 파싱 에러: ", e)
+                    val toastTop = Toast.makeText(context, "알 수 없는 에러", Toast.LENGTH_LONG)
+
+                    toastTop.show()
+                }
+            }
+        }
+    }
     // 한번 더 하기 버튼
     Box(contentAlignment = Alignment.Center, modifier = modifier) {
         Button(
             onClick = {
                 bookingViewModel.patchBookingRestart(meetingId)
-                val toastTop = Toast.makeText(context, "한 번 더하기(구현 중).", Toast.LENGTH_LONG)
-                toastTop.setGravity(Gravity.TOP, 0, 0)
-                toastTop.show()
             },
             modifier = Modifier
                 .fillMaxWidth(0.95f) // 화면의 95% 크기
@@ -487,13 +615,50 @@ fun PayRequestButton(
     bookingViewModel : BookingViewModel,
     context : Context,
     modifier: Modifier = Modifier
-){Box(contentAlignment = Alignment.Center, modifier = modifier) {
+){
+    val patchPaymentResponse by bookingViewModel.patchPaymentResponse.observeAsState()
+    val getBookingDetailResponse by bookingViewModel.getBookingDetailResponse.observeAsState()
+    
+    LaunchedEffect(patchPaymentResponse) {
+        patchPaymentResponse?.let {
+            if (it.isSuccessful) {
+                val toastTop = Toast.makeText(context, "참가비 결제가 완료되었습니다.", Toast.LENGTH_LONG)
+                toastTop.setGravity(Gravity.TOP, 0, 0)
+                toastTop.show()
+            } else {
+                val errorMessage = it.errorBody()?.charStream()
+                try {
+                    // Gson을 사용하여 파싱
+                    val gson = Gson()
+                    val errorResponse = gson.fromJson(errorMessage, ErrorResponse::class.java)
+
+                    val toastTop = Toast.makeText(context, "${errorResponse.message}", Toast.LENGTH_LONG)
+
+                    toastTop.show()
+
+                    if (errorResponse.message == "참가비 응답 에러: 포인트가 부족합니다.") {
+                        getBookingDetailResponse?.let {
+                            it.body()?.let {
+                                val fee = it.meetingInfoList[0].fee
+                                navController.navigate("pay/ready/$fee")
+                            }
+                        }
+                    }
+                } catch (e: JsonSyntaxException) {
+                    // 에러 처리
+                    Log.e("테스트중", "Gson 파싱 에러: ", e)
+                    val toastTop = Toast.makeText(context, "알 수 없는 에러", Toast.LENGTH_LONG)
+
+                    toastTop.show()
+                }
+            }
+        }
+    }
+    
+    Box(contentAlignment = Alignment.Center, modifier = modifier) {
     Button(
         onClick = {
             bookingViewModel.patchPayment(meetingId)
-            val toastTop = Toast.makeText(context, "참가비 결제가 완료되었습니다.", Toast.LENGTH_LONG)
-            toastTop.setGravity(Gravity.TOP, 0, 0)
-            toastTop.show()
         },
         modifier = Modifier
             .fillMaxWidth(0.95f) // 화면의 95% 크기
@@ -521,9 +686,9 @@ fun WaitingButton() {
           Button(
                 onClick = { /*TODO*/ },
                 modifier = Modifier
-                .fillMaxWidth(0.95f) // 화면의 95% 크기
-                .padding(bottom = 5.dp)
-                .height(50.dp),
+                    .fillMaxWidth(0.95f) // 화면의 95% 크기
+                    .padding(bottom = 5.dp)
+                    .height(50.dp),
                     colors = ButtonDefaults . buttonColors (containerColor =
                 Color(0xff2f4858)),
             shape = RoundedCornerShape(6.dp) // 각진 모서리
