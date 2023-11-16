@@ -116,10 +116,10 @@ public class MessageService {
         return reactiveRedisTemplate.opsForValue().get(chatroomKey)
                                     .flatMap(memberList -> {
                                         if (memberList != null) {
-                                            long count = memberList.stream()
-                                                                   .filter(memberId -> !memberId.toString().equals(senderId.toString()))
-                                                                   .count();
-                                            return Mono.just((int) count);
+//                                            long count = memberList.stream()
+//                                                                   .filter(memberId -> !memberId.toString().equals(senderId.toString()))
+//                                                                   .count();
+                                            return Mono.just((int) (chatroom.getMemberList().size() - memberList.size()));
                                         } else {
                                             return Mono.just(chatroom.getMemberList().size() - 1);
                                         }
