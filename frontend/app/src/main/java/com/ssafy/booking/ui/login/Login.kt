@@ -335,9 +335,8 @@ fun KakaoLoginButton(
                 "카카오계정 로그인",
                 fontWeight = FontWeight.ExtraBold,
                 color = Color.Black,
-                modifier = Modifier.padding(end = 30.dp), // 남은 공간을 텍스트가 채우도록 함
+                modifier = Modifier.padding(end = 15.dp), // 남은 공간을 텍스트가 채우도록 함
                 fontFamily = FontFamily(Font(R.font.gowundodum)),
-
                 )
         }
     }}

@@ -11,8 +11,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -26,6 +28,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
@@ -82,6 +85,7 @@ fun KakaoPayReadyScreen(
 
     Scaffold(
         topBar = { BackTopBar(title = "카카오페이 결제 페이지") },
+//        containerColor = Color(0xFF12BD7E)
     ) {paddingValues ->
         Column(
             modifier = Modifier
@@ -110,9 +114,11 @@ fun KakaoPayReadyScreen(
                     )
                     viewModel.getKakaoPayPage(kakaoPayRequest)
                 },
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFECE330)), // 카카오색 설정
+                shape = RoundedCornerShape(4.dp),
                 enabled = isButtonEnabled
             ) {
-                Text(text = "충전 요청")
+                Text(text = "카카오페이로 충전하기",color = Color.Black)
             }
         }
     }
