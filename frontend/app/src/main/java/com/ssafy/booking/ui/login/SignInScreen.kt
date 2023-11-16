@@ -168,16 +168,16 @@ fun SignInScreen(
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        OutlinedTextField(
-            value = email,
-            label = {
-                Text("이메일")
-            },
-            onValueChange = { email = it },
-            maxLines = 1,
-            singleLine = true
-        )
-        Spacer(modifier = Modifier.height(16.dp))
+//        OutlinedTextField(
+//            value = email,
+//            label = {
+//                Text("이메일")
+//            },
+//            onValueChange = { email = it },
+//            maxLines = 1,
+//            singleLine = true
+//        )
+//        Spacer(modifier = Modifier.height(16.dp))
 
         if (isNickNameError) {
             Text("닉네임이 중복되었습니다.", color = Color.Red)
@@ -239,95 +239,95 @@ fun SignInScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         // 년, 월, 일 선택
-        Row() {
-            Box(modifier = Modifier.padding(16.dp)) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically, // 중앙 수직 정렬
-                    horizontalArrangement = Arrangement.spacedBy(10.dp) // 요소 사이의 간격 설정
-                ) {
-                    Text(text = selectedYear, modifier = Modifier.clickable { isDropdownExpandedYear = true })
-
-                    DropdownMenu(
-                        expanded = isDropdownExpandedYear,
-                        onDismissRequest = { isDropdownExpandedYear = false },
-                        modifier = Modifier.requiredSizeIn(maxHeight = 300.dp)
-                    ) {
-                        years.forEach { year ->
-                            DropdownMenuItem(
-                                text = {
-                                    Text(text = year)
-                                },
-                                onClick = {
-                                    setSelectedYear(year)
-                                    isDropdownExpandedYear = false
-                                }
-                            )
-                        }
-                    }
-                    Text(text = "년")
-                }
-            }
-
-            Box(modifier = Modifier.padding(16.dp)) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically, // 중앙 수직 정렬
-                    horizontalArrangement = Arrangement.spacedBy(10.dp) // 요소 사이의 간격 설정
-                ) {
-                    Text(
-                        text = selectedMonth,
-                        modifier = Modifier.clickable { isDropdownExpandedMonth = true }
-                    )
-
-                    DropdownMenu(
-                        expanded = isDropdownExpandedMonth,
-                        onDismissRequest = { isDropdownExpandedMonth = false },
-                        modifier = Modifier.requiredSizeIn(maxHeight = 300.dp)
-                    ) {
-                        months.forEach { month ->
-                            DropdownMenuItem(
-                                text = {
-                                    Text(text = month)
-                                },
-                                onClick = {
-                                    setSelectedMonth(month)
-                                    isDropdownExpandedMonth = false
-                                }
-                            )
-                        }
-                    }
-
-                    Text(text = "월")
-                }
-            }
-
-            Box(modifier = Modifier.padding(16.dp)) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically, // 중앙 수직 정렬
-                    horizontalArrangement = Arrangement.spacedBy(8.dp) // 요소 사이의 간격 설정
-                ) {
-                    Text(text = selectedDay, modifier = Modifier.clickable { isDropdownExpandedDay = true })
-
-                    DropdownMenu(
-                        expanded = isDropdownExpandedDay,
-                        onDismissRequest = { isDropdownExpandedDay = false },
-                        modifier = Modifier.requiredSizeIn(maxHeight = 300.dp)
-                    ) {
-                        days.forEach { day ->
-                            DropdownMenuItem(
-                                text = {
-                                    Text(text = day)
-                                },
-                                onClick = {
-                                    setSelectedDay(day)
-                                    isDropdownExpandedDay = false
-                                }
-                            )
-                        }
-                    }
-                    Text(text = "일")
-                }
-            }
-        }
+//        Row() {
+//            Box(modifier = Modifier.padding(16.dp)) {
+//                Row(
+//                    verticalAlignment = Alignment.CenterVertically, // 중앙 수직 정렬
+//                    horizontalArrangement = Arrangement.spacedBy(10.dp) // 요소 사이의 간격 설정
+//                ) {
+//                    Text(text = selectedYear, modifier = Modifier.clickable { isDropdownExpandedYear = true })
+//
+//                    DropdownMenu(
+//                        expanded = isDropdownExpandedYear,
+//                        onDismissRequest = { isDropdownExpandedYear = false },
+//                        modifier = Modifier.requiredSizeIn(maxHeight = 300.dp)
+//                    ) {
+//                        years.forEach { year ->
+//                            DropdownMenuItem(
+//                                text = {
+//                                    Text(text = year)
+//                                },
+//                                onClick = {
+//                                    setSelectedYear(year)
+//                                    isDropdownExpandedYear = false
+//                                }
+//                            )
+//                        }
+//                    }
+//                    Text(text = "년")
+//                }
+//            }
+//
+//            Box(modifier = Modifier.padding(16.dp)) {
+//                Row(
+//                    verticalAlignment = Alignment.CenterVertically, // 중앙 수직 정렬
+//                    horizontalArrangement = Arrangement.spacedBy(10.dp) // 요소 사이의 간격 설정
+//                ) {
+//                    Text(
+//                        text = selectedMonth,
+//                        modifier = Modifier.clickable { isDropdownExpandedMonth = true }
+//                    )
+//
+//                    DropdownMenu(
+//                        expanded = isDropdownExpandedMonth,
+//                        onDismissRequest = { isDropdownExpandedMonth = false },
+//                        modifier = Modifier.requiredSizeIn(maxHeight = 300.dp)
+//                    ) {
+//                        months.forEach { month ->
+//                            DropdownMenuItem(
+//                                text = {
+//                                    Text(text = month)
+//                                },
+//                                onClick = {
+//                                    setSelectedMonth(month)
+//                                    isDropdownExpandedMonth = false
+//                                }
+//                            )
+//                        }
+//                    }
+//
+//                    Text(text = "월")
+//                }
+//            }
+//
+//            Box(modifier = Modifier.padding(16.dp)) {
+//                Row(
+//                    verticalAlignment = Alignment.CenterVertically, // 중앙 수직 정렬
+//                    horizontalArrangement = Arrangement.spacedBy(8.dp) // 요소 사이의 간격 설정
+//                ) {
+//                    Text(text = selectedDay, modifier = Modifier.clickable { isDropdownExpandedDay = true })
+//
+//                    DropdownMenu(
+//                        expanded = isDropdownExpandedDay,
+//                        onDismissRequest = { isDropdownExpandedDay = false },
+//                        modifier = Modifier.requiredSizeIn(maxHeight = 300.dp)
+//                    ) {
+//                        days.forEach { day ->
+//                            DropdownMenuItem(
+//                                text = {
+//                                    Text(text = day)
+//                                },
+//                                onClick = {
+//                                    setSelectedDay(day)
+//                                    isDropdownExpandedDay = false
+//                                }
+//                            )
+//                        }
+//                    }
+//                    Text(text = "일")
+//                }
+//            }
+//        }
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -368,8 +368,8 @@ fun SignInScreen(
                                 val request = SignInRequest(
                                     loginId = loginId,
                                     address = myLocation,
-                                    age = 2023 - selectedYear.toInt(),
-                                    email = email,
+                                    age = null,
+                                    email = null,
                                     fullName = name,
                                     gender = selectedGender,
                                     nickname = nickName,
@@ -381,8 +381,8 @@ fun SignInScreen(
                                 val request = SignInRequest(
                                     loginId = loginId,
                                     address = myLocation,
-                                    age = 2023 - selectedYear.toInt(),
-                                    email = email,
+                                    age = null,
+                                    email = null,
                                     fullName = name,
                                     gender = selectedGender,
                                     nickname = nickName,
@@ -401,8 +401,12 @@ fun SignInScreen(
                     }
                     Button(onClick = {
                         googleViewModel.signOutGoogle()
-                        navController.navigate("login")
-                    }) {
+                        navController.navigate("login") },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = colorResource(id = R.color.booking_2),
+                            contentColor = colorResource(id = R.color.font_color)
+                        )
+                        ) {
                         Text(text = "돌아가기")
                     }
                 }

@@ -91,7 +91,6 @@ fun MyBookFloatingActionButton() {
             contentDescription = "Localized description",
             modifier = Modifier.size(40.dp),
             tint = Color.White
-
         )
     }
 }
