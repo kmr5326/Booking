@@ -26,7 +26,7 @@ fun TopBar(
     val navController = LocalNavigation.current
     TopAppBar(
         colors = TopAppBarDefaults.mediumTopAppBarColors(
-            containerColor = Color(0xFF00C68E)
+            containerColor = Color(0xFF12BD7E)
         ),
         title = { Text(text = "$title", color = Color.White, fontFamily = FontFamily(Font(R.font.gowundodum)), fontWeight = FontWeight.Bold)  },
         actions = {

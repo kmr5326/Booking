@@ -51,6 +51,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.TextOverflow
@@ -138,8 +139,8 @@ fun BookHome(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
-                    .padding(top = 4.dp)
-                    .padding(bottom = 16.dp)
+                    .padding(top = 20.dp)
+                    .padding(bottom = 5.dp)
                     .height(50.dp),
                 singleLine = true,
                 colors = TextFieldDefaults.outlinedTextFieldColors(
@@ -298,12 +299,17 @@ fun BookInitView(checkNum: String) {
         modifier = Modifier.fillMaxSize()
             .verticalScroll(rememberScrollState())
     ) {
-        Text(text = "현재 모임 인기 도서")
+        Text(
+            text = "북킹 모임 인기 도서",
+            color = Color(0xFF394B41),
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold
+        )
         getBookPopularResponse?.let {
             LazyRow(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 8.dp, vertical = 15.dp)
+                    .padding(horizontal = 8.dp, vertical = 7.dp)
             ) {
                 items(it.body()!!) { book ->
                     BookInitPopularItem(book, checkNum)
@@ -311,12 +317,16 @@ fun BookInitView(checkNum: String) {
             }
         }
         Spacer(modifier = Modifier.size(20.dp))
-        Text(text = "신간 도서")
+        Text(text = "이달의 신간도서",
+            color = Color(0xFF394B41),
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold
+            )
         getBookLatestResponse?.let {
             LazyRow(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 8.dp, vertical = 15.dp)
+                    .padding(horizontal = 8.dp, vertical = 7.dp)
             ) {
                 items(it.body()!!) { book ->
                     BookInitItem(book, checkNum)
@@ -352,7 +362,7 @@ fun BookInitItem(
             contentDescription = "책 커버 이미지",
             contentScale = ContentScale.Crop,
             modifier = Modifier
-                .height(200.dp)
+                .height(170.dp)
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(4.dp))
         )
@@ -391,7 +401,7 @@ fun BookInitPopularItem(
             contentDescription = "책 커버 이미지",
             contentScale = ContentScale.Crop,
             modifier = Modifier
-                .height(200.dp)
+                .height(170.dp)
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(4.dp))
         )

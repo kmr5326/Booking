@@ -242,20 +242,23 @@ fun BookingItemByMemberPk(bookingItem: BookingListByMemberPk, navController: Nav
                 fontSize = 12.sp
             )
             Spacer(modifier = Modifier.height(8.dp))
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    Icons.Outlined.LocationOn,
-                    contentDescription = "locate",
-                    modifier = Modifier.size(12.dp),
-                    tint = Color.Gray
-                )
-                Text(
-//                    text = booking.lat.toString(),
-                    text = bookingItem.address ?: "",
-                    color = Color.Gray,
-                    fontSize = 12.sp
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    bookingItem.address.let{
+                    Icon(
+                        Icons.Outlined.LocationOn,
+                        contentDescription = "locate",
+                        modifier = Modifier.size(12.dp),
+                        tint = Color.Gray
+                    )
+                    Text(
+        //                    text = booking.lat.toString(),
+                        text = bookingItem.address ?: "",
+                        color = Color.Gray,
+                        fontSize = 12.sp
+                    )
+                }
             }
+
             Spacer(modifier = Modifier.height(8.dp))
             Row(
                 horizontalArrangement = Arrangement.Start,

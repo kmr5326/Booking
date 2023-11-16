@@ -238,7 +238,7 @@ fun GoogleLoginButton(
                 "구글 로그인",
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFF4285F4),
-                modifier = Modifier.padding(end = 28.dp), // 남은 공간을 텍스트가 채우도록 함
+                modifier = Modifier.padding(start = 12.dp), // 남은 공간을 텍스트가 채우도록 함
                 fontFamily = FontFamily(Font(R.font.gowundodum)),
 
             )
@@ -335,7 +335,7 @@ fun KakaoLoginButton(
                 "카카오계정 로그인",
                 fontWeight = FontWeight.ExtraBold,
                 color = Color.Black,
-                modifier = Modifier.padding(end = 23.dp), // 남은 공간을 텍스트가 채우도록 함
+                modifier = Modifier.padding(end = 30.dp), // 남은 공간을 텍스트가 채우도록 함
                 fontFamily = FontFamily(Font(R.font.gowundodum)),
 
                 )

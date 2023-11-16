@@ -243,7 +243,7 @@ fun SettingLocationMap() {
     Log.d("위치2", initLgt.toString())
     val cameraPositionState: CameraPositionState = rememberCameraPositionState {
         // 카메라 초기 위치를 meetingInfo의 위치로 설정합니다.
-        position = CameraPosition(currentLocation, 10.0)
+        position = CameraPosition(currentLocation, 5.0)
     }
     Box(
         modifier = Modifier
@@ -263,7 +263,7 @@ fun SettingLocationMap() {
             )
             CircleOverlay(
                 center = currentLocation, radius = 10000.0, // 10km
-                color = Color(0, 150, 0, 100), // 반투명한 파란색, ]
+                color = Color(0, 0, 255, 0) // 반투명한 파란색, ]
             )
         }
     }
