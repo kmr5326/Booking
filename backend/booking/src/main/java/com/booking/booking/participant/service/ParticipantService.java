@@ -57,6 +57,9 @@ public class ParticipantService {
         return participantStateService.findParticipantStatesByMeetingId(meetingId)
                 .flatMap(participantState -> memberUtil.getMemberInfoByPk(participantState.getMemberId())
                         .flatMap(member -> Mono.just(new ParticipantResponse(member, participantState))))
+                .switchIfEmpty(participantRepository.findAllByMeetingId(meetingId)
+                        .flatMap(participant -> memberUtil.getMemberInfoByPk(participant.getMemberId()))
+                        .flatMap(member -> Mono.just(new ParticipantResponse(member))))
                 .onErrorResume(error -> {
                     log.error("[Booking:Participant ERROR] findAllByMeetingId : {}", error.getMessage());
                     return Flux.error(new RuntimeException("참가자 목록 조회 실패"));
