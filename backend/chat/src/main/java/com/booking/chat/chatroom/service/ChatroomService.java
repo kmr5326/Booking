@@ -13,13 +13,11 @@ import com.booking.chat.chatroom.exception.ChatroomException;
 import com.booking.chat.chatroom.repository.ChatroomRepository;
 import com.booking.chat.global.exception.ErrorCode;
 import com.booking.chat.kafka.service.KafkaService;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -79,21 +77,13 @@ public class ChatroomService {
                                  });
     }
     public Flux<ChatroomListResponse> getChatroomListByMemberId(Long memberId) {
-//        return chatroomRepository.findByMemberListContains(memberId)
-//                                 .map(ChatroomListResponse::from);
-        return Flux.empty();
+        return chatroomRepository.findByMemberListContains(memberId)
+                                 .map(ChatroomListResponse::from);
     }
 
     public Flux<ChatroomListResponse> getChatroomListByMemberIdOrderByDesc(Long memberId) {
-//        return chatroomRepository.findByMemberListContainsOrderByLastMessageReceivedTimeDesc(memberId)
-//                                 .map(ChatroomListResponse::from);
-        return chatroomRepository.findByMemberListContains(memberId)
-            .flatMap(chatroom ->
-                messageRepository.findLatestByChatroomId(chatroom.get_id(), PageRequest.of(0, 1))
-                    .map(message -> ChatroomListResponse.from(chatroom, message))
-                    .defaultIfEmpty(ChatroomListResponse.fromNewChatroom(chatroom))
-                    .sort(Comparator.comparing(ChatroomListResponse::lastMessageIdx, Comparator.nullsLast(Comparator.naturalOrder())).reversed()));
-
+        return chatroomRepository.findByMemberListContainsOrderByLastMessageReceivedTimeDesc(memberId)
+                                 .map(ChatroomListResponse::from);
     }
 
 
