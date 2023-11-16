@@ -9,14 +9,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.outlined.Clear
@@ -62,6 +65,7 @@ import com.ssafy.booking.ui.common.BottomNav
 import com.ssafy.booking.ui.common.TopBar
 import com.ssafy.booking.viewmodel.AppViewModel
 import com.ssafy.booking.viewmodel.BookSearchViewModel
+import com.ssafy.domain.model.booksearch.BookSearchPopularResponse
 import com.ssafy.domain.model.booksearch.BookSearchResponse
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -83,6 +87,7 @@ fun BookHome(
 
     LaunchedEffect(Unit) {
         viewModel.getBookLatest(1, 16)
+        viewModel.getBookPopular()
         Log.d("booktest", "$checkNum")
     }
 
@@ -286,23 +291,45 @@ fun BookInitView(checkNum: String) {
     val viewModel: BookSearchViewModel = hiltViewModel()
 
     val getBookLatestResponse by viewModel.getBookLatestResponse.observeAsState()
+    val getBookPopularResponse by viewModel.getBookPopularResponse.observeAsState()
 
-    Text(text = "신간 도서")
-    getBookLatestResponse?.let {
-        LazyRow(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 8.dp, vertical = 15.dp)
-        ) {
-            items(it.body()!!) { book ->
-                BookInitItem(book, checkNum)
+    Column(
+        modifier = Modifier.fillMaxSize()
+            .verticalScroll(rememberScrollState())
+    ) {
+        Text(text = "현재 모임 인기 도서")
+        getBookPopularResponse?.let {
+            LazyRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp, vertical = 15.dp)
+            ) {
+                items(it.body()!!) { book ->
+                    BookInitPopularItem(book, checkNum)
+                }
+            }
+        }
+        Spacer(modifier = Modifier.size(20.dp))
+        Text(text = "신간 도서")
+        getBookLatestResponse?.let {
+            LazyRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp, vertical = 15.dp)
+            ) {
+                items(it.body()!!) { book ->
+                    BookInitItem(book, checkNum)
+                }
             }
         }
     }
 }
 
 @Composable
-fun BookInitItem(book: BookSearchResponse, checkNum: String) {
+fun BookInitItem(
+    book: BookSearchResponse,
+    checkNum: String
+) {
     val navController = LocalNavigation.current
 
     Column(
@@ -336,3 +363,43 @@ fun BookInitItem(book: BookSearchResponse, checkNum: String) {
         )
     }
 }
+
+@Composable
+fun BookInitPopularItem(
+    book: BookSearchPopularResponse,
+    checkNum: String
+) {
+    val navController = LocalNavigation.current
+
+    Column(
+        modifier = Modifier
+            .width(150.dp)
+            .padding(12.dp)
+            .clickable {
+                if (checkNum == "0") {
+                    navController.navigate("bookDetail/${book.isbn}")
+                } else if (checkNum == "1") {
+                    navController.navigate("create/booking/${book.isbn}")
+                } else {
+                    navController.navigate("profile/book/${book.isbn}")
+                }
+            }
+    ) {
+        AsyncImage(
+            model = book.coverImage,
+            contentDescription = "책 커버 이미지",
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .height(200.dp)
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(4.dp))
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = "${book.title} (${book.meetingCnt})",
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+    }
+}
+

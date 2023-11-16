@@ -6,14 +6,17 @@ import coil.request.CachePolicy
 import coil.util.DebugLogger
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import com.ssafy.booking.BuildConfig
 import com.ssafy.booking.utils.ObjectStorageInterceptor
 import com.ssafy.booking.utils.Utils.BASE_URL
 import com.ssafy.booking.utils.Utils.NAVER_CLOUD_URL
 import com.ssafy.data.remote.api.BookSearchApi
 import com.ssafy.data.remote.api.BookingApi
+import com.ssafy.data.remote.api.BookingBoardApi
 import com.ssafy.data.remote.api.ChatApi
 import com.ssafy.data.remote.api.FirebaseApi
 import com.ssafy.data.remote.api.GoogleApi
+import com.ssafy.data.remote.api.KakaoPayApi
 import com.ssafy.data.remote.api.HistoryAPi
 import com.ssafy.data.remote.api.LocationApi
 import com.ssafy.data.remote.api.MemberApi
@@ -36,6 +39,7 @@ import java.io.IOException
 import java.util.concurrent.TimeUnit
 import javax.inject.Named
 import javax.inject.Singleton
+
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -151,6 +155,35 @@ class NetworkModule {
         return retrofit.create(LocationApi::class.java)
     }
 
+    @Provides
+    @Singleton
+    fun provideKakaoPayApi(@Named("defaultRetrofit") retrofit: Retrofit) : KakaoPayApi {
+        return retrofit.create(KakaoPayApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideBookingBoardApi(@Named("defaultRetrofit") retrofit: Retrofit) : BookingBoardApi {
+        return retrofit.create(BookingBoardApi::class.java)
+    }
+//    @Provides
+//    @Singleton
+//    fun providePostChatCreateApi(retrofit: Retrofit): PostChatCreateApi {
+//        return retrofit.create(PostChatCreateApi::class.java)
+//    }
+//
+//    @Provides
+//    @Singleton
+//    fun providePostChatJoinApi(retrofit: Retrofit): PostChatJoinApi {
+//        return retrofit.create(PostChatJoinApi::class.java)
+//    }
+//
+//    @Provides
+//    @Singleton
+//    fun providePostChatExitApi(retrofit: Retrofit): PostChatExitApi {
+//        return retrofit.create(PostChatExitApi::class.java)
+//    }
+
     private fun getLoggingInterceptor(): HttpLoggingInterceptor =
         HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BODY }
 
@@ -159,8 +192,8 @@ class NetworkModule {
     @Provides
     @Singleton
     fun provideObjectStorageInterceptor(): ObjectStorageInterceptor {
-        val accessKey = "64tVP74TUGmd6PDzjQ04"
-        val secretKey = "1E11TfvJcy7OVnSSm3rV0Vph24CLUO4Tiehd5PtZ"
+        val accessKey = BuildConfig.naverAccess_key
+        val secretKey = BuildConfig.naverSecret_key
         val region = "kr-standard"
         return ObjectStorageInterceptor(accessKey, secretKey, region)
     }
@@ -184,8 +217,8 @@ class NetworkModule {
         return Retrofit.Builder()
             .baseUrl(NAVER_CLOUD_URL)
             .client(okHttpClientWithObjectStorage(provideObjectStorageInterceptor()))
-            .addConverterFactory(ScalarsConverterFactory.create())
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(ScalarsConverterFactory.create()) // 문자열 처리
+            .addConverterFactory(GsonConverterFactory.create()) // 객체 Json
             .build()
     }
 

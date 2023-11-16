@@ -1,5 +1,6 @@
 package com.ssafy.data.remote.api
 
+import com.ssafy.domain.model.booksearch.BookSearchPopularResponse
 import com.ssafy.domain.model.booksearch.BookSearchResponse
 import retrofit2.Response
 import retrofit2.http.GET
@@ -22,5 +23,9 @@ interface BookSearchApi {
         @Query("page") page: Int,
         @Query("size") size: Int
     ) : Response<List<BookSearchResponse>>
+
+    @Headers("Content-Type: application/json;charset=UTF-8")
+    @GET("/api/book/popular")
+    suspend fun getBookPopular() : Response<List<BookSearchPopularResponse>>
 
 }

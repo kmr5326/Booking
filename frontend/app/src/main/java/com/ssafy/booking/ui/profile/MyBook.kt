@@ -63,7 +63,7 @@ fun MyBook(
             // myBookState 값에 따라 UI를 조건부로 렌더링
             when (myBookState) {
                 is MyBookState.Loading -> Text("정보를 불러오는 중...")
-                is MyBookState.Success -> MyBookListView(books = (myBookState as MyBookState.Success).data)
+                is MyBookState.Success -> MyBookListView(books = (myBookState as MyBookState.Success).data, yourPk = data.myProfile!!.memberPk)
                 is MyBookState.Error -> MyBookErrorView(message = (myBookState as MyBookState.Error).message)
                 else -> Text("정보를 불러오는 중...")
             }
@@ -100,7 +100,8 @@ fun MyBookFloatingActionButton() {
 
 @Composable
 fun MyBookListView(
-    books : List<MyBookListResponse>
+    books : List<MyBookListResponse>,
+    yourPk : Long
 ) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(2), // 두 컬럼으로 설정
@@ -109,14 +110,15 @@ fun MyBookListView(
             .padding(10.dp)
     ) {
         items(books.size) { index ->
-            MyBookItem(book = books[index])
+            MyBookItem(book = books[index], yourPk = yourPk)
         }
     }
 }
 
 @Composable
 fun MyBookItem(
-    book : MyBookListResponse
+    book : MyBookListResponse,
+    yourPk : Long
 ) {
     val navController = LocalNavigation.current
 
@@ -125,7 +127,7 @@ fun MyBookItem(
             .padding(4.dp)
             .fillMaxWidth()
             .clickable {
-                navController.navigate("profile/book/detail/${book.bookInfo.isbn}")
+                navController.navigate("profile/book/detail/${book.bookInfo.isbn}/$yourPk")
             },
         colors = CardDefaults.cardColors(
             containerColor = colorResource(id = R.color.background_color)

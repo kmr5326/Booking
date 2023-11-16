@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -8,6 +10,19 @@ plugins {
     // Add the Google services Gradle plugin
     id("com.google.gms.google-services")
 }
+
+// 보안키 설정을 위한 properties 세팅
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localProperties.load(localPropertiesFile.inputStream())
+}
+
+val naverAccessKey = localProperties.getProperty("naverAccess_key") ?: ""
+val naverSecretKey = localProperties.getProperty("naverSecret_key") ?: ""
+val naverMapClientId = localProperties.getProperty("naverMapClient_id") ?: ""
+val kakaoSdkAppKey = localProperties.getProperty("kakaoSdkApp_key") ?: ""
+
 
 android {
     namespace = "com.ssafy.booking"
@@ -24,6 +39,11 @@ android {
         targetSdk = 34
         versionCode = 4
         versionName = "4"
+        buildConfigField("String", "naverAccess_key", "\"$naverAccessKey\"")
+        buildConfigField("String", "naverSecret_key", "\"$naverSecretKey\"")
+        buildConfigField("String", "naverMapClient_id", "\"$naverMapClientId\"")
+        buildConfigField("String", "kakaoSdkApp_key", "\"$kakaoSdkAppKey\"")
+        manifestPlaceholders["kakaoSdkAppKeyPlaceholder"] = kakaoSdkAppKey
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -49,6 +69,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.4.3"
@@ -82,6 +103,7 @@ dependencies {
     implementation("com.google.android.material:material:1.10.0")
     implementation("androidx.wear.compose:compose-material:1.2.1")
     implementation("com.google.android.gms:play-services-pal:20.2.0")
+    implementation("com.google.firebase:firebase-crashlytics-buildtools:2.9.9")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
