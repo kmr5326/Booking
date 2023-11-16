@@ -14,7 +14,7 @@ public record ChatroomListResponse(
 
 ) {
     public static ChatroomListResponse from(Chatroom chatroom, Message message) {
-        return new ChatroomListResponse(chatroom.get_id(), message.getMessageId(), chatroom.getMeetingTitle(), message.getContent(), chatroom.getCoverImage(), chatroom.getMemberList());
+        return new ChatroomListResponse(chatroom.get_id(), message.get_id(), chatroom.getMeetingTitle(), message.getContent(), chatroom.getCoverImage(), chatroom.getMemberList());
     }
 
     public static ChatroomListResponse fromNewChatroom(Chatroom chatroom) {

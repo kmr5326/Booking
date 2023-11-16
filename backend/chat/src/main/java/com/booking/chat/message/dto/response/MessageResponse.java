@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 
 public record MessageResponse(
     Long chatroomId,
-    String messageId,
+    Long messageId,
     Long senderId,
     String content,
     Integer readCount,
