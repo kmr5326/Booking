@@ -72,7 +72,7 @@ public class MemberUtil {
                 .retrieve()
                 .onStatus(HttpStatus::is4xxClientError,
                         response -> response.bodyToMono(String.class)
-                                .flatMap(errorBody -> Mono.error(new RuntimeException("참가비 응답 에러: " + errorBody))))
+                                .flatMap(errorBody -> Mono.error(new RuntimeException(errorBody))))
                 .onStatus(HttpStatus::is5xxServerError,
                         response -> Mono.error(new RuntimeException("참가비 응답 에러")))
                 .bodyToMono(String.class);
@@ -86,7 +86,7 @@ public class MemberUtil {
                 .retrieve()
                 .onStatus(HttpStatus::is4xxClientError,
                         response -> response.bodyToMono(String.class)
-                                        .flatMap(errorBody -> Mono.error(new RuntimeException("참가비 응답 에러: " + errorBody))))
+                                        .flatMap(errorBody -> Mono.error(new RuntimeException(errorBody))))
                 .onStatus(HttpStatus::is5xxServerError,
                         response -> Mono.error(new RuntimeException("참가비 응답 에러")))
                 .bodyToMono(String.class);
