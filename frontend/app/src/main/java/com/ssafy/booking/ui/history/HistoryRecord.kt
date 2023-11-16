@@ -48,11 +48,13 @@ fun HistoryRecord(
     var isLeader by remember { mutableStateOf(false) }
     isLeader = myPk.toInt() == meetingLeaderId
 
+    Log.d("STT_TEST", "MEETINGID ${meetinginfoId}")
+
     var isLoadRecord by remember { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(false) }
     val responseState by uploaderViewModel.naverCloudGetResponse.observeAsState()
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(meetinginfoId) {
         isLoading = true
         uploaderViewModel.GetToNaverCloud(meetinginfoId)
     }
@@ -105,7 +107,7 @@ fun HistoryRecord(
                     } else if (isLoadRecord == true) {
                         PlayerController(meetinginfoId)
                         TabBar(
-                            listOf("녹음 기록 분석", "녹음 모임 요약"),
+                            listOf("녹음 기록 분석", "녹음 요약"),
                             contentForTab = { index ->
                                 when (index) {
                                     0 -> RecordDetail(meetinginfoId)

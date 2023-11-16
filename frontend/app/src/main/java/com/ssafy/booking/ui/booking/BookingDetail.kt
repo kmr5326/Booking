@@ -108,7 +108,8 @@ fun BookingDetail(meetingId: Long) {
         }
     }
 
-    Scaffold( bottomBar = {
+    Scaffold(
+        bottomBar = {
         BottomBar(
             memberRole,
             meetingState,
@@ -116,11 +117,11 @@ fun BookingDetail(meetingId: Long) {
             bookingViewModel,
             context,
             navController,
-        )
-    })
+        ) }
+    )
 
     { paddingValues ->
-        LazyColumn(modifier = Modifier.padding(paddingValues)) {
+        LazyColumn(modifier = Modifier.padding(paddingValues).fillMaxSize()) {
             item {
                 BackTopBar(title = "모임 상세")
             }
@@ -351,15 +352,15 @@ fun AttendCheckButton(
     context : Context,
     modifier: Modifier = Modifier
 ){
-    val context = LocalContext.current
     val fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context)
     var location by remember { mutableStateOf<Location?>(null) }
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
         if (isGranted) {
-            val locationResult: Task<Location> = fusedLocationProviderClient.lastLocation
-            locationResult.addOnSuccessListener { loc: Location? ->
+            fusedLocationProviderClient.lastLocation.addOnSuccessListener { loc: Location? ->
                 location = loc
             }
+        } else {
+            Toast.makeText(context, "위치 권한이 필요합니다.", Toast.LENGTH_LONG).show()
         }
     }
     LaunchedEffect(Unit) {
@@ -370,16 +371,21 @@ fun AttendCheckButton(
     Box(contentAlignment = Alignment.Center, modifier = modifier) {
         Button(
             onClick = {
-                location?.let {
-                    val request = BookingAttendRequest(meetingId = meetingId,lat = 0.0,lgt = 0.0)
+                location?.let { loc ->
+                    val request = BookingAttendRequest(
+                        meetingId = meetingId,
+                        lat = loc.latitude, // 현재 위치의 위도 사용
+                        lgt = loc.longitude // 현재 위치의 경도 사용
+                    )
                     bookingViewModel.patchBookingAttend(request)
                     val toastTop = Toast.makeText(context, "출석체크가 완료되었습니다.", Toast.LENGTH_LONG)
                     toastTop.setGravity(Gravity.TOP, 0, 0)
                     toastTop.show()
+                } ?: run {
+                    Log.d("LocationError", "Location is null")
+                    // 위치 정보가 없는 경우 처리
+                    Toast.makeText(context, "위치 정보를 가져올 수 없습니다.", Toast.LENGTH_LONG).show()
                 }
-                    .run{
-                        Log.d("왜안돼","왜안돼${location.toString()}")
-                    }
             },
             modifier = Modifier
                 .fillMaxWidth(0.95f) // 화면의 95% 크기

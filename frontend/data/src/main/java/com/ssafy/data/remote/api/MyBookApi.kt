@@ -32,4 +32,8 @@ interface MyBookApi {
     @Headers("Content-Type: application/json;charset=UTF-8")
     @DELETE("/api/book/member/{memberBookId}")
     suspend fun deleteBookRegister(@Path("memberBookId") memberBookId: String) : Response<Unit>
+
+    @Headers("Content-Type: application/json;charset=UTF-8")
+    @DELETE("/api/book/member/{memberBookId}/{noteIndex}")
+    suspend fun deleteBookNote(@Path("memberBookId") memberBookId: String, @Path("noteIndex") noteIndex: Int) : Response<Unit>
 }

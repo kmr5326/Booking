@@ -33,4 +33,8 @@ class MyBookRepositoryImpl @Inject constructor(
     override suspend fun deleteBookRegister(memberBookId: String): Response<Unit> {
         return myBookApi.deleteBookRegister(memberBookId)
     }
+
+    override suspend fun deleteBookNote(memberBookId: String, noteIndex: Int): Response<Unit> {
+        return myBookApi.deleteBookNote(memberBookId, noteIndex)
+    }
 }

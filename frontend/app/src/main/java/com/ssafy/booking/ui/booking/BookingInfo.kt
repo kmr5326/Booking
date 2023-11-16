@@ -37,6 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
@@ -44,7 +45,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import coil.compose.rememberImagePainter
+import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
 import com.google.android.gms.common.internal.safeparcel.SafeParcelable.Indicator
 import com.google.gson.Gson
 import com.naver.maps.geometry.LatLng
@@ -70,18 +72,19 @@ import java.time.format.DateTimeFormatter
 
 @Composable
 fun BookingInfo(
-    meetingId : Long,
-    memberRole : String,
-    meetingState : String
+    meetingId: Long,
+    memberRole: String,
+    meetingState: String
 ) {
     // 뷰모델 연결
     val bookingViewModel: BookingViewModel = hiltViewModel()
     val getBookingDetailResponse by bookingViewModel.getBookingDetailResponse.observeAsState()
     var bookingDetail by remember { mutableStateOf<BookingDetail?>(null) }
-    var firstMeetinginfoId by remember { mutableStateOf(0) }
+    var firstMeetinginfoId by remember { mutableStateOf(-1) }
     val onFirstMeetingIdChange = { newValue: Int ->
         firstMeetinginfoId = newValue
     }
+
 
     LaunchedEffect(Unit) {
         bookingViewModel.getBookingDetail(meetingId)
@@ -112,9 +115,11 @@ fun BookingInfo(
         val navController = LocalNavigation.current
         // 이미지
         val imagePainter = if (bookingDetail?.coverImage != null) {
-            rememberImagePainter(
-                data = bookingDetail?.coverImage,
-                builder = { crossfade(true) }
+            rememberAsyncImagePainter(
+                ImageRequest.Builder(LocalContext.current).data(data = bookingDetail?.coverImage)
+                    .apply(block = fun ImageRequest.Builder.() {
+                        crossfade(true)
+                    }).build()
             )
         } else {
             painterResource(id = R.drawable.main1) // 기본 이미지
@@ -153,29 +158,34 @@ fun BookingInfo(
                 .padding(vertical = 13.dp)
         )
         Column {
-            Row( modifier = Modifier
-                .fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
                 Text(
                     text = bookingDetail?.meetingTitle.orEmpty(),
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold
                 ) // 모임 제목
-                Text(
-                    text="녹음 보기",
-                    modifier = Modifier
-                        .clickable(onClick = {
-                            navController.navigate("history/detail/${meetingId}/${firstMeetinginfoId}/${1}")
-                        }),
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Gray,
-                    textDecoration = TextDecoration.Underline
-                )
+                if (firstMeetinginfoId != -1) {
+                    Text(
+                        text = "녹음 보기",
+                        modifier = Modifier
+                            .clickable(onClick = {
+                                navController.navigate("history/detail/${meetingId}/${firstMeetinginfoId}/${1}")
+                            }),
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Gray,
+                        textDecoration = TextDecoration.Underline
+                    )
+                }
             }
             Spacer(modifier = Modifier.height(8.dp))
             Row(
                 horizontalArrangement = Arrangement.Start,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
                     .padding(8.dp),
 
                 ) {
@@ -189,15 +199,25 @@ fun BookingInfo(
             Spacer(modifier = Modifier.height(4.dp))
 
         }
-        MeetingInfoTimeline(bookingDetail = bookingDetail, meetingId, firstMeetinginfoId, onFirstMeetingIdChange) // 모임 정보 타임라인
+        MeetingInfoTimeline(
+            bookingDetail = bookingDetail,
+            meetingId,
+            firstMeetinginfoId,
+            onFirstMeetingIdChange
+        ) // 모임 정보 타임라인
     }
 }
 
 
-
-
 @Composable
-fun MeetingInfoCard(meetingInfo: MeetingInfoResponse, meetingId:Long, isFirstItem: Boolean, index: Int, firstMeetinginfoId: Int, onFirstMeetingIdChange: (Int) -> Unit) {
+fun MeetingInfoCard(
+    meetingInfo: MeetingInfoResponse,
+    meetingId: Long,
+    isFirstItem: Boolean,
+    index: Int,
+    firstMeetinginfoId: Int,
+    onFirstMeetingIdChange: (Int) -> Unit
+) {
     val navController = LocalNavigation.current
     val meetingDate = meetingInfo.date
     val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
@@ -216,8 +236,8 @@ fun MeetingInfoCard(meetingInfo: MeetingInfoResponse, meetingId:Long, isFirstIte
 
             horizontalArrangement = Arrangement.SpaceBetween
 
-        ){
-            Text(text = "모임 일시",fontSize = 15.sp, fontWeight = FontWeight.Bold)
+        ) {
+            Text(text = "모임 일시", fontSize = 15.sp, fontWeight = FontWeight.Bold)
             Text(text = date ?: "아직 정해지지 않았습니다.", fontSize = 15.sp)
         }
         Row(
@@ -227,9 +247,9 @@ fun MeetingInfoCard(meetingInfo: MeetingInfoResponse, meetingId:Long, isFirstIte
 
             horizontalArrangement = Arrangement.SpaceBetween
 
-        ){
-            Text(text = "참가비",fontSize = 15.sp, fontWeight = FontWeight.Bold)
-            Text(text = "${meetingInfo.fee ?: "아직 정해지지 않았습니다."}원",fontSize=15.sp)
+        ) {
+            Text(text = "참가비", fontSize = 15.sp, fontWeight = FontWeight.Bold)
+            Text(text = "${meetingInfo.fee}원", fontSize = 15.sp)
 
         }
         Row(
@@ -238,13 +258,12 @@ fun MeetingInfoCard(meetingInfo: MeetingInfoResponse, meetingId:Long, isFirstIte
                 .padding(8.dp),
             horizontalArrangement = Arrangement.SpaceBetween
 
-        ){
-            Text(text = "모임 장소",fontSize = 15.sp, fontWeight = FontWeight.Bold)
-            Text(text = meetingInfo.location ?: "아직 정해지지 않았습니다.", fontSize = 15.sp)
+        ) {
+            Text(text = "모임 장소", fontSize = 15.sp, fontWeight = FontWeight.Bold)
+            Text(text = meetingInfo.location, fontSize = 15.sp)
         }
         Map(meetingInfo = meetingInfo)
-    }
-    else {
+    } else {
         if (index == 1) {
             Divider(
                 color = Color.LightGray,
@@ -267,25 +286,30 @@ fun MeetingInfoCard(meetingInfo: MeetingInfoResponse, meetingId:Long, isFirstIte
                 modifier = Modifier.padding(16.dp)
             ) {
 
-                Row( modifier = Modifier
-                    .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
                     Text(text = "모임 일정", fontSize = 15.sp)
                     Text(text = date ?: "모임 일정이 아직 정해지지 않았습니다.")
                 }
-                Row( modifier = Modifier
-                    .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween){
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
                     Text(text = "참가비")
-                    Text(text = "${meetingInfo.fee ?: "아직 정해지지 않았습니다."}원", fontSize = 15.sp)
+                    Text(text = "${meetingInfo.fee}원", fontSize = 15.sp)
                 }
-                Row( modifier = Modifier
-                    .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween){
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
                     Text(text = "모임 장소", fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                    Text(text = meetingInfo.location ?: "아직 정해지지 않았습니다.")
+                    Text(text = meetingInfo.location)
                 }
-
 
 
             }
@@ -326,7 +350,14 @@ fun MeetingInfoTimeline(
 //                .verticalScroll(rememberScrollState())
         ) {
             meetingInfoList.forEachIndexed { index, meetingInfo ->
-                MeetingInfoCard(meetingInfo, meetingId, isFirstItem = index == 0, meetingInfoList.size-index, firstMeetinginfoId, onFirstMeetingIdChange)
+                MeetingInfoCard(
+                    meetingInfo,
+                    meetingId,
+                    isFirstItem = index == 0,
+                    meetingInfoList.size - index,
+                    firstMeetinginfoId,
+                    onFirstMeetingIdChange
+                )
             }
         }
     } ?: Text(text = "아직 모임 정보가 없습니다.")
@@ -363,11 +394,15 @@ fun Map(meetingInfo: MeetingInfoResponse) {
             .padding(8.dp)
 
     ) {
-        NaverMap(properties = mapProperties, uiSettings = mapUiSettings, cameraPositionState = cameraPositionState) {
+        NaverMap(
+            properties = mapProperties,
+            uiSettings = mapUiSettings,
+            cameraPositionState = cameraPositionState
+        ) {
             // meetingInfo 위치에 마커 찍기
             Marker(
                 state = MarkerState(position = currentLocation),
-                captionText = meetingInfo.location ?: "정해진 위치 없음"
+                captionText = meetingInfo.location
             )
         }
     }

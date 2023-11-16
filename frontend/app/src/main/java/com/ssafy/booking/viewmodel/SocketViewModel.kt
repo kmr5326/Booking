@@ -117,7 +117,7 @@ class SocketViewModel @Inject constructor(
     fun postLastReadMessageId(chatroomId: Int) =
         viewModelScope.launch(Dispatchers.IO) {
             val lastReadId = chatDao.getLastReadMessageId(chatroomId) ?: 1
-            val lastMessageRequest = LastReadMessageRequest(lastMessageIndex = lastReadId)
+            val lastMessageRequest = LastReadMessageRequest(lastMessageIndex = 0)
             try {
                 val messageResponses =
                     chatUseCase.postLastReadMessage(chatroomId, lastMessageRequest)

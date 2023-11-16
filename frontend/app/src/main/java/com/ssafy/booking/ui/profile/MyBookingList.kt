@@ -27,11 +27,7 @@ fun MyBookingList(
     data: ProfileData
 ) {
     Scaffold(
-        floatingActionButton = {
-            if(data.isI) {
-                MyBookingFloatingActionButton()
-            }
-        }
+
     ) {paddingValues->
         Column(
             modifier = Modifier

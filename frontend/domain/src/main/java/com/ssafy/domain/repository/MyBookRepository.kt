@@ -17,4 +17,6 @@ interface MyBookRepository {
     suspend fun postBookMemo(request: MyBookMemoRegisterRequest) : Response<Unit>
 
     suspend fun deleteBookRegister(memberBookId: String) : Response<Unit>
+
+    suspend fun deleteBookNote(memberBookId: String, noteIndex: Int) : Response<Unit>
 }
