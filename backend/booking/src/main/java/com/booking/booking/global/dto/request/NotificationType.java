@@ -4,5 +4,5 @@ import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 public enum NotificationType {
-    ENROLL;
+    ENROLL, CONFIRM
 }
