@@ -29,6 +29,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -50,6 +51,17 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.naver.maps.geometry.LatLng
+import com.naver.maps.map.CameraPosition
+import com.naver.maps.map.compose.CameraPositionState
+import com.naver.maps.map.compose.CircleOverlay
+import com.naver.maps.map.compose.ExperimentalNaverMapApi
+import com.naver.maps.map.compose.MapProperties
+import com.naver.maps.map.compose.MapUiSettings
+import com.naver.maps.map.compose.Marker
+import com.naver.maps.map.compose.MarkerState
+import com.naver.maps.map.compose.NaverMap
+import com.naver.maps.map.compose.rememberCameraPositionState
 import com.ssafy.booking.di.App
 import com.ssafy.booking.ui.AppNavItem
 import com.ssafy.booking.ui.LocalNavigation
@@ -89,6 +101,7 @@ fun SetLocation() {
             SetLocationSearch(locationViewModel, showSearchResults)
             SearchResult(bookingViewModel, locationViewModel, showSearchResults)
             SelectedLocation(bookingViewModel, locationState, placeNameState)
+            latState?.let { setLocationMap(bookingViewModel,placeName = placeNameState,showSearchResults) }
         }
     }
 
@@ -149,9 +162,9 @@ fun SetLocationSearch(viewModel: LocationViewModel, showSearchReults: MutableSta
 fun SelectedLocation(
     bookingViewModel: BookingViewModel,
     locationState: String?,
-    placeNameState: String?
+    placeNameState: String?,
 ) {
-    if (locationState != null || placeNameState != null ) {
+    if (locationState != null || placeNameState != null) {
         Spacer(modifier = Modifier.padding(8.dp))
         Text(text = "${locationState ?: "정보 없음"}", fontSize = 20.sp)
         Spacer(modifier = Modifier.padding(8.dp))
@@ -181,8 +194,8 @@ fun SearchResult(
                         .clickable {
                             // Card 클릭 시 ViewModel의 상태 업데이트
                             bookingViewModel.location.value = item.addressName
-                            bookingViewModel.lat.value = item.y
-                            bookingViewModel.lgt.value = item.x
+                            bookingViewModel.lat.value = item.y.toDouble()
+                            bookingViewModel.lgt.value = item.x.toDouble()
                             bookingViewModel.placeName.value = item.placeName
                             showSearchResults.value = false
                             App.prefs.putMeetingLat(item.y.toFloat())
@@ -244,3 +257,57 @@ fun SetLocationBottomButton(
         }
     }
 }
+
+@OptIn(ExperimentalNaverMapApi::class)
+@Composable
+fun setLocationMap(bookingViewModel: BookingViewModel,placeName: String?,showSearchResults: MutableState<Boolean>) {
+    // ViewModel에서 위도와 경도 상태를 관찰
+    val markerLat by bookingViewModel.lat.observeAsState()
+    val markerLng by bookingViewModel.lgt.observeAsState()
+
+    // 마커와 카메라 위치 상태를 기억
+    val markerPositionState = remember(markerLat, markerLng) {
+        MarkerState(LatLng(markerLat ?: 37.5, markerLng ?: 126.5))
+    }
+    val cameraPositionState = rememberCameraPositionState {
+        position = CameraPosition(LatLng(markerLat ?: 37.5, markerLng ?: 126.5), 16.0)
+    }
+// markerLat와 markerLng가 변경될 때마다 카메라 위치 업데이트
+    LaunchedEffect(markerLat, markerLng) {
+        cameraPositionState.position = CameraPosition(LatLng(markerLat ?: 37.5, markerLng ?: 126.5), 15.0)
+    }
+
+    if ( markerLat != 0.0 && markerLng != 0.0 ) {
+            Box(Modifier.height(300.dp)) {
+                NaverMap(cameraPositionState = cameraPositionState) {
+                    // 마커 위치 업데이트
+                    Marker(
+                        state = markerPositionState,
+                        captionText = placeName
+                    )
+                }
+            }
+    }
+//    Box(Modifier.fillMaxSize()) {
+//    Box(Modifier.height(300.dp)) {
+//        NaverMap(properties = mapProperties, uiSettings = mapUiSettings) {
+//            // 마커 찍는 법.
+//            Marker(
+//                state = MarkerState(position = LatLng(CurLat,CurLng)),
+//                captionText = placeName
+//            )
+//            Marker(
+//                state = MarkerState(position = LatLng(37.390791, 127.096306)),
+//                captionText = "Marker in Pangyo"
+//            )
+//            Marker(
+//                state = MarkerState(position = markerPosition),
+//                icon = MarkerIcons.BLACK, // 기본 마커 아이콘 변경
+//                iconTintColor = Color.Red // 아이콘 색상 변경 (옵션)
+//            )
+
+
+//        }
+//    }
+}
+

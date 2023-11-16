@@ -353,7 +353,7 @@ fun HomeTopBar(navController: NavController, appViewModel: AppViewModel,myLocati
                 shape = RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp)
             ) // 배경색과 모서리를 둥글게 설정
             .height(128.dp)
-            .padding(top=16.dp),
+            .padding(top=5  .dp),
     ) {
         // 상단의 하남동과 설정 아이콘
         Box(
