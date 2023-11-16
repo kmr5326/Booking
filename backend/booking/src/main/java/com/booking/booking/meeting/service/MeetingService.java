@@ -39,7 +39,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -194,7 +193,7 @@ public class MeetingService {
                     }
                     return waitlistService.enrollMeeting(meeting.getMeetingId(), member.memberPk())
                             .then(NotificationUtil.sendNotification(new NotificationRequest
-                                    (new ArrayList<>(List.of(meeting.getLeaderId())), meeting.getMeetingTitle(), NotificationType.ENROLL)));
+                                    (List.of(meeting.getLeaderId()), meeting.getMeetingTitle(), NotificationType.ENROLL)));
                 });
     }
 

@@ -36,6 +36,7 @@ public class NotificationController {
 
     @PostMapping("/")
     public Mono<ResponseEntity<Void>> notificationForEnrollment(@RequestBody NotificationRequest notificationRequest) {
+        log.info("{}", notificationRequest);
         String ids = notificationRequest.memberList().stream().map(String::valueOf).collect(Collectors.joining(" "));
         log.info(" notification send to {} member for enroll meeting", ids);
 
