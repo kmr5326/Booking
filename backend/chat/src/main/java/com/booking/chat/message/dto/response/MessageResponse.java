@@ -1,6 +1,6 @@
-package com.booking.chat.chat.dto.response;
+package com.booking.chat.message.dto.response;
 
-import com.booking.chat.chat.domain.Message;
+import com.booking.chat.message.domain.Message;
 import java.time.LocalDateTime;
 
 public record MessageResponse(
