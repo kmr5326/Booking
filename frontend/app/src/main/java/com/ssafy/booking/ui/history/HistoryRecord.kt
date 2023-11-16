@@ -122,9 +122,9 @@ fun HistoryRecord(
 
 @Composable
 fun LoadingView() {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
     ) {
         Text("로딩중...")
     }
