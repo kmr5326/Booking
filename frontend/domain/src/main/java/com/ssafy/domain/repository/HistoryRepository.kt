@@ -8,6 +8,7 @@ import com.ssafy.domain.model.CreateSummaryRequest
 import com.ssafy.domain.model.LastReadMessageRequest
 import com.ssafy.domain.model.MessageResponse
 import com.ssafy.domain.model.RecordFileNameRequest
+import com.ssafy.domain.model.TranscriptionModificationRequest
 import com.ssafy.domain.model.history.CreateSummaryResponse
 import com.ssafy.domain.model.history.LoadSummaryResponse
 import com.ssafy.domain.model.history.TranscriptionResponse
@@ -17,5 +18,6 @@ interface HistoryRepository {
     suspend fun getSpeakToText(meetinginfoId: Long) : TranscriptionResponse
     suspend fun createSummary(request: CreateSummaryRequest) : CreateSummaryResponse
     suspend fun getSummary(transactionId: String) : LoadSummaryResponse
+    suspend fun postTranscription(request: TranscriptionModificationRequest) : Response<Unit>
 
 }

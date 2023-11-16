@@ -40,7 +40,6 @@ class UploaderViewModel @Inject constructor(
         viewModelScope.launch {
             _naverCloudGetResponse.value = naverCloudUseCase.getObject("booking-bucket", "recording/${meetingInfoId}_recording.m4a")
             val response = naverCloudUseCase.getObject("booking-bucket", "recording/${meetingInfoId}_recording.m4a")
-            Log.d("STT_TEST", "리스폰스바디  ${response.body()}")
         }
 
     fun enrollRecordFile(meetingInfoId: String, requestBody: RequestBody?) {

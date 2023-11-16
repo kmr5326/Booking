@@ -4,6 +4,7 @@ import com.ssafy.domain.model.ChatCreateRequest
 import com.ssafy.domain.model.ChatJoinRequest
 import com.ssafy.domain.model.CreateSummaryRequest
 import com.ssafy.domain.model.RecordFileNameRequest
+import com.ssafy.domain.model.TranscriptionModificationRequest
 import com.ssafy.domain.model.history.CreateSummaryResponse
 import com.ssafy.domain.model.history.LoadSummaryResponse
 import com.ssafy.domain.model.history.TranscriptionResponse
@@ -34,4 +35,8 @@ interface HistoryAPi {
     suspend fun getSummary(
         @Query("transactionId") transactionId: String,
     ): LoadSummaryResponse
+
+    @Headers("Content-Type: application/json")
+    @POST("/api/booking/stt/modification")
+    suspend fun postTranscription(@Body request: TranscriptionModificationRequest): Response<Unit>
 }
