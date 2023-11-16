@@ -1,6 +1,6 @@
 package com.booking.chat.chatroom.controller;
 
-import com.booking.chat.chat.dto.response.MessageResponse;
+import com.booking.chat.message.dto.response.MessageResponse;
 import com.booking.chat.chatroom.dto.request.ExitChatroomRequest;
 import com.booking.chat.chatroom.dto.request.InitChatroomRequest;
 import com.booking.chat.chatroom.dto.request.JoinChatroomRequest;

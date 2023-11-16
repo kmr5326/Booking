@@ -18,12 +18,13 @@ public record MeetingListResponse(
         MeetingState meetingState,
         Double lat,
         Double lgt,
-        List<HashtagResponse> hashtagList
+        List<HashtagResponse> hashtagList,
+        String address
 ) {
     public MeetingListResponse(Meeting meeting, BookResponse book, Integer curParticipants,
                                List<HashtagResponse> hashtagList) {
         this(meeting.getMeetingId(), book.isbn(), book.title(), book.coverImage(),
                 meeting.getMeetingTitle(), curParticipants, meeting.getMaxParticipants(), meeting.getMeetingState(),
-                meeting.getLat(), meeting.getLgt(), hashtagList);
+                meeting.getLat(), meeting.getLgt(), hashtagList, meeting.getAddress());
     }
 }
