@@ -17,6 +17,7 @@ CREATE TABLE meetings (
                           description VARCHAR(255),
                           max_participants INT,
                           meeting_state VARCHAR(255),
+                          address VARCHAR(255),
                           created_at DATETIME,
                           updated_at DATETIME
 );

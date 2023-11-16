@@ -6,6 +6,7 @@ import com.booking.booking.meeting.domain.MeetingState;
 import com.booking.booking.participant.domain.Participant;
 import com.booking.booking.participant.dto.response.ParticipantResponse;
 import com.booking.booking.participant.repository.ParticipantRepository;
+import com.booking.booking.participantstate.service.ParticipantStateService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ import reactor.core.publisher.Mono;
 @Service
 public class ParticipantService {
     private final ParticipantRepository participantRepository;
+    private final ParticipantStateService participantStateService;
     private final MemberUtil memberUtil;
 
     public Mono<Integer> countAllByMeetingId(Long meetingId) {
@@ -52,9 +54,9 @@ public class ParticipantService {
     public Flux<ParticipantResponse> findAllResponseByMeetingId(Long meetingId) {
         log.info("[Booking:Participant] findAllByMeetingId({})", meetingId);
 
-        return this.findAllByMeetingId(meetingId)
-                .flatMap(participant -> memberUtil.getMemberInfoByPk(participant.getMemberId())
-                        .flatMap(member -> Mono.just(new ParticipantResponse(member))))
+        return participantStateService.findParticipantStatesByMeetingId(meetingId)
+                .flatMap(participantState -> memberUtil.getMemberInfoByPk(participantState.getMemberId())
+                        .flatMap(member -> Mono.just(new ParticipantResponse(member, participantState))))
                 .onErrorResume(error -> {
                     log.error("[Booking:Participant ERROR] findAllByMeetingId : {}", error.getMessage());
                     return Flux.error(new RuntimeException("참가자 목록 조회 실패"));

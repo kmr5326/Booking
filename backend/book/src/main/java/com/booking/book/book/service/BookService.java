@@ -90,4 +90,17 @@ public class BookService {
                 .flatMapMany(Flux::fromIterable)
                 .map(BookResponse::new);
     }
+
+    public Mono<Void> increaseBookMeetingCnt(String isbn){
+        return bookRepository.findById(isbn)
+                .flatMap(book -> {
+                    book.setMeetingCnt(book.getMeetingCnt()+1);
+                    return bookRepository.save(book);
+                }).then();
+    }
+
+    public Flux<BookResponse> loadPopularBooks() {
+        return bookRepository.findTop30ByOrderByMeetingCntDesc()
+                .map(BookResponse::new);
+    }
 }

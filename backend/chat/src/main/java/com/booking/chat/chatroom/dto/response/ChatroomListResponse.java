@@ -8,10 +8,12 @@ public record ChatroomListResponse(
     Long lastMessageIdx,
     String meetingTitle,
     String lastMessage,
+    String coverImage,
     List<Long> memberList
 
 ) {
     public static ChatroomListResponse from(Chatroom chatroom) {
-        return new ChatroomListResponse(chatroom.get_id(), chatroom.getMessageIndex(), chatroom.getMeetingTitle(), chatroom.getLastMessage(), chatroom.getMemberList());
+        return new ChatroomListResponse(chatroom.get_id(), chatroom.getMessageIndex(), chatroom.getMeetingTitle(), chatroom.getLastMessage(),
+            chatroom.getCoverImage(), chatroom.getMemberList());
     }
 }
