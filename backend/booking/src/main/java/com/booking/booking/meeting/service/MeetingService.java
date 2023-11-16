@@ -533,7 +533,7 @@ public class MeetingService {
                                     return Mono.error(new RuntimeException("출석 가능한 시간이 아닙니다"));
                                 } else {
                                     return participantStateService
-                                            .findByMeetingIdAndMemberId(meetingAttendRequest.meetingId(),memberId )
+                                            .findByMeetingIdAndMemberId(meetingInfo.getMeetinginfoId(), memberId)
                                             .flatMap(participantStateService::attendMeeting)
                                             .then();
                                 }
