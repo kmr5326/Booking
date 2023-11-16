@@ -65,4 +65,8 @@ public class Chatroom {
     public void updateLastMessage(String msg) {
         this.lastMessage = msg;
     }
+
+    public void updateMeetingTitle(String title) {
+        this.meetingTitle = title;
+    }
 }

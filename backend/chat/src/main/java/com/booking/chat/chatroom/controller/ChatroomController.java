@@ -1,5 +1,6 @@
 package com.booking.chat.chatroom.controller;
 
+import com.booking.chat.chatroom.dto.request.ModifyChatroomRequest;
 import com.booking.chat.message.dto.response.MessageResponse;
 import com.booking.chat.chatroom.dto.request.ExitChatroomRequest;
 import com.booking.chat.chatroom.dto.request.InitChatroomRequest;
@@ -93,6 +94,14 @@ public class ChatroomController {
 
         return chatroomService.disconnectChatroom(chatroomId, memberId)
                                 .then(Mono.just(new ResponseEntity<>(HttpStatus.NO_CONTENT)));
+    }
+
+    @PostMapping("/modify")
+    public Mono<ResponseEntity<Void>> modifyChatroomInformation(@RequestBody ModifyChatroomRequest modifyChatroomRequest) {
+        log.info(" {} chatroom information modify to : {}", modifyChatroomRequest.meetingId(), modifyChatroomRequest.meetingTitle());
+        return chatroomService.modifyChatroomInformation(modifyChatroomRequest)
+                              .thenReturn(ResponseEntity.noContent().<Void>build())
+                              .onErrorResume(error -> Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, error.getLocalizedMessage())));
     }
 
 
