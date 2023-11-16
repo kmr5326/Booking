@@ -436,7 +436,7 @@ public class MeetingService {
         return meetingInfoService.findByMeetingId(meeting.getMeetingId())
                 .flatMap(meetingInfo -> {
                     if (meetingInfo.getDate().isAfter(LocalDateTime.now())) {
-                        return Mono.error(new RuntimeException("모임 전에는 종료할 수 없음"));
+                        return Mono.error(new RuntimeException("모임이 끝나고 종료해주세요"));
                     }
                     return participantStateService.findParticipantStatesByMeetingId(meeting.getMeetingId())
                             .collectList()
@@ -523,10 +523,10 @@ public class MeetingService {
                                 LocalDateTime meetingTime = meetingInfo.getDate();
                                 if (calculateDistance(meetingInfo.getLat(), meetingInfo.getLgt(),
                                         meetingAttendRequest.lat(), meetingAttendRequest.lgt()) > 100) {
-                                    return Mono.error(new RuntimeException("거리가 너무 멀다"));
+                                    return Mono.error(new RuntimeException("좀 더 가까이 가서 출석체크 해주세요"));
                                 } else if (now.isBefore(meetingTime.minusMinutes(10))
                                         || now.isAfter(meetingTime.plusMinutes(10))) {
-                                    return Mono.error(new RuntimeException("출석 시간 아님"));
+                                    return Mono.error(new RuntimeException("출석 가능한 시간이 아닙니다"));
                                 } else {
                                     return participantStateService
                                             .findByMeetingIdAndMemberId(meetingAttendRequest.meetingId(),memberId )
@@ -567,7 +567,7 @@ public class MeetingService {
                                                             .switchIfEmpty(Mono.error(new RuntimeException("참여 중 아님")))
                                                             .flatMap(participantState -> {
                                                                 if (participantState.getPaymentStatus()) {
-                                                                    return Mono.error(new RuntimeException("참가비 지불 완료"));
+                                                                    return Mono.error(new RuntimeException("이미 참가비를 지불했어요"));
                                                                 } else if (meetingInfo.getFee() == 0) {
                                                                     return participantStateService.payMeeting(participantState);
                                                                 }
