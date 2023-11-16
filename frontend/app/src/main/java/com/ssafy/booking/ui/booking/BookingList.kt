@@ -109,8 +109,6 @@ fun Main(
         bookingViewModel.getBookingByTitle(searchQuery)
     }
 
-
-
     // LaunchedEffect를 사용하여 한 번만 API 호출
     LaunchedEffect(Unit) {
         bookingViewModel.postDeivceToken(DeviceToken(deviceToken))
@@ -288,11 +286,18 @@ fun BookItem(booking: BookingAll,navController: NavController) {
 @Composable
 fun HashtagChip(tag: String, id: Long) {
     val navController = LocalNavigation.current
+    var tagColor by remember { mutableStateOf(0xFF000000) }
+    when ((id.toInt())%4) {
+        0 -> tagColor = 0xFF12BD7E
+        1 ->tagColor = 0xFF005723
+        2 -> tagColor = 0xFF0072C3
+        3 -> tagColor = 0xFF00C1FF
+    }
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier
             .padding(end = 5.dp) // 오른쪽 마진
-            .border(0.8.dp, Color(0xFF12BD7E), RoundedCornerShape(3.dp)) // #12BD7E 색상의 테두리 추가
+            .border(0.8.dp, Color(tagColor?:0xFF12BD7E), RoundedCornerShape(3.dp)) // #12BD7E 색상의 테두리 추가
             .background(Color.White, RoundedCornerShape(3.dp)) // 흰색 배경
             .padding(horizontal = 4.dp, vertical = 4.dp) // 내부 패딩
 //            .padding(end = 4.dp) // 오른쪽 마진
@@ -304,7 +309,7 @@ fun HashtagChip(tag: String, id: Long) {
     ) {
         Text(
             text = "#${tag}",
-            color = Color(0xFF12BD7E), // 텍스트 색상을 #12BD7E로 변경
+            color = Color(tagColor?:0xFF12BD7E), // 텍스트 색상을 #12BD7E로 변경
 //            color = Color.White,
             fontSize = 10.sp, // 작은 글씨 크기
             maxLines = 1,
@@ -343,7 +348,8 @@ fun HomeTopBar(navController: NavController, appViewModel: AppViewModel,myLocati
                 color = Color(0xFF12BD7E),
                 shape = RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp)
             ) // 배경색과 모서리를 둥글게 설정
-//            .height(50.dp)
+            .height(128.dp)
+            .padding(top=16.dp),
     ) {
         // 상단의 하남동과 설정 아이콘
         Box(
@@ -385,8 +391,8 @@ fun HomeTopBar(navController: NavController, appViewModel: AppViewModel,myLocati
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp)
-                .padding(top = 4.dp)
-//                .padding(bottom = 16.dp)
+                .padding(top = 55.dp)
+                .padding(bottom = 16.dp)
 //                .height(50.dp)
                 .background(Color.White, shape = RoundedCornerShape(3.dp)),
             singleLine = true,
