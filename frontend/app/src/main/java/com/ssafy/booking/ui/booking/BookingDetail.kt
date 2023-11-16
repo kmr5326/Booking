@@ -636,7 +636,7 @@ fun PayRequestButton(
 
                     toastTop.show()
 
-                    if (errorResponse.message == "참가비 응답 에러: 포인트가 부족합니다.") {
+                    if (errorResponse.message == "포인트가 부족합니다.") {
                         getBookingDetailResponse?.let {
                             it.body()?.let {
                                 val fee = it.meetingInfoList[0].fee
