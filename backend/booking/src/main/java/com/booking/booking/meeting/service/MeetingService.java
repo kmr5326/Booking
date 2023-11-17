@@ -494,7 +494,7 @@ public class MeetingService {
                     return meetingInfoService.findByMeetingId(meetingAttendRequest.meetingId())
                             .flatMap(meetingInfo -> {
                                 if (calculateDistance(meetingInfo.getLat(), meetingInfo.getLgt(),
-                                        meetingAttendRequest.lat(), meetingAttendRequest.lgt()) > 1000) { // TODO 테스트용
+                                        meetingAttendRequest.lat(), meetingAttendRequest.lgt()) > 100) {
                                     return Mono.error(new RuntimeException("좀 더 가까이 가서 출석체크 해주세요"));
                                 } else if (now.isBefore(meetingInfo.getDate().minusMinutes(10))
                                         || now.isAfter(meetingInfo.getDate().plusMinutes(10))) {
