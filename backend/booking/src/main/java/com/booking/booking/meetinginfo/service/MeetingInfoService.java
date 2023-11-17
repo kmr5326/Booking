@@ -20,8 +20,7 @@ public class MeetingInfoService {
     public Mono<MeetingInfo> createMeetingInfo(MeetingInfo meetingInfo) {
         log.info("[Booking:MeetingInfo] createMeetingInfo({})", meetingInfo);
         
-        // TODO 테스트 용으로 바꿔둠
-        if (meetingInfo.getDate().isBefore(LocalDateTime.now().plusMinutes(1L))) {
+        if (meetingInfo.getDate().isBefore(LocalDateTime.now().plusHours(1L))) {
             return Mono.error(new RuntimeException("시간을 다시 입력해주세요"));
         } else if (meetingInfo.getFee() < 0 || meetingInfo.getFee() >= 100000) {
             return Mono.error(new RuntimeException("참가비를 다시 입력해주세요"));
