@@ -1,11 +1,14 @@
 package com.booking.member.follows.domain;
 
-import com.booking.member.members.domain.Member;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.relational.core.mapping.Table;
 
-import javax.persistence.*;
-
-@Entity
+//@Entity
 @Getter
 @RequiredArgsConstructor
 @Table(name = "follows")
@@ -13,15 +16,19 @@ import javax.persistence.*;
 @AllArgsConstructor
 public class Follow {
     @Id
-    @GeneratedValue
-    @Column(name = "follows_id")
+//    @GeneratedValue
+    @Column("follows_id")
     private Integer id;
 
-    @ManyToOne
-    @JoinColumn(name = "following_id")
-    private Member following;
+//    @ManyToOne
+//    @JoinColumn(name = "following_id")
+//    private Member following;
+    @Column("following_id")
+    private Integer following;
 
-    @ManyToOne
-    @JoinColumn(name = "follower_id")
-    private Member follower;
+//    @ManyToOne
+//    @JoinColumn(name = "follower_id")
+//    private Member follower;
+    @Column("follower_id")
+    private Integer follower;
 }

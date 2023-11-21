@@ -1,17 +1,18 @@
 package com.booking.member.members.repository;
 
 import com.booking.member.members.domain.Member;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.r2dbc.repository.R2dbcRepository;
+import reactor.core.publisher.Mono;
 
-public interface MemberRepository extends JpaRepository<Member,Integer> {
-    Member findByEmailAndProvider(String email,String provider);
+public interface MemberRepository extends R2dbcRepository<Member,Integer> {
+    Mono<Member> findByEmailAndProvider(String email, String provider);
 
-    Member findByEmail(String email);
-    Member findByLoginId(String loginId);
-    Member findByNickname(String nickname);
+    Mono<Member> findByEmail(String email);
+    Mono<Member> findByLoginId(String loginId);
+    Mono<Member> findByNickname(String nickname);
 
-    boolean existsByEmail(String email);
-    boolean existsByLoginId(String loginId);
+//    boolean existsByEmail(String email);
+    Mono<Boolean> existsByLoginId(String loginId);
 
-    boolean existsByNickname(String nickname);
+    Mono<Boolean> existsByNickname(String nickname);
 }

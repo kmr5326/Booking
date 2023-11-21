@@ -40,12 +40,12 @@ public class PrincipalOauth2UserService implements OAuth2UserService<OAuth2UserR
         String loginId = provider+"_"+oauthAttributes.getId();
         log.info("loadUser {}, {}",provider,loginId);
 
-        Member memberData = memberRepository.findByLoginId(loginId);
+        Member memberData = memberRepository.findByLoginId(loginId).block();
         Member member;
 
         if(memberData==null) {
             member=createMember(oauthAttributes,provider,loginId);
-            memberRepository.save(member);
+            memberRepository.save(member).block();
 //            throw new UsernameNotFoundException("사용자를 찾을 수 없습니다");
         } else {
             member=memberData;

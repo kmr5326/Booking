@@ -1,6 +1,5 @@
 package com.booking.member.Auth;
 
-import com.booking.member.members.domain.Member;
 import com.booking.member.members.domain.UserRole;
 import com.booking.member.members.repository.MemberRepository;
 import io.jsonwebtoken.*;
@@ -14,6 +13,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Mono;
 
 import java.security.Key;
 import java.util.Arrays;
@@ -80,37 +80,38 @@ public class TokenProvider implements InitializingBean {
                 .build();
     }
 
-    public TokenDto createToken(String loginId,Integer id) {
+    public Mono<TokenDto> createToken(String loginId,Integer id) {
 
-        long now = (new Date()).getTime();
-        Date validity = new Date(now + this.tokenValidityInMilliseconds); // 토큰 만료 시간 설정
+        return memberRepository.findByLoginId(loginId)
+                .flatMap(member -> {
+                    long now = System.currentTimeMillis();
+                    Date validity = new Date(now + tokenValidityInMilliseconds);
 
-        Member member=memberRepository.findByLoginId(loginId);
+                    Claims claims = Jwts.claims();
+                    claims.put(AUTHORITIES_KEY, member.getRole().name());
+                    claims.put("id", id);
 
-        Claims claims=Jwts.claims();
-        claims.put(AUTHORITIES_KEY,member.getRole().name());
-        claims.put("id",id);
+                    // accessToken 생성
+                    String accessToken = Jwts.builder()
+                            .setClaims(claims)
+                            .setSubject(loginId)
+                            .signWith(key, SignatureAlgorithm.HS512)
+                            .setExpiration(validity)
+                            .compact();
 
-        //accessToken 생성
-        String accessToken=Jwts.builder()
-                .setClaims(claims)
-                .setSubject(loginId)
-                .signWith(key, SignatureAlgorithm.HS512)
-                .setExpiration(validity)
-                .compact();
+                    // Refresh Token 생성
+                    String refreshToken = Jwts.builder()
+                            .setExpiration(new Date(now + REFRESH_TOKEN_EXPIRE_TIME))
+                            .signWith(key, SignatureAlgorithm.HS512)
+                            .compact();
 
-        // Refresh Token 생성
-        String refreshToken = Jwts.builder()
-                .setExpiration(new Date(now + REFRESH_TOKEN_EXPIRE_TIME))
-                .signWith(key, SignatureAlgorithm.HS512)
-                .compact();
-
-        return TokenDto.builder()
-                .grantType("bearer")
-                .accessToken(accessToken)
-                .accessTokenExpiresIn(validity)
-                .refreshToken(refreshToken)
-                .build();
+                    return Mono.just(TokenDto.builder()
+                            .grantType("bearer")
+                            .accessToken(accessToken)
+                            .accessTokenExpiresIn(validity)
+                            .refreshToken(refreshToken)
+                            .build());
+                });
     }
 
     public TokenDto createToken(String loginId) {
