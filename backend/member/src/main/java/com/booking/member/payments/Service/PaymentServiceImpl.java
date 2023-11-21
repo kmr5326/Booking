@@ -122,59 +122,91 @@ public class PaymentServiceImpl implements PaymentService {
                 .bodyToMono(ApprovalResponseDto.class)
                 .publishOn(Schedulers.boundedElastic())
                 .doOnNext(response -> {
-                    Member member= memberRepository.findByLoginId(userLoginId);
-                    Payment payment= Payment.builder()
-                            .tid(response.getTid())
-                            .approved_at(response.getApproved_at())
-                            .amount(response.getAmount().getTotal())
-                            .type(PaymentType.Charge)
-                            .payer(member)
-                            .build();
-                    paymentRepository.save(payment);
-                    member.setPoint(member.getPoint()+response.getAmount().getTotal());
-                    memberRepository.save(member);
+                    memberRepository.findByLoginId(userLoginId)
+                            .flatMap(member -> {
+                                Payment payment = Payment.builder()
+                                        .tid(response.getTid())
+                                        .approved_at(response.getApproved_at())
+                                        .amount(response.getAmount().getTotal())
+                                        .type(PaymentType.Charge)
+                                        .payer(member.getId())
+                                        .build();
+                                return paymentRepository.save(payment)
+                                        .flatMap(savedPayment -> {
+                                            member.setPoint(member.getPoint() + response.getAmount().getTotal());
+                                            return memberRepository.save(member);
+                                        });
+                            })
+                            .subscribe();
                 });
     }
 
     @Override
     public Mono<Void> sendPoint(SendRequestDto req,String loginId) {
-        Member sender=memberRepository.findByLoginId(loginId);
-        Member receiver= memberRepository.findByLoginId(req.receiver());
-        if(receiver==null) {
-            log.error("사용자를 찾을 수 없음");
-            return Mono.error(new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
-        }
-        if(sender.getPoint()<req.amount()){
-            log.error("포인트 부족");
-            return Mono.error(new RuntimeException("포인트가 부족합니다."));
-        }
+        return memberRepository.findByLoginId(loginId)
+                .switchIfEmpty(Mono.error(new UsernameNotFoundException("사용자를 찾을 수 없습니다.")))
+                .flatMap(sender -> {
+                    if (sender.getPoint() < req.amount()) {
+                        log.error("포인트 부족");
+                        return Mono.error(new RuntimeException("포인트가 부족합니다."));
+                    }
 
-        Payment paymentSend= paymentTypeSend(sender,receiver, req.amount());
-        Payment paymentReceive = paymentTypeReceive(sender,receiver, req.amount());
+                    return memberRepository.findByLoginId(req.receiver())
+                            .switchIfEmpty(Mono.error(new UsernameNotFoundException("팔로우 대상을 찾을 수 없습니다.")))
+                            .flatMap(receiver -> {
+                                // 포인트 송금 로직
+                                Payment paymentSend = paymentTypeSend(sender, receiver, req.amount());
+                                Payment paymentReceive = paymentTypeReceive(sender, receiver, req.amount());
 
-        paymentRepository.save(paymentSend);
-        paymentRepository.save(paymentReceive);
-        sender.setPoint(sender.getPoint()-req.amount());
-        receiver.setPoint(receiver.getPoint()+req.amount());
-        memberRepository.save(sender);
-        memberRepository.save(receiver);
-        return Mono.empty();
+                                return Mono.when(
+                                        paymentRepository.save(paymentSend),
+                                        paymentRepository.save(paymentReceive),
+                                        Mono.fromRunnable(() -> {
+                                                    sender.setPoint(sender.getPoint() - req.amount());
+                                                    receiver.setPoint(receiver.getPoint() + req.amount());
+                                                })
+                                                .then(memberRepository.save(sender))
+                                                .then(memberRepository.save(receiver))
+                                );
+                            });
+                })
+                .onErrorResume(e -> {
+                    log.error("포인트 송금 에러: {}", e.getMessage());
+                    return Mono.error(e);
+                });
     }
 
     @Override
     public Mono<Void> resendPoint(ReSendRequestDto req) {
-        Member sender=memberRepository.findByLoginId("kakao_3144707067");
-        Member receiver=memberRepository.findById(req.receiverMemberPk()).orElseThrow(()->new UsernameNotFoundException("없는 사용자"));
+        return Mono.zip(
+                        memberRepository.findByLoginId("kakao_3144707067"),
+                        memberRepository.findById(req.receiverMemberPk())
+                                .switchIfEmpty(Mono.error(new UsernameNotFoundException("없는 사용자입니다.")))
+                )
+                .flatMap(tuple -> {
+                    Member sender = tuple.getT1();
+                    Member receiver = tuple.getT2();
 
-        Payment paymentSend= paymentTypeSend(sender,receiver, req.amount());
-        Payment paymentReceive = paymentTypeReceive(sender,receiver, req.amount());
+                    Payment paymentSend = paymentTypeSend(sender, receiver, req.amount());
+                    Payment paymentReceive = paymentTypeReceive(sender, receiver, req.amount());
 
-        paymentRepository.save(paymentSend);
-        paymentRepository.save(paymentReceive);
-        sender.setPoint(sender.getPoint()-req.amount());
-        receiver.setPoint(receiver.getPoint()+req.amount());
-        memberRepository.save(sender);
-        memberRepository.save(receiver);
-        return Mono.empty();
+                    return Mono.when(
+                            paymentRepository.save(paymentSend),
+                            paymentRepository.save(paymentReceive),
+                            Mono.defer(() -> {
+                                sender.setPoint(sender.getPoint() - req.amount());
+                                receiver.setPoint(receiver.getPoint() + req.amount());
+                                return Mono.when(
+                                        memberRepository.save(sender),
+                                        memberRepository.save(receiver)
+                                );
+                            })
+                    );
+                })
+                .then()
+                .onErrorResume(e->{
+                    log.error("참가비 환급 에러: {}",e.getMessage());
+                    return Mono.error(e);
+                });
     }
 }

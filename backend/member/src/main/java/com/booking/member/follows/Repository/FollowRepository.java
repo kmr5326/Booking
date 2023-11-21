@@ -1,18 +1,19 @@
 package com.booking.member.follows.Repository;
 
 import com.booking.member.follows.domain.Follow;
-import com.booking.member.members.domain.Member;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.r2dbc.repository.R2dbcRepository;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
-import java.util.List;
+public interface FollowRepository extends R2dbcRepository<Follow,Integer> {
 
-public interface FollowRepository extends JpaRepository<Follow,Integer> {
+    Mono<Follow> findByFollowerAndFollowing(Integer follower, Integer following);
 
-    Follow findByFollowerAndFollowing(Member follower,Member following);
+    Mono<Boolean> existsByFollowerAndFollowing(Integer follower,Integer following);
 
     //팔로워들 찾기
-    List<Follow> findByFollowing(Member member);
+    Flux<Follow> findByFollowing(Integer following);
 
     //팔로잉들 찾기
-    List<Follow> findByFollower(Member member);
+    Flux<Follow> findByFollower(Integer follower);
 }
