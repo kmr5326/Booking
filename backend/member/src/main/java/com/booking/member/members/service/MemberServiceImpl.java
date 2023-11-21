@@ -16,9 +16,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
-
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -32,43 +29,42 @@ public class MemberServiceImpl implements MemberService {
     @Transactional
     public Mono<String> signup(SignUpRequestDto req) {
 
-        return Mono.justOrEmpty(memberRepository.findByLoginId(req.loginId()))
-                .defaultIfEmpty(new Member())
-                .flatMap(member -> {
-                    if (checkMemberDuplicate(req.loginId())) {
+        return checkMemberDuplicate(req.loginId())
+                .flatMap(memberExists -> {
+                    if (memberExists) {
                         return Mono.error(new RuntimeException("이미 가입된 회원입니다."));
-                    } else if (checkNicknameDuplicate(req.nickname())) {
-                        return Mono.error(new RuntimeException("중복된 닉네임"));
+                    } else {
+                        return checkNicknameDuplicate(req.nickname())
+                                .flatMap(nicknameExists -> {
+                                    if (nicknameExists) {
+                                        return Mono.error(new RuntimeException("중복된 닉네임"));
+                                    } else {
+                                        String[] split = parseAddr(req.address());
+                                        Double lat = Double.parseDouble(split[0].trim());
+                                        Double lgt = Double.parseDouble(split[1].trim());
+
+                                        Member mem = Member.builder()
+                                                .age(req.age())
+                                                .email(req.email())
+                                                .gender(Gender.valueOf(req.gender()))
+                                                .loginId(req.loginId())
+                                                .nickname(req.nickname())
+                                                .fullName(req.fullName())
+                                                .lat(lat)
+                                                .lgt(lgt)
+                                                .role(UserRole.USER)
+                                                .profileImage(req.profileImage())
+                                                .provider(req.provider())
+                                                .point(0)
+                                                .build();
+
+                                        return memberRepository.save(mem)
+                                                .then(tokenProvider.createToken(mem.getLoginId(), mem.getId()))
+                                                .map(TokenDto::getAccessToken);
+                                    }
+                                });
                     }
-
-                    String[] split=parseAddr(req.address());
-                    Double lat=Double.parseDouble(split[0].trim());
-                    Double lgt=Double.parseDouble(split[1].trim());
-
-                    Member mem=Member.builder()
-                            .age(req.age())
-                            .email(req.email())
-                            .gender(Gender.valueOf(req.gender()))
-                            .loginId(req.loginId())
-                            .nickname(req.nickname())
-                            .fullName(req.fullName())
-                            .lat(lat)
-                            .lgt(lgt)
-                            .role(UserRole.USER)
-                            .profileImage(req.profileImage())
-                            .provider(req.provider())
-                            .point(0)
-                            .build();
-
-                    return Mono.fromRunnable(() ->  memberRepository.save(mem))
-                            .subscribeOn(Schedulers.boundedElastic())
-                            .then(Mono.just(mem));
-
                 })
-                .flatMap(member ->
-                        Mono.fromCallable(()-> tokenProvider.createToken(member.getLoginId(), member.getId()))
-                                .subscribeOn(Schedulers.boundedElastic())
-                                .map(TokenDto::getAccessToken))
                 .onErrorResume(e -> {
                     log.error("회원 가입 에러: {}", e.getMessage());
                     return Mono.error(e);
@@ -77,46 +73,39 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public Mono<MemberInfoResponseDto> loadMemberInfo(String loginId) {
-        Member member = memberRepository.findByLoginId(loginId);
-        if (member == null) return Mono.error(new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
-        return Mono.just(MemberInfoResponseDto.of(member));
+        return memberRepository.findByLoginId(loginId)
+                .switchIfEmpty(Mono.error(new UsernameNotFoundException("사용자를 찾을 수 없습니다.")))
+                .flatMap(member-> Mono.just(MemberInfoResponseDto.of(member)));
     }
 
     @Override
     public Mono<MemberInfoResponseDto> loadMemberInfoByPk(Integer memberPk) {
-        Optional<Member> optionalMember = memberRepository.findById(memberPk);
-        if(optionalMember.isPresent()){
-            Member member=optionalMember.get();
-            return Mono.just(MemberInfoResponseDto.of(member));
-        }
-        else{
-            return Mono.error(new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
-        }
-
+        return memberRepository.findById(memberPk)
+                .switchIfEmpty(Mono.error(new UsernameNotFoundException("사용자를 찾을 수 없습니다.")))
+                .flatMap(member -> Mono.just(MemberInfoResponseDto.of(member)));
     }
 
     @Override
     public Mono<MemberInfoResponseDto> loadMemberInfoByNickname(String nickname) {
-        Member member= memberRepository.findByNickname(nickname);
-        if(member==null)throw new UsernameNotFoundException("사용자를 찾을 수 없습니다.");
-        return Mono.just(MemberInfoResponseDto.of(member));
+        return memberRepository.findByNickname(nickname)
+                .switchIfEmpty(Mono.error(new UsernameNotFoundException("사용자를 찾을 수 없습니다.")))
+                .flatMap(member -> Mono.just(MemberInfoResponseDto.of(member)));
     }
 
     @Override
     @Transactional
     public Mono<Void> modifyMemberInfo(ModifyRequestDto req) {
-        return Mono.defer(() -> {
-                    Member member = memberRepository.findByLoginId(req.loginId());
-                    if (member == null) return Mono.error(new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
-
-                    if(req.nickname().isEmpty())return Mono.error(new RuntimeException("닉네임 빈 문자열"));
+        return memberRepository.findByLoginId(req.loginId())
+                .switchIfEmpty(Mono.error(new UsernameNotFoundException("사용자를 찾을 수 없습니다.")))
+                .flatMap(member -> {
+                    if (req.nickname().isEmpty()) {
+                        return Mono.error(new RuntimeException("닉네임 빈 문자열"));
+                    }
 
                     member.setNickname(req.nickname());
                     member.setProfileImage(req.profileImage());
 
-                    return Mono.fromRunnable(() -> memberRepository.save(member))
-                            .subscribeOn(Schedulers.boundedElastic())
-                            .then();
+                    return memberRepository.save(member);
                 })
                 .then()
                 .onErrorResume(e -> {
@@ -128,15 +117,11 @@ public class MemberServiceImpl implements MemberService {
     @Override
     @Transactional
     public Mono<Void> deleteMember(String loginId) {
-        return Mono.defer(() -> {
-                    Member member = memberRepository.findByLoginId(loginId);
-                    if (member == null) return Mono.error(new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
-                    return Mono.fromRunnable(() -> memberRepository.delete(member))
-                            .subscribeOn(Schedulers.boundedElastic())
-                            .then();
-                })
+        return memberRepository.findByLoginId(loginId)
+                .switchIfEmpty(Mono.error(new UsernameNotFoundException("사용자를 찾을 수 없습니다.")))
+                .flatMap(memberRepository::delete)
                 .then()
-                .onErrorResume(e -> {
+                .onErrorResume(e->{
                     log.error("회원 탈퇴 에러: {}", e.getMessage());
                     return Mono.error(e);
                 });
@@ -144,39 +129,50 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public Mono<String> login(String loginId) {
-        Member member=memberRepository.findByLoginId(loginId);
-        if (member == null) {
-            return Mono.error(new UsernameNotFoundException("회원 가입이 필요합니다."));
-        }
-        return Mono.fromCallable(() -> tokenProvider.createToken(loginId,member.getId()))
-                .map(TokenDto::getAccessToken);
+        return memberRepository.findByLoginId(loginId)
+                .switchIfEmpty(Mono.error(new UsernameNotFoundException("회원 가입이 필요합니다.")))
+                .flatMap(member -> tokenProvider.createToken(loginId, member.getId()))
+                .map(TokenDto::getAccessToken)
+                .onErrorResume(e -> {
+                    log.error("로그인 에러: {}", e.getMessage());
+                    return Mono.error(e);
+                });
     }
 
     @Override
-    public Mono<Void> changeLocation(ChangeLocationRequestDto req,String loginId) {
-        Member member=memberRepository.findByLoginId(loginId);
+    public Mono<Void> changeLocation(ChangeLocationRequestDto req, String loginId) {
+        return memberRepository.findByLoginId(loginId)
+                .switchIfEmpty(Mono.error(new UsernameNotFoundException("사용자를 찾을 수 없습니다.")))
+                .flatMap(member -> {
+                    String[] split = parseAddr(req.address());
+                    Double lat = Double.parseDouble(split[0].trim());
+                    Double lgt = Double.parseDouble(split[1].trim());
 
-        String[] split=parseAddr(req.address());
-        Double lat=Double.parseDouble(split[0].trim());
-        Double lgt=Double.parseDouble(split[1].trim());
+                    member.setLat(lat);
+                    member.setLgt(lgt);
+                    return memberRepository.save(member);
+                })
+                .then()
+                .onErrorResume(e->{
+                    log.error("회원 위치 수정 에러: {}",e.getMessage());
+                    return Mono.error(e);
+                });
 
-        member.setLat(lat);
-        member.setLgt(lgt);
-        memberRepository.save(member);
-        return Mono.empty();
     }
 
-    public boolean checkMemberDuplicate(String loginId) {
-        return memberRepository.existsByLoginId(loginId);
+    public Mono<Boolean> checkMemberDuplicate(String loginId) {
+        return memberRepository.existsByLoginId(loginId)
+                .defaultIfEmpty(false);
     }
 
-    public boolean checkNicknameDuplicate(String nickname) {
-        return memberRepository.existsByNickname(nickname);
+    public Mono<Boolean> checkNicknameDuplicate(String nickname) {
+        return memberRepository.existsByNickname(nickname)
+                .defaultIfEmpty(false);
     }
 
-    public String[] parseAddr(String address){
-        String addr=address.substring(14);
-        addr=addr.substring(0,addr.indexOf("hAcc")).trim();
+    public String[] parseAddr(String address) {
+        String addr = address.substring(14);
+        addr = addr.substring(0, addr.indexOf("hAcc")).trim();
         return addr.split(",");
     }
 }

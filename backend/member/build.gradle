@@ -28,7 +28,7 @@ ext {
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+//	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis-reactive'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
@@ -38,7 +38,7 @@ dependencies {
 	compileOnly 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
-	runtimeOnly 'com.h2database:h2'
+//	runtimeOnly 'com.h2database:h2'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'io.projectreactor:reactor-test'
@@ -74,7 +74,10 @@ dependencies {
 	implementation group: 'io.micrometer', name: 'micrometer-registry-prometheus', version: '1.11.1'
 	implementation group: 'io.micrometer', name: 'micrometer-core', version: '1.11.1'
 
-
+	// r2dbc
+	runtimeOnly group: 'org.mariadb', name: 'r2dbc-mariadb', version: '1.0.3'
+	implementation group: 'io.r2dbc', name: 'r2dbc-pool', version: '1.0.1.RELEASE'
+	implementation 'org.springframework.boot:spring-boot-starter-data-r2dbc'
 }
 
 dependencyManagement {
